@@ -1,10 +1,10 @@
-#' Create New IIDDA Dataset from Classic IIDDA
+#' Create New IIDDA Dataset from Single File
 #'
-#' @param classic_file path to classic IIDDA file
+#' @param classic_file path to single data file
 #' @param new_repo path to new IIDDA repository
 #' @return No return value. Call to produce a new directory structure in a new
-#' IIDDA git repository containing a classic IIDDA dataset as the source.
-classic_to_new_iidda = function(classic_file, new_repo) {
+#' IIDDA git repository containing a single source data file.
+iidda_from_single_file = function(classic_file, new_repo) {
   iidda_extensions = c('csv', 'xls', 'xlsx', 'pdf')
   ext_pat =
     paste0(
