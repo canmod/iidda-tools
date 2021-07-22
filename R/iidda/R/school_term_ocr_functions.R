@@ -6,11 +6,14 @@
 #' a school term data table
 #' @param trim_top number of pixels at the top of the page to trim off
 #' @param trim_bottom number of pixels at the bottom of the page to trim off
+#' @param edge_geometry parameters to pass to the imagemagick edge detector
 #' @export
-school_term_ocr = function(pdf_image, page, trim_top = 570, trim_bottom = 330, edge_geometry = "10x10+20%+50%") {
+school_term_ocr = function(pdf_image, page,
+                           trim_top = 570, trim_bottom = 330,
+                           edge_geometry = "10x10+20%+50%") {
 
-  print("reading pdf and finding table ... ")
-  focal_page = read_and_find_table(pdf_image, page, trim_top, trim_bottom)
+  print("finding the table ... ")
+  focal_page = find_table(pdf_image, page, trim_top, trim_bottom)
 
   print("detecting the tabular grid containing data ... ")
   locations = edge_detect_school_term_grid(focal_page, geometry = edge_geometry)
@@ -29,9 +32,9 @@ school_term_ocr = function(pdf_image, page, trim_top = 570, trim_bottom = 330, e
     mutate(board = ifelse(board != toupper(board), board, NA))
 }
 
-read_and_find_table = function(pdf_image, page,
-                               trim_top = 570,
-                               trim_bottom = 330) {
+find_table = function(pdf_image, page,
+                      trim_top = 570,
+                      trim_bottom = 330) {
   # Read in the table and clean it up a bit
   focal_dims = dim(image_data(pdf_image[page]))
   pdf_image[page] %>%

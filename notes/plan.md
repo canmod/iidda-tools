@@ -4,18 +4,26 @@
 
 * Lasting resource
 * Easy to maintain
+* Easy for users
+* Easy for who
 * Prioritize but plan for big future
 
 ### Roadmap and Priority Order
 
+0. Get the data associated with papers on GitHub and point to GitHub from a simple html page on iidda.mcmaster.ca -- so that people don't get an error when they follow links currently in published papers
 1. Organize original source data 
-2. Make organized original sources available -- with formal data citation guidelines (what are these?)
-3. Tools for extracting and transforming data into more convenient formats (e.g. long-form `csv` with metadata header like `csvy`)
-4. Tools for plotting and analyzing data
-5. Proper normalized database automatically populated from source data
-6. API for pulling from the database or source files
-7. Frontend website/portal with nice clickable interface and access control
-8. Integration with other data portals
+2. Make organized original sources available
+3. With formal data citation guidelines (what are these?)
+4. Tools for extracting and transforming data into more convenient formats (e.g. long-form `csv` with metadata header like `csvy`)
+5. Simple tools for plotting and analyzing data
+6. Proper normalized database automatically populated from source data
+7. API for pulling from the database or source files
+8. Frontend website/portal with nice clickable interface and access control
+9. Integration with other data portals
+
+Connect with ROpenSci -- good source of standards, they are scientists like 'us'
+
+When a paper was published, data went on iidda with a tag to the paper
 
 ### Tentative Choices
 
@@ -24,6 +32,7 @@
 * Use GitHub as repository of source data
   * The data are not _that_ big and so GitHub can handle it (we can always open a second, third, ... repo if it gets too big)
   * People around here understand GitHub and how to use it
+  * Perhaps zenodo/figshare -- and learn more about large academic projects on github so that we can store images
 * Don't use CKAN
   * It is a bit of a beast -- hard to maintain
   * On the other hand it does have lots of great features
@@ -58,6 +67,12 @@ davidearn/iidda/
 
 #### IIDDA Details
 
+Should have the ability to record the logic that lead to the creation of targets
+
+There will be some images that we don't have permission to post but can post the digitized data that we extracted
+
+Parallel repos for public and private
+
 ```
 davidearn/iidda/
     README.md
@@ -86,6 +101,7 @@ davidearn/iidda/
             etc ...
         covid-ontario-to-r/
         phac-vaccination-programme/
+        school-term-stats/
         etc ...
     data-templates/
         digitized-dataset/
@@ -160,6 +176,12 @@ RHPCS
     database
 ```
 
+
+in iidda-tools
+* Snippets to use in conversion and pipeline scripts on IIDDA
+* Packages to do cool things directly from IIDDA -- like compute \beta(t) from school term data
+
+
 ### Pipeline Vision
 
 1. Add/Edit/Delete dataset folder from `davidearn/iidda`, possibly copying and modifying code snipets from `stevencarlislewalker/iidda-tools`
@@ -194,6 +216,12 @@ RHPCS
       * do we have all of the information required/recommended by this schema? -- what is the current state of metadata in iidda?
   * DebateGraph seems to work with http://nanopub.org/wordpress/ ... but as I look more closely this is less about a metadata standard and more about citing small pieces of original research
 
+Check out centralized McMaster research resources/group -- maybe Center for digital scholarship at McMaster?
+
+Is SFU a member?
+
+Talking to Tycho sooner than later after getting github going
+
 ## Thoughts
 
 Adopting standards -- doi? datacite.org?
@@ -219,8 +247,11 @@ Work through some (many?) of the files one-by-one taking notes.
 * One sheet per province
 * Each sheet has the same format but really needs to be parsed
 * Don't know what all of the codes mean (e.g. ndg)
+* Important for understanding disease transmission rates -- probably what they want is to construct \beta(t) from school term data
 
 ### Demography
 
 * Old xls file -- `./demography/ca/bth_ca___1921-65_mn_pr.xls`
 * Excel says I'm in 'Compatibility Mode'
+
+
