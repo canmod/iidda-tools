@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# pull out lines starting with #, indicating a classic iidda header
+grep '^#' $1 | 
+    # remove the comment characters in the output
+    cut -c 2- | 
+    # remove leading whitespace
+    sed 's/^ *//g'
