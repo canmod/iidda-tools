@@ -1,10 +1,12 @@
 #' Create New IIDDA Dataset from Single File
 #'
-#' @param classic_file path to single data file
+#' @param single_file path to single data file
 #' @param new_repo path to new IIDDA repository
+#' @param classic_iidda_source set to TRUE if the single file data source was
+#' obtained from classic IIDDA, and set to FALSE otherwise
 #' @return No return value. Call to produce a new directory structure in a new
 #' IIDDA git repository containing a single source data file.
-iidda_from_single_file = function(classic_file, new_repo) {
+iidda_from_single_file = function(single_file, new_repo, classic_iidda_source) {
   iidda_extensions = c('csv', 'xls', 'xlsx', 'pdf')
   ext_pat =
     paste0(
@@ -14,7 +16,7 @@ iidda_from_single_file = function(classic_file, new_repo) {
       collapse = '')
 
   # e.g. "file.xlsx"
-  base_source_file = basename(classic_file)
+  base_source_file = basename(single_file)
 
   # e.g. file"
   new_data_name = sub(ext_pat, '', base_source_file, ignore.case = TRUE)
@@ -39,15 +41,15 @@ iidda_from_single_file = function(classic_file, new_repo) {
   dir.create(derived_path)
   dir.create(source_path)
 
-  file.copy(classic_file, new_source_file)
+  file.copy(single_file, new_source_file)
 
-  initialize_iidda_readme(new_data_path, new_data_name, base_source_file)
+  initialize_iidda_readme(new_data_path, new_data_name, base_source_file, classic_iidda_source)
 }
 
 #' Make IIDDA Dataset README File
 #'
 initialize_iidda_readme = function(
-  new_data_path, new_data_name, base_source_file) {
+  new_data_path, new_data_name, base_source_file, classic_iidda_source) {
 
   # https://stackoverflow.com/a/55423080/2047693
   sprintf_named <- function(fmt, ...) {
@@ -72,10 +74,16 @@ initialize_iidda_readme = function(
   # strip leading and training slashes
   #dataset_iidda_path = gsub('(^/)(/$)', '', dataset_iidda_path)
 
+  classic_badge = ifelse(
+    classic_iidda_source,
+    "[![Classic IIDDA](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://davidearn.mcmaster.ca/iidda)",
+    "")
+
   template = "
 # %{new_data_name}s
 
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](<Redirect-URL>)
+%{classic_badge}s
 
 # Derived Data
 
@@ -97,7 +105,8 @@ initialize_iidda_readme = function(
   readme_text = sprintf_named(
     template,
     new_data_name = new_data_name,
-    source_url = source_url)
+    source_url = source_url,
+    classic_badge = classic_badge)
   con = file(readme_path, 'w')
   cat(readme_text, file = con)
   close(con)

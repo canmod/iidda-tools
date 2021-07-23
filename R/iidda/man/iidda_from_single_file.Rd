@@ -4,12 +4,15 @@
 \alias{iidda_from_single_file}
 \title{Create New IIDDA Dataset from Single File}
 \usage{
-iidda_from_single_file(classic_file, new_repo)
+iidda_from_single_file(single_file, new_repo, classic_iidda_source)
 }
 \arguments{
-\item{classic_file}{path to single data file}
+\item{single_file}{path to single data file}
 
 \item{new_repo}{path to new IIDDA repository}
+
+\item{classic_iidda_source}{set to TRUE if the single file data source was
+obtained from classic IIDDA, and set to FALSE otherwise}
 }
 \value{
 No return value. Call to produce a new directory structure in a new
