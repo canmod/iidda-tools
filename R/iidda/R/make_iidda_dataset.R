@@ -8,6 +8,7 @@
 #' IIDDA git repository containing a single source data file.
 iidda_from_single_file = function(single_file, new_repo, classic_iidda_source) {
   iidda_extensions = c('csv', 'xls', 'xlsx', 'pdf')
+  # extension pattern from TMB in case it is useful: "\\.[^\\.]*$"
   ext_pat =
     paste0(
       '\\.(',
