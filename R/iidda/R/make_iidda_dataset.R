@@ -2,13 +2,17 @@
 #'
 #' @param single_file path to single data file
 #' @param new_repo path to new IIDDA repository
-#' @param classic_iidda_source set to TRUE if the single file data source was
-#' obtained from classic IIDDA, and set to FALSE otherwise
+#' @param lifecycle character vector giving the lifecycle state
+#' (https://github.com/davidearn/iidda/blob/main/LIFECYCLE.md)
+#' Probably either 'Submission' or 'Classic-IIDDA', but it could in
+#' principle be 'Static', 'Dynamic', or 'Superseded'.
 #' @return No return value. Call to produce a new directory structure in a new
 #' IIDDA git repository containing a single source data file.
-iidda_from_single_file = function(single_file, new_repo, classic_iidda_source) {
+iidda_from_single_file = function(single_file, new_repo, lifecycle) {
   iidda_extensions = c('csv', 'xls', 'xlsx', 'pdf')
   # extension pattern from TMB in case it is useful: "\\.[^\\.]*$"
+  # another extension removal pattern (remove anything after the last dot):
+  #     sub(pattern = "(.*)\\..*$", replacement = "\\1", x)
   ext_pat =
     paste0(
       '\\.(',
@@ -44,27 +48,17 @@ iidda_from_single_file = function(single_file, new_repo, classic_iidda_source) {
 
   file.copy(single_file, new_source_file)
 
-  initialize_iidda_readme(new_data_path, new_data_name, base_source_file, classic_iidda_source)
+  initialize_iidda_readme(new_data_path, new_data_name, base_source_file, lifecycle)
 }
 
 #' Make IIDDA Dataset README File
 #'
 initialize_iidda_readme = function(
-  new_data_path, new_data_name, base_source_file, classic_iidda_source) {
+  new_data_path, new_data_name, base_source_file, lifecycle) {
 
-  # https://stackoverflow.com/a/55423080/2047693
-  sprintf_named <- function(fmt, ...) {
-    args <- list(...)
-    argn <- names(args)
-    if(is.null(argn)) return(sprintf(fmt, ...))
+  stopifnot(lifecycle %in% c('Submission', 'Classic-IIDDA', 'Static', 'Dynamic', 'Superseded'))
 
-    for(i in seq_along(args)) {
-      if(argn[i] == "") next;
-      fmt <- gsub(sprintf("%%{%s}", argn[i]), sprintf("%%%d$", i), fmt, fixed = TRUE)
-    }
 
-    do.call(sprintf, append(args, fmt, 0))
-  }
 
   readme_path = file.path(new_data_path, 'README.md')
   new_data_name = new_data_name
@@ -75,16 +69,10 @@ initialize_iidda_readme = function(
   # strip leading and training slashes
   #dataset_iidda_path = gsub('(^/)(/$)', '', dataset_iidda_path)
 
-  classic_badge = ifelse(
-    classic_iidda_source,
-    "[![Classic IIDDA badge](https://img.shields.io/static/v1.svg?label=Classic&message=IIDDA&color=blue)](https://davidearn.mcmaster.ca/iidda)",
-    "")
-
   template = "
 # %{new_data_name}s
 
-[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](<Redirect-URL>)
-%{classic_badge}s
+[![Classic IIDDA badge](https://img.shields.io/static/v1.svg?label=Lifecycle&message=%{lifecycle}s&color=blue)](https://github.com/davidearn/iidda/blob/main/LIFECYCLE.md)
 
 # Derived Data
 
@@ -107,7 +95,7 @@ initialize_iidda_readme = function(
     template,
     new_data_name = new_data_name,
     source_url = source_url,
-    classic_badge = classic_badge)
+    lifecycle = lifecycle)
   con = file(readme_path, 'w')
   cat(readme_text, file = con)
   close(con)
