@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{extract_between_paren}
 \alias{extract_between_paren}
-\title{Extract Value Between Parentheses}
+\title{Extract Substring Between Parentheses}
 \usage{
 extract_between_paren(x, left = "\\\\(", right = "\\\\)")
 }
@@ -19,5 +19,5 @@ do not have parentheses and the substring between the first matching
 parentheses.
 }
 \description{
-Extract Value Between Parentheses
+Extract Substring Between Parentheses
 }

@@ -6,7 +6,7 @@
 rm_trailing_slash = function(x) sub('/$', '', x)
 
 
-#' Extract Value Between Parentheses
+#' Extract Substring Between Parentheses
 #'
 #' @param x Character vector
 #' @param left Left parenthetical string
@@ -30,6 +30,19 @@ extract_between_paren = function(x, left = "\\(", right = "\\)") {
   )
 }
 
+#' Remove Parenthesized Substring
+#'
+#' @param x Character vector
+#' @param left Left parenthetical string
+#' @param right Right parenthetical string
+#' @return Version of \code{x} with first parenthesized substrings removed
+#' @export
+remove_between_paren = function(x, left = "\\(", right = "\\)") {
+  pattern = sprintf_named(
+    "%{left}s.*%{right}s",
+    left = left, right = right)
+  sub(pattern, '', x)
+}
 
 #' Lightweight Templating
 #'
