@@ -19,3 +19,7 @@ Version of \code{x} with first parenthesized substrings removed
 \description{
 Remove Parenthesized Substring
 }
+\examples{
+x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")
+remove_between_paren(x)
+}

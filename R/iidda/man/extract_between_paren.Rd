@@ -21,3 +21,7 @@ parentheses.
 \description{
 Extract Substring Between Parentheses
 }
+\examples{
+x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")
+extract_between_paren(x)
+}

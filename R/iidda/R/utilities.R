@@ -14,6 +14,9 @@ rm_trailing_slash = function(x) sub('/$', '', x)
 #' @return Character vector with NA's for elements in \code{x} that
 #' do not have parentheses and the substring between the first matching
 #' parentheses.
+#' @examples
+#' x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")
+#' extract_between_paren(x)
 #' @export
 extract_between_paren = function(x, left = "\\(", right = "\\)") {
   pattern = sprintf_named(
@@ -36,6 +39,9 @@ extract_between_paren = function(x, left = "\\(", right = "\\)") {
 #' @param left Left parenthetical string
 #' @param right Right parenthetical string
 #' @return Version of \code{x} with first parenthesized substrings removed
+#' @examples
+#' x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")
+#' remove_between_paren(x)
 #' @export
 remove_between_paren = function(x, left = "\\(", right = "\\)") {
   pattern = sprintf_named(
