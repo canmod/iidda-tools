@@ -7,7 +7,8 @@
 sprintf_named(template, ...)
 }
 \description{
-https://stackoverflow.com/a/55423080/2047693
+Version of the \code{sprintf} base R function that
+adds basic templating -- https://stackoverflow.com/a/55423080/2047693
 }
 \examples{
 sprintf_named("You might like to download datasets from \%{repo}s.", repo = "IIDDA")
