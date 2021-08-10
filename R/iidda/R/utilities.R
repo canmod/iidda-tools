@@ -36,9 +36,10 @@ sprintf_named <- function(template, ...) {
 #' x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")
 #' extract_between_paren(x)
 #' @export
-extract_between_paren = function(x, left = "\\(", right = "\\)") {
+extract_between_paren = function(x, left = "\\(", right = "\\)",
+                                 contents_pattern = '.*') {
   pattern = sprintf_named(
-    "(?<=%{left}s).*(?=%{right}s)",
+    "(?<=%{left}s)%{contents_pattern}s(?=%{right}s)",
     left = left, right = right)
   (x
     %>% regexec(pattern = pattern, perl = TRUE)
@@ -74,3 +75,6 @@ remove_between_paren = function(x, left = "\\(", right = "\\)") {
 #' @return Character vector without trailing slash
 #' @export
 rm_trailing_slash = function(x) sub('/$', '', x)
+
+#' @export
+rm_leading_slash = function(x) sub('^/', '', x)
