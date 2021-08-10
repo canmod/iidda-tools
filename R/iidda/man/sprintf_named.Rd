@@ -4,11 +4,17 @@
 \alias{sprintf_named}
 \title{Lightweight Templating}
 \usage{
-sprintf_named(template, ...)
+sprintf_named(template, ..., .check = TRUE)
+}
+\arguments{
+\item{.check}{Should the consistency between the arguments and the template be checked?}
 }
 \description{
 Version of the \code{sprintf} base R function that
 adds basic templating -- https://stackoverflow.com/a/55423080/2047693
+}
+\details{
+
 }
 \examples{
 sprintf_named("You might like to download datasets from \%{repo}s.", repo = "IIDDA")

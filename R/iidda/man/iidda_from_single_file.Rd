@@ -13,7 +13,7 @@ iidda_from_single_file(single_file, new_repo, lifecycle)
 
 \item{lifecycle}{character vector giving the lifecycle state
 (https://github.com/davidearn/iidda/blob/main/LIFECYCLE.md)
-Probably either 'Submission' or 'Classic-IIDDA', but it could in
+Probably 'Unreleased', but it could in
 principle be 'Static', 'Dynamic', or 'Superseded'.}
 }
 \value{

@@ -2,9 +2,23 @@
 % Please edit documentation in R/utilities.R
 \name{extract_between_paren}
 \alias{extract_between_paren}
+\alias{extract_all_between_paren}
 \title{Extract Substring Between Parentheses}
 \usage{
-extract_between_paren(x, left = "\\\\(", right = "\\\\)")
+extract_between_paren(
+  x,
+  left = "\\\\(",
+  right = "\\\\)",
+  contents_pattern = ".*"
+)
+
+extract_all_between_paren(
+  x,
+  left = "\\\\(",
+  right = "\\\\)",
+  contents_pattern = ".*",
+  max_iters = 100
+)
 }
 \arguments{
 \item{x}{Character vector}
@@ -12,6 +26,10 @@ extract_between_paren(x, left = "\\\\(", right = "\\\\)")
 \item{left}{Left parenthetical string}
 
 \item{right}{Right parenthetical string}
+
+\item{contents_pattern}{Regex pattern for the contents between parentheses}
+
+\item{max_iters}{maximum number of items to return}
 }
 \value{
 Character vector with NA's for elements in \code{x} that
@@ -19,7 +37,10 @@ do not have parentheses and the substring between the first matching
 parentheses.
 }
 \description{
-Extract Substring Between Parentheses
+Note that unless you specify an appropriate \code{contents_pattern}
+\code{extract_between_paren} will not work as you probably expect
+if there are multiple sets of parentheses. You can use exclusion patterns
+to make this work better (e.g. \code{content_pattern = '[^)]*'}).
 }
 \examples{
 x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")

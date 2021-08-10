@@ -4,7 +4,12 @@
 \alias{remove_between_paren}
 \title{Remove Parenthesized Substring}
 \usage{
-remove_between_paren(x, left = "\\\\(", right = "\\\\)")
+remove_between_paren(
+  x,
+  left = "\\\\(",
+  right = "\\\\)",
+  contents_pattern = ".*"
+)
 }
 \arguments{
 \item{x}{Character vector}

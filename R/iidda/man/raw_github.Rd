@@ -4,14 +4,16 @@
 \alias{raw_github}
 \title{Construct an URL to Download Single Files from GitHub}
 \usage{
-raw_github(user, repo, path, token = NULL, branch = "master")
+raw_github(owner, repo, path, user = NULL, token = NULL, branch = "master")
 }
 \arguments{
-\item{user}{User or Organization of the repo}
+\item{owner}{User or Organization of the repo}
 
 \item{repo}{Repository name}
 
 \item{path}{Path to the file that you want to obtain}
+
+\item{user}{Your username (only required for private repos)}
 
 \item{token}{OAuth personal access token (only required for private repos)}
 
