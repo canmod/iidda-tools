@@ -40,7 +40,7 @@ extract_between_paren = function(x, left = "\\(", right = "\\)",
                                  contents_pattern = '.*') {
   pattern = sprintf_named(
     "(?<=%{left}s)%{contents_pattern}s(?=%{right}s)",
-    left = left, right = right)
+    left = left, right = right, contents_pattern = contents_pattern)
   (x
     %>% regexec(pattern = pattern, perl = TRUE)
     %>% regmatches(x = x)
