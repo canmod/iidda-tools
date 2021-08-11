@@ -2,18 +2,37 @@
 #'
 #' Uses the Raw GitHub API
 #'
-#' @param user User or Organization of the repo
+#' @param owner User or Organization of the repo
 #' @param repo Repository name
 #' @param path Path to the file that you want to obtain
+#' @param user Your username (only required for private repos)
 #' @param token OAuth personal access token (only required for private repos)
 #' @param branch Name of the branch (defaults to 'master')
 #' @export
-raw_github = function(user, repo, path, token = NULL, branch = 'master') {
-  paste(
+raw_github = function(owner, repo, path, user = NULL, token = NULL, branch = 'master') {
+  output = paste(
     'raw.githubusercontent.com',
     user, repo, branch, path,
     sep = '/')
-  # TODO: do we need URLencode/URLdecode for robustness??
+  return(output)
+  login_query = ""
+  if(!is.null(user)) {
+    stopifnot(!is.null(token))
+    login_query = sprintf_named(
+      "?login=%{user}s&token=%{token}s",
+      user = user, token = token)
+  }
+
+  #curl -H 'Authorization: token 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' -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/davidearn/data_work/contents/README.md
+
+  #"https://api.github.com/repos/davidearn/data_work/contents/README.md?token=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"
+
+  url_template = paste0(
+    "https://raw.github.com/%{owner}s/%{repo}s/",
+    "%{branch}s/%{path}s%{login_query}s", sep = '')
+  sprintf_named(url_template, owner = owner, repo = repo, branch = branch,
+                path = rm_leading_slash(path),
+                login_query = login_query)
 }
 
 #between_strings = function(s, start, end) {

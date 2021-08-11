@@ -4,7 +4,7 @@
 #' @param new_repo path to new IIDDA repository
 #' @param lifecycle character vector giving the lifecycle state
 #' (https://github.com/davidearn/iidda/blob/main/LIFECYCLE.md)
-#' Probably either 'Submission' or 'Classic-IIDDA', but it could in
+#' Probably 'Unreleased', but it could in
 #' principle be 'Static', 'Dynamic', or 'Superseded'.
 #' @return No return value. Call to produce a new directory structure in a new
 #' IIDDA git repository containing a single source data file.
@@ -56,7 +56,7 @@ iidda_from_single_file = function(single_file, new_repo, lifecycle) {
 initialize_iidda_readme = function(
   new_data_path, new_data_name, base_source_file, lifecycle) {
 
-  stopifnot(lifecycle %in% c('Submission', 'Classic-IIDDA', 'Static', 'Dynamic', 'Superseded'))
+  stopifnot(lifecycle %in% c('Unreleased', 'Static', 'Dynamic', 'Superseded'))
 
 
 
@@ -69,30 +69,8 @@ initialize_iidda_readme = function(
   # strip leading and training slashes
   #dataset_iidda_path = gsub('(^/)(/$)', '', dataset_iidda_path)
 
-  template = "
-# %{new_data_name}s
-
-[![Classic IIDDA badge](https://img.shields.io/static/v1.svg?label=Lifecycle&message=%{lifecycle}s&color=blue)](https://github.com/davidearn/iidda/blob/main/LIFECYCLE.md)
-
-# Derived Data
-
-[How to create Derived Data for an IIDDA dataset](https://github.com/davidearn/iidda/blob/main/CONTRIBUTING.md)
-
-# Source Data
-
-[%{new_data_name}s](%{source_url}s)
-
-# Data Derivation Process
-
-[How to write a data derivation process for an IIDDA dataset](https://github.com/davidearn/iidda/blob/main/CONTRIBUTING.md)
-
-# Data Access Method
-
-[How to describe the method by which _you_ accessed the data source for an IIDDA dataset](https://github.com/davidearn/iidda/blob/main/CONTRIBUTING.md)
-"
-
   readme_text = sprintf_named(
-    template,
+    iidda::readme_classic_iidda,
     new_data_name = new_data_name,
     source_url = source_url,
     lifecycle = lifecycle)
