@@ -75,13 +75,23 @@ sprintf_named <- function(template, ..., .check = TRUE) {
 #' @export
 extract_between_paren = function(x, left = "\\(", right = "\\)",
                                  contents_pattern = '.*') {
+
+  # -------------------
+  # TODO: unfinished
+  content_patterns = function(type) {
+    switch (type,
+            multi = sprintf_named("[^%{left}s]*", left = left)
+    )
+  }
+  # -------------------
+
   pattern = sprintf_named(
     #"(?<=%{left}s)[^][]*(?=%{right}s)"
     "(?<=%{left}s)%{contents_pattern}s(?=%{right}s)",
     left = left, right = right, contents_pattern = contents_pattern,
     .check = FALSE) # checking creates circular call graph
   (x
-    %>% regexec(pattern = pattern, perl = TRUE)
+    %>% regexec(pattern = pattern, perl = getOption('iidda_perl'))
     %>% regmatches(x = x)
     %>% vapply(function(x) {
       stopifnot(is.character(x))
@@ -108,7 +118,7 @@ remove_between_paren = function(x, left = "\\(", right = "\\)",
     left = left, right = right,
     contents_pattern = contents_pattern,
     .check = FALSE) # checking creates circular call-graph
-  sub(pattern, '', x)
+  sub(pattern, '', x, perl = getOption('iidda_perl'))
 }
 
 #' @rdname extract_between_paren
