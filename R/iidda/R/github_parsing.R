@@ -57,9 +57,19 @@ git_path_to_raw_github = function(urls, branch = 'master') {
   mapply(raw_github, users, repos, paths, 'master', USE.NAMES = FALSE)
 }
 
-
+#' @export
 blob_to_raw = function(urls) {
   urls %>%
     gsub(pattern = 'github.com', replacement = 'raw.githubusercontent.com') %>%
     gsub(pattern = '/blob/', replacement = '/')
+}
+
+#' @export
+strip_blob_github = function(urls) {
+  sub("^https://github.com/\\w+/\\w+/blob/(main|master)/", "", urls)
+}
+
+#' @export
+strip_raw_github = function(urls) {
+  stop('todo ... but see strip_blob_github')
 }
