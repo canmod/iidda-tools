@@ -173,3 +173,20 @@ get_unique_col_values = function(l) {
     %>% setNames(names(l[[1]]))
   )
 }
+
+#' @export
+is_empty = function(x) {
+  is.na(x) | is.nan(x) | is.null(x) | (nchar(as.character(x)) == 0L) | (tolower(as.character(x)) == 'na')
+}
+
+#' @export
+drop_empty_cols = function(table) {
+  drop_indices = (table
+                  %>% lapply(is_empty)
+                  %>% sapply(all)
+                  %>% which
+                  %>% `[`
+  )
+  if(length(drop_indices) > 0) table = table[-drop_indices]
+  return(table)
+}
