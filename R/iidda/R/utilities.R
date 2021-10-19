@@ -147,3 +147,29 @@ rm_trailing_slash = function(x) sub('/$', '', x)
 
 #' @export
 rm_leading_slash = function(x) sub('^/', '', x)
+
+
+#' Unique Column Values
+#'
+#' @param l list of data frames with the same column names
+#' @return list of unique values in each column
+#' @export
+get_unique_col_values = function(l) {
+  # check if all sub-lists have the same names
+  col_nms = (l
+             %>% lapply(names)
+             %>% unique
+  )
+  stopifnot(length(col_nms) == 1L)
+  (col_nms[[1]]
+    %>% lapply(function(nm) {
+      (l
+       %>% lapply('[[', nm)
+       %>% unlist
+       %>% unique
+       %>% sort
+      )
+    })
+    %>% setNames(names(l[[1]]))
+  )
+}
