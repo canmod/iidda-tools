@@ -224,9 +224,8 @@ get_tracking_metadata = function(product, tracking_path) {
 }
 
 #' @export
-get_date_seq_frequency = function(metadata) {
-  frequency = metadata$value[metadata$name == "Frequency"]
-  switch(frequency,
+freq_to_by = function(freq) {
+  switch(freq,
          weekly = "7 days",
          `4-weekly` = "28 days",
          monthly = "1 month",
@@ -234,4 +233,12 @@ get_date_seq_frequency = function(metadata) {
               ', given in the metadata is not currently an option'))
 }
 
-#get_freq_days = function(metadata)
+#' @export
+freq_to_days = function(freq) {
+  switch(freq,
+         weekly = "7 days",
+         `4-weekly` = "28 days",
+         monthly = stop('cannot specify monthly patterns in days'),
+         stop('the frequency, ', frequency,
+              ', given in the metadata is not currently an option'))
+}
