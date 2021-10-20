@@ -236,8 +236,8 @@ freq_to_by = function(freq) {
 #' @export
 freq_to_days = function(freq) {
   switch(freq,
-         weekly = "7 days",
-         `4-weekly` = "28 days",
+         weekly = 7,
+         `4-weekly` = 28,
          monthly = stop('cannot specify monthly patterns in days'),
          stop('the frequency, ', frequency,
               ', given in the metadata is not currently an option'))
