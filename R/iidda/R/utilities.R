@@ -208,7 +208,7 @@ get_tracking_metadata = function(product, tracking_path) {
    %>% read_tracking_tables
    %>% `[[`("Transformations")
    %>% filter(Product == product)
-   %>% inner_join(d$Originals, Product = product)
+   %>% inner_join(d$Originals, by = "Product")
    %>% inner_join(d$Sources, by = "Source", suffix = c('Original ', 'Source '))
    %>% pivot_longer(c(-Source))
   )
