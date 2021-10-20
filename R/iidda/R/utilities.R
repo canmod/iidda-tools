@@ -205,14 +205,22 @@ read_tracking_tables = function(path) {
 #' @export
 get_tracking_metadata = function(product, tracking_path) {
   d = read_tracking_tables(tracking_path)
-  meta_data = (d$Transformations
-   %>% filter(Product == product)
-   %>% inner_join(d$Originals, by = "Product")
-   %>% inner_join(d$Sources, by = "Source", suffix = c('Original ', 'Source '))
-   %>% pivot_longer(c(-Source))
+  metadata = list(
+    Product = (d$Transformations
+               %>% filter(Product == product)
+    ),
+    Source = (d$Originals
+              %>% filter(Product == product)
+              %>% semi_join(x = d$Sources, by = "Source")
+    ),
+    Originals = (d$Originals
+                 %>% filter(Product == product )
+                 %>% mutate(Original = basename(`Path to data (original)`))
+                 %>% relocate(Original, .before = Source)
+    )
   )
-  if(nrow(meta_data) == 0L) stop("could not find metadata for this product")
-  meta_data
+  metadata$Originals = split(metadata$Originals, metadata$Originals$Original)
+  metadata
 }
 
 #' @export
@@ -225,3 +233,5 @@ get_date_seq_frequency = function(metadata) {
          stop('the frequency, ', frequency,
               ', given in the metadata is not currently an option'))
 }
+
+#get_freq_days = function(metadata)
