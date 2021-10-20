@@ -201,6 +201,7 @@ read_tracking_tables = function(path) {
   )
 }
 
+#' @importFrom tidyr pivot_longer
 #' @export
 get_tracking_metadata = function(product, tracking_path) {
   meta_data = (tracking_path
