@@ -204,12 +204,11 @@ read_tracking_tables = function(path) {
 #' @importFrom tidyr pivot_longer
 #' @export
 get_tracking_metadata = function(product, tracking_path) {
-  meta_data = (tracking_path
-   %>% read_tracking_tables
-   %>% `[[`("Transformations")
+  d = read_tracking_tables(tracking_path)
+  meta_data = (d$Transformations
    %>% filter(Product == product)
-   %>% inner_join(Originals, by = "Product")
-   %>% inner_join(Sources, by = "Source", suffix = c('Original ', 'Source '))
+   %>% inner_join(d$Originals, by = "Product")
+   %>% inner_join(d$Sources, by = "Source", suffix = c('Original ', 'Source '))
    %>% pivot_longer(c(-Source))
   )
   if(nrow(meta_data) == 0L) stop("could not find metadata for this product")
