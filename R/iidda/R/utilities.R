@@ -190,3 +190,27 @@ drop_empty_cols = function(table) {
   if(length(drop_indices) > 0) table = table[-drop_indices]
   return(table)
 }
+
+#' @export
+read_tracking_tables = function(path) {
+  paths = file.path('tracking', list.files('tracking', pattern = '.csv'))
+  (paths
+    %>% lapply(read.csv, check.names = FALSE)
+    %>% setNames(tools::file_path_sans_ext(basename(paths)))
+    %>% lapply(drop_empty_cols)
+  )
+}
+
+#' @export
+get_tracking_metadata = function(product, tracking_path) {
+
+  d = read_tracking_tables(tracking_path)
+  get_metadata = function(product) {
+    (d$Transformations
+     %>% filter(Product == product)
+     %>% inner_join(d$Originals, Product = product)
+     %>% inner_join(d$Sources, by = "Source", suffix = c('Original ', 'Source '))
+     %>% pivot_longer(c(-Source))
+    )
+  }
+}
