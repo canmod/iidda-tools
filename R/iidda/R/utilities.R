@@ -214,3 +214,14 @@ get_tracking_metadata = function(product, tracking_path) {
   if(nrow(meta_data) == 0L) stop("could not find metadata for this product")
   meta_data
 }
+
+#' @export
+get_date_seq_frequency = function(metadata) {
+  frequency = metadata$value[metadata$name == "Frequency"]
+  switch(frequency,
+         weekly = "7 days",
+         `4-weekly` = "28 days",
+         monthly = "1 month",
+         stop('the frequency, ', frequency,
+              ', given in the metadata is not currently an option'))
+}
