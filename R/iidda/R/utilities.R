@@ -270,6 +270,7 @@ package_result = function(cleaned_sheets, sheet_dates, metadata) {
     ),
     metadata
   )
-  names(output) = paste0(Product, c('_reportweek', '_metadata'))
+  names(output) = paste0(metadata$Product$Product,
+                         c('_reportweek', '_metadata'))
   output
 }
