@@ -242,3 +242,34 @@ freq_to_days = function(freq) {
          stop('the frequency, ', frequency,
               ', given in the metadata is not currently an option'))
 }
+
+#' @export
+save_result = function(result, metadata) {
+  output_file = strip_blob_github(metadata$Product$`Path to tidy data`)
+  save(list = names(result), file = output_file, envir = list2env(result))
+}
+
+#' @export
+read_digitized_data = function(metadata) {
+  (metadata$Product$`Path to data (digitized)`
+   %>% strip_blob_github
+   %>% xlsx_cells
+  )
+}
+
+#' @export
+package_result = function(cleaned_sheets, sheet_dates, metadata) {
+  output = list(
+    (cleaned_sheets
+     %>% bind_rows(.id = "sheet")
+     %>% left_join(sheet_dates, by ="sheet")
+     %>% select(-sheet)
+     %>% relocate(period_end_date, .after = Province)
+     %>% relocate(period_start_date, .after = Province)
+     %>% as.data.frame
+    ),
+    metadata
+  )
+  names(output) = paste0(Product, c('_reportweek', '_metadata'))
+  output
+}
