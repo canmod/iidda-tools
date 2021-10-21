@@ -250,6 +250,17 @@ save_result = function(result, metadata) {
 }
 
 #' @export
+test_result = function(result, metadata) {
+  output_file = strip_blob_github(metadata$Product$`Path to tidy data`)
+  e = new.env()
+  load(output_file, envir = e)
+  i = grep("_report_week$", names(result))
+  grep("_report_week$", names(result))
+  previous_result = as.list(e)
+  compare_columns(result[[i]], previous_result[[i]])
+}
+
+#' @export
 read_digitized_data = function(metadata) {
   (metadata$Product$`Path to data (digitized)`
    %>% strip_blob_github
