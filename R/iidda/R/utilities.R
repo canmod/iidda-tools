@@ -254,10 +254,9 @@ test_result = function(result, metadata) {
   output_file = strip_blob_github(metadata$Product$`Path to tidy data`)
   e = new.env()
   load(output_file, envir = e)
-  i = grep("_reportweek$", names(result))
-  grep("_reportweek$", names(result))
   previous_result = as.list(e)
-  compare_columns(result[[i]], previous_result[[i]])
+  compare_columns(result[[grep("_reportweek$", names(result))]],
+                  previous_result[[grep("_reportweek$", names(previous_result))]])
 }
 
 #' @export
