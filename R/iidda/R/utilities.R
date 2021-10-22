@@ -292,6 +292,7 @@ package_result = function(cleaned_sheets, sheet_dates, metadata) {
   output
 }
 
+#' @export
 list_extract = function(x, pattern, ...) {
   x[grepl(pattern, names(x), ...)]
 }
