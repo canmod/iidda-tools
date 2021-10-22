@@ -217,9 +217,16 @@ get_tracking_metadata = function(product, tracking_path) {
                  %>% filter(Product == product )
                  %>% mutate(Original = basename(`Path to data (original)`))
                  %>% relocate(Original, .before = Source)
+    ),
+    Tables = (d$Tables
+      %>% filter(Product == product)
+      %>% select(Table)
+      %>% right_join(d$Schema, by = "Table")
+      %>% left_join(d$Columns, by = "Column")
     )
   )
   metadata$Originals = split(metadata$Originals, metadata$Originals$Original)
+  metadata$Tables = split(metadata$Tables, metadata$Tables$Table)
   metadata
 }
 
@@ -283,4 +290,8 @@ package_result = function(cleaned_sheets, sheet_dates, metadata) {
   names(output) = paste0(metadata$Product$Product,
                          c('_reportweek', '_metadata'))
   output
+}
+
+list_extract = function(x, pattern, ...) {
+  x[grepl(pattern, names(x), ...)]
 }
