@@ -202,6 +202,8 @@ read_tracking_tables = function(path) {
 }
 
 #' @importFrom tidyr pivot_longer
+#' @importFrom dplyr filter mutate relocate select semi_join left_join right_join
+#' @importFrom tibble column_to_rownames
 #' @export
 get_tracking_metadata = function(product, tracking_path) {
   d = read_tracking_tables(tracking_path)
@@ -220,13 +222,22 @@ get_tracking_metadata = function(product, tracking_path) {
     ),
     Tables = (d$Tables
       %>% filter(Product == product)
+      %>% remove_rownames
+      %>% column_to_rownames("Table")
+    ),
+    Columns = (d$Tables
+      %>% filter(Product == product)
       %>% select(Table)
       %>% right_join(d$Schema, by = "Table")
       %>% left_join(d$Columns, by = "Column")
     )
   )
+  metadata$Columns = (metadata$Columns
+    %>% split(metadata$Columns$Table)
+    %>% lapply(remove_rownames)
+    %>% lapply(column_to_rownames, var = "Column")
+  )
   metadata$Originals = split(metadata$Originals, metadata$Originals$Original)
-  metadata$Tables = split(metadata$Tables, metadata$Tables$Table)
   metadata
 }
 
@@ -250,6 +261,21 @@ freq_to_days = function(freq) {
               ', given in the metadata is not currently an option'))
 }
 
+#' Save Results of a Data Prep Script
+#'
+#' Save the resulting objects of a data prep script into an R data file.
+#' The names of the resulting objects are given by the names of the
+#' result list.
+#'
+#' @param result Named list of data resulting from data prep scripts
+#' @param metadata Nested named list describing metadata for the result.
+#' It must have a `$Product[["Path to tidy data"]]` component, which is
+#' a GitHub URL describing the ultimate location of the R data file.
+#' The GitHub component of the URL will be removed to produce
+#' a path that will correspond to the location within a cloned git
+#' repository -- note that the path is relative to the top-level of
+#' the cloned repository.
+#'
 #' @export
 save_result = function(result, metadata) {
   output_file = strip_blob_github(metadata$Product$`Path to tidy data`)
@@ -262,8 +288,17 @@ test_result = function(result, metadata) {
   e = new.env()
   load(output_file, envir = e)
   previous_result = as.list(e)
-  compare_columns(result[[grep("_reportweek$", names(result))]],
-                  previous_result[[grep("_reportweek$", names(previous_result))]])
+  if(length(previous_result) != length(result)) {
+    stop('number of resulting objects has changed')
+  }
+  result = result[names(metadata$Tables)]
+  previous_result = previous_result[names(metadata$Tables)]
+  mapply(compare_columns, result, previous_result)
+}
+
+#' @export
+schema_check = function(table, metadata) {
+  stop('work in progress')
 }
 
 #' @export
