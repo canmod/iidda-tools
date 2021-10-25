@@ -203,7 +203,7 @@ read_tracking_tables = function(path) {
 
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr filter mutate relocate select semi_join left_join right_join
-#' @importFrom tibble column_to_rownames
+#' @importFrom tibble column_to_rownames remove_rownames
 #' @export
 get_tracking_metadata = function(product, tracking_path) {
   d = read_tracking_tables(tracking_path)
