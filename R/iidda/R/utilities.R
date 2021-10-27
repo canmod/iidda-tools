@@ -138,6 +138,24 @@ extract_all_between_paren = function(x, left = "\\(", right = "\\)",
   return(output[!is.na(output)])
 }
 
+#' Vectorized String Substitution
+#'
+#' @param pattern,replacement,x first three arguments to \code{sub},
+#' but the first is allowed to be a vector
+#' @param ... additional arguments to pass on to \code{sub}
+#' @export
+vsub = function(pattern, replacement, x, ...) {
+  f = Vectorize(sub, vectorize.args = 'pattern')
+  stopifnot(length(pattern) == length(x))
+  non_empty = !is_empty(pattern)
+  if(length(replacement) != 1L) {
+    stopifnot(length(replacement) == length(pattern))
+    replacement = replacement[non_empty]
+  }
+  x[non_empty] = f(pattern[non_empty], replacement, x[non_empty], ...)
+  x
+}
+
 #' Remove Trailing Slash
 #'
 #' @param x Character vector with paths
@@ -155,12 +173,16 @@ rm_leading_slash = function(x) sub('^/', '', x)
 #' @return list of unique values in each column
 #' @export
 get_unique_col_values = function(l) {
-  # check if all sub-lists have the same names
-  col_nms = (l
-             %>% lapply(names)
-             %>% unique
-  )
-  stopifnot(length(col_nms) == 1L)
+  if(is.recursive(l)) {
+    # check if all sub-lists have the same names
+    col_nms = (l
+               %>% lapply(names)
+               %>% unique
+    )
+    stopifnot(length(col_nms) == 1L)
+  } else {
+    l = list(l)
+  }
   (col_nms[[1]]
     %>% lapply(function(nm) {
       (l
@@ -192,12 +214,22 @@ drop_empty_cols = function(table) {
 }
 
 #' @export
+drop_empty_rows = function(table) {
+  (table
+   %>% rowwise
+   %>% filter(!all(is_empty(c_across())))
+   %>% ungroup
+  )
+}
+
+#' @export
 read_tracking_tables = function(path) {
   paths = file.path('tracking', list.files('tracking', pattern = '.csv'))
   (paths
     %>% lapply(read.csv, check.names = FALSE)
     %>% setNames(tools::file_path_sans_ext(basename(paths)))
     %>% lapply(drop_empty_cols)
+    %>% lapply(drop_empty_rows)
   )
 }
 
@@ -239,6 +271,31 @@ get_tracking_metadata = function(product, tracking_path) {
   )
   metadata$Originals = split(metadata$Originals, metadata$Originals$Original)
   metadata
+}
+
+#' Add Metadata
+#'
+#' Add title and description metadata to a table and its columns.
+#'
+#' @param table dataframe (or dataframe-like object)
+#' @param table_metadata named list (or list-like object) such that
+#' \code{table_metadata$Title} and \code{table_metadata$Description}
+#' are strings containing the title and description of the table
+#' @param column_metadata dataframe with rownames equal to the columns
+#' in \code{table}, and \code{Title} and \code{Description} columns
+#' giving the title and description of each column in \code{table}
+#' @return version of \code{table} with added metadata \code{attributes}
+#' @export
+add_metadata = function(table, table_metadata, column_metadata, product) {
+  table = as.data.frame(table)
+  table_metadata = as.list(table_metadata)
+  attr(table, 'title') = table_metadata$Title
+  attr(table, 'description') = table_metadata$Description
+  for(column in rownames(column_metadata)) {
+    attr(table[[column]], 'label') = column_metadata[column, "Title"]
+    attr(table[[column]], 'description') = column_metadata[column, "Description"]
+  }
+  table
 }
 
 #' @export
@@ -330,4 +387,13 @@ package_result = function(cleaned_sheets, sheet_dates, metadata) {
 #' @export
 list_extract = function(x, pattern, ...) {
   x[grepl(pattern, names(x), ...)]
+}
+
+#' @export
+open_locally = function(blob_github_url, command = 'open', args = character()) {
+  (blob_github_url
+   %>% strip_blob_github
+   %>% c(args)
+   %>% system2(command = command)
+  )
 }
