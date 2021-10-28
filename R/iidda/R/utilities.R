@@ -340,7 +340,14 @@ save_result = function(result, metadata) {
 }
 
 #' @export
-test_result = function(result, metadata) {
+test_result = function(result) {
+  md_nms = grep('_metadata$', names(result), value = TRUE)
+  stopifnot(length(md_nms) == 1L)
+  metadata = result[[md_nms]]
+  table_nms = grep('_metadata$', names(result), value = TRUE, invert = TRUE)
+  stopifnot(length(table_nms) > 0L)
+  stopifnot(is.recursive(metadata))
+  stopifnot(is.character(metadata$Product$`Path to tidy data`))
   output_file = strip_blob_github(metadata$Product$`Path to tidy data`)
   e = new.env()
   load(output_file, envir = e)
@@ -348,8 +355,12 @@ test_result = function(result, metadata) {
   if(length(previous_result) != length(result)) {
     stop('number of resulting objects has changed')
   }
-  result = result[names(metadata$Tables)]
-  previous_result = previous_result[names(metadata$Tables)]
+
+  if(!isTRUE(all.equal(result[md_nms], previous_result[md_nms]))) {
+    stop('metadata have changed in some way')
+  }
+  result = result[table_nms]
+  previous_result = previous_result[table_nms]
   mapply(compare_columns, result, previous_result)
 }
 
@@ -389,11 +400,26 @@ list_extract = function(x, pattern, ...) {
   x[grepl(pattern, names(x), ...)]
 }
 
+# ------------------------------------------------
+# copied from MacPan TMB branch
+
+#' Paste with Underscore Separator
+#' @export
+`%_%` = function(x, y) paste(x, y, sep = "_")
+
+#' Paste with Blank Separator
+#'
+#' Like Python string `+`
+#' @export
+`%+%` = function(x, y) paste(x, y, sep = "")
+
+# ------------------------------------------------
+
 #' @export
 open_locally = function(blob_github_url, command = 'open', args = character()) {
   (blob_github_url
    %>% strip_blob_github
    %>% c(args)
-   %>% system2(command = command)
+   %>% system2(command = command, stdout = FALSE)
   )
 }
