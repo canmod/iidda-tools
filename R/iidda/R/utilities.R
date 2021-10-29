@@ -238,38 +238,39 @@ read_tracking_tables = function(path) {
 #' @importFrom tibble column_to_rownames remove_rownames
 #' @export
 get_tracking_metadata = function(product, tracking_path) {
+  current_product = product
   d = read_tracking_tables(tracking_path)
   metadata = list(
     Product = (d$Transformations
-               %>% filter(Product == product)
+               %>% filter(product == current_product)
     ),
     Source = (d$Originals
-              %>% filter(Product == product)
-              %>% semi_join(x = d$Sources, by = "Source")
+              %>% filter(product == current_product)
+              %>% semi_join(x = d$Sources, by = "source")
     ),
     Originals = (d$Originals
-                 %>% filter(Product == product )
-                 %>% mutate(Original = basename(`Path to data (original)`))
-                 %>% relocate(Original, .before = Source)
+                 %>% filter(product == current_product )
+                 %>% mutate(original = basename(path_original_data))
+                 %>% relocate(original, .before = source)
     ),
     Tables = (d$Tables
-      %>% filter(Product == product)
+      %>% filter(product == current_product)
       %>% remove_rownames
-      %>% column_to_rownames("Table")
+      %>% column_to_rownames("table")
     ),
     Columns = (d$Tables
-      %>% filter(Product == product)
-      %>% select(Table)
-      %>% right_join(d$Schema, by = "Table")
-      %>% left_join(d$Columns, by = "Column")
+      %>% filter(product == current_product)
+      %>% select(table)
+      %>% right_join(d$Schema, by = "table")
+      %>% left_join(d$Columns, by = "column")
     )
   )
   metadata$Columns = (metadata$Columns
-    %>% split(metadata$Columns$Table)
+    %>% split(metadata$Columns$table)
     %>% lapply(remove_rownames)
-    %>% lapply(column_to_rownames, var = "Column")
+    %>% lapply(column_to_rownames, var = "column")
   )
-  metadata$Originals = split(metadata$Originals, metadata$Originals$Original)
+  metadata$Originals = split(metadata$Originals, metadata$Originals$original)
   metadata
 }
 
