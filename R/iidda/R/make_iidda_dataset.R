@@ -8,6 +8,7 @@
 #' principle be 'Static', 'Dynamic', or 'Superseded'.
 #' @return No return value. Call to produce a new directory structure in a new
 #' IIDDA git repository containing a single source data file.
+#' @export
 iidda_from_single_file = function(single_file, new_repo, lifecycle) {
   iidda_extensions = c('csv', 'xls', 'xlsx', 'pdf')
   # extension pattern from TMB in case it is useful: "\\.[^\\.]*$"

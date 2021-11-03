@@ -224,7 +224,7 @@ drop_empty_rows = function(table) {
 
 #' @export
 read_tracking_tables = function(path) {
-  paths = file.path('tracking', list.files('tracking', pattern = '.csv'))
+  paths = file.path(path, list.files(path, pattern = '.csv'))
   (paths
     %>% lapply(read.csv, check.names = FALSE)
     %>% setNames(tools::file_path_sans_ext(basename(paths)))
@@ -372,7 +372,7 @@ schema_check = function(table, metadata) {
 
 #' @export
 read_digitized_data = function(metadata) {
-  (metadata$Product$`Path to data (digitized)`
+  (metadata$Product$path_digitized_data
    %>% strip_blob_github
    %>% xlsx_cells
   )
