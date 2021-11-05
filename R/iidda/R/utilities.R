@@ -243,7 +243,7 @@ freq_to_days = function(freq) {
               ', given in the metadata is not currently an option'))
 }
 
-#' @importFrom jsonlite write_json
+#' @importFrom jsonlite write_json read_json
 #' @export
 write_tidy_data = function(tidy_data, metadata) {
   product = metadata$Product$product
@@ -254,6 +254,7 @@ write_tidy_data = function(tidy_data, metadata) {
   tidy_file = file.path(tidy_dir, product %.% 'csv')
   meta_file = file.path(tidy_dir, product %.% 'json')
   dict_file = file.path(tidy_dir, product %_% 'data_dictionary' %.% 'json')
+  dial_file = file.path(tidy_dir, product %_% 'csv_dialect' %.% 'json')
 
   write.table(tidy_data, tidy_file,
                             # CSV Dialect Translation
@@ -272,12 +273,26 @@ write_tidy_data = function(tidy_data, metadata) {
                        %>% blob_to_raw
                        %>% read_json
   )
-  (global_dictionary
+  .trash = (global_dictionary
     %>% lapply(getElement, 'name')
     %>% sapply(`%in%`, rownames(metadata$Columns[[metadata$Product$product]]))
     %>% (function(i) {global_dictionary[i]})
     %>% write_json(dict_file, pretty = TRUE, auto_unbox = TRUE)
   )
+  .trash = list(
+    dialect = list(
+      csvddfVersion =  "1.2",
+      delimiter = ",",
+      lineTerminator = "\r\n",
+      quoteChar = "\"",
+      doubleQuote = "false",
+      nullSequence = "",
+      skipInitialSpace = "false",
+      header =  'true',
+      commentChar: "#",
+      caseSensitiveHeader: "true"
+    )
+  ) %>% write_json(dial_file, pretty = TRUE, auto_unbox = TRUE)
 }
 
 #' Save Results of a Data Prep Script
