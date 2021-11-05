@@ -87,7 +87,7 @@ make_data_cite = function(metadata, file) {
   data_cite = list(
     # TODO: move this identifier down to alternateIdentifiers
     identifier = list(
-      identifier = metadata$Product$product,
+      identifier = metadata$Product$path_tidy_data,
       identifierType = 'iidda_product'
     ),
     creators = list(
