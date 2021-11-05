@@ -243,15 +243,17 @@ freq_to_days = function(freq) {
               ', given in the metadata is not currently an option'))
 }
 
+#' @importFrom jsonlite write_json
 #' @export
-write_tidy_data = function(tidy_data, metadata, file) {
+write_tidy_data = function(tidy_data, metadata) {
   product = metadata$Product$product
 
   tidy_dir = strip_blob_github(metadata$Product$path_tidy_data)
   if(!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
 
   tidy_file = file.path(tidy_dir, product %.% 'csv')
-  metadata_file = file.path(tidy_dir, product %.% 'json')
+  meta_file = file.path(tidy_dir, product %.% 'json')
+  dict_file = file.path(tidy_dir, product %_% 'data_dictionary' %.% 'json')
 
   write.table(tidy_data, tidy_file,
                             # CSV Dialect Translation
@@ -263,8 +265,19 @@ write_tidy_data = function(tidy_data, metadata, file) {
                             # skipInitialSpace=false
                             # commentChar='#'
                             # caseSensitiveHeader=true
+    row.names = FALSE
   )
-  make_data_cite(metadata, metadata_file)
+  make_data_cite(metadata, meta_file)
+  global_dictionary = ('https://github.com/canmod/iidda/blob/main/global-metadata/data-dictionary.json'
+                       %>% blob_to_raw
+                       %>% read_json
+  )
+  (global_dictionary
+    %>% lapply(getElement, 'name')
+    %>% sapply(`%in%`, rownames(metadata$Columns[[metadata$Product$product]]))
+    %>% (function(i) {global_dictionary[i]})
+    %>% write_json(dict_file, pretty = TRUE, auto_unbox = TRUE)
+  )
 }
 
 #' Save Results of a Data Prep Script
