@@ -1,19 +1,20 @@
 #' Lightweight Templating
 #'
-#' Version of the \code{sprintf} base R function that
-#' adds basic templating -- https://stackoverflow.com/a/55423080/2047693
+#' Version of the \code{sprintf} base R function that adds basic templating -- \url{https://stackoverflow.com/a/55423080/2047693}.
 #'
-#' Because this is based on the sprintf function, use \code{%%} when you
-#' would like a single \code{%} to appear in the template. However, when
-#' supplying a single \code{%} to a named argument will result in a single
-#' \code{%} in the output.
+#' @details
+#'
+#' Because this is based on the sprintf function, use \code{\%\%} when you
+#' would like a single \code{\%} to appear in the template. However, when
+#' supplying a single \code{\%} to a named argument will result in a single
+#' \code{\%} in the output.
 #'
 #' You can use syntactically invalid names for arguments by enclosing them
 #' in backticks in the argument list, but not in the template.
 #'
-#' @param template
+#' @param template template
 #' @param ... Named arguments with strings that fill template variables
-#' of the same name between \code{%\{} and \code{\}s}
+#' of the same name between \%\{ and \}s
 #' @param .check Should the consistency between the arguments and the template be checked?
 #' @examples
 #' sprintf_named("You might like to download datasets from %{repo}s.", repo = "IIDDA")
@@ -242,6 +243,30 @@ freq_to_days = function(freq) {
               ', given in the metadata is not currently an option'))
 }
 
+#' @export
+write_tidy_data = function(tidy_data, metadata, file) {
+  product = metadata$Product$product
+
+  tidy_dir = strip_blob_github(metadata$Product$path_tidy_data)
+  if(!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
+
+  tidy_file = file.path(tidy_dir, product %.% 'csv')
+  metadata_file = file.path(tidy_dir, product %.% 'json')
+
+  write.table(tidy_data, tidy_file,
+                            # CSV Dialect Translation
+    sep = ',',              # delimiter
+    eol = '\r\n',           # lineTerminator
+    qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
+    na = "",                # nullSequence=""
+    col.names = TRUE,       # header=true
+                            # skipInitialSpace=false
+                            # commentChar='#'
+                            # caseSensitiveHeader=true
+  )
+  make_data_cite(metadata, metadata_file)
+}
+
 #' Save Results of a Data Prep Script
 #'
 #' Save the resulting objects of a data prep script into an R data file.
@@ -327,15 +352,36 @@ list_extract = function(x, pattern, ...) {
 # ------------------------------------------------
 # copied from MacPan TMB branch
 
-#' Paste with Underscore Separator
+#' Paste Operators
+#'
+#' Syntactic sugar for common string pasting operations.
+#'
+#' \describe{
+#'   \item{\code{\%+\%}}{Paste with a blank separator, like python string concatenation}
+#'   \item{\code{\%_\%}}{Paste with underscore separator}
+#'   \item{\code{\%.\%}}{Paste with dot separator -- useful for adding file extensions}
+#' }
+#'
+#' @param x character vector
+#' @param y character vector
+#' @return \code{x} concatenated with \code{y}
+#' @examples
+#' 'google' %.% 'com'
+#' 'snake' %_% 'case'
+#' @name paste_operators
+NULL
+
+#' @rdname paste_operators
 #' @export
 `%_%` = function(x, y) paste(x, y, sep = "_")
 
-#' Paste with Blank Separator
-#'
-#' Like Python string `+`
+#' @rdname paste_operators
 #' @export
 `%+%` = function(x, y) paste(x, y, sep = "")
+
+#' @rdname paste_operators
+#' @export
+`%.%` = function(x, y) paste(x, y, sep = '.')
 
 # ------------------------------------------------
 

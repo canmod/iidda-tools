@@ -81,6 +81,7 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
 #'
 #' @param metadata Output of get_tracking_metadata
 #' @param file Path to metadata file
+#' @importFrom jsonlite write_json
 #' @export
 make_data_cite = function(metadata, file) {
   # TODO: remove much of the hard-coding below

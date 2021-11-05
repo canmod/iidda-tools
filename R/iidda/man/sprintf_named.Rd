@@ -7,14 +7,24 @@
 sprintf_named(template, ..., .check = TRUE)
 }
 \arguments{
+\item{template}{template}
+
+\item{...}{Named arguments with strings that fill template variables
+of the same name between \%\{ and \}s}
+
 \item{.check}{Should the consistency between the arguments and the template be checked?}
 }
 \description{
-Version of the \code{sprintf} base R function that
-adds basic templating -- https://stackoverflow.com/a/55423080/2047693
+Version of the \code{sprintf} base R function that adds basic templating -- \url{https://stackoverflow.com/a/55423080/2047693}.
 }
 \details{
+Because this is based on the sprintf function, use \code{\%\%} when you
+would like a single \code{\%} to appear in the template. However, when
+supplying a single \code{\%} to a named argument will result in a single
+\code{\%} in the output.
 
+You can use syntactically invalid names for arguments by enclosing them
+in backticks in the argument list, but not in the template.
 }
 \examples{
 sprintf_named("You might like to download datasets from \%{repo}s.", repo = "IIDDA")
