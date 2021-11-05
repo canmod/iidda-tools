@@ -289,8 +289,8 @@ write_tidy_data = function(tidy_data, metadata) {
       nullSequence = "",
       skipInitialSpace = "false",
       header =  'true',
-      commentChar: "#",
-      caseSensitiveHeader: "true"
+      commentChar = "#",
+      caseSensitiveHeader = "true"
     )
   ) %>% write_json(dial_file, pretty = TRUE, auto_unbox = TRUE)
 }
