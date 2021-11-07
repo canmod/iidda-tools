@@ -84,6 +84,7 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
 #' @importFrom jsonlite write_json
 #' @export
 make_data_cite = function(metadata, file) {
+
   # TODO: remove much of the hard-coding below
   data_cite = list(
     # TODO: move this identifier down to alternateIdentifiers
@@ -108,6 +109,10 @@ make_data_cite = function(metadata, file) {
     subjects = NULL,
     contributors = NULL,
     language = 'en',
+    resourceType = list(
+      resourceTypeGeneral = "Dataset",
+      resourceType = "Communicable Disease Incidence"
+    ),
     alternateIdentifiers = NULL,
     relatedIdentifiers = NULL,
     sizes = NULL,  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
@@ -124,11 +129,13 @@ make_data_cite = function(metadata, file) {
       list(
         descriptionType = "Abstract",
         lang = "en",
-        decription = metadata$Tables$description
+        description = metadata$Tables$description
       )
     ),
     fundingReferences = NULL,
-    geoLocations = NULL # TODO: automatically populate with place names
+    geoLocations = list(
+      geoLocationPlace = metadata$Source$location
+    )
   )
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
 }
