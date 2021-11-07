@@ -243,6 +243,92 @@ freq_to_days = function(freq) {
               ', given in the metadata is not currently an option'))
 }
 
+#' @export
+get_firsts = function(l, key) {
+  (l
+   %>% lapply(getElement, key)
+   %>% lapply(getElement, 1L)
+  )
+}
+
+#' Get with Key by Regex
+#'
+#' @param l list of lists
+#' @param key name of item in inner list
+#' @param pattern regex pattern with which to match values of the key
+#' @param ... additional arguments to pass to \code{\link{grepl}}
+#' @return subset of elements of \code{l} that match the pattern
+get_with_key = function(l, key, pattern, ...) {
+  indices = (l
+    %>% get_firsts(key) # keys can only be length-1, so taking first silently
+    %>% sapply(grepl, pattern = pattern, ...)
+    %>% which
+  )
+  stopifnot(length(indices) > 0L)
+  l[indices]
+}
+
+#' @export
+get_items = function(l, keys) {
+  lapply(l ,`[`, keys)
+}
+
+
+#' @export
+get_elements = `[`
+
+#' Lookup Value
+#'
+#' @param named_keys named character vector with values giving keys
+#' to lookup in \code{l}
+#' @param l list with names to match against the
+#' values of \code{keys}
+#' @export
+lookup = function(named_keys, l) {
+  stopifnot(is.recursive(l))
+  stopifnot(!any(is_empty(names(l))))
+  stopifnot(is.character(named_keys))
+  duplicate_names = duplicated(names(named_keys))
+  stopifnot(length(duplicate_names) == length(named_keys))
+  stopifnot(!any(duplicate_names))
+  stopifnot(!any(is.na(named_keys)))
+  lapply(named_keys, function(key) l[[key]])
+}
+
+#' Set Data Frame Column Types
+#'
+#' Set the types of the columns of a data frame.
+#'
+#' @param data data frame
+#' @param types dict-like list with keys giving column names and
+#' values giving types
+#' @return data frame with changed column types -- note that the
+#' returned data frame is a plain base R \code{data.frame}
+#' (i.e. not a \code{tibble} or \code{data.table}).
+#' @export
+set_types = function(data, types) {
+  (data
+    %>% colnames
+    %>% sapply(function(nm) {
+      as(data[[nm]], types[[nm]])
+    }, simplify = FALSE, USE.NAMES = TRUE)
+    %>% as.data.frame
+  )
+}
+
+#' @export
+key_val = function(l, key, value) {
+  (l
+    %>% get_firsts(value)
+    %>% setNames(unlist(get_firsts(l, key)))
+  )
+}
+
+#' @export
+or_pattern = function(x) {
+  paste0(x, collapse = "|")
+}
+
 #' @importFrom jsonlite write_json read_json
 #' @importFrom dplyr `%>%`
 #' @export
@@ -263,10 +349,12 @@ write_tidy_data = function(tidy_data, metadata) {
     %>% blob_to_raw
     %>% read_json
   )
-  local_dictionary = (global_dictionary
-    %>% lapply(getElement, 'name')
-    %>% sapply(`%in%`, rownames(metadata$Columns[[metadata$Product$product]]))
-    %>% (function(i) {global_dictionary[i]})
+  local_dictionary = (metadata
+    %>% getElement('Columns')
+    %>% getElement(metadata$Product$product)
+    %>% rownames
+    %>% or_pattern
+    %>% get_with_key(l = global_dictionary, key = 'name')
   )
   write_json(local_dictionary, dict_file, pretty = TRUE, auto_unbox = TRUE)
   .trash = list(
@@ -284,19 +372,28 @@ write_tidy_data = function(tidy_data, metadata) {
     )
   ) %>% write_json(dial_file, pretty = TRUE, auto_unbox = TRUE)
 
-
-
-  write.table(tidy_data, tidy_file,
-                            # CSV Dialect Translation
-    sep = ',',              # delimiter
-    eol = '\r\n',           # lineTerminator
-    qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
-    na = "",                # nullSequence=""
-    col.names = TRUE,       # header=true
-                            # skipInitialSpace=false
-                            # commentChar='#'
-                            # caseSensitiveHeader=true
-    row.names = FALSE
+  # this bit is untested -- but it should work
+  ('iidda_global_data_dictionary'
+    %>% getOption
+    %>% blob_to_raw
+    %>% read_json
+    %>% key_val('name', 'type')
+    %>% get_elements(colnames(tidy_data))
+    %>% unlist
+    %>% lookup(col_classes_dict)
+    %>% set_types(data = tidy_data)
+    %>% write.table(tidy_file,
+                              # CSV Dialect Translation
+      sep = ',',              # delimiter
+      eol = '\r\n',           # lineTerminator
+      qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
+      na = "",                # nullSequence=""
+      col.names = TRUE,       # header=true
+                              # skipInitialSpace=false
+                              # commentChar='#'
+                              # caseSensitiveHeader=true
+      row.names = FALSE
+    )
   )
 }
 
