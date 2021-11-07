@@ -197,6 +197,21 @@ get_unique_col_values = function(l) {
   )
 }
 
+##' self-naming list (copied from lme4:::namedList)
+##' @param ... a list of objects
+##' @export
+nlist <- function(...) {
+  L <- list(...)
+  snm <- vapply(substitute(list(...)), deparse, character(1))[-1]
+  if (is.null(nm <- names(L))) {
+    nm <- snm
+  }
+  if (any(nonames <- nm == "")) {
+    nm[nonames] <- snm[nonames]
+  }
+  setNames(L, nm)
+}
+
 #' @export
 is_empty = function(x) {
   is.na(x) | is.nan(x) | is.null(x) | (nchar(as.character(x)) == 0L) | (tolower(as.character(x)) == 'na')
@@ -329,8 +344,11 @@ or_pattern = function(x) {
   paste0(x, collapse = "|")
 }
 
+#' Write Tidy Digitized Data and Metadata
+#'
 #' @importFrom jsonlite write_json read_json
 #' @importFrom dplyr `%>%`
+#' @return file names where data were written
 #' @export
 write_tidy_data = function(tidy_data, metadata) {
   product = metadata$Product$product
@@ -342,6 +360,7 @@ write_tidy_data = function(tidy_data, metadata) {
   meta_file = file.path(tidy_dir, product %.% 'json')
   dict_file = file.path(tidy_dir, product %_% 'data_dictionary' %.% 'json')
   dial_file = file.path(tidy_dir, product %_% 'csv_dialect' %.% 'json')
+  files = nlist(tidy_file, meta_file, dict_file, dial_file)
 
   make_data_cite(metadata, meta_file)
   global_dictionary = ('iidda_global_data_dictionary'
@@ -373,7 +392,7 @@ write_tidy_data = function(tidy_data, metadata) {
   ) %>% write_json(dial_file, pretty = TRUE, auto_unbox = TRUE)
 
   # this bit is untested -- but it should work
-  ('iidda_global_data_dictionary'
+  .trash = ('iidda_global_data_dictionary'
     %>% getOption
     %>% blob_to_raw
     %>% read_json
@@ -395,6 +414,7 @@ write_tidy_data = function(tidy_data, metadata) {
       row.names = FALSE
     )
   )
+  return(files)
 }
 
 #' Save Results of a Data Prep Script
