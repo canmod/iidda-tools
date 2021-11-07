@@ -523,3 +523,14 @@ open_locally = function(blob_github_url, command = 'open', args = character()) {
    %>% system2(command = command, stdout = FALSE)
   )
 }
+
+#' @export
+col_classes_dict = list(
+  string = "character",
+  integer = "integer",
+  number = "numeric",
+  factor = "character",
+  date = "Date",
+  datetime = "POSIXct",
+  boolean = "logical"
+)
