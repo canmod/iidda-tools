@@ -5,6 +5,7 @@
 \alias{\%_\%}
 \alias{\%+\%}
 \alias{\%.\%}
+\alias{\%-\%}
 \title{Paste Operators}
 \usage{
 x \%_\% y
@@ -12,6 +13,8 @@ x \%_\% y
 x \%+\% y
 
 x \%.\% y
+
+x \%-\% y
 }
 \arguments{
 \item{x}{character vector}
@@ -29,6 +32,7 @@ Syntactic sugar for common string pasting operations.
   \item{\code{\%+\%}}{Paste with a blank separator, like python string concatenation}
   \item{\code{\%_\%}}{Paste with underscore separator}
   \item{\code{\%.\%}}{Paste with dot separator -- useful for adding file extensions}
+  \item{\code{\%-\%}}{Paste with dash separator -- useful for representing contiguous numbers}
 }
 }
 \examples{

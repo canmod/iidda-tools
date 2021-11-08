@@ -6,7 +6,7 @@ is_empty = function(x) {
 #' Open a Path
 #'
 #' @export
-open_blob_mac = function(blob_github_url, command = 'open', args = character()) {
+open_locally = function(blob_github_url, command = 'open', args = character()) {
   (blob_github_url
    %>% strip_blob_github
    %>% c(args)
