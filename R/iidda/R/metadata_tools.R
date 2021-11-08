@@ -1,4 +1,3 @@
-
 #' @export
 read_tracking_tables = function(path) {
   paths = file.path(path, list.files(path, pattern = '.csv'))
@@ -70,8 +69,8 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
   attr(table, 'title') = table_metadata$Title
   attr(table, 'description') = table_metadata$Description
   for(column in rownames(column_metadata)) {
-    attr(table[[column]], 'label') = column_metadata[column, "Title"]
-    attr(table[[column]], 'description') = column_metadata[column, "Description"]
+    attr(table[[column]], 'label') = column_metadata[column, "title"]
+    attr(table[[column]], 'description') = column_metadata[column, "description"]
   }
   table
 }

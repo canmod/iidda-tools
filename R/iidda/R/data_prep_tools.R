@@ -45,7 +45,6 @@ write_tidy_data = function(tidy_data, metadata) {
     )
   ) %>% write_json(dial_file, pretty = TRUE, auto_unbox = TRUE)
 
-  # this bit is untested -- but it should work
   .trash = ('iidda_global_data_dictionary'
             %>% getOption
             %>% blob_to_raw
@@ -79,7 +78,7 @@ write_tidy_data = function(tidy_data, metadata) {
 #'
 #' @param result Named list of data resulting from data prep scripts
 #' @param metadata Nested named list describing metadata for the result.
-#' It must have a `$Product[["Path to tidy data"]]` component, which is
+#' It must have a \code{$Product[["Path to tidy data"]]} component, which is
 #' a GitHub URL describing the ultimate location of the R data file.
 #' The GitHub component of the URL will be removed to produce
 #' a path that will correspond to the location within a cloned git
@@ -131,19 +130,14 @@ read_digitized_data = function(metadata) {
 }
 
 #' @export
-package_result = function(cleaned_sheets, sheet_dates, metadata) {
-  output = list(
-    (cleaned_sheets
-     %>% bind_rows(.id = "sheet")
-     %>% left_join(sheet_dates, by ="sheet")
-     %>% select(-sheet)
-     %>% relocate(period_end_date, .after = Province)
-     %>% relocate(period_start_date, .after = Province)
-     %>% as.data.frame
-    ),
-    metadata
+combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
+  (cleaned_sheets
+   %>% bind_rows(.id = "sheet")
+   %>% left_join(sheet_dates, by ="sheet")
+   %>% select(-sheet)
+   %>% relocate(period_end_date, .after = location)
+   %>% relocate(period_start_date, .after = location)
+   %>% as.data.frame
+   %>% add_metadata(metadata$Tables, metadata$Columns[[product]], product)
   )
-  names(output) = paste0(metadata$Product$Product,
-                         c('_reportweek', '_metadata'))
-  output
 }
