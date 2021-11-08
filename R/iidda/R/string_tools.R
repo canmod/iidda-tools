@@ -172,6 +172,19 @@ or_pattern = function(x) {
   paste0(x, collapse = "|")
 }
 
+#' Simplify String with List of Numbers Grouped by Dashes
+#'
+#' @param x atomic vector
+#' @return length-1 character string giving a sorted list of numbers
+#' with contiguous numbers grouped by dashes.
+#' @examples
+#' group_with_dash(c("3840", "34", "2", "3", "1", "33", '5-50'))
+#' group_with_dash(group_with_dash(c("3840", "34", "2", "3", "1", "33", '5-50')))
+#' @importFrom dplyr between
+#' @export
+group_with_dash = function(x) {
+}
+
 # ------------------------------------------------
 # copied from MacPan TMB branch
 
@@ -183,6 +196,7 @@ or_pattern = function(x) {
 #'   \item{\code{\%+\%}}{Paste with a blank separator, like python string concatenation}
 #'   \item{\code{\%_\%}}{Paste with underscore separator}
 #'   \item{\code{\%.\%}}{Paste with dot separator -- useful for adding file extensions}
+#'   \item{\code{\%-\%}}{Paste with dash separator -- useful for representing contiguous numbers}
 #' }
 #'
 #' @param x character vector
@@ -205,3 +219,84 @@ NULL
 #' @rdname paste_operators
 #' @export
 `%.%` = function(x, y) paste(x, y, sep = '.')
+
+#' @rdname paste_operators
+#' @export
+`%-%` = function(x, y) paste(x, y, sep = '-')
+
+
+# ------------------------------------------------
+# paste-collapse summaries
+
+#' @export
+summarise_strings = function(x, sep = ", ") {
+  (x
+   %>% unique
+   %>% strsplit(',|;')
+   %>% unlist(use.names = FALSE)
+   %>% trimws
+   %>% paste0(collapse = sep)
+  )
+}
+
+#' @export
+summarise_integers = function(x, range_operator = "-", collapse = TRUE) {
+  x = (x
+       %>% as.character
+       %>% strsplit(',|;')
+       %>% unlist(use.names = FALSE)
+       %>% trimws
+       %>% unique
+  )
+  range_regex = "(\\-?\\d+)" %+% range_operator %+% "(\\-?\\d+)"
+  o = (x
+       %>% strsplit(range_operator)
+       %>% lapply(getElement, 1L)
+       %>% unlist
+       %>% trimws
+       %>% as.integer
+       %>% order
+  )
+  x = x[o]
+  y = x[1]
+  for(z in x[-1]) {
+    ly = length(y)
+    that_head = sub(range_regex, '\\1', y[ly]) %>% as.integer
+    this_head = sub(range_regex, '\\1', z) %>% as.integer
+    stopifnot(that_head <= this_head)
+    that_tail = sub(range_regex, '\\2', y[ly]) %>% as.integer
+    this_tail = sub(range_regex, '\\2', z) %>% as.integer
+    if(between(that_tail, this_head - 1, this_tail)) {
+      y[ly] = that_head %+% range_operator %+% this_tail
+    } else if(this_head > that_tail + 1) {
+      y = append(y, z)
+    }
+  }
+  if(collapse) y = paste0(y, collapse = ", ")
+  y
+}
+
+#' @export
+summarise_dates = function(x_start, x_end, range_operator = " to ", collapse = TRUE) {
+  x_start = (x_start
+   %>% as.Date
+   %>% as.integer
+  )
+  x_end = (x_end
+    %>% as.Date
+    %>% as.integer
+  )
+  x_integer = summarise_integers(
+    (x_start %+% range_operator %+% x_end),
+    range_operator = range_operator, collapse = FALSE)
+
+  range_regex = "(\\-?\\d+)" %+% range_operator %+% "(\\-?\\d+)"
+
+  y = (
+    as.character(as.Date(as.integer(sub(range_regex, '\\1', x_integer)))) %+%
+    " to " %+%
+    as.character(as.Date(as.integer(sub(range_regex, '\\2', x_integer))))
+  )
+  if(collapse) y = paste0(y, collapse = ', ')
+  y
+}

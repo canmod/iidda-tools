@@ -16,6 +16,7 @@ read_tracking_tables = function(path) {
 get_tracking_metadata = function(product, tracking_path) {
   current_product = product
   d = read_tracking_tables(tracking_path)
+
   metadata = list(
     Product = (d$Transformations
                %>% filter(product == current_product)
@@ -47,6 +48,20 @@ get_tracking_metadata = function(product, tracking_path) {
                       %>% lapply(column_to_rownames, var = "column")
   )
   metadata$Originals = split(metadata$Originals, metadata$Originals$original)
+
+  metadata$Characteristics = (metadata$Originals
+    %>% bind_rows
+    %>% summarise(
+      type = summarise_strings(type),
+      disease = summarise_strings(disease),
+      location = summarise_strings(type),
+      years = summarise_integers(years),
+      dates = summarise_dates(start_date, end_date),
+      frequency = summarise_strings(frequency),
+      breakdown = summarise_strings(breakdown)
+    )
+    %>% as.list
+  )
   metadata
 }
 
@@ -93,6 +108,8 @@ make_data_cite = function(metadata, file) {
     ),
     creators = list(
       list(
+        # TODO: iidda@mcmaster.ca should be the contact
+        # bouncing now -- send a message to sys admin
         creatorName = "McMaster University Theo-Bio Lab",
         nameType = "Organizational"
       )
@@ -106,7 +123,14 @@ make_data_cite = function(metadata, file) {
     publisher = metadata$Table$publisher,
     publicationYear = metadata$Tables$publicationYear,
     subjects = NULL,
-    contributors = NULL,
+    contributors = list(
+      # I wish there was a better type than "Other", but this contributor
+      # is intended to provide the organization from whom we obtained
+      # the original source documents
+      contributorType = "Other",
+      name = metadata$Source$organization,
+      nameType = "Organizational"
+    ),
     language = 'en',
     resourceType = list(
       resourceTypeGeneral = "Dataset",
@@ -129,6 +153,11 @@ make_data_cite = function(metadata, file) {
         descriptionType = "Abstract",
         lang = "en",
         description = metadata$Tables$description
+      ),
+      list(
+        descriptionType = "Methods",
+        lang = "en",
+        description = "This data set is a part of a systematic effort to make Canada's historical record of infectious diseases publicly and conveniently available. We are systematically contacting data stewards across Canada to access the disparate source documents that contain Canada's historical record of infectious diseases. We are making scans of these documents conveniently available for all. We are manually entering the information provided by these source documents into Excel spreadsheets, which we are making publicly available. The layout of these spreadsheets are identical to the originals, making it as easy as possible to compare the reproductions with the sources. We are producing reproducible automated processes for converting the digitized spreadsheets into tidy data structures. These tidy data structures contain all of the information in the original source documents, but are more convenient for analysis and discovery."
       )
     ),
     fundingReferences = NULL,
