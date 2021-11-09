@@ -293,9 +293,9 @@ summarise_dates = function(x_start, x_end, range_operator = " to ", collapse = T
   range_regex = "(\\-?\\d+)" %+% range_operator %+% "(\\-?\\d+)"
 
   y = (
-    as.character(as.Date(as.integer(sub(range_regex, '\\1', x_integer)))) %+%
+    as.character(as.Date(as.integer(sub(range_regex, '\\1', x_integer)), origin = "1970-01-01")) %+%
     " to " %+%
-    as.character(as.Date(as.integer(sub(range_regex, '\\2', x_integer))))
+    as.character(as.Date(as.integer(sub(range_regex, '\\2', x_integer)), origin = "1970-01-01"))
   )
   if(collapse) y = paste0(y, collapse = ', ')
   y
