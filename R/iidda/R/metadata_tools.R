@@ -13,57 +13,56 @@ read_tracking_tables = function(path) {
 #' @importFrom dplyr filter mutate relocate select semi_join left_join right_join
 #' @importFrom tibble column_to_rownames remove_rownames
 #' @export
-get_tracking_metadata = function(product, tracking_path) {
-  current_product = product
+get_tracking_metadata = function(tidy_dataset, digitization, tracking_path) {
+  current_tidy_dataset = tidy_dataset
+  current_digitization = digitization
   d = read_tracking_tables(tracking_path)
 
   metadata = list(
-    Product = (d$Transformations
-               %>% filter(product == current_product)
+    TidyDataset = (d$TidyDatasets
+                   %>% filter(tidy_dataset == current_tidy_dataset)
+    ),
+    Digitization = (d$Digitizations
+                    %>% filter(digitization == current_digitization)
     ),
     Source = (d$Originals
-              %>% filter(product == current_product)
+              %>% filter(digitization == current_digitization)
               %>% semi_join(x = d$Sources, by = "source")
     ),
     Originals = (d$Originals
-                 %>% filter(product == current_product )
+                 %>% filter(digitization == current_digitization)
                  %>% mutate(original = basename(path_original_data))
                  %>% relocate(original, .before = source)
     ),
-    Tables = (d$Tables
-              %>% filter(product == current_product)
-              %>% remove_rownames
-              %>% column_to_rownames("table")
-    ),
-    Columns = (d$Tables
-               %>% filter(product == current_product)
-               %>% select(table)
-               %>% right_join(d$Schema, by = "table")
+    # deleted reference to tables.csv, move info from tables.csv to tidydataset.csv
+    Columns = (d$Schema
+               %>% filter(tidy_dataset == current_tidy_dataset)
                %>% left_join(d$Columns, by = "column")
     )
   )
   metadata$Columns = (metadata$Columns
-                      %>% split(metadata$Columns$table)
+                      %>% split(metadata$Columns$tidy_dataset)
                       %>% lapply(remove_rownames)
                       %>% lapply(column_to_rownames, var = "column")
   )
   metadata$Originals = split(metadata$Originals, metadata$Originals$original)
 
   metadata$Characteristics = (metadata$Originals
-    %>% bind_rows
-    %>% summarise(
-      type = summarise_strings(type),
-      disease = summarise_strings(disease),
-      location = summarise_strings(type),
-      years = summarise_integers(years),
-      dates = summarise_dates(start_date, end_date),
-      frequency = summarise_strings(frequency),
-      breakdown = summarise_strings(breakdown)
-    )
-    %>% as.list
+                              %>% bind_rows
+                              %>% summarise(
+                                type = summarise_strings(type),
+                                disease = summarise_strings(disease),
+                                location = summarise_strings(type),
+                                years = summarise_integers(years),
+                                dates = summarise_dates(start_date, end_date),
+                                frequency = summarise_strings(frequency),
+                                breakdown = summarise_strings(breakdown)
+                              )
+                              %>% as.list
   )
   metadata
 }
+
 
 #' Add Metadata
 #'

@@ -122,8 +122,8 @@ schema_check = function(table, metadata) {
 }
 
 #' @export
-read_digitized_data = function(metadata) {
-  (metadata$Product$path_digitized_data
+read_digitized_data = function (metadata) {
+  (metadata$Digitization$path_digitized_data
    %>% strip_blob_github
    %>% xlsx_cells
   )
