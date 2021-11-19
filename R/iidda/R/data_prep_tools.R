@@ -5,15 +5,15 @@
 #' @return file names where data were written
 #' @export
 write_tidy_data = function(tidy_data, metadata) {
-  product = metadata$Product$product
+  tidy_dataset = metadata$TidyDataset$tidy_dataset
 
-  tidy_dir = strip_blob_github(metadata$Product$path_tidy_data)
+  tidy_dir = strip_blob_github(metadata$TidyDataset$path_tidy_data)
   if(!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
 
-  tidy_file = file.path(tidy_dir, product %.% 'csv')
-  meta_file = file.path(tidy_dir, product %.% 'json')
-  dict_file = file.path(tidy_dir, product %_% 'data_dictionary' %.% 'json')
-  dial_file = file.path(tidy_dir, product %_% 'csv_dialect' %.% 'json')
+  tidy_file = file.path(tidy_dir, tidy_dataset %.% 'csv')
+  meta_file = file.path(tidy_dir, tidy_dataset %.% 'json')
+  dict_file = file.path(tidy_dir, tidy_dataset %_% 'data_dictionary' %.% 'json')
+  dial_file = file.path(tidy_dir, tidy_dataset %_% 'csv_dialect' %.% 'json')
   files = nlist(tidy_file, meta_file, dict_file, dial_file)
 
   make_data_cite(metadata, meta_file)
@@ -24,7 +24,7 @@ write_tidy_data = function(tidy_data, metadata) {
   )
   local_dictionary = (metadata
                       %>% getElement('Columns')
-                      %>% getElement(metadata$Product$product)
+                      %>% getElement(metadata$TidyDataset$tidy_dataset)
                       %>% rownames
                       %>% or_pattern
                       %>% get_with_key(l = global_dictionary, key = 'name')
