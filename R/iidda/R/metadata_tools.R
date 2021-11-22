@@ -96,7 +96,7 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
 #' @param file Path to metadata file
 #' @importFrom jsonlite write_json
 #' @export
-make_data_cite = function(metadata, file) {
+make_data_cite_tidy_data = function(metadata, file) {
 
   # TODO: remove much of the hard-coding below
   data_cite = list(
@@ -135,8 +135,14 @@ make_data_cite = function(metadata, file) {
       resourceTypeGeneral = "Dataset",
       resourceType = "Communicable Disease Incidence"
     ),
-    alternateIdentifiers = NULL,
-    relatedIdentifiers = NULL,
+    alternateIdentifiers = NULL, # TODO: move main identifier here once we get DOI's going
+    relatedIdentifiers = list(
+      list(
+        relatedIdentifier = metadata$Digitization$path_digitized_file,
+        relatedIdentifierType = "URL",
+        relationType = "IsSourceOf"
+      )
+    ),
     sizes = NULL,  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
     formats = list("csv"),
     version = metadata$Tables$current_version,
@@ -163,6 +169,24 @@ make_data_cite = function(metadata, file) {
     geoLocations = list(
       geoLocationPlace = metadata$Source$location
     )
+  )
+  write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
+}
+
+#' @inheritParams make_data_cite_tidy_data
+#' @export
+make_data_cite_digitization = function(metadata, file) {
+  data_cite = list(
+    identifier = list()
+  )
+  write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
+}
+
+#' @inheritParams make_data_cite_tidy_data
+#' @export
+make_data_cite_scans = function(metadata, file) {
+  data_cite = list(
+    identifier = list()
   )
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
 }

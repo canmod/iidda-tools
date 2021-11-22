@@ -16,7 +16,7 @@ write_tidy_data = function(tidy_data, metadata) {
   dial_file = file.path(tidy_dir, tidy_dataset %_% 'csv_dialect' %.% 'json')
   files = nlist(tidy_file, meta_file, dict_file, dial_file)
 
-  make_data_cite(metadata, meta_file)
+  make_data_cite_tidy_data(metadata, meta_file)
   global_dictionary = ('iidda_global_data_dictionary'
                        %>% getOption
                        %>% blob_to_raw

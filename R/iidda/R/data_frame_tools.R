@@ -60,6 +60,7 @@ drop_empty_cols = function(table) {
   return(table)
 }
 
+#' @importFrom dplyr ungroup rowwise filter c_across
 #' @export
 drop_empty_rows = function(table) {
   (table
