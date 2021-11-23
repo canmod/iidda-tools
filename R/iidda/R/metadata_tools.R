@@ -138,7 +138,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     alternateIdentifiers = NULL, # TODO: move main identifier here once we get DOI's going
     relatedIdentifiers = list(
       list(
-        relatedIdentifier = metadata$Digitization$path_digitized_file,
+        relatedIdentifier = metadata$Digitization$path_digitized_data,
         relatedIdentifierType = "URL",
         relationType = "IsSourceOf"
       )
