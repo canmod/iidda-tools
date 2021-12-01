@@ -70,6 +70,48 @@ write_tidy_data = function(tidy_data, metadata) {
   return(files)
 }
 
+read_tidy_data = function(tidy_data_path) {
+  
+  path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
+  path_meta_file = grep(list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE), pattern = "\\csv_dialect.json|\\_data_dictionary.json", invert = TRUE, value = TRUE)
+  path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
+  path_dial_file = list.files(tidy_data_path, pattern="\\csv_dialect.json.*", full.names = TRUE)
+  
+  data_dictionary = (path_dict_file
+                     %>% read_json()
+  )
+  
+  col_classes = (path_dict_file
+                 %>% read_json()
+                 %>% key_val('name', 'type')
+                 %>% unlist
+                 %>% lookup(col_classes_dict)
+                 %>% unlist()
+  )
+  
+  csv_dialect = (path_dial_file
+                 %>% read_json
+                 %>% unlist
+                 
+  )
+  
+  meta_data = (path_meta_file
+               %>% read_json
+  )
+  
+  tidy_dataset = read.table(path_tidy_file,
+                            # CSV Dialect Translation
+                            header = TRUE,           # header=true
+                            sep = ',',               # delimiter
+                            quote = "\"",            # quoteChar="\""
+                            comment.char='#',        # commentChar='#'
+                            na.strings = "",         # nullSequence=""
+                            colClasses = col_classes
+  )
+  
+  return(nlist(tidy_dataset, data_dictionary, csv_dialect, meta_data))
+}
+
 #' Save Results of a Data Prep Script
 #'
 #' Save the resulting objects of a data prep script into an R data file.
