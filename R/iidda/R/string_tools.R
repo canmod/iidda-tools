@@ -168,8 +168,15 @@ rm_trailing_slash = function(x) sub('/$', '', x)
 rm_leading_slash = function(x) sub('^/', '', x)
 
 #' @export
-or_pattern = function(x) {
-  paste0(x, collapse = "|")
+or_pattern = function(x, at_start = TRUE, at_end = TRUE) {
+  x = paste0(x, collapse = "|")
+  if(at_start) {
+    x = "^" %+% x
+  }
+  if(at_end) {
+    x = x %+% "$"
+  }
+  x
 }
 
 #' Simplify String with List of Numbers Grouped by Dashes
