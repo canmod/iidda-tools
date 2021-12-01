@@ -123,7 +123,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     publicationYear = metadata$Tables$publicationYear,
     subjects = NULL,
     contributors = list(
-      # I wish there was a better type than "Other", but this contributor
+      # wish there was a better type than "Other", but this contributor
       # is intended to provide the organization from whom we obtained
       # the original source documents
       contributorType = "Other",
