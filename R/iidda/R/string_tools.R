@@ -169,7 +169,7 @@ rm_leading_slash = function(x) sub('^/', '', x)
 
 #' @export
 or_pattern = function(x, at_start = TRUE, at_end = TRUE) {
-  x = paste0(x, collapse = "|")
+  x = "(" %+% paste0(x, collapse = "|") %+% ")"
   if(at_start) {
     x = "^" %+% x
   }
