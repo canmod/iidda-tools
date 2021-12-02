@@ -70,6 +70,7 @@ write_tidy_data = function(tidy_data, metadata) {
   return(files)
 }
 
+#' @export
 read_tidy_data = function(tidy_data_path) {
   
   path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
