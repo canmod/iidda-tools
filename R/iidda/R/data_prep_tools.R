@@ -113,6 +113,13 @@ read_tidy_data = function(tidy_data_path) {
   return(nlist(tidy_dataset, data_dictionary, csv_dialect, meta_data))
 }
 
+#' @export
+empty_to_na = function(data) {
+  (data
+   %>% replace(apply(data, 2, is_empty) == TRUE, NA)
+  )
+}
+
 #' Save Results of a Data Prep Script
 #'
 #' Save the resulting objects of a data prep script into an R data file.
