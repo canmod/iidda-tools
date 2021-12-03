@@ -120,6 +120,18 @@ empty_to_na = function(data) {
   )
 }
 
+#' @param data write sentence 
+#' @export
+iso_codes = function(data, locations_iso) {
+  
+  (data
+    %>% left_join(locations_iso, by = "location")
+    %>% relocate(iso_3166_2, .after = location)
+    %>% relocate(iso_3166, .after = location)
+  )
+  
+}
+
 #' Save Results of a Data Prep Script
 #'
 #' Save the resulting objects of a data prep script into an R data file.
