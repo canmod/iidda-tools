@@ -80,6 +80,7 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path) {
 add_metadata = function(table, table_metadata, column_metadata, product) {
   table = as.data.frame(table)
   table_metadata = as.list(table_metadata)
+  check_tidy_data_cols(table, column_metadata)
   attr(table, 'title') = table_metadata$Title
   attr(table, 'description') = table_metadata$Description
   for(column in rownames(column_metadata)) {
