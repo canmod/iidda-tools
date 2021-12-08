@@ -45,6 +45,8 @@ write_tidy_data = function(tidy_data, metadata) {
     )
   ) %>% write_json(dial_file, pretty = TRUE, auto_unbox = TRUE)
 
+  check_metadata_cols(tidy_data, metadata)
+  
   .trash = ('iidda_global_data_dictionary'
             %>% getOption
             %>% blob_to_raw
@@ -70,6 +72,10 @@ write_tidy_data = function(tidy_data, metadata) {
   return(files)
 }
 
+#' Read Tidy Data and Metadata files
+#' 
+#' @param tidy_data_path path to folder containing 4 files: tidy data 
+#' and resulting metadata for each prep script
 #' @export
 read_tidy_data = function(tidy_data_path) {
   
@@ -113,23 +119,62 @@ read_tidy_data = function(tidy_data_path) {
   return(nlist(tidy_dataset, data_dictionary, csv_dialect, meta_data))
 }
 
+#' Convert all missing values to NA
+#' 
+#' @param tidy_data tidy data.frame resulting from data prep scripts
 #' @export
-empty_to_na = function(data) {
-  (data
-   %>% replace(apply(data, 2, is_empty) == TRUE, NA)
+empty_to_na = function(tidy_data) {
+  (tidy_data
+   %>% replace(apply(tidy_data, 2, is_empty) == TRUE, NA)
   )
 }
 
-#' @param data write sentence 
+#' Adds ISO-3166 and ISO-3166-2 columns to tidydata
+#' 
+#' @param tidy_data tidy data.frame resulting from data prep scripts
+#' @param locations_iso table containing all unique locations in all 
+#' tidy data along with corresponding ISO-3166 and ISO-3166-2 codes 
 #' @export
-iso_codes = function(data, locations_iso) {
-  
-  (data
+iso_codes = function(tidy_data, locations_iso) {
+  (tidy_data
     %>% left_join(locations_iso, by = "location")
     %>% relocate(iso_3166_2, .after = location)
     %>% relocate(iso_3166, .after = location)
   )
+}
+
+#' Error if columns in the tidy data are not in metadata Schema 
+#' and if all values in a column are NA
+#' 
+#' @param tidy_data data.frame resulting from data prep scripts
+#' @param metadata Nested named list describing metadata for the tidy data
+#' @export
+check_metadata_cols = function(tidy_data, metadata) {
+  metadata_cols = (metadata
+                   %>% getElement('Columns')
+                   %>% getElement(metadata$TidyDataset$tidy_dataset)
+                   %>% rownames)
+  tidy_data_cols = colnames(tidy_data)
+  tidy_data_diff = setdiff(tidy_data_cols, metadata_cols)
   
+  if(setequal(metadata_cols, tidy_data_cols) == FALSE) stop(paste("Metadata does not contain columns", tidy_data_diff, "from tidy data", collapse = ' '))
+  
+  if(any(colSums(!is.na(tidy_data)) == 0)) stop(paste(names(tidy_data)[sapply(tidy_data, function(x) sum(is.na(x)) == length(x))], "is missing all values", collapse = ' '))
+}
+
+#' Error if columns in the metadata Schema are not in tidy data
+#' 
+#' @param table dataframe (or dataframe-like object)
+#' @param column_metadata dataframe with rownames equal to the columns
+#' in \code{table}, and \code{Title} and \code{Description} columns
+#' giving the title and description of each column in \code{table}
+#' @export
+check_tidy_data_cols = function(table, column_metadata) {
+  metadata_cols = rownames(column_metadata)
+  tidy_data_cols = colnames(table)
+  metadata_diff = setdiff(metadata_cols, tidy_data_cols)
+  
+  if(identical(metadata_diff, character(0)) == FALSE) stop(paste("Tidydata does not contain columns", metadata_diff, "from metadata", collapse = ' '))
 }
 
 #' Save Results of a Data Prep Script
