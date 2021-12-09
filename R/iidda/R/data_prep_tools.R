@@ -179,13 +179,13 @@ check_tidy_data_cols = function(table, column_metadata) {
 
 #' Creates a heatmap that shows disease coverage over the years
 #' 
-#' @param table dataframe (or dataframe-like object)
+#' Values are TRUE if that particular disease occurred at least once in a period that ended in that
+#' particular year, and FALSE otherwise.
+#' 
+#' @param table dataframe (or dataframe-like object). Tidy dataset of all compiled datasets
 #' @param disease_col specifies level of disease (i.e. disease_family, disease, disease_subclass)
-#' @param period_end_date period end date where where at least one case of a given disease was 
-#' recorded for the period. If new years eve or new years are included in the period the new year
-#' will be used (period_end_date).
 #' @export
-disease_coverage_heatmap = function(table, disease_col = "disease", period_end_date = "period_end_date") {
+disease_coverage_heatmap = function(table, disease_col = "disease") {
   (table
    %>% mutate(year = year(period_end_date))
    %>% select(all_of(disease_col), year)
