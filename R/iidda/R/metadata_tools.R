@@ -98,12 +98,12 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
 #' @importFrom jsonlite write_json
 #' @export
 make_data_cite_tidy_data = function(metadata, file) {
-
+  
   # TODO: remove much of the hard-coding below
   data_cite = list(
     # TODO: move this identifier down to alternateIdentifiers
     identifier = list(
-      identifier = metadata$Product$path_tidy_data,
+      identifier = metadata$TidyDataset$path_tidy_data,
       identifierType = 'iidda_product'
     ),
     creators = list(
@@ -116,12 +116,12 @@ make_data_cite_tidy_data = function(metadata, file) {
     ),
     titles = list(
       list(
-        title = metadata$Tables$title,
+        title = metadata$TidyDataset$title,
         lang = "en"
       )
     ),
-    publisher = metadata$Table$publisher,
-    publicationYear = metadata$Tables$publicationYear,
+    publisher = metadata$TidyDataset$publisher,
+    publicationYear = metadata$TidyDataset$publicationYear,
     subjects = NULL,
     contributors = list(
       # wish there was a better type than "Other", but this contributor
@@ -146,7 +146,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     ),
     sizes = NULL,  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
     formats = list("csv"),
-    version = metadata$Tables$current_version,
+    version = metadata$TidyDataset$current_version,
     rightsList = list(
       list(
         rights = "CC0 1.0 Universal",
@@ -158,7 +158,7 @@ make_data_cite_tidy_data = function(metadata, file) {
       list(
         descriptionType = "Abstract",
         lang = "en",
-        description = metadata$Tables$description
+        description = metadata$TidyDataset$description
       ),
       list(
         descriptionType = "Methods",
