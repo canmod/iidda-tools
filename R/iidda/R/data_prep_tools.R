@@ -177,6 +177,33 @@ check_tidy_data_cols = function(table, column_metadata) {
   if(identical(metadata_diff, character(0)) == FALSE) stop(paste("Tidydata does not contain columns", metadata_diff, "from metadata", collapse = ' '))
 }
 
+#' Creates a heatmap that shows disease coverage over the years
+#' 
+#' @param table dataframe (or dataframe-like object)
+#' @param disease_col specifies level of disease (i.e. disease_family, disease, disease_subclass)
+#' @param period_end_date period end date where where at least one case of a given disease was 
+#' recorded for the period. If new years eve or new years are included in the period the new year
+#' will be used (period_end_date).
+#' @export
+disease_coverage_heatmap = function(table, disease_col = "disease", period_end_date = "period_end_date") {
+  (table
+   %>% mutate(year = year(period_end_date))
+   %>% select(all_of(disease_col), year)
+   %>% rename(disease = disease_col)
+   %>% distinct()
+   %>% mutate(val=1)
+   %>% pivot_wider(names_from = disease, values_from = val)
+   %>% mutate(across(!year, .fns = is.na))
+   %>% mutate(across(!year, .fns = `!`))
+   %>% pivot_longer(!year)
+   %>% rename(disease = name)
+   %>% rename(data_present = value)
+   %>% mutate(year = as.integer(year))
+   %>% ggplot(aes(year, disease)) +                           
+     geom_tile(aes(fill = data_present))
+  )
+} 
+
 #' Save Results of a Data Prep Script
 #'
 #' Save the resulting objects of a data prep script into an R data file.
