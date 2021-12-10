@@ -144,6 +144,13 @@ make_data_cite_tidy_data = function(metadata, file) {
         relationType = "IsSourceOf"
       )
     ),
+    relatedIdentifiers = list(
+      list(
+        relatedIdentifier = sapply(metadata$Originals,`[[`,'path_original_data'),
+        relatedIdentifierType = "URL",
+        relationType = "IsSourceOf"
+      )
+    ),
     sizes = NULL,  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
     formats = list("csv"),
     version = metadata$TidyDataset$current_version,
