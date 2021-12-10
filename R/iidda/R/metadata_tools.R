@@ -142,9 +142,7 @@ make_data_cite_tidy_data = function(metadata, file) {
         relatedIdentifier = metadata$Digitization$path_digitized_data,
         relatedIdentifierType = "URL",
         relationType = "IsSourceOf"
-      )
-    ),
-    relatedIdentifiers = list(
+      ),
       list(
         relatedIdentifier = sapply(metadata$Originals,`[[`,'path_original_data'),
         relatedIdentifierType = "URL",
