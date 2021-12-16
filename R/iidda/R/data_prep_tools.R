@@ -135,7 +135,7 @@ empty_to_na = function(tidy_data) {
 #' @param locations_iso table containing all unique locations in all 
 #' tidy data along with corresponding ISO-3166 and ISO-3166-2 codes 
 #' @export
-iso_codes = function(tidy_data, locations_iso) {
+iso_codes = function(tidy_data, locations_iso = read.csv("tracking/locations_ISO.csv")) {
   (tidy_data
     %>% left_join(locations_iso, by = "location")
     %>% relocate(iso_3166_2, .after = location)
