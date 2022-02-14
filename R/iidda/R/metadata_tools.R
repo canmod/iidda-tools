@@ -14,7 +14,7 @@ read_tracking_tables = function(path) {
   (paths
     %>% lapply(read.csv, check.names = FALSE)
     %>% setNames(tools::file_path_sans_ext(basename(paths)))
-    %>% select(any_of(valid_colnames))
+    %>% lapply(function(x) select(x, any_of(valid_colnames)))
     #%>% lapply(drop_empty_cols)
     %>% lapply(drop_empty_rows)
   )

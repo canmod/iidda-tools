@@ -239,6 +239,7 @@ NULL
 summarise_strings = function(x, sep = ", ") {
   (x
    %>% unique
+   %>% empty_is_blank
    %>% strsplit(',|;')
    %>% unlist(use.names = FALSE)
    %>% trimws

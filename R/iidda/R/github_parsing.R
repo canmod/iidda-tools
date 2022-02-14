@@ -66,7 +66,8 @@ blob_to_raw = function(urls) {
 
 #' @export
 strip_blob_github = function(urls) {
-  sub("^https://github.com/\\w+/\\w+/blob/(main|master)/", "", urls)
+  ## https://stackoverflow.com/a/64147124/2047693
+  sub("^https://github.com/[A-z0-9\\.-]+/[A-z0-9\\.-]+/blob/(main|master)/", "", urls)
 }
 
 #' @export
