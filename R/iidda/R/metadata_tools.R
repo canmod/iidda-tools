@@ -1,10 +1,21 @@
 #' @export
 read_tracking_tables = function(path) {
+  valid_colnames = c("disease_family", "disease", "disease_subclass", "icd_7", "icd_9",
+    "icd_7_subclass", "icd_9_subclass", "disease_level", "column",
+    "title", "type", "format", "description", "pattern", "organization",
+    "name", "email", "Notes", "data_enterer", "digitized", "path_digitized_data",
+    "path_original_data", "digitization", "period_start_date", "period_end_date",
+    "location", "iso_3166", "iso_3166_2", "url", "province_territory",
+    "notes", "source", "years", "start_date", "end_date", "frequency",
+    "breakdown", "urls", "date_of_url_access", "tidy_dataset", "path_prep_script",
+    "path_tidy_data", "publisher", "publicationYear", "current_version"
+  )
   paths = file.path(path, list.files(path, pattern = '.csv'))
   (paths
     %>% lapply(read.csv, check.names = FALSE)
     %>% setNames(tools::file_path_sans_ext(basename(paths)))
-    %>% lapply(drop_empty_cols)
+    %>% select(any_of(valid_colnames))
+    #%>% lapply(drop_empty_cols)
     %>% lapply(drop_empty_rows)
   )
 }
@@ -98,7 +109,7 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
 #' @importFrom jsonlite write_json
 #' @export
 make_data_cite_tidy_data = function(metadata, file) {
-  
+
   # TODO: remove much of the hard-coding below
   data_cite = list(
     # TODO: move this identifier down to alternateIdentifiers
@@ -195,4 +206,18 @@ make_data_cite_scans = function(metadata, file) {
     identifier = list()
   )
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
+}
+
+#' @param tracking_list output of \code{read_tracking_tables}
+#' @export
+get_canmod_digitization_metadata = function(tracking_list) {
+  d = tracking_list
+  (d$Sources
+    %>% filter(type == "CDI", breakdown == "province",
+               grepl('(weekly|4-weekly|quarterly|monthly)', frequency))
+    %>% left_join(d$Originals, by = "source", suffix = c("_source", "_orig"))
+    %>% left_join(d$Digitizations, by = "digitization", suffix = c("", "_digit"))
+    %>% left_join(d$TidyDatasets, by = "digitization", suffix = c("", "_tidy"))
+    %>% filter(!is_empty(path_tidy_data))
+  )
 }
