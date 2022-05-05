@@ -1,1 +1,1 @@
-ACCESS_TOKEN = "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"
+ACCESS_TOKEN = ""
