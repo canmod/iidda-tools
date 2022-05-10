@@ -10,3 +10,5 @@
 renv*
 *tar.gz
 config_site.py
+python/build/
+__pycache__
