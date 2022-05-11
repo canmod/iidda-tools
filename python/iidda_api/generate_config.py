@@ -3,8 +3,11 @@ import os
 from appdirs import *
 
 # generate path
-os.mkdir(user_config_dir("iidda-api"))
-path = user_config_dir("iidda-api") + '/config.ini'
+directory_path = user_config_dir("iidda-api","")
+if not os.path.isdir(directory_path):
+    os.makedirs(directory_path)
+
+path = directory_path + '/config.ini'
 
 def generate_config(token):
     # defining structure of the file
