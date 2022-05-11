@@ -11,4 +11,3 @@ renv*
 *tar.gz
 python/build/
 __pycache__
-config.ini

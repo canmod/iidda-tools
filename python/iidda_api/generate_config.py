@@ -2,7 +2,7 @@ import configparser
 import os
 
 # detect directory of current file
-path = os.path.dirname(os.path.abspath(__file__)) + '/config.ini'
+path = os.path.dirname(os.path.abspath(__file__)) + '/config/config.ini'
 
 def generate_config(token):
     # defining structure of the file
@@ -15,4 +15,5 @@ def generate_config(token):
     # write the file
     with open(path, 'w') as configfile:
         config.write(configfile)
+
 
