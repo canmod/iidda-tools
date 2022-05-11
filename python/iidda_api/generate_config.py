@@ -10,6 +10,8 @@ def generate_config(token):
     config.add_section('github_info')
     config.set('github_info', 'access_token', token)
 
+    print("generating config file at: " + path)
+
     # write the file
     with open(path, 'w') as configfile:
         config.write(configfile)
