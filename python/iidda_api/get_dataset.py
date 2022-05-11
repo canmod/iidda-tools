@@ -1,11 +1,18 @@
 from github import Github
-from iidda_api import config_site
 import requests
 import os
-
+import configparser
+from iidda_api import generate_config
 
 def get_dataset(dataset_name, download_path, version="latest", metadata=False):
-    github = Github(config_site.ACCESS_TOKEN)
+    # Read config file and obtain access token
+    config_obj = configparser.ConfigParser()
+    config_obj.read(generate_config.path)
+    config_github = config_obj["github_info"]
+
+    ACCESS_TOKEN = config_github["access_token"]
+
+    github = Github(ACCESS_TOKEN)
     repo = github.get_repo('canmod/iidda-test-assets')
 
     # filter through and sort all releases of this name ascending by version
@@ -30,7 +37,7 @@ def get_dataset(dataset_name, download_path, version="latest", metadata=False):
     release = release_list[version - 1]
 
     headers = {
-        'Authorization': 'token ' + config_site.ACCESS_TOKEN,
+        'Authorization': 'token ' + ACCESS_TOKEN,
         'Accept': 'application/octet-stream'
     }
 
