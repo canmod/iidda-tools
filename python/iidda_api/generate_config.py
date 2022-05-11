@@ -1,8 +1,10 @@
 import configparser
 import os
+from appdirs import *
 
-# detect directory of current file
-path = os.path.dirname(os.path.abspath(__file__)) + '/config/config.ini'
+# generate path
+os.mkdir(user_config_dir("iidda-api"))
+path = user_config_dir("iidda-api") + '/config.ini'
 
 def generate_config(token):
     # defining structure of the file
