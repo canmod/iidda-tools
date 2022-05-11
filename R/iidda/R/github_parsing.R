@@ -12,7 +12,7 @@
 raw_github = function(owner, repo, path, user = NULL, token = NULL, branch = 'master') {
   output = paste(
     'raw.githubusercontent.com',
-    user, repo, branch, path,
+    owner, repo, branch, path,
     sep = '/')
   return(output)
   login_query = ""
@@ -23,22 +23,36 @@ raw_github = function(owner, repo, path, user = NULL, token = NULL, branch = 'ma
       user = user, token = token)
   }
 
-  #curl -H 'Authorization: token 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' -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/davidearn/data_work/contents/README.md
-
-  #"https://api.github.com/repos/davidearn/data_work/contents/README.md?token=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"
-
   url_template = paste0(
-    "https://raw.github.com/%{owner}s/%{repo}s/",
+    "https://raw.githubusercontent.com/%{owner}s/%{repo}s/",
     "%{branch}s/%{path}s%{login_query}s", sep = '')
   sprintf_named(url_template, owner = owner, repo = repo, branch = branch,
                 path = rm_leading_slash(path),
                 login_query = login_query)
 }
 
-#between_strings = function(s, start, end) {
-#  p = paste0('.*', start, '(.+)', end, '.*')
-#  gsub(p, "\\1", s)
-#}
+# curl \
+# -i -u stevencarlislewalker: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 \
+# -H "Accept: application/vnd.github.v3+json" \
+# https://api.github.com/orgs/canmod/repos
+
+# curl \
+# -i -u stevencarlislewalker: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 \
+# -H "Accept: application/vnd.github.VERSION.raw" \
+# https://api.github.com/repos/canmod/iidda-utilities/contents/README.md
+
+# curl \
+# -i -u stevencarlislewalker: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 \
+# -H "Accept: application/vnd.github.VERSION.raw" \
+# https://api.github.com/repos/canmod/iidda-staging/releases
+
+# curl \
+# -X POST \
+# -i -u stevencarlislewalker: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 \
+# -H "Accept: application/vnd.github.v3+json" \
+# https://api.github.com/repos/canmod/iidda-test-assets/releases \
+# -d '{"tag_name":"here_is_another_one"}'
+
 
 #' Convert GitHub URLs into Raw Format (not working)
 #'

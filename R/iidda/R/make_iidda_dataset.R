@@ -31,6 +31,9 @@ iidda_from_single_file = function(single_file, new_repo, lifecycle) {
   new_data_path = file.path(new_repo, 'data', new_data_name)
 
   # e.g. "/path/to/repo/data/file/conversion-scripts"
+  # TODO: conversion-scripts should now be inside derived-data
+  # TODO: derived-data also contains sub-directories for 'products'
+  # https://github.com/canmod/iidda-tools/issues/10
   scripts_path = file.path(new_data_path, 'conversion-scripts')
 
   # e.g. "/path/to/repo/data/file/derived-data"

@@ -74,6 +74,57 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path) {
   metadata
 }
 
+#' @export
+tracking_tables_with_column = function(metadata, col_nm) {
+  (metadata
+   %>% lapply(names)
+   %>% lapply(`==`, col_nm)
+   %>% lapply(any)
+   %>% unlist
+   %>% which
+  )
+}
+
+#' @export
+tracking_table_keys = list(
+  organization = list(
+    primary = c('Organizations'),
+    foreign = c('Contacts', 'Sources')
+  ),
+  source = list(
+    primary = c('Sources'),
+    foreign = c('Originals')
+  ),
+  digitization = list(
+    primary = c('Digitizations'),
+    foreign = c('Originals', 'TidyDatasets')
+  ),
+  tidy_dataset = list(
+    primary = c('TidyDatasets'),
+    foreign = c('Schema')
+  ),
+  column = list(
+    primary = c('Columns'),
+    foreign = c('Schema')
+  )
+)
+
+#' @export
+melt_tracking_table_keys = function(keys) {
+  (keys
+   %>% lapply(as.data.frame)
+   %>% bind_rows(.id = 'key')
+  )
+}
+
+#' Check Tracking Table Consistency
+#'
+#' @param path path to tracking tables
+check_tracking_tables = function(path) {
+  d = read_tracking_tables(path)
+
+}
+
 
 #' Add Metadata
 #'
@@ -111,8 +162,10 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
 make_data_cite_tidy_data = function(metadata, file) {
 
   # TODO: remove much of the hard-coding below
+  # https://github.com/canmod/iidda-tools/issues/7
   data_cite = list(
     # TODO: move this identifier down to alternateIdentifiers
+    # https://github.com/canmod/iidda-tools/issues/8
     identifier = list(
       identifier = metadata$TidyDataset$path_tidy_data,
       identifierType = 'iidda_product'
@@ -121,6 +174,7 @@ make_data_cite_tidy_data = function(metadata, file) {
       list(
         # TODO: iidda@mcmaster.ca should be the contact
         # bouncing now -- send a message to sys admin
+        # https://github.com/canmod/iidda-tools/issues/9
         creatorName = "McMaster University Theo-Bio Lab",
         nameType = "Organizational"
       )
@@ -147,7 +201,9 @@ make_data_cite_tidy_data = function(metadata, file) {
       resourceTypeGeneral = "Dataset",
       resourceType = "Communicable Disease Incidence"
     ),
-    alternateIdentifiers = NULL, # TODO: move main identifier here once we get DOI's going
+    # TODO: move main identifier here once we get DOI's going
+    # https://github.com/canmod/iidda-tools/issues/8
+    alternateIdentifiers = NULL,
     relatedIdentifiers = list(
       list(
         relatedIdentifier = metadata$Digitization$path_digitized_data,
