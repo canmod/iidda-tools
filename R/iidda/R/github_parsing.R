@@ -31,29 +31,6 @@ raw_github = function(owner, repo, path, user = NULL, token = NULL, branch = 'ma
                 login_query = login_query)
 }
 
-# curl \
-# -i -u stevencarlislewalker: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 \
-# -H "Accept: application/vnd.github.v3+json" \
-# https://api.github.com/orgs/canmod/repos
-
-# curl \
-# -i -u stevencarlislewalker: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 \
-# -H "Accept: application/vnd.github.VERSION.raw" \
-# https://api.github.com/repos/canmod/iidda-utilities/contents/README.md
-
-# curl \
-# -i -u stevencarlislewalker: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 \
-# -H "Accept: application/vnd.github.VERSION.raw" \
-# https://api.github.com/repos/canmod/iidda-staging/releases
-
-# curl \
-# -X POST \
-# -i -u stevencarlislewalker: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 \
-# -H "Accept: application/vnd.github.v3+json" \
-# https://api.github.com/repos/canmod/iidda-test-assets/releases \
-# -d '{"tag_name":"here_is_another_one"}'
-
-
 #' Convert GitHub URLs into Raw Format (not working)
 #'
 #' @param urls TODO
