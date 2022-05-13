@@ -11,7 +11,7 @@ def get_dataset(dataset_name, download_path, version="latest", metadata=False):
     config_github = config_obj["github_info"]
 
     ACCESS_TOKEN = config_github["access_token"]
-
+    
     github = Github(ACCESS_TOKEN)
     repo = github.get_repo('canmod/iidda-test-assets')
 
