@@ -24,7 +24,7 @@ def get_dataset_list(download_path, all_metadata=False):
         
     dataset_title_list = dict.fromkeys(dataset_title_list)
 
-    # Retrieve latest version of each dataset
+    # Generate dataset dictionary
     
     headers = {
         'Authorization': 'token ' + ACCESS_TOKEN,
@@ -56,9 +56,12 @@ def get_dataset_list(download_path, all_metadata=False):
             
     path = download_path + "/" + 'data set list' + "/" + 'dataset_list.json'
 
+    # Creating JSON File
+    
     # make directory if it doesn't exist
     os.makedirs(os.path.dirname(path), exist_ok=True)
     
+    # Write the dicitonary in JSON file
     with open(path, "w") as file:
         file.write(json.dumps(dataset_title_list, indent=4))
             
