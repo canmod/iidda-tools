@@ -6,13 +6,9 @@ from iidda_api import generate_config
 import json
 
 def get_dataset_list(download_path, all_metadata=False):
-    # Read config file and obtain access token
-    config_obj = configparser.ConfigParser()
-    config_obj.read(generate_config.path)
-    config_github = config_obj["github_info"]
-
-    ACCESS_TOKEN = config_github["access_token"]
-
+    start =time.time()
+    # Get access token
+    ACCESS_TOKEN = generate_config.read_config()
     github = Github(ACCESS_TOKEN)
     repo = github.get_repo('canmod/iidda-test-assets')
 
@@ -47,14 +43,14 @@ def get_dataset_list(download_path, all_metadata=False):
                 meta_data = json.loads(response.text)
                 if all_metadata == False:
                     dataset_title_list[title] = {'identifier': meta_data['identifier']}
-                elif all_metadata == True:
+                else:
                     dataset_title_list[title] = meta_data
             else:
                 print("Download failed: {}\n{}".format(response.status_code, response.text))
         else:
             dataset_title_list[title] = 'No metadata.'
             
-    path = download_path + "/" + 'data set list' + "/" + 'dataset_list.json'
+    path = "".join([download_path, "/", 'Dataset List', "/", 'dataset_list.json'])
 
     # Creating JSON File
     

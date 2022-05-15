@@ -5,13 +5,8 @@ import configparser
 from iidda_api import generate_config
 
 def get_dataset(dataset_name, download_path, version="latest", metadata=False):
-    # Read config file and obtain access token
-    config_obj = configparser.ConfigParser()
-    config_obj.read(generate_config.path)
-    config_github = config_obj["github_info"]
-
-    ACCESS_TOKEN = config_github["access_token"]
-    
+    # Get access token
+    ACCESS_TOKEN = generate_config.read_config()
     github = Github(ACCESS_TOKEN)
     repo = github.get_repo('canmod/iidda-test-assets')
 

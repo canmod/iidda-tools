@@ -3,11 +3,13 @@ import os
 from appdirs import *
 
 # generate path
-directory_path = user_config_dir("iidda-api","")
-if not os.path.isdir(directory_path):
-    os.makedirs(directory_path)
+def config_path():
+    directory_path = user_config_dir("iidda-api","")
+    if not os.path.isdir(directory_path):
+        os.makedirs(directory_path)
 
-path = directory_path + '/config.ini'
+    path = directory_path + '/config.ini'
+    return path
 
 def generate_config(token):
     # defining structure of the file
@@ -15,10 +17,20 @@ def generate_config(token):
     config.add_section('github_info')
     config.set('github_info', 'access_token', token)
 
-    print("generating config file at: " + path)
+    print("generating config file at: " + config_path())
 
     # write the file
-    with open(path, 'w') as configfile:
+    with open(config_path(), 'w') as configfile:
         config.write(configfile)
+        
+def read_config():
+    config_obj = configparser.ConfigParser()
+    config_obj.read(config_path())
+    config_github = config_obj["github_info"]
+
+    ACCESS_TOKEN = config_github["access_token"]
+    
+    return ACCESS_TOKEN
+    
 
 
