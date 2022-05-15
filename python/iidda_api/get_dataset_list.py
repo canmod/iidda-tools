@@ -4,9 +4,9 @@ import os
 import configparser
 from iidda_api import generate_config
 import json
+import time
 
 def get_dataset_list(download_path, all_metadata=False):
-    start =time.time()
     # Get access token
     ACCESS_TOKEN = generate_config.read_config()
     github = Github(ACCESS_TOKEN)
