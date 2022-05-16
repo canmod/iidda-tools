@@ -4,6 +4,8 @@ import os
 import configparser
 from iidda_api import generate_config
 import json
+import aiohttp
+import asyncio
 
 def get_dataset_list(download_path, all_metadata=False):
     # Get access token
@@ -17,7 +19,7 @@ def get_dataset_list(download_path, all_metadata=False):
     # Create list of unique dataset titles
     dataset_title_list = map(lambda release: release.title, releases)
         
-    dataset_title_list = dict.fromkeys(dataset_title_list)
+    dataset_title_list = list(dict.fromkeys(dataset_title_list))
 
     # Generate dataset dictionary
     
@@ -25,8 +27,30 @@ def get_dataset_list(download_path, all_metadata=False):
         'Authorization': 'token ' + ACCESS_TOKEN,
         'Accept': 'application/octet-stream'
     }
+
+    async def main():
+        async with aiohttp.ClientSession(headers=headers) as session:
+            tasks = []
+            for title in dataset_title_list:
+                task = asyncio.ensure_future(get_dataset_data(session, title))
+                tasks.append(task)
+
+            dataset_metadata = await asyncio.gather(*tasks)
+
+            result_file = dict(zip(dataset_title_list,dataset_metadata))
+
+            path = "".join([download_path, "/", 'Dataset List', "/", 'dataset_list.json'])
+
+            # Creating JSON File
     
-    for title in dataset_title_list:
+            # make directory if it doesn't exist
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+    
+            # Write the dicitonary in JSON file
+            with open(path, "w") as file:
+                file.write(json.dumps(result_file, indent=4))
+
+    async def get_dataset_data(session,title): 
         # Search for latest version
         title_version_list = filter(lambda release: release.title == title, releases)
         title_version_list = sorted(title_version_list, key=lambda release: int(release.body[8:]))
@@ -35,29 +59,18 @@ def get_dataset_list(download_path, all_metadata=False):
         # get metadata
         latest_version_metadata = latest_version.get_assets()
         latest_version_metadata = list(filter(lambda release: release.name == title + '.json', latest_version_metadata))
-        
+    
         if latest_version_metadata != []:
-            response = requests.get(latest_version_metadata[0].url, stream=True, headers=headers)
-            if response.ok:
-                meta_data = json.loads(response.text)
+            metadata_url = latest_version_metadata[0].url
+            async with session.get(metadata_url) as response:
+                metadata = await response.text()
+                metadata = json.loads(metadata)
                 if all_metadata == False:
-                    dataset_title_list[title] = {'identifier': meta_data['identifier']}
+                    return {'identifier': metadata['identifier']}
                 else:
-                    dataset_title_list[title] = meta_data
-            else:
-                print("Download failed: {}\n{}".format(response.status_code, response.text))
+                    return metadata
         else:
-            dataset_title_list[title] = 'No metadata.'
+            return 'No metadata.'
             
-    path = "".join([download_path, "/", 'Dataset List', "/", 'dataset_list.json'])
-
-    # Creating JSON File
-    
-    # make directory if it doesn't exist
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    
-    # Write the dicitonary in JSON file
-    with open(path, "w") as file:
-        file.write(json.dumps(dataset_title_list, indent=4))
-            
-        
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(main())
