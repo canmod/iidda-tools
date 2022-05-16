@@ -72,5 +72,6 @@ def get_dataset_list(download_path, all_metadata=False):
         else:
             return 'No metadata.'
             
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # If OS is windows then include the below line
+    # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
