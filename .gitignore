@@ -11,3 +11,4 @@ renv*
 *tar.gz
 python/build/
 __pycache__
+iidda_api.egg-info

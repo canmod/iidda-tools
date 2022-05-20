@@ -35,7 +35,7 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
     )
     
     # Retrieve list of releases
-    response = session.get('https://api.github.com/repos/canmod/iidda-test-assets/releases', headers={'Authorization': 'token ' + ACCESS_TOKEN, 'Accept': 'application/vnd.github.v3+json'})
+    response = session.get('https://api.github.com/repos/canmod/iidda-test-assets/releases?per_page=100', headers={'Authorization': 'token ' + ACCESS_TOKEN, 'Accept': 'application/vnd.github.v3+json'})
     releases = list(response.json())
     
     dataset_title_list = map(lambda release: release['name'], releases)
@@ -84,6 +84,6 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
         else:
             return 'No metadata.'
             
-    # If OS is windows then include the below line
-    # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    If OS is windows then include the below line
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
