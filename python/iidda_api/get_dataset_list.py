@@ -28,7 +28,7 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
     
-    # Cache configuration for release assets
+    # Cache configuration for GitHub Repo
     session = requests_cache.CachedSession(
         cache_path + '/github-repo-cache',
         expire_after=30 #expire after x number of seconds
