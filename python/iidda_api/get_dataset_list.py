@@ -9,6 +9,21 @@ import asyncio
 from aiohttp_client_cache import CachedSession, FileBackend
 import requests_cache
 
+async def get_release_list(access_token, cache_config):
+    async with CachedSession(cache=cache_config) as session:
+        page = 1
+        release_list = []
+        tasks = []
+        while True:
+            async with session.get(f"https://api.github.com/repos/canmod/iidda-test-assets/releases?per_page=100&page={page}", headers={"Authorization": "token " + access_token}) as response:
+                releases = await response.json()
+                if not releases:
+                    break
+                release_list.extend(list(releases))
+                page += 1
+                    
+        return release_list
+        
 def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False):
     # Get access token
     ACCESS_TOKEN = generate_config.read_config()
@@ -27,28 +42,25 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
     cache_path = "".join([path, "/", 'cache'])
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
-    
-    # Cache configuration for GitHub Repo
-    session = requests_cache.CachedSession(
-        cache_path + '/github-repo-cache',
-        expire_after=30 #expire after x number of seconds
+
+    # Cache configurations
+    assets_cache = FileBackend(
+        cache_name = cache_path
     )
     
-    # Retrieve list of releases
-    response = session.get('https://api.github.com/repos/canmod/iidda-test-assets/releases?per_page=100', headers={'Authorization': 'token ' + ACCESS_TOKEN, 'Accept': 'application/vnd.github.v3+json'})
-    releases = list(response.json())
+    release_list_cache = FileBackend(
+        cache_name = cache_path,
+        expire_after=10 #time default in seconds (can be changed to other units of time)
+    )
+        
+    releases = asyncio.run(get_release_list(ACCESS_TOKEN,release_list_cache))
     
     dataset_title_list = map(lambda release: release['name'], releases)
         
     dataset_title_list = list(dict.fromkeys(dataset_title_list))
-
-    # Cache configuration for release assets
-    cache = FileBackend(
-        cache_name = cache_path
-    )
     
     async def main():
-        async with CachedSession(cache=cache) as session:
+        async with CachedSession(cache=assets_cache) as session:
             tasks = []
             for title in dataset_title_list:
                 task = asyncio.ensure_future(get_dataset_data(session, title))
@@ -84,6 +96,6 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
         else:
             return 'No metadata.'
             
-    #If OS is windows then include the below line
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # If OS is windows then include the below line
+    # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
