@@ -50,7 +50,7 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
     
     release_list_cache = FileBackend(
         cache_name = cache_path,
-        expire_after=10 #time default in seconds (can be changed to other units of time)
+        expire_after=30 #time default in seconds (can be changed to other units of time)
     )
         
     releases = asyncio.run(get_release_list(ACCESS_TOKEN,release_list_cache))
