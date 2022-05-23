@@ -8,6 +8,7 @@ import aiohttp
 import asyncio
 from aiohttp_client_cache import CachedSession, FileBackend
 import requests_cache
+from appdirs import *
 
 async def get_release_list(access_token, cache_config):
     async with CachedSession(cache=cache_config) as session:
@@ -39,7 +40,7 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
         os.makedirs(path)
     
     # make cache directory
-    cache_path = "".join([path, "/", 'cache'])
+    cache_path = user_cache_dir("iidda-api-cache","")
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
 
