@@ -1,4 +1,3 @@
-from github import Github
 import requests
 import os
 import configparser
@@ -14,7 +13,6 @@ async def get_release_list(access_token, cache_config):
     async with CachedSession(cache=cache_config) as session:
         page = 1
         release_list = []
-        tasks = []
         while True:
             async with session.get(f"https://api.github.com/repos/canmod/iidda-test-assets/releases?per_page=100&page={page}", headers={"Authorization": "token " + access_token}) as response:
                 releases = await response.json()
