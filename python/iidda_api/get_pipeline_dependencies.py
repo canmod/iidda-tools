@@ -5,13 +5,11 @@ import configparser
 from iidda_api import generate_config
 import aiohttp
 import asyncio
-import time
 
 def convert_to_raw(url):
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
 
 def get_pipeline_dependencies(dataset_name, download_path, version="latest"):
-    start = time.time()
     # Get access token
     ACCESS_TOKEN = generate_config.read_config()
     github = Github(ACCESS_TOKEN)
@@ -71,7 +69,6 @@ def get_pipeline_dependencies(dataset_name, download_path, version="latest"):
                             os.makedirs(os.path.dirname(path), exist_ok=True)
                             with open(path, "wb") as downloaded_file:
                                 downloaded_file.write(file[0])
-                            print(time.time()-start)
                             
                 async def download_dependencies(url, session):
                     file_name = os.path.basename(url[34:])
