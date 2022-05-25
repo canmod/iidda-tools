@@ -21,11 +21,11 @@ async def get_release_list(access_token, cache_config):
                 if not releases:
                     break
                 release_list.extend(list(releases))
-                page += 1
-                    
+                page += 1  
+                
         return release_list
         
-def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False):
+def get_dataset_list(download_path, all_metadata=False):
     # Get access token
     ACCESS_TOKEN = generate_config.read_config()
 
@@ -33,11 +33,6 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
         'Authorization': 'token ' + ACCESS_TOKEN,
         'Accept': 'application/octet-stream'
     }
-    
-    # make directory if it doesn't exist
-    path = "".join([download_path, "/", file_name])
-    if not os.path.isdir(path):
-        os.makedirs(path)
     
     # make cache directory
     cache_path = user_cache_dir("iidda-api-cache","")
@@ -72,7 +67,11 @@ def get_dataset_list(download_path, file_name='Dataset List', all_metadata=False
             result_file = dict(zip(dataset_title_list,dataset_metadata))
 
             # Write the dicitonary in JSON file
-            file_path = "".join([path, '/' + "_".join(file_name.split()) + '.json'])
+            if download_path.endswith('.json'):
+                file_path = download_path
+            else:
+                file_path = "".join([download_path, '.json'])
+                
             with open(file_path, "w") as file:
                 file.write(json.dumps(result_file, indent=4))
 
