@@ -2,7 +2,7 @@ from github import Github
 import requests
 import os
 import configparser
-from iidda_api import generate_config
+from iidda_api import read_config
 import aiohttp
 import asyncio
 
@@ -11,7 +11,7 @@ def convert_to_raw(url):
 
 def get_pipeline_dependencies(dataset_name, download_path, version="latest"):
     # Get access token
-    ACCESS_TOKEN = generate_config.read_config()
+    ACCESS_TOKEN = read_config()
     github = Github(ACCESS_TOKEN)
     repo = github.get_repo('canmod/iidda-test-assets')
 

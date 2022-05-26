@@ -1,7 +1,7 @@
 import requests
 import os
 import configparser
-from iidda_api import generate_config
+from iidda_api import read_config
 import json
 import aiohttp
 import asyncio
@@ -25,7 +25,7 @@ async def get_release_list(access_token, cache_config):
         
 def get_dataset_list(download_path, all_metadata=False):
     # Get access token
-    ACCESS_TOKEN = generate_config.read_config()
+    ACCESS_TOKEN = read_config()
 
     headers = {
         'Authorization': 'token ' + ACCESS_TOKEN,
