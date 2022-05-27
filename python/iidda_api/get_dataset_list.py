@@ -14,7 +14,7 @@ async def get_release_list(access_token, cache_config):
         page = 1
         release_list = []
         while True:
-            async with session.get(f"https://api.github.com/repos/canmod/iidda-test-assets/releases?per_page=100&page={page}", headers={"Authorization": "token " + access_token}) as response:
+            async with session.get(f"https://api.github.com/repos/{read_config('repository')}/releases?per_page=100&page={page}", headers={"Authorization": "token " + access_token}) as response:
                 releases = await response.json()
                 if not releases:
                     break
@@ -25,7 +25,7 @@ async def get_release_list(access_token, cache_config):
         
 def get_dataset_list(download_path, all_metadata=False):
     # Get access token
-    ACCESS_TOKEN = read_config()
+    ACCESS_TOKEN = read_config('access_token')
 
     headers = {
         'Authorization': 'token ' + ACCESS_TOKEN,

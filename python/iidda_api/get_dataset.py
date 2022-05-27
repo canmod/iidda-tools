@@ -6,9 +6,9 @@ from iidda_api import read_config
 
 def get_dataset(dataset_name, download_path, version="latest", metadata=False):
     # Get access token
-    ACCESS_TOKEN = read_config()
+    ACCESS_TOKEN = read_config('access_token')
     github = Github(ACCESS_TOKEN)
-    repo = github.get_repo('canmod/iidda-test-assets')
+    repo = github.get_repo(read_config('repository'))
 
     # filter through and sort all releases of this name ascending by version
     release_list = list(
