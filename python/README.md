@@ -9,5 +9,5 @@
 * You can update the configuration simply by re-generating the configuration file.
 * Execute `uvicorn main:app`. Open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) in a browser.
 
-**Note**
+**Note:**
 If the `uvloop` package is installed on your computer, you may get the error: `ValueError: Can't patch loop of type <class 'uvloop.Loop’>`. Simply uninstall the `uvloop` package to fix this error.
