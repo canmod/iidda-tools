@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, HTTPException
 from iidda_api import *
 from fastapi.responses import FileResponse
 import nest_asyncio
+from fastapi.openapi.utils import get_openapi
 nest_asyncio.apply()
 
 app = FastAPI()
@@ -21,3 +22,21 @@ async def dataset_name(dataset_name,version="latest"):
 async def webhook(req: Request):
     get_dataset_list(all_metadata="False",clear_cache=True)
     return "Cache cleared."
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="IIDDA API",
+        version="1.0.0",
+        description="Description.",
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://brand.mcmaster.ca/app/uploads/2019/04/mcm-bw-rev.png"
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
