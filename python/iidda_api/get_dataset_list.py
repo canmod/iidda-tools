@@ -9,8 +9,10 @@ from aiohttp_client_cache import CachedSession, FileBackend
 import requests_cache
 from appdirs import *
 
-async def get_release_list(access_token, cache_config):
+async def get_release_list(access_token, cache_config, clear_cache):
     async with CachedSession(cache=cache_config) as session:
+        if clear_cache == True or clear_cache.lower() == 'true':
+            await session.cache.clear()
         page = 1
         release_list = []
         while True:
@@ -23,7 +25,7 @@ async def get_release_list(access_token, cache_config):
                 
         return release_list
         
-def get_dataset_list(download_path, all_metadata=False):
+def get_dataset_list(all_metadata,clear_cache):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
@@ -44,10 +46,9 @@ def get_dataset_list(download_path, all_metadata=False):
     
     release_list_cache = FileBackend(
         cache_name = cache_path,
-        expire_after=30 #time default in seconds (can be changed to other units of time)
     )
         
-    releases = asyncio.run(get_release_list(ACCESS_TOKEN,release_list_cache))
+    releases = asyncio.run(get_release_list(ACCESS_TOKEN,release_list_cache,clear_cache))
     
     dataset_title_list = map(lambda release: release['name'], releases)
         
@@ -64,14 +65,7 @@ def get_dataset_list(download_path, all_metadata=False):
 
             result_file = dict(zip(dataset_title_list,dataset_metadata))
 
-            # Write the dicitonary in JSON file
-            if download_path.endswith('.json'):
-                file_path = download_path
-            else:
-                file_path = "".join([download_path, '.json'])
-                
-            with open(file_path, "w") as file:
-                file.write(json.dumps(result_file, indent=4))
+            return result_file
 
     async def get_dataset_data(session,title): 
         # Search for latest version
@@ -87,13 +81,13 @@ def get_dataset_list(download_path, all_metadata=False):
             async with session.get(metadata_url,headers=headers) as response:
                 metadata = await response.text()
                 metadata = json.loads(metadata)
-                if all_metadata == False:
-                    return {'identifier': metadata['identifier']}
-                else:
+                if all_metadata.lower() == "true":
                     return metadata
+                else:
+                    return {'identifier': metadata['identifier']}
         else:
             return 'No metadata.'
             
     # If OS is windows then include the below line
     # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    asyncio.run(main())
+    return asyncio.run(main())
