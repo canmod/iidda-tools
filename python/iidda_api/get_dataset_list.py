@@ -11,7 +11,7 @@ from appdirs import *
 
 async def get_release_list(access_token, cache_config, clear_cache):
     async with CachedSession(cache=cache_config) as session:
-        if clear_cache == True or clear_cache.lower() == 'true':
+        if clear_cache == True or (isinstance(clear_cache,str) and clear_cache.lower() == 'true'):
             await session.cache.clear()
         page = 1
         release_list = []
