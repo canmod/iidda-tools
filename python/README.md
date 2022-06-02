@@ -11,3 +11,11 @@
 
 **Note:**
 If the `uvloop` package is installed on your computer, you may get the error: `ValueError: Can't patch loop of type <class 'uvloop.Loop’>`. Simply uninstall the `uvloop` package to fix this error.
+
+## Usage
+
+* The `/datasets/{dataset_name}` endpoint has the following options for the `response_type` parameter:
+    * `dataset_download`: downloads a zip file containing only the `.csv` file if `metadata == false` and all the associated `.json` metadata files if `metadata == true`.
+    * `pipeline_dependencies`: downloads all the original source files for the datasets. 
+    * `github_url`: returns a JSON object containing the GitHub URL to the release.
+    * `raw_csv`: returns the raw CSV file which can then be used in functions like `read.csv()` in R. Note that this will not work in the Swagger UI.
