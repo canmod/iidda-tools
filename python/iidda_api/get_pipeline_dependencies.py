@@ -5,9 +5,13 @@ import configparser
 from iidda_api import read_config
 import aiohttp
 import asyncio
+from io import BytesIO
+from fastapi.responses import StreamingResponse
+import zipfile
+
 
 def convert_to_raw(url):
-    return url.replace("blob", "raw")
+    return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
 
 def get_pipeline_dependencies(dataset_name, version="latest"):
     # Get access token
@@ -24,14 +28,13 @@ def get_pipeline_dependencies(dataset_name, version="latest"):
     
     # check if dataset is contained in repo
     if not release_list:
-        return False
+        return "This dataset does not exist in the releases"
 
     if version == "latest":
         version = len(release_list)
     
     if int(version) > len(release_list):
-        print("The supplied version is greater than the latest version. Downloading the latest version...")
-        version = len(release_list)
+        return f"The supplied version is greater than the latest version. The latest version is {len(release_list)}"
 
     release = release_list[int(version) - 1]
 
@@ -40,22 +43,47 @@ def get_pipeline_dependencies(dataset_name, version="latest"):
         'Accept': 'application/octet-stream'
     }
 
-    dependency_links = dict()
     for asset in release.get_assets():
-        if asset.name == dataset_name + ".json":
-            response = requests.get(asset.url, stream=True, headers=headers)
-            if response.ok:
-                dataset_metadata = response.json()
-                for relatedIdentifier in dataset_metadata['relatedIdentifiers']:
-                    if relatedIdentifier['relatedIdentifierType'] == "URL" and relatedIdentifier['relationType'] == "IsSourceOf":
-                        if isinstance(relatedIdentifier['relatedIdentifier'], list):
-                            for link in relatedIdentifier['relatedIdentifier']:
-                                file_name = os.path.basename(link[19:])
-                                dependency_links[file_name] = convert_to_raw(link)
-                        else:
-                            file_name = os.path.basename(relatedIdentifier['relatedIdentifier'][19:])
-                            dependency_links[file_name] = convert_to_raw(relatedIdentifier['relatedIdentifier'])
-            else:
-                print("Failure in getting assets from GitHub {}\n{}".format(response.status_code, response.text))
-    
-    return dependency_links
+            if asset.name == dataset_name + ".json":
+                response = requests.get(asset.url, stream=True, headers=headers)
+                if response.ok:
+                    dataset_metadata = response.json()
+                    async def main():
+                        async with aiohttp.ClientSession(headers={'Authorization': 'token ' + ACCESS_TOKEN, 'Accept': 'application/vnd.github.v3.raw'}) as session:
+                            tasks = []
+                            for relatedIdentifier in dataset_metadata['relatedIdentifiers']:
+                                if relatedIdentifier['relatedIdentifierType'] == "URL" and relatedIdentifier['relationType'] == "IsSourceOf":
+                                    if isinstance(relatedIdentifier['relatedIdentifier'], list):
+                                        for link in relatedIdentifier['relatedIdentifier']:
+                                            url = convert_to_raw(link)
+                                            task = asyncio.ensure_future(download_dependencies(url, session))
+                                            tasks.append(task)
+                                    else:
+                                        url = convert_to_raw(relatedIdentifier['relatedIdentifier'])
+                                        task = asyncio.ensure_future(download_dependencies(url, session))
+                                        tasks.append(task)
+                                    
+                            
+                            files = await asyncio.gather(*tasks)
+                            mem_zip = BytesIO()
+                            zip_sub_dir = dataset_name + "_dependencies"
+                            zip_filename = "%s.zip" % zip_sub_dir
+                            with zipfile.ZipFile(mem_zip, mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
+                                for f in files:
+                                    zf.writestr(f[0], f[1])
+
+                            return StreamingResponse(
+                                iter([mem_zip.getvalue()]),
+                                media_type="application/x-zip-compressed",
+                                headers = { "Content-Disposition":f"attachment;filename=%s" % zip_filename}
+                            )
+                                
+                    async def download_dependencies(url, session):
+                        file_name = os.path.basename(url[34:])
+                        async with session.get(url) as response:
+                            file_content = await response.read()
+                            return (file_name,file_content)
+                    
+                    return asyncio.run(main())
+                else:
+                    return "Failure in getting assets from GitHub {}\n{}".format(response.status_code, response.text)

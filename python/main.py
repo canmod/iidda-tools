@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query
 from iidda_api import *
 from fastapi.responses import FileResponse
 import nest_asyncio
@@ -12,11 +12,12 @@ async def datasets(all_metadata=False):
     return get_dataset_list(all_metadata,clear_cache=False)
 
 @app.get("/datasets/{dataset_name}")
-async def dataset_name(dataset_name,version="latest"):
-    if not get_pipeline_dependencies(dataset_name,version):
-        raise HTTPException(status_code=404, detail="Item not found")
-    else:
+async def dataset_name(dataset_name,response_type,version="latest", metadata=False):
+    if response_type == "pipeline_dependencies":
         return get_pipeline_dependencies(dataset_name,version)
+    else:
+        return get_dataset(dataset_name,version,metadata,response_type)
+
 
 @app.post('/payload', include_in_schema=False)  # ‘/hooktest’ specifies which link will it work on 
 async def webhook(req: Request):
