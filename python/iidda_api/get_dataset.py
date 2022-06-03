@@ -6,6 +6,7 @@ import configparser
 from iidda_api import read_config
 from io import BytesIO
 import zipfile
+import json
 from fastapi.responses import PlainTextResponse
 
 def get_dataset(dataset_name, version, metadata, response_type):
@@ -33,13 +34,14 @@ def get_dataset(dataset_name, version, metadata, response_type):
 
     release = release_list[int(version) - 1]
 
+    headers = {
+        'Authorization': 'token ' + ACCESS_TOKEN,
+        'Accept': 'application/octet-stream'
+    }
+
     if response_type == "github_url":
         return {"github_url": release.html_url}
     elif response_type == "dataset_download":
-        headers = {
-            'Authorization': 'token ' + ACCESS_TOKEN,
-            'Accept': 'application/octet-stream'
-        }
         files = []
         for asset in release.get_assets():
             if asset.name.endswith(".csv") or (asset.name.endswith(".json") and metadata.lower() == "true"):
@@ -62,10 +64,6 @@ def get_dataset(dataset_name, version, metadata, response_type):
             headers = { "Content-Disposition":f"attachment;filename=%s" % zip_filename}
         )
     elif response_type == "raw_csv":
-        headers = {
-            'Authorization': 'token ' + ACCESS_TOKEN,
-            'Accept': 'application/octet-stream'
-        }
         for asset in release.get_assets():
             if asset.name == dataset_name + '.csv':
                 response = requests.get(asset.url, stream=True, headers=headers)
@@ -73,3 +71,22 @@ def get_dataset(dataset_name, version, metadata, response_type):
                     return PlainTextResponse(response.content)
                 else:
                     return "Download failed: {}\n{}".format(response.status_code, response.text)
+
+    elif response_type == "metadata":
+        for asset in release.get_assets():
+            if asset.name == dataset_name + '.json':
+                response = requests.get(asset.url, stream=True, headers=headers)
+                if response.ok:
+                    return json.loads(response.content)
+                else:
+                    return "Download failed: {}\n{}".format(response.status_code, response.text)
+
+    elif response_type == "csv_dialect" or response_type == "data_dictionary":
+        for asset in release.get_assets():
+            if asset.name == dataset_name + "_" + response_type + '.json':
+                response = requests.get(asset.url, stream=True, headers=headers)
+                if response.ok:
+                    return json.loads(response.content)
+                else:
+                    return "Download failed: {}\n{}".format(response.status_code, response.text)
+                        
