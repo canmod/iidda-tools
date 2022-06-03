@@ -5,7 +5,7 @@ import nest_asyncio
 from fastapi.openapi.utils import get_openapi
 nest_asyncio.apply()
 
-app = FastAPI()
+app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": -1})
 
 @app.get("/datasets")
 async def datasets(all_metadata=False):
