@@ -12,7 +12,7 @@ async def datasets(all_metadata=False):
     return get_dataset_list(all_metadata,clear_cache=False)
 
 @app.get("/datasets/{dataset_name}")
-async def dataset_name(dataset_name,response_type: str = Query("dataset_download", enum=["dataset_download", "pipeline_dependencies", "github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"]), version="latest", metadata=False):
+async def dataset_name(dataset_name,response_type: str = Query("dataset_download", enum=sorted(["dataset_download", "pipeline_dependencies", "github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"])), version="latest", metadata=False):
     if response_type == "pipeline_dependencies":
         return get_pipeline_dependencies(dataset_name,version)
     else:

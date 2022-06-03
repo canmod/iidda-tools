@@ -9,7 +9,13 @@ import zipfile
 import json
 from fastapi.responses import PlainTextResponse
 
-def get_dataset(dataset_name, version, metadata, response_type):
+def get_dataset(dataset_name, version, metadata, response_type):\
+    # Converting strings to boolean
+    if isinstance(metadata,str) and metadata.lower() == "true":
+        metadata == True
+    elif isinstance(metadata,str) and metadata.lower() == "false":
+        metadata == False
+        
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     github = Github(ACCESS_TOKEN)
@@ -44,7 +50,7 @@ def get_dataset(dataset_name, version, metadata, response_type):
     elif response_type == "dataset_download":
         files = []
         for asset in release.get_assets():
-            if asset.name.endswith(".csv") or (asset.name.endswith(".json") and metadata.lower() == "true"):
+            if asset.name.endswith(".csv") or (asset.name.endswith(".json") and metadata):
                 response = requests.get(asset.url, stream=True, headers=headers)
                 if response.ok:
                     files.append((asset.name,response.content))
