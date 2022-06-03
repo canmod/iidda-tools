@@ -19,3 +19,6 @@ If the `uvloop` package is installed on your computer, you may get the error: `V
     * `pipeline_dependencies`: downloads all the original source files for the datasets. 
     * `github_url`: returns a JSON object containing the GitHub URL to the release.
     * `raw_csv`: returns the raw CSV file which can then be used in functions like `read.csv()` in R. Note that this will not work in the Swagger UI but only as a URL (for example, [http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv](http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv))
+    * `metadata`: returns the content inside the `{dataset_name}.json` asset.
+    * `csv_dialect`: returns the content inside the `{dataset_name}_csv_dialect.json` asset.
+    * `data_dictionary`: returns the content inside the `{dataset_name}_data_dictionary.json` asset.
