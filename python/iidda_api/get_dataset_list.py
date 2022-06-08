@@ -26,6 +26,11 @@ async def get_release_list(access_token, cache_config, clear_cache):
         return release_list
         
 def get_dataset_list(all_metadata,clear_cache):
+    if isinstance(all_metadata,str) and all_metadata.lower() == "true":
+        all_metadata = True
+    elif isinstance(all_metadata,str) and all_metadata.lower() == "false":
+        all_metadata = False
+  
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
