@@ -12,9 +12,9 @@ from fastapi.responses import PlainTextResponse
 def get_dataset(dataset_name, version, metadata, response_type):\
     # Converting strings to boolean
     if isinstance(metadata,str) and metadata.lower() == "true":
-        metadata == True
+        metadata = True
     elif isinstance(metadata,str) and metadata.lower() == "false":
-        metadata == False
+        metadata = False
         
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
