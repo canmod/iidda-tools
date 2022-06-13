@@ -25,11 +25,12 @@ async def datasets(all_metadata: bool = False, key: str = Query("", enum=generat
         return jq(jq_query).transform(data, multiple_output=True)
     elif key != "" and value != "":
         keys = key.split(" ")
+        print(keys)
         data = get_dataset_list(all_metadata=True,clear_cache=False)
         if len(keys) > 1:
             return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | contains("{value}")) else select(. | contains("{value}")) end) else select({keys[1]} | contains("{value}")) end))').transform(data)
         else:
-            return jq(f'map_values(select(. != "No metadata.") | select({key[0]} != null) | select({key[0]} | contains("{value}")))').transform(data)
+            return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | contains("{value}")) else contains("{value}") end))').transform(data)
 
 @app.get("/datasets/{dataset_name}")
 async def dataset_name(dataset_name: str,response_type: str = Query("dataset_download", enum=sorted(["dataset_download", "pipeline_dependencies", "github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"])), version: str = "latest", metadata: bool =False):
