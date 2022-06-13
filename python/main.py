@@ -11,9 +11,9 @@ app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": -1})
 
 def generate_filters():
     dataset_list = get_dataset_list(all_metadata=True,clear_cache=False)
-    data = jq('[paths(scalars) as $p | [ ( [ $p[] | tostring ][1:] | join(" ."))] | .[]] | unique').transform(dataset_list)
+    data = jq('map_values(select(. != "No metadata.")) | [paths(scalars) as $p | [ ( [ [$p[]] | map(select(. | type != "number")) | .[] | tostring ][1:] | join(" ."))] | .[]] | unique').transform(dataset_list)
     for x in range(len(data)):
-        data[x] = "." + re.sub(r"\s.(\d+)", r"[\1]",data[x])
+        data[x] = "." + data[x]
     return data
 
 @app.get("/datasets")
@@ -24,8 +24,12 @@ async def datasets(all_metadata: bool = False, key: str = Query("", enum=generat
         data = get_dataset_list(all_metadata=True,clear_cache=False)
         return jq(jq_query).transform(data, multiple_output=True)
     elif key != "" and value != "":
+        keys = key.split(" ")
         data = get_dataset_list(all_metadata=True,clear_cache=False)
-        return jq(f'map_values(select(. != "No metadata.") | select({key} != null) | select({key} | contains("{value}")))').transform(data)
+        if len(keys) > 1:
+            return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | contains("{value}")) else select(. | contains("{value}")) end) else select({keys[1]} | contains("{value}")) end))').transform(data)
+        else:
+            return jq(f'map_values(select(. != "No metadata.") | select({key[0]} != null) | select({key[0]} | contains("{value}")))').transform(data)
 
 @app.get("/datasets/{dataset_name}")
 async def dataset_name(dataset_name: str,response_type: str = Query("dataset_download", enum=sorted(["dataset_download", "pipeline_dependencies", "github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"])), version: str = "latest", metadata: bool =False):
