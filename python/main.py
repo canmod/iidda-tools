@@ -35,7 +35,7 @@ async def dataset_name(dataset_name: str,response_type: str = Query("dataset_dow
         return get_dataset(dataset_name,version,metadata,response_type)
 
 
-@app.post('/payload', include_in_schema=False)  # ‘/hooktest’ specifies which link will it work on 
+@app.post('/githubwebhook', include_in_schema=False)  # ‘/githubwebhook’ specifies which link will it work on 
 async def webhook(req: Request):
     get_dataset_list(all_metadata="False",clear_cache=True)
     return "Cache cleared."
