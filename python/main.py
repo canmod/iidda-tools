@@ -3,16 +3,32 @@ from iidda_api import *
 from fastapi.responses import FileResponse
 import nest_asyncio
 from fastapi.openapi.utils import get_openapi
+from jq import jq
+import re
 nest_asyncio.apply()
 
 app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": -1})
 
+def generate_filters():
+    dataset_list = get_dataset_list(all_metadata=True,clear_cache=False)
+    data = jq('[paths(scalars) as $p | [ ( [ $p[] | tostring ][1:] | join(" ."))] | .[]] | unique').transform(dataset_list)
+    for x in range(len(data)):
+        data[x] = "." + re.sub(r"\s.(\d+)", r"[\1]",data[x])
+    return data
+
 @app.get("/datasets")
-async def datasets(all_metadata=False):
-    return get_dataset_list(all_metadata,clear_cache=False)
+async def datasets(all_metadata: bool = False, key: str = Query("", enum=generate_filters()),value: str ="",jq_query: str = ""):
+    if (key == "" or value == "") and jq_query == "":
+        return get_dataset_list(all_metadata,clear_cache=False)
+    elif jq_query != "":
+        data = get_dataset_list(all_metadata=True,clear_cache=False)
+        return jq(jq_query).transform(data, multiple_output=True)
+    elif key != "" and value != "":
+        data = get_dataset_list(all_metadata=True,clear_cache=False)
+        return jq(f'map_values(select(. != "No metadata.") | select({key} != null) | select({key} | contains("{value}")))').transform(data)
 
 @app.get("/datasets/{dataset_name}")
-async def dataset_name(dataset_name,response_type: str = Query("dataset_download", enum=sorted(["dataset_download", "pipeline_dependencies", "github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"])), version="latest", metadata=False):
+async def dataset_name(dataset_name: str,response_type: str = Query("dataset_download", enum=sorted(["dataset_download", "pipeline_dependencies", "github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"])), version: str = "latest", metadata: bool =False):
     if response_type == "pipeline_dependencies":
         return get_pipeline_dependencies(dataset_name,version)
     else:

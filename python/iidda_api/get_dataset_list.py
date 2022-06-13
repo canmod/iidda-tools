@@ -86,7 +86,7 @@ def get_dataset_list(all_metadata,clear_cache):
             async with session.get(metadata_url,headers=headers) as response:
                 metadata = await response.text()
                 metadata = json.loads(metadata)
-                if all_metadata.lower() == "true":
+                if all_metadata == True:
                     return metadata
                 else:
                     return {'identifier': metadata['identifier']}
