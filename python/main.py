@@ -17,7 +17,7 @@ def generate_filters():
     return data
 
 @app.get("/dataset_metadata")
-async def datasets(all_metadata: bool = False, key: str = Query("", enum=generate_filters()),value: str ="",jq_query: str = ""):
+async def dataset_metadata(all_metadata: bool = False, key: str = Query("", enum=generate_filters()),value: str ="",jq_query: str = ""):
     if (key == "" or value == "") and jq_query == "":
         return get_dataset_list(all_metadata,clear_cache=False)
     elif jq_query != "":
