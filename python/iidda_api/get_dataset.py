@@ -74,7 +74,7 @@ def get_dataset(dataset_name, version, metadata, response_type):\
             if asset.name == dataset_name + '.csv':
                 response = requests.get(asset.url, stream=True, headers=headers)
                 if response.ok:
-                    return PlainTextResponse(response.content)
+                    return PlainTextResponse(response.content, media_type="text/plain")
                 else:
                     return "Download failed: {}\n{}".format(response.status_code, response.text)
 
