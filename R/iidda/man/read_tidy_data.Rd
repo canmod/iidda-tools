@@ -7,7 +7,7 @@
 read_tidy_data(tidy_data_path)
 }
 \arguments{
-\item{tidy_data_path}{path to folder containing 4 files: tidy data 
+\item{tidy_data_path}{path to folder containing 4 files: tidy data
 and resulting metadata for each prep script}
 }
 \description{

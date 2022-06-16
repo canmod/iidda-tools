@@ -9,7 +9,7 @@ iso_codes(tidy_data, locations_iso = read.csv("tracking/locations_ISO.csv"))
 \arguments{
 \item{tidy_data}{tidy data.frame resulting from data prep scripts}
 
-\item{locations_iso}{table containing all unique locations in all 
+\item{locations_iso}{table containing all unique locations in all
 tidy data along with corresponding ISO-3166 and ISO-3166-2 codes}
 }
 \description{

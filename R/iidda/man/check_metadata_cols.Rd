@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_prep_tools.R
 \name{check_metadata_cols}
 \alias{check_metadata_cols}
-\title{Error if columns in the tidy data are not in metadata Schema 
+\title{Error if columns in the tidy data are not in metadata Schema
 and if all values in a column are NA}
 \usage{
 check_metadata_cols(tidy_data, metadata)
@@ -13,6 +13,6 @@ check_metadata_cols(tidy_data, metadata)
 \item{metadata}{Nested named list describing metadata for the tidy data}
 }
 \description{
-Error if columns in the tidy data are not in metadata Schema 
+Error if columns in the tidy data are not in metadata Schema
 and if all values in a column are NA
 }

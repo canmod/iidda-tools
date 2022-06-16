@@ -78,3 +78,41 @@ nlist <- function(...) {
   }
   setNames(L, nm)
 }
+
+#' @export
+extract_or_blank = function(l, e) {
+  if (!is.recursive(l)) return(list())
+  le = l[[e]]
+  if (is.null(le)) return(list())
+  le
+}
+
+#' @export
+list_xpath = function(l, ...) {
+  path_names = list(...)
+  for (i in seq_along(path_names)) {
+    nm = path_names[[i]]
+    l = lapply(l, extract_or_blank, nm)
+  }
+  l
+}
+
+#' Unlist a List of Character Vectors
+#'
+#' Replacing list elements with \code{list('')}
+#' for each element that is null, not a character
+#' vector, or length zero.
+#'
+#' @param x list of character vectors
+#' @export
+unlist_char_list = function(x) {
+  repl_fn = function(y, j) {
+    j = which(j)
+    y[j] = rep(list(''), length(j))
+    y
+  }
+  x = repl_fn(x, sapply(x, is.null))
+  x = repl_fn(x, !sapply(x, is.character))
+  x = repl_fn(x, sapply(x, length) == 0L)
+  unlist(x, recursive = FALSE, use.names = FALSE)
+}

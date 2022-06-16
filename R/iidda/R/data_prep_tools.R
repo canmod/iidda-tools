@@ -18,9 +18,9 @@ write_tidy_data = function(tidy_data, metadata) {
 
   make_data_cite_tidy_data(metadata, meta_file)
   global_dictionary = ('iidda_global_data_dictionary'
-                       %>% getOption
-                       %>% blob_to_raw
-                       %>% read_json
+   %>% getOption
+   %>% blob_to_raw
+   %>% read_json
   )
   local_dictionary = (metadata
                       %>% getElement('Columns')
@@ -46,7 +46,7 @@ write_tidy_data = function(tidy_data, metadata) {
   ) %>% write_json(dial_file, pretty = TRUE, auto_unbox = TRUE)
 
   check_metadata_cols(tidy_data, metadata)
-  
+
   .trash = ('iidda_global_data_dictionary'
             %>% getOption
             %>% blob_to_raw
@@ -73,21 +73,21 @@ write_tidy_data = function(tidy_data, metadata) {
 }
 
 #' Read Tidy Data and Metadata files
-#' 
-#' @param tidy_data_path path to folder containing 4 files: tidy data 
+#'
+#' @param tidy_data_path path to folder containing 4 files: tidy data
 #' and resulting metadata for each prep script
 #' @export
 read_tidy_data = function(tidy_data_path) {
-  
+
   path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
   path_meta_file = grep(list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE), pattern = "\\csv_dialect.json|\\_data_dictionary.json", invert = TRUE, value = TRUE)
   path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
   path_dial_file = list.files(tidy_data_path, pattern="\\csv_dialect.json.*", full.names = TRUE)
-  
+
   data_dictionary = (path_dict_file
                      %>% read_json()
   )
-  
+
   col_classes = (path_dict_file
                  %>% read_json()
                  %>% key_val('name', 'type')
@@ -95,17 +95,17 @@ read_tidy_data = function(tidy_data_path) {
                  %>% lookup(col_classes_dict)
                  %>% unlist()
   )
-  
+
   csv_dialect = (path_dial_file
                  %>% read_json
                  %>% unlist
-                 
+
   )
-  
+
   meta_data = (path_meta_file
                %>% read_json
   )
-  
+
   tidy_dataset = read.table(path_tidy_file,
                             # CSV Dialect Translation
                             header = TRUE,           # header=true
@@ -115,12 +115,12 @@ read_tidy_data = function(tidy_data_path) {
                             na.strings = "",         # nullSequence=""
                             colClasses = col_classes
   )
-  
+
   return(nlist(tidy_dataset, data_dictionary, csv_dialect, meta_data))
 }
 
 #' Convert all missing values to NA
-#' 
+#'
 #' @param tidy_data tidy data.frame resulting from data prep scripts
 #' @export
 empty_to_na = function(tidy_data) {
@@ -130,10 +130,10 @@ empty_to_na = function(tidy_data) {
 }
 
 #' Adds ISO-3166 and ISO-3166-2 columns to tidydata
-#' 
+#'
 #' @param tidy_data tidy data.frame resulting from data prep scripts
-#' @param locations_iso table containing all unique locations in all 
-#' tidy data along with corresponding ISO-3166 and ISO-3166-2 codes 
+#' @param locations_iso table containing all unique locations in all
+#' tidy data along with corresponding ISO-3166 and ISO-3166-2 codes
 #' @export
 iso_codes = function(tidy_data, locations_iso = read.csv("tracking/locations_ISO.csv")) {
   (tidy_data
@@ -143,9 +143,9 @@ iso_codes = function(tidy_data, locations_iso = read.csv("tracking/locations_ISO
   )
 }
 
-#' Error if columns in the tidy data are not in metadata Schema 
+#' Error if columns in the tidy data are not in metadata Schema
 #' and if all values in a column are NA
-#' 
+#'
 #' @param tidy_data data.frame resulting from data prep scripts
 #' @param metadata Nested named list describing metadata for the tidy data
 #' @export
@@ -156,14 +156,14 @@ check_metadata_cols = function(tidy_data, metadata) {
                    %>% rownames)
   tidy_data_cols = colnames(tidy_data)
   tidy_data_diff = setdiff(tidy_data_cols, metadata_cols)
-  
+
   if(setequal(metadata_cols, tidy_data_cols) == FALSE) stop(paste("Metadata does not contain columns", tidy_data_diff, "from tidy data", collapse = ' '))
-  
+
   if(any(colSums(!is.na(tidy_data)) == 0)) stop(paste(names(tidy_data)[sapply(tidy_data, function(x) sum(is.na(x)) == length(x))], "is missing all values", collapse = ' '))
 }
 
 #' Error if columns in the metadata Schema are not in tidy data
-#' 
+#'
 #' @param table dataframe (or dataframe-like object)
 #' @param column_metadata dataframe with rownames equal to the columns
 #' in \code{table}, and \code{Title} and \code{Description} columns
@@ -173,15 +173,15 @@ check_tidy_data_cols = function(table, column_metadata) {
   metadata_cols = rownames(column_metadata)
   tidy_data_cols = colnames(table)
   metadata_diff = setdiff(metadata_cols, tidy_data_cols)
-  
+
   if(identical(metadata_diff, character(0)) == FALSE) stop(paste("Tidydata does not contain columns", metadata_diff, "from metadata", collapse = ' '))
 }
 
 #' Creates a heatmap that shows disease coverage over the years
-#' 
+#'
 #' Values are TRUE if that particular disease occurred at least once in a period that ended in that
 #' particular year, and FALSE otherwise.
-#' 
+#'
 #' @param table dataframe (or dataframe-like object). Tidy dataset of all compiled datasets
 #' @param disease_col specifies level of disease (i.e. disease_family, disease, disease_subclass)
 #' @export
@@ -199,10 +199,10 @@ disease_coverage_heatmap = function(table, disease_col = "disease") {
    %>% rename(disease = name)
    %>% rename(data_present = value)
    %>% mutate(year = as.integer(year))
-   %>% ggplot(aes(year, disease)) +                           
+   %>% ggplot(aes(year, disease)) +
      geom_tile(aes(fill = data_present))
   )
-} 
+}
 
 #' Save Results of a Data Prep Script
 #'
@@ -257,10 +257,13 @@ schema_check = function(table, metadata) {
 
 #' @export
 read_digitized_data = function (metadata) {
-  (metadata$Digitization$path_digitized_data
-   %>% strip_blob_github
-   %>% xlsx_cells
+  path = strip_blob_github(metadata$Digitization$path_digitized_data)
+  read_func = switch(
+    tools::file_ext(path),
+    xlsx = xlsx_cells,
+    csv = read.csv
   )
+  read_func(path)
 }
 
 #' @export
