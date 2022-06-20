@@ -8,7 +8,8 @@ read_tracking_tables = function(path) {
     "location", "iso_3166", "iso_3166_2", "url", "province_territory",
     "notes", "source", "years", "start_date", "end_date", "frequency",
     "breakdown", "urls", "date_of_url_access", "tidy_dataset", "path_prep_script",
-    "path_tidy_data", "publisher", "publicationYear", "current_version"
+    "path_tidy_data", "publisher", "publicationYear", "current_version",
+    "staging_url_prefix"
   )
   paths = file.path(path, list.files(path, pattern = '.csv'))
   (paths

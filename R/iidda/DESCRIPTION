@@ -1,12 +1,11 @@
 Package: iidda
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Processing Infectious Disease Datasets in IIDDA
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: Steve Walker
+Maintainer: Steve Walker <swalk@mcmaster.ca>
 Depends: dplyr, tidyr, memoise, jsonlite, tibble
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Part of an open toolchain for processing infectious disease datasets available through the IIDDA data repository
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
