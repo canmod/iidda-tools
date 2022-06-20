@@ -19,7 +19,8 @@ def generate_filters():
 
 @app.get("/dataset_metadata")
 async def dataset_metadata(
-        all_metadata: bool = False, 
+        all_metadata: bool = False,
+        string_matching: str = Query(None, description = 'Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
         key: str = Query(
             "", description = "Descriptions of the different paths leading to strings:\n * **.contributors .contributorType:** \n * **.contributors .name:** name of the contributor(s) of the dataset\n * **.contributors .nameType:**\n * **.creators .creatorName:** name of the creator(s) of the dataset\n * **creators .nameType:** type of creator (e.g. organizational) \n * **.descriptions .description:** description of the dataset \n * **.descriptions .descriptionType:** type of description (e.g. abstract, methods, etc.) \n* **.descriptions .lang:** language of the description \n * **.formats:** file formats available for download (e.g. csv), \n * **geoLocations .geoLocationPlace:** location(s) in which data was collected \n * **.identifier .identifier:** GitHub URL of the dataset \n * **.identifier .identifierType:** \n * **.language:** language the dataset is available in \n * **.publicationYear:** year of publication of the dataset \n * **.publisher:** publisher of the dataset \n * **.relatedIdentifiers .relatedIdentifier:**  \n * **.relatedIdentifiers .relatedIdentifierType:** type of content inside .relatedIdentifiers .relatedIdentifier (e.g. URL)\n * **.relatedIdentifiers .relationType:** \n * **resourceType .resourceType:** \n * **.resourceType .resourceTypeGeneral:** \n * **.rightsList .lang:** \n * **.rightsList .rights:** \n * **.rightsList .rightsURI:** \n * **.titles .lang:** language of the title \n * **.titles .title:** title of the dataset \n * **.version:** version of the dataset", 
             enum=generate_filters()
@@ -33,19 +34,23 @@ async def dataset_metadata(
         data = get_dataset_list(all_metadata=True,clear_cache=False)
         return jq(jq_query).transform(data, multiple_output=True)
     elif key != "" and value != "":
+        if string_matching == "Contains":
+            string_matching = f'contains("{value}")'
+        elif string_matching == None or string_matching == "Equals":
+            string_matching = f'. == "{value}"'
+            
         keys = key.split(" ")
-        print(keys)
         data = get_dataset_list(all_metadata=True,clear_cache=False)
-        if len(keys) > 1:
+        if len(keys) > 1:                
             if all_metadata == False:
-                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | contains("{value}")) else select(. | contains("{value}")) end) else select({keys[1]} | contains("{value}")) end) .identifier)').transform(data)
+                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | {string_matching}) else select(. | {string_matching}) end) else select({keys[1]} | {string_matching}) end) .identifier)').transform(data)
             else:
-                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | contains("{value}")) else select(. | contains("{value}")) end) else select({keys[1]} | contains("{value}")) end))').transform(data)
+                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | {string_matching}) else select(. | {string_matching}) end) else select({keys[1]} | {string_matching}) end))').transform(data)
         else:
             if all_metadata == False:
-                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | contains("{value}")) else contains("{value}") end) .identifier)').transform(data)
+                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end) .identifier)').transform(data)
             else:
-                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | contains("{value}")) else contains("{value}") end))').transform(data)
+                return jq(f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end))').transform(data)
 
 @app.get(
     "/dataset/{dataset_name}", 
