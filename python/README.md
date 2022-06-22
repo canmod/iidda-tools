@@ -1,4 +1,4 @@
-# iidda_api package
+# IIDDA Python Packages
 
 ## Installation
 
