@@ -239,6 +239,14 @@ make_data_cite_tidy_data = function(metadata, file) {
         description = "This data set is a part of a systematic effort to make Canada's historical record of infectious diseases publicly and conveniently available. We are systematically contacting data stewards across Canada to access the disparate source documents that contain Canada's historical record of infectious diseases. We are making scans of these documents conveniently available for all. We are manually entering the information provided by these source documents into Excel spreadsheets, which we are making publicly available. The layout of these spreadsheets are identical to the originals, making it as easy as possible to compare the reproductions with the sources. We are producing reproducible automated processes for converting the digitized spreadsheets into tidy data structures. These tidy data structures contain all of the information in the original source documents, but are more convenient for analysis and discovery."
       )
     ),
+    dates = list(
+      date = iso_8601_dateranges(
+        metadata$TidyDataset$period_start_date,
+        metadata$TidyDataset$period_end_date
+      ),
+      dateType = "Collected"
+    ),
+    dateInformation = "Date ranges refer to the start and end dates of the historical period described by these data.",
     fundingReferences = NULL,
     geoLocations = list(
       geoLocationPlace = metadata$Source$location

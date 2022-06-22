@@ -129,19 +129,44 @@ empty_to_na = function(tidy_data) {
   )
 }
 
-#' Adds ISO-3166 and ISO-3166-2 columns to tidydata
+#' ISO-3166 and ISO-3166-2 Codes
 #'
-#' @param tidy_data tidy data.frame resulting from data prep scripts
-#' @param locations_iso table containing all unique locations in all
-#' tidy data along with corresponding ISO-3166 and ISO-3166-2 codes
+#' Converts geographical location information, as it was described in a
+#' source document, to equivalent ISO-3166 and ISO-3166-2 codes.
+#'
+#' @param tidy_data data frame containing a field called \code{location}
+#' containing geographical location information extracted from a source
+#' document
+#' @param locations_iso table containing three columns: \code{location}
+#' with all unique location identifiers in the \code{tidy_data},
+#' \code{iso_3166} containing equivalent ISO-3166 codes (if applicable), and
+#' \code{iso_3166_2} containing equivalent ISO-3166-2 codes (if applicable)
 #' @export
-iso_codes = function(tidy_data, locations_iso = read.csv("tracking/locations_ISO.csv")) {
+iso_3166_codes = function(tidy_data, locations_iso) {
   (tidy_data
     %>% left_join(locations_iso, by = "location")
     %>% relocate(iso_3166_2, .after = location)
     %>% relocate(iso_3166, .after = location)
   )
 }
+
+#' @export
+iso_codes = function(tidy_data, locations_iso = read.csv("tracking/locations_ISO.csv")) {
+  warning('this function is deprecated -- please use iso_3166_codes instead')
+  iso_3166_codes(tidy_data, locations_iso)
+}
+
+#' @export
+iso_8601_dateranges = function(start_date, end_date) {
+  paste(iso_8601_dates(start_date), iso_8601_dates(end_date), sep = "/")
+}
+
+#' @importFrom lubridate day year month
+#' @export
+iso_8601_dates = function(dates) {
+  paste(year(dates), month(dates), day(dates), sep = "-")
+}
+
 
 #' Error if columns in the tidy data are not in metadata Schema
 #' and if all values in a column are NA
