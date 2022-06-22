@@ -27,6 +27,23 @@ make_ops_list = function(api_base_url) {
     handle_response = handle_iidda_response
   )
 
+  parameter_list <- function(x) {
+    parameters <- environment(raw_requests[[x]])[["op_def"]][["parameters"]]
+    default_values <- list()
+    for (parameter in parameters) {
+      if(parameter[["required"]] == FALSE) {
+        default_values[[parameter[["name"]]]] <- parameter[["schema"]][["default"]]
+      } else {
+        next
+      }
+    }
+    return(default_values)
+  }
+
+  for (name in names(raw_requests)) {
+    raw_requests[[name]] <- set_default_args_list(raw_requests[[name]], parameter_list(name))
+  }
+
   requests_names = summary_to_function_name(
     unlist(list_xpath(iidda_api$paths, 'get', 'summary'))
   )
