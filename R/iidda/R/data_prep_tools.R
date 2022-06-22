@@ -164,9 +164,14 @@ iso_8601_dateranges = function(start_date, end_date) {
 #' @importFrom lubridate day year month
 #' @export
 iso_8601_dates = function(dates) {
-  paste(year(dates), month(dates), day(dates), sep = "-")
+  paste(
+    sprintf('%04d', year(dates)),
+    sprintf('%02d', month(dates)),
+    sprintf('%02d', day(dates)),
+    sep = '-'
+  )
+  #paste(year(dates), month(dates), day(dates), sep = "-")
 }
-
 
 #' Error if columns in the tidy data are not in metadata Schema
 #' and if all values in a column are NA
