@@ -308,3 +308,16 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
    %>% add_metadata(metadata$Tables, metadata$Columns[[product]], product)
   )
 }
+
+#' Creates 6 tidy data sets with no duplicate data, broken down by period (wk, mt, year) and province/canada.
+#' @export
+split_tidy_data = function(tidy_data){
+  (tidy_data
+  %>% mutate(period = ifelse(period_end_date = period_start_date +7, "wk", "mt"))
+  %>% mutate(period = ifelse(period_end_date-period_start_date > 100, "year", period))
+  %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "Canada", "Province"))
+  %>% mutate(spitting_column = paste(period, is_canada, sep="_"))
+  %>% select(-is_canada, -period)
+  %>% split(splitting_column)
+  ) 
+}
