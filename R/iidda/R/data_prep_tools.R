@@ -309,15 +309,26 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
   )
 }
 
-#' Creates 6 tidy data sets with no duplicate data, broken down by period (wk, mt, year) and province/canada.
+#' Split Tidy Data
+#' 
+#' Creates 6 tidy data sets with no duplicate data, broken down by period (wk, mt, year) and province/Canada.
 #' @export
 split_tidy_data = function(tidy_data){
   (tidy_data
-  %>% mutate(period = ifelse(period_end_date = period_start_date +7, "wk", "mt"))
+  %>% mutate(period = ifelse(period_end_date == period_start_date +7, "wk", "mt"))
   %>% mutate(period = ifelse(period_end_date-period_start_date > 100, "year", period))
-  %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "Canada", "Province"))
-  %>% mutate(spitting_column = paste(period, is_canada, sep="_"))
+  %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
+  %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
   %>% select(-is_canada, -period)
   %>% split(splitting_column)
   ) 
+}
+
+#' Impute Fine Timescale
+#' 
+#' Imputes missing data from data available at coarser timescales.
+#'  @export
+impute_fine_timescale = function(splitted_data){
+  (
+  )
 }
