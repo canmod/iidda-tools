@@ -98,9 +98,10 @@ server <- function(input, output) {
   data <-
     reactive({
       req(input$dataset_name)
-      rbind.fill(lapply(input$dataset_name, function(x) {iidda.api::ops$dataset(x, response_type = "raw_csv")}))
+      df <- rbind.fill(lapply(input$dataset_name, function(x) {iidda.api::ops$dataset(x, response_type = "raw_csv")}))
+      df[order(as.Date(df$period_start_date, format="%Y/%m/%d")),]
       })
-  
+
   
   output$dataset_name = renderUI(
     selectizeInput(
@@ -119,8 +120,11 @@ server <- function(input, output) {
     )
   )
   output$data_table = renderDT({
-    data_dictionary <-
-      iidda.api::ops$dataset(input$dataset_name, response_type = "data_dictionary")
+    data_dictionary <- list()
+    
+    for (name in input$dataset_name) {
+      data_dictionary <- append(iidda.api::ops$dataset(name, response_type = "data_dictionary"),  data_dictionary)
+    }
     
     datatable(
       data(),
@@ -149,14 +153,25 @@ server <- function(input, output) {
   output$download_data <- downloadHandler(
     filename = function()
     {
-      paste(input$dataset_name, '.csv', sep  =  '')
+      paste(paste(input$dataset_name, collapse = '-'), ".zip", sep  =  '')
     },
     content = function(file)
     {
       showModal(modalDialog("Downloading files...", footer  =  NULL))
-      write.csv(data(), file)
+      tmpdir <- tempdir()
+      setwd(tempdir())
+      
+      fs <- c()
+      for (dataset in input$dataset_name) {
+        dir.create(dataset)
+        name <- sprintf("%s/%s.csv", dataset, dataset)
+        fs <- append(fs, name)
+        write.csv(iidda.api::ops$dataset(dataset, response_type = "raw_csv"), name)
+      }
+      zip(zipfile=file, files=fs)
       on.exit(removeModal())
-    }
+    },
+    contentType = "application/zip"
   )
 }
 
