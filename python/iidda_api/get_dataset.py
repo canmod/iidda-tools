@@ -9,7 +9,7 @@ import zipfile
 import json
 from fastapi.responses import PlainTextResponse
 
-def get_dataset(dataset_name, version, metadata, response_type):\
+def get_dataset(dataset_name, version, metadata, response_type):
     # Converting strings to boolean
     if isinstance(metadata,str) and metadata.lower() == "true":
         metadata = True
