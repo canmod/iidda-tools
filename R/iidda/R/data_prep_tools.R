@@ -323,12 +323,3 @@ split_tidy_data = function(tidy_data){
   %>% split(splitting_column)
   ) 
 }
-
-#' Impute Fine Timescale
-#' 
-#' Imputes missing data from data available at coarser timescales.
-#'  @export
-impute_fine_timescale = function(splitted_data){
-  (
-  )
-}
