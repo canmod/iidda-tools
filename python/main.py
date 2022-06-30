@@ -171,6 +171,7 @@ async def download(
                 tasks.append(task)
 
         files = await asyncio.gather(*tasks)
+        files = sum(files, [])
 
         #Error handling
         version_regex = re.compile('The supplied version of (.*) is greater than the latest version of ([0-9]+)')
@@ -191,7 +192,11 @@ async def download(
             zip_filename = "%s.zip" % zip_sub_dir
             with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
                 for f in files:
-                    zf.writestr(f[0], f[1])
+                    if isinstance(f,list):
+                        for item in f:
+                            zf.writestr(item[0], item[1])
+                    else:
+                        zf.writestr(f[0], f[1])
 
             return StreamingResponse(
                 iter([mem_zip.getvalue()]),

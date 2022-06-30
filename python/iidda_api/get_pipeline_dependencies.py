@@ -65,17 +65,10 @@ def get_pipeline_dependencies(dataset_name, version="latest"):
                                     
                             
                             files = await asyncio.gather(*tasks)
-                            mem_zip = BytesIO()
-                            zip_sub_dir = dataset_name + "_dependencies"
-                            zip_filename = "%s.zip" % zip_sub_dir
-                            with zipfile.ZipFile(mem_zip, mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
-                                for f in files:
-                                    zf.writestr(f[0], f[1])
-
-                            return (zip_filename, mem_zip.getvalue())
+                            return files
                                 
                     async def download_dependencies(url, session):
-                        file_name = os.path.basename(url[34:])
+                        file_name = dataset_name + "/" + dataset_name + "_dependencies/" + os.path.basename(url[34:])
                         async with session.get(url) as response:
                             file_content = await response.read()
                             return (file_name,file_content)

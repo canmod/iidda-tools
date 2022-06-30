@@ -53,17 +53,10 @@ def get_download(dataset_name, version, resource=None):
                     tasks.append(task)
                     
             files = await asyncio.gather(*tasks)
-            mem_zip = BytesIO()
-            zip_sub_dir = dataset_name
-            zip_filename = "%s.zip" % zip_sub_dir
-            with zipfile.ZipFile(mem_zip, mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
-                for f in files:
-                    zf.writestr(f[0], f[1])
-
-            return (zip_filename, mem_zip.getvalue())
+            return files
                 
     async def download_asset(url, asset_name, session):
-        file_name = asset_name
+        file_name = dataset_name + "/" + asset_name
         async with session.get(url) as response:
             if response.ok:
                 file_content = await response.read()
