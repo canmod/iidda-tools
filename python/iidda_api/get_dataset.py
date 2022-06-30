@@ -3,19 +3,13 @@ import requests
 import os
 from fastapi.responses import StreamingResponse
 import configparser
-from iidda_api import read_config
-from io import BytesIO
+from iidda_api import read_config, get_pipeline_dependencies
+from io import BytesIO, StringIO
 import zipfile
 import json
 from fastapi.responses import PlainTextResponse
 
-def get_dataset(dataset_name, version, metadata, response_type):\
-    # Converting strings to boolean
-    if isinstance(metadata,str) and metadata.lower() == "true":
-        metadata = True
-    elif isinstance(metadata,str) and metadata.lower() == "false":
-        metadata = False
-        
+def get_dataset(dataset_name, version):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     github = Github(ACCESS_TOKEN)
@@ -30,13 +24,13 @@ def get_dataset(dataset_name, version, metadata, response_type):\
     
     # check if dataset is contained in repo
     if not release_list:
-        return "This dataset does not exist in the releases"
+        return f"{dataset_name} does not exist in the releases"
     
     if version == "latest":
         version = len(release_list)
     
     if int(version) > len(release_list):
-        return f"The supplied version is greater than the latest version. The latest version is {len(release_list)}"
+        return f"The supplied version of {dataset_name} is greater than the latest version of {len(release_list)}"
 
     release = release_list[int(version) - 1]
 
@@ -45,54 +39,11 @@ def get_dataset(dataset_name, version, metadata, response_type):\
         'Accept': 'application/octet-stream'
     }
 
-    if response_type == "github_url":
-        return {"github_url": release.html_url}
-    elif response_type == "dataset_download":
-        files = []
-        for asset in release.get_assets():
-            if asset.name.endswith(".csv") or (asset.name.endswith(".json") and metadata):
-                response = requests.get(asset.url, stream=True, headers=headers)
-                if response.ok:
-                    files.append((asset.name,response.content))
-                else:
-                    return "Download failed: {}\n{}".format(response.status_code, response.text)
-        
-        mem_zip = BytesIO()
-        zip_sub_dir = dataset_name
-        zip_filename = "%s.zip" % zip_sub_dir
-        with zipfile.ZipFile(mem_zip, mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
-            for f in files:
-                zf.writestr(f[0], f[1])
+    for asset in release.get_assets():
+        if asset.name == dataset_name + '.csv':
+            response = requests.get(asset.url, stream=True, headers=headers)
+            if response.ok:
+                return BytesIO(response.content)
+            else:
+                return "Download failed: {}\n{}".format(response.status_code, response.text)
 
-        return StreamingResponse(
-            iter([mem_zip.getvalue()]),
-            media_type="application/x-zip-compressed",
-            headers = { "Content-Disposition":f"attachment;filename=%s" % zip_filename}
-        )
-    elif response_type == "raw_csv":
-        for asset in release.get_assets():
-            if asset.name == dataset_name + '.csv':
-                response = requests.get(asset.url, stream=True, headers=headers)
-                if response.ok:
-                    return PlainTextResponse(response.content, media_type="text/plain")
-                else:
-                    return "Download failed: {}\n{}".format(response.status_code, response.text)
-
-    elif response_type == "metadata":
-        for asset in release.get_assets():
-            if asset.name == dataset_name + '.json':
-                response = requests.get(asset.url, stream=True, headers=headers)
-                if response.ok:
-                    return json.loads(response.content)
-                else:
-                    return "Download failed: {}\n{}".format(response.status_code, response.text)
-
-    elif response_type == "csv_dialect" or response_type == "data_dictionary":
-        for asset in release.get_assets():
-            if asset.name == dataset_name + "_" + response_type + '.json':
-                response = requests.get(asset.url, stream=True, headers=headers)
-                if response.ok:
-                    return json.loads(response.content)
-                else:
-                    return "Download failed: {}\n{}".format(response.status_code, response.text)
-                        

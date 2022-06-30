@@ -72,11 +72,7 @@ def get_pipeline_dependencies(dataset_name, version="latest"):
                                 for f in files:
                                     zf.writestr(f[0], f[1])
 
-                            return StreamingResponse(
-                                iter([mem_zip.getvalue()]),
-                                media_type="application/x-zip-compressed",
-                                headers = { "Content-Disposition":f"attachment;filename=%s" % zip_filename}
-                            )
+                            return (zip_filename, mem_zip.getvalue())
                                 
                     async def download_dependencies(url, session):
                         file_name = os.path.basename(url[34:])
