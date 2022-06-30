@@ -45,3 +45,7 @@ It is possible to fit a model of temporal variation in the counts and then use t
 ## Averaging Imputation Estimates from Different Approaches
 
 If it is possible to use both within-month-based and temporal-pattern-based approaches, it is straightforward to average those estimates and averaging estimates can often have good properties.
+
+## Placing Uncertainty Estimates on the Imputed Values
+
+Ultimately there is no free lunch, and imputed values are just not as reliable as observed values. More sophisticated statical approaches will be able to utilize estimates of imputation uncertainty, and so we should think about how to generate these uncertainty estimates. But doing so requires more principled statistical frameworks than just averaging and multiplying by factors that seem to make intuitive sense.
