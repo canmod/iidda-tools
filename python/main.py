@@ -27,7 +27,7 @@ def generate_filters():
 
 
 @app.get("/resource", responses={200: {"content": {"text/plain": {}}}})
-async def dataset(
+async def resource(
     dataset_ids: Union[list[str], None] = Query(default=None),
     string_matching: str = Query(
         "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
