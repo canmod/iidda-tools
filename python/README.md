@@ -14,11 +14,9 @@ If the `uvloop` package is installed on your computer, you may get the error: `V
 
 ## Usage
 
-* The `/datasets/{dataset_name}` endpoint has the following options for the `response_type` parameter:
-    * `dataset_download`: downloads a zip file containing only the `.csv` file if `metadata == false` and all the associated `.json` metadata files if `metadata == true`.
-    * `pipeline_dependencies`: downloads all the original source files for the datasets. 
+* The `/resource` endpoint has the following options for the `response_type` parameter:
     * `github_url`: returns a JSON object containing the GitHub URL to the release.
-    * `raw_csv`: returns the raw CSV file which can then be used in functions like `read.csv()` in R. Note that this will not work in the Swagger UI but only as a URL (for example, [http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv](http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv))
+    * `raw_csv`: returns the raw CSV file of the dataset (if multiple datasets were selected, then it will return a combined dataset if they are all of the same type) which can then be used in functions like `read.csv()` in R. Note that this will not work in the Swagger UI but only as a URL (for example, [http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv](http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv))
     * `metadata`: returns the content inside the `{dataset_name}.json` asset.
     * `csv_dialect`: returns the content inside the `{dataset_name}_csv_dialect.json` asset.
     * `data_dictionary`: returns the content inside the `{dataset_name}_data_dictionary.json` asset.
