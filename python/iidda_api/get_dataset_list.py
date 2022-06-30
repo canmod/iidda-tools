@@ -25,12 +25,7 @@ async def get_release_list(access_token, cache_config, clear_cache):
                 
         return release_list
         
-def get_dataset_list(all_metadata,clear_cache):
-    if isinstance(all_metadata,str) and all_metadata.lower() == "true":
-        all_metadata = True
-    elif isinstance(all_metadata,str) and all_metadata.lower() == "false":
-        all_metadata = False
-  
+def get_dataset_list(clear_cache, response_type="metadata"):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
@@ -43,7 +38,6 @@ def get_dataset_list(all_metadata,clear_cache):
     cache_path = user_cache_dir("iidda-api-cache","")
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
-
     # Cache configurations
     assets_cache = FileBackend(
         cache_name = cache_path
@@ -80,16 +74,19 @@ def get_dataset_list(all_metadata,clear_cache):
         
         # get metadata
         latest_version_metadata = latest_version['assets']
-        latest_version_metadata = list(filter(lambda asset: asset['name'] == title + '.json', latest_version_metadata))
+        if response_type == "metadata":
+            latest_version_metadata = list(filter(lambda asset: asset['name'] == title + '.json', latest_version_metadata))
+        elif response_type == "github_url":
+            return {"github_url": latest_version["html_url"]}
+        else:
+            latest_version_metadata = list(filter(lambda asset: asset['name'] == title + "_" + response_type + '.json', latest_version_metadata))
+
         if latest_version_metadata != []:
             metadata_url = latest_version_metadata[0]['url']
             async with session.get(metadata_url,headers=headers) as response:
                 metadata = await response.text()
                 metadata = json.loads(metadata)
-                if all_metadata == True:
-                    return metadata
-                else:
-                    return {'identifier': metadata['identifier']}
+                return metadata
         else:
             return 'No metadata.'
             

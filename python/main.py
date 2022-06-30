@@ -1,4 +1,5 @@
 from http.client import responses
+from urllib import response
 from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query
 from iidda_api import *
 from fastapi.responses import FileResponse
@@ -9,14 +10,15 @@ import re
 from typing import Union
 import aiohttp
 import asyncio
+import pandas as pd
+from io import StringIO
 nest_asyncio.apply()
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
               "defaultModelsExpandDepth": -1})
 
-
 def generate_filters():
-    dataset_list = get_dataset_list(all_metadata=True, clear_cache=False)
+    dataset_list = get_dataset_list(clear_cache=False)
     data = jq('map_values(select(. != "No metadata.")) | [paths(scalars) as $p | [ ( [ [$p[]] | map(select(. | type != "number")) | .[] | tostring ][1:] | join(" ."))] | .[]] | unique').transform(
         dataset_list)
     for x in range(len(data)):
@@ -36,14 +38,13 @@ async def dataset(
     value: str = "",
     jq_query: str = "",
     response_type: str = Query("metadata", enum=sorted(
-        ["github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"])),
-    version: str = "latest"
+        ["github_url", "raw_csv", "metadata", "csv_dialect", "data_dictionary"]))
 ):
     # Defining list of datasets to download
+    data = get_dataset_list(clear_cache=False)
     if dataset_ids != None:
         dataset_list = dataset_ids
     else:
-        data = get_dataset_list(all_metadata=True, clear_cache=False)
         if (key == "" or value == "") and jq_query == "":
             dataset_list = jq("keys").transform(data)
         elif jq_query != "":
@@ -61,13 +62,51 @@ async def dataset(
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
-    
-    if response_type == "metadata":
-        data = get_dataset_list(all_metadata=True, clear_cache=False)
-        if len(dataset_list) == 0: 
+    if response_type == "raw_csv":
+        conditions = " or .key == ".join(f'"{d}"' for d in dataset_list)
+        data_types = jq(f'[with_entries(select(.key == {conditions})) | .[] .resourceType .resourceType] | unique').transform(data)
+        if len(data_types) > 1:
+            raise HTTPException(status_code=400, detail="In order to use the 'raw_csv' response type, all datasets in question must be of the same resource type.")
+        async def main():
+            tasks = []
+            for dataset in dataset_list:
+                r = re.compile('^v([1-9]+)-(.*)')
+                if r.match(dataset):
+                    version = r.search(dataset).group(1)
+                    dataset = r.search(dataset).group(2)
+                else:
+                    version = "latest"
+                task = asyncio.create_task(asyncio.coroutine(get_dataset)(
+                    dataset_name = dataset, version=version))
+                tasks.append(task)
+
+            csv_list = await asyncio.gather(*tasks)
+
+            # Error handling
+            version_regex = re.compile('The supplied version of (.*) is greater than the latest version of ([0-9]+)')
+            exists_regex = re.compile(f'(.*) does not exist in the releases')
+            error_list = []
+            for file in csv_list:
+                if isinstance(file, str):
+                    if exists_regex.match(file):
+                        error_list.append(exists_regex.search(file).group(0))
+                    elif version_regex.match(file):
+                        error_list.append(version_regex.search(file).group(0))
+            
+            if len(error_list) != 0:
+                raise HTTPException(status_code=400, detail=error_list)
+            else:
+                merged_csv = pd.concat(map(pd.read_csv, csv_list), ignore_index=True)
+                return PlainTextResponse(merged_csv.to_csv(index=False), media_type="text/plain")
+
+        return asyncio.run(main())
+
+    else:
+        data = get_dataset_list(clear_cache=False, response_type=response_type)
+        if len(dataset_list) == 0:
             return data
-        if len(dataset_list) == 1: 
-            return get_dataset(dataset_name = dataset_list[0], version = version, response_type = response_type)
+        if len(dataset_list) == 1:
+            return jq(f'with_entries(select(.key == "{dataset_list[0]}"))').transform(data)
         elif len(dataset_list) > 1:
             conditions = " or .key == ".join(f'"{d}"' for d in dataset_list)
             return jq(f'with_entries(select(.key == {conditions}))').transform(data)
@@ -86,17 +125,15 @@ async def download(
     jq_query: str = "",
     resource: Union[list[str], None] = Query(
         default=None, description="Options include: CSV, pipeline_dependencies, metadata"),
-    version: str = "latest"
 ):
 
     # Defining list of datasets to download
     if resource == None:
-        return "Please select at least one resource to download."
-
+        raise HTTPException(status_code=400, detail="No resource was selected for download.")
     if dataset_ids != None:
         dataset_list = dataset_ids
     else:
-        data = get_dataset_list(all_metadata=True, clear_cache=False)
+        data = get_dataset_list(clear_cache=False)
         if (key == "" or value == "") and jq_query == "":
             dataset_list = jq("keys").transform(data)
         elif jq_query != "":
@@ -118,6 +155,12 @@ async def download(
     async def main():
         tasks = []
         for dataset in dataset_list:
+            r = re.compile('^v([1-9]+)-(.*)')
+            if r.match(dataset):
+                version = r.search(dataset).group(1)
+                dataset = r.search(dataset).group(2)
+            else:
+                version = "latest"
             if "metadata" in resource:
                 task = asyncio.create_task(asyncio.coroutine(get_download)(
                     dataset_name=dataset, version=version, resource=resource))
@@ -128,19 +171,34 @@ async def download(
                 tasks.append(task)
 
         files = await asyncio.gather(*tasks)
-        mem_zip = BytesIO()
-        zip_sub_dir = "-".join(dataset_list)
-        zip_filename = "%s.zip" % zip_sub_dir
-        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-            for f in files:
-                zf.writestr(f[0], f[1])
 
-        return StreamingResponse(
-            iter([mem_zip.getvalue()]),
-            media_type="application/x-zip-compressed",
-            headers={"Content-Disposition": f"attachment;filename=%s" %
-                     zip_filename}
-        )
+        #Error handling
+        version_regex = re.compile('The supplied version of (.*) is greater than the latest version of ([0-9]+)')
+        exists_regex = re.compile(f'(.*) does not exist in the releases')
+        error_list = []
+        for file in files:
+            if isinstance(file, str):
+                if exists_regex.match(file):
+                    error_list.append(exists_regex.search(file).group(0))
+                elif version_regex.match(file):
+                    error_list.append(version_regex.search(file).group(0))
+        
+        if len(error_list) != 0:
+            raise HTTPException(status_code=400, detail=error_list)
+        else:
+            mem_zip = BytesIO()
+            zip_sub_dir = "-".join(dataset_list)
+            zip_filename = "%s.zip" % zip_sub_dir
+            with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+                for f in files:
+                    zf.writestr(f[0], f[1])
+
+            return StreamingResponse(
+                iter([mem_zip.getvalue()]),
+                media_type="application/x-zip-compressed",
+                headers={"Content-Disposition": f"attachment;filename=%s" %
+                        zip_filename}
+            )
 
     return asyncio.run(main())
 
@@ -148,7 +206,7 @@ async def download(
 # ‘/githubwebhook’ specifies which link will it work on
 @app.post('/githubwebhook', include_in_schema=False)
 async def webhook(req: Request):
-    get_dataset_list(all_metadata="False", clear_cache=True)
+    get_dataset_list(clear_cache=True)
     return "Cache cleared."
 
 
