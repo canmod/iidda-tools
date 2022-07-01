@@ -62,6 +62,11 @@ async def resource(
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
+    
+    # Ensure list has no duplicates
+    dataset_list = list(set(dataset_list))
+
+    # Handling responses
     if response_type == "raw_csv":
         conditions = " or .key == ".join(f'"{d}"' for d in dataset_list)
         data_types = jq(f'[with_entries(select(.key == {conditions})) | .[] .resourceType .resourceType] | unique').transform(data)
@@ -126,6 +131,18 @@ async def download(
     resource: Union[list[str], None] = Query(
         default=None, description="Options include: CSV, pipeline_dependencies, metadata"),
 ):
+    # making sure resource types are valid
+    bad_resources = []
+    for resource_type in resource:
+        if resource_type not in ["CSV", "pipeline_dependencies", "metadata"]:
+            bad_resources.append(resource_type)
+        else:
+            continue
+    
+    if len(bad_resources) == 1:
+        raise HTTPException(status_code=400, detail=f"{bad_resources[0]} is not a valid resource. Only 'CSV', 'pipeline_dependencies', and 'metadata' are valid. Keep in mind that this field is case sensitive.")
+    elif len(bad_resources) > 1:
+        raise HTTPException(status_code=400, detail=f"{', '.join(bad_resources[:-1])} and {bad_resources[-1]} are not valid resources. Only 'CSV', 'pipeline_dependencies', and 'metadata' are valid. Keep in mind that this field is case sensitive.")
 
     # Defining list of datasets to download
     if resource == None:
@@ -151,7 +168,11 @@ async def download(
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
+   
+    # Ensure list has no duplicates
+    dataset_list = list(set(dataset_list))
 
+    # Handling responses
     async def main():
         tasks = []
         for dataset in dataset_list:
@@ -171,7 +192,6 @@ async def download(
                 tasks.append(task)
 
         files = await asyncio.gather(*tasks)
-        files = sum(files, [])
 
         #Error handling
         version_regex = re.compile('The supplied version of (.*) is greater than the latest version of ([0-9]+)')
@@ -187,6 +207,7 @@ async def download(
         if len(error_list) != 0:
             raise HTTPException(status_code=400, detail=error_list)
         else:
+            files = sum(files, [])
             mem_zip = BytesIO()
             zip_sub_dir = "-".join(dataset_list)
             zip_filename = "%s.zip" % zip_sub_dir

@@ -68,7 +68,7 @@ def get_pipeline_dependencies(dataset_name, version="latest"):
                             return files
                                 
                     async def download_dependencies(url, session):
-                        file_name = dataset_name + "/" + dataset_name + "_dependencies/" + os.path.basename(url[34:])
+                        file_name = f"v{version}-" + dataset_name + "/" + f"v{version}-" + dataset_name + "_dependencies/" + os.path.basename(url[34:])
                         async with session.get(url) as response:
                             file_content = await response.read()
                             return (file_name,file_content)

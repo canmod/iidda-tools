@@ -56,7 +56,7 @@ def get_download(dataset_name, version, resource=None):
             return files
                 
     async def download_asset(url, asset_name, session):
-        file_name = dataset_name + "/" + asset_name
+        file_name = f"v{version}-" + dataset_name + "/" + f"v{version}-" + asset_name
         async with session.get(url) as response:
             if response.ok:
                 file_content = await response.read()
