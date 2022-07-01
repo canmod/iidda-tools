@@ -13,7 +13,7 @@ import zipfile
 def convert_to_raw(url):
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
 
-def get_pipeline_dependencies(dataset_name, version="latest"):
+def get_pipeline_dependencies(dataset_name, version="latest", version_tag=""):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     github = Github(ACCESS_TOKEN)
@@ -32,7 +32,7 @@ def get_pipeline_dependencies(dataset_name, version="latest"):
 
     if version == "latest":
         version = len(release_list)
-    
+
     if int(version) > len(release_list):
         return f"The supplied version is greater than the latest version. The latest version is {len(release_list)}"
 
@@ -68,7 +68,7 @@ def get_pipeline_dependencies(dataset_name, version="latest"):
                             return files
                                 
                     async def download_dependencies(url, session):
-                        file_name = f"v{version}-" + dataset_name + "/" + f"v{version}-" + dataset_name + "_dependencies/" + os.path.basename(url[34:])
+                        file_name = version_tag + dataset_name + "/" + version_tag + dataset_name + "_dependencies/" + os.path.basename(url[34:])
                         async with session.get(url) as response:
                             file_content = await response.read()
                             return (file_name,file_content)

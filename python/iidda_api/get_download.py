@@ -29,7 +29,11 @@ def get_download(dataset_name, version, resource=None):
         return f"{dataset_name} does not exist in the releases"
     
     if version == "latest":
+        # version_tag is for creating file names later on
+        version_tag = ""
         version = len(release_list)
+    else:
+        version_tag = f"v{version}-"
     
     if int(version) > len(release_list):
         return f"The supplied version of {dataset_name} is greater than the latest version of {len(release_list)}"
@@ -45,7 +49,7 @@ def get_download(dataset_name, version, resource=None):
         async with aiohttp.ClientSession(headers=headers) as session:
             tasks = []
             if "pipeline_dependencies" in resource:
-                task = asyncio.create_task(asyncio.coroutine(get_pipeline_dependencies)(dataset_name, version=version))
+                task = asyncio.create_task(asyncio.coroutine(get_pipeline_dependencies)(dataset_name, version=version, version_tag=version_tag))
                 tasks.append(task)
             for asset in release.get_assets():
                 if (asset.name.endswith(".csv") and "CSV" in resource) or (asset.name.endswith(".json") and "metadata" in resource):
@@ -56,7 +60,7 @@ def get_download(dataset_name, version, resource=None):
             return files
                 
     async def download_asset(url, asset_name, session):
-        file_name = f"v{version}-" + dataset_name + "/" + f"v{version}-" + asset_name
+        file_name = version_tag + dataset_name + "/" + version_tag + asset_name
         async with session.get(url) as response:
             if response.ok:
                 file_content = await response.read()
