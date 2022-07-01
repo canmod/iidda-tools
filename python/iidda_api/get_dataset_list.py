@@ -1,3 +1,4 @@
+from functools import cache
 import requests
 import os
 import configparser
@@ -36,6 +37,7 @@ def get_dataset_list(clear_cache, response_type="metadata"):
     
     # make cache directory
     cache_path = user_cache_dir("iidda-api-cache","")
+    print(cache_path)
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
     # Cache configurations
@@ -55,6 +57,8 @@ def get_dataset_list(clear_cache, response_type="metadata"):
     
     async def main():
         async with CachedSession(cache=assets_cache) as session:
+            if clear_cache == True or (isinstance(clear_cache,str) and clear_cache.lower() == 'true'):
+                await session.cache.clear()
             tasks = []
             for title in dataset_title_list:
                 task = asyncio.ensure_future(get_dataset_data(session, title))
