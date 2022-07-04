@@ -2,10 +2,10 @@
 % Please edit documentation in R/data_prep_tools.R
 \name{split_tidy_data}
 \alias{split_tidy_data}
-\title{Split tidy data}
+\title{Split Tidy Data}
 \usage{
 split_tidy_data(tidy_data)
 }
 \description{
-Creates 6 tidy data sets with no duplicate data, broken down by period (wk, mt, year) and province/canada.
+Creates 6 tidy data sets with no duplicate data, broken down by period (wk, mt, year) and province/Canada.
 }
