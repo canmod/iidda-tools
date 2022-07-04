@@ -321,6 +321,5 @@ split_tidy_data = function(tidy_data){
   %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
   %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
   %>% select(-is_canada, -period)
-  %>% split(.$splitting_column)
   ) 
 }
