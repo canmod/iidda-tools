@@ -9,6 +9,7 @@ import asyncio
 from aiohttp_client_cache import CachedSession, FileBackend
 import requests_cache
 from appdirs import *
+import re 
 
 async def get_release_list(access_token, cache_config, clear_cache):
     async with CachedSession(cache=cache_config) as session:
@@ -23,10 +24,9 @@ async def get_release_list(access_token, cache_config, clear_cache):
                     break
                 release_list.extend(list(releases))
                 page += 1  
-                
         return release_list
         
-def get_dataset_list(clear_cache, response_type="metadata"):
+def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
@@ -37,23 +37,25 @@ def get_dataset_list(clear_cache, response_type="metadata"):
     
     # make cache directory
     cache_path = user_cache_dir("iidda-api-cache","")
-    print(cache_path)
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
     # Cache configurations
     assets_cache = FileBackend(
-        cache_name = cache_path
+        cache_name = cache_path + "/assets"
     )
     
     release_list_cache = FileBackend(
-        cache_name = cache_path,
+        cache_name = cache_path + "/release_list"
     )
-        
+    
     releases = asyncio.run(get_release_list(ACCESS_TOKEN,release_list_cache,clear_cache))
     
-    dataset_title_list = map(lambda release: release['name'], releases)
-        
-    dataset_title_list = list(dict.fromkeys(dataset_title_list))
+    if subset == "all":
+        dataset_title_list = map(lambda release: release['name'], releases)
+            
+        dataset_title_list = list(dict.fromkeys(dataset_title_list))
+    else:
+        dataset_title_list = subset
     
     async def main():
         async with CachedSession(cache=assets_cache) as session:
@@ -61,7 +63,13 @@ def get_dataset_list(clear_cache, response_type="metadata"):
                 await session.cache.clear()
             tasks = []
             for title in dataset_title_list:
-                task = asyncio.ensure_future(get_dataset_data(session, title))
+                r = re.compile('^v([0-9]+)-(.*)')
+                if r.match(title):
+                    version = r.search(title).group(1)
+                    title = r.search(title).group(2)
+                else:
+                    version = "latest"
+                task = asyncio.ensure_future(get_dataset_data(session, title, version))
                 tasks.append(task)
 
             dataset_metadata = await asyncio.gather(*tasks)
@@ -70,18 +78,25 @@ def get_dataset_list(clear_cache, response_type="metadata"):
 
             return result_file
 
-    async def get_dataset_data(session,title): 
+    async def get_dataset_data(session,title,version): 
         # Search for latest version
         title_version_list = filter(lambda release: release['name'] == title, releases)
         title_version_list = sorted(title_version_list, key=lambda release: int(release['body'][8:]))
-        latest_version = title_version_list[len(title_version_list) - 1]
+        if len(title_version_list) == 0:
+            return "This dataset does not exist."
+        if version == "latest":
+            version = len(title_version_list)
+        if int(version) > len(title_version_list):
+            return f"The supplied version of this dataset is greater than the latest version of {len(title_version_list)}"
+        version_in_question = title_version_list[int(version) - 1]
+
         
         # get metadata
-        latest_version_metadata = latest_version['assets']
+        latest_version_metadata = version_in_question['assets']
         if response_type == "metadata":
             latest_version_metadata = list(filter(lambda asset: asset['name'] == title + '.json', latest_version_metadata))
         elif response_type == "github_url":
-            return {"github_url": latest_version["html_url"]}
+            return {"github_url": version_in_question["html_url"]}
         else:
             latest_version_metadata = list(filter(lambda asset: asset['name'] == title + "_" + response_type + '.json', latest_version_metadata))
 

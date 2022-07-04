@@ -10,6 +10,8 @@ import json
 import aiohttp
 import asyncio
 from fastapi.responses import PlainTextResponse
+from aiohttp_client_cache import CachedSession, FileBackend
+from appdirs import *
 
 def get_download(dataset_name, version, resource=None):
     # Get access token
@@ -45,8 +47,17 @@ def get_download(dataset_name, version, resource=None):
         'Accept': 'application/octet-stream'
     }
 
+    # make cache directory
+    cache_path = user_cache_dir("iidda-api-cache","")
+    if not os.path.isdir(cache_path):
+        os.makedirs(cache_path)
+    # Cache configurations
+    assets_cache = FileBackend(
+        cache_name = cache_path  + "/assets"
+    )
+
     async def main():
-        async with aiohttp.ClientSession(headers=headers) as session:
+        async with CachedSession(cache=assets_cache, headers=headers) as session:
             tasks = []
             if "pipeline_dependencies" in resource:
                 task = asyncio.create_task(asyncio.coroutine(get_pipeline_dependencies)(dataset_name, version=version, version_tag=version_tag))
