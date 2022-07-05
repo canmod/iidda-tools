@@ -2,7 +2,7 @@ from http.client import responses
 from urllib import response
 from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query
 from iidda_api import *
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 import nest_asyncio
 from fastapi.openapi.utils import get_openapi
 from jq import jq
@@ -15,7 +15,7 @@ from io import StringIO
 nest_asyncio.apply()
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
-              "defaultModelsExpandDepth": -1})
+              "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
 
 def generate_filters():
     dataset_list = get_dataset_list(clear_cache=False)
@@ -68,7 +68,7 @@ async def metadata(
     return get_dataset_list(clear_cache=False, response_type=response_type, subset = dataset_list)
 
 
-@app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=PlainTextResponse)
+@app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
     dataset_ids: Union[list[str], None] = Query(default=None),
     string_matching: str = Query(
@@ -141,7 +141,7 @@ async def raw_csv(
             raise HTTPException(status_code=400, detail=error_list)
         else:
             merged_csv = pd.concat(map(pd.read_csv, csv_list), ignore_index=True)
-            return PlainTextResponse(merged_csv.to_csv(index=False), media_type="text/plain")
+            return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
     return asyncio.run(main())
 
