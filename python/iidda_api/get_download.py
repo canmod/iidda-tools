@@ -63,7 +63,7 @@ def get_download(dataset_name, version, resource=None):
                 task = asyncio.create_task(asyncio.coroutine(get_pipeline_dependencies)(dataset_name, version=version, version_tag=version_tag))
                 tasks.append(task)
             for asset in release.get_assets():
-                if (asset.name.endswith(".csv") and "CSV" in resource) or (asset.name.endswith(".json") and "metadata" in resource):
+                if (asset.name.endswith(".csv") and "csv" in resource) or (asset.name.endswith(".json") and "metadata" in resource):
                     task = asyncio.ensure_future(download_asset(asset.url, asset.name, session))
                     tasks.append(task)
                     

@@ -159,23 +159,24 @@ async def download(
     value: str = "",
     jq_query: str = "",
     resource: Union[list[str], None] = Query(
-        default=None, description="Options include: CSV, pipeline_dependencies, metadata")
+        default=None, description="Options include: csv, pipeline_dependencies, metadata")
 ):
     # making sure resource types are valid
     if resource == None:
         raise HTTPException(status_code=400, detail="No resource was selected for download.")
         
     bad_resources = []
-    for resource_type in resource:
-        if resource_type not in ["CSV", "pipeline_dependencies", "metadata"]:
-            bad_resources.append(resource_type)
+    for i in range(len(resource)):
+        resource[i] = resource[i].lower()
+        if resource[i] not in ["csv", "pipeline_dependencies", "metadata"]:
+            bad_resources.append(resource[i])
         else:
             continue
     
     if len(bad_resources) == 1:
-        raise HTTPException(status_code=400, detail=f"{bad_resources[0]} is not a valid resource. Only 'CSV', 'pipeline_dependencies', and 'metadata' are valid. Keep in mind that this field is case sensitive.")
+        raise HTTPException(status_code=400, detail=f"{bad_resources[0]} is not a valid resource. Only 'csv', 'pipeline_dependencies', and 'metadata' are valid.")
     elif len(bad_resources) > 1:
-        raise HTTPException(status_code=400, detail=f"{', '.join(bad_resources[:-1])} and {bad_resources[-1]} are not valid resources. Only 'CSV', 'pipeline_dependencies', and 'metadata' are valid. Keep in mind that this field is case sensitive.")
+        raise HTTPException(status_code=400, detail=f"{', '.join(bad_resources[:-1])} and {bad_resources[-1]} are not valid resources. Only 'csv', 'pipeline_dependencies', and 'metadata' are valid.")
 
     # Defining list of datasets to download
     if dataset_ids != None:
