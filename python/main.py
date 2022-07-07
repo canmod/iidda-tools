@@ -46,8 +46,8 @@ async def metadata(
     else:
         if (key == "" or value == "") and jq_query == "":
             return get_dataset_list(clear_cache=False, response_type=response_type)
-        elif jq_query != "":
-            dataset_list = jq(f'{jq_query} | keys').transform(data)
+        elif jq_query != "" and (key == "" and value == "" and dataset_ids == None):
+            return jq(f'{jq_query}').transform(get_dataset_list(clear_cache=False, response_type=response_type))
         elif key != "" and value != "":
             if string_matching == "Contains":
                 string_matching = f'contains("{value}")'
@@ -65,7 +65,10 @@ async def metadata(
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
 
-    return get_dataset_list(clear_cache=False, response_type=response_type, subset = dataset_list)
+    if jq_query != "":
+        return jq(f'{jq_query}').transform(get_dataset_list(clear_cache=False, response_type=response_type, subset = dataset_list))
+    else:
+        return get_dataset_list(clear_cache=False, response_type=response_type, subset = dataset_list)
 
 
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
