@@ -2,6 +2,16 @@
 
 These three topics are inextricably linked.
 
+## Data Harmonization Issues
+
+There are many different ways that cases are added up in the original scans. For the 1924-55 scans, there are weekly and monthly case counts.
+These weekly and monthly counts are then totaled in three different ways. Monthly and weekly counts are summed over the year for each province, over each week for all of Canada, and also over the year for all of Canada.
+
+When there are missing weekly reports, there may still be monthly reports, causing discrepancies in the different totals. There are also many instances in this data set where the only one of the yearly Canada totals is present (sum of weekly counts and no sum of monthly counts, or vice-versa). This raises the question of which total should be plotted. 
+
+It seems that we need to figure out imputation methods in order to get accurate Canada - and provincial - totals to plot. 
+There don't seem to be such obvious discrepancies for data from 1956 and onward.
+
 ## Getting Monthly Data from 'Perfect' Weekly Data
 
 This is easy.  Simply sum up the weekly numbers.
