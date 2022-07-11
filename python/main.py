@@ -149,7 +149,6 @@ async def raw_csv(
     return asyncio.run(main())
 
 
-
 @app.get("/download", responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
 async def download(
     dataset_ids: Union[list[str], None] = Query(default=None),

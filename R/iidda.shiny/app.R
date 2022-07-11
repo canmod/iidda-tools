@@ -7,75 +7,83 @@ library(purrr)
 require(plyr)
 library(jsonlite)
 
-base_url <- "http://127.0.0.1:8000"
-
 # Define UI for application that draws a histogram
-  header <- dashboardHeader(title = "IIDDA")
-  
-  # Sidebar with a slider input for number of bins
+header <- dashboardHeader(title = "IIDDA")
 
-  body <- dashboardBody(
-    fluidRow(
-      column(
-        width = 9,
-        box(
-          title = "Dataset",
-          width = NULL,
-          DT::dataTableOutput("data_table") %>% withSpinner(color = "#FDBF57"),
-          style = "height: fit-content; overflow-y:scroll; overflow-x:scroll;"
-        )
-      ),
-      column(
-        width = 3,
-        box(
-          h3("Dataset Selection"),
-          width = NULL,
-          selectInput(
-            inputId = "data_type",
-            label = "Dataset Type",
-            choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .resourceType .resourceType] | unique'),
-            selected = "Communicable Disease Incidence"
-          ),
-          uiOutput("dataset_name"),
-          p(
-            class = "text-muted",
-            paste(
-              'Changes will only apply when you click "Apply Changes"'
-            )
-          ),
-          actionButton("select_data", "Apply Changes")
-        ),
-        box(
-          h3("Downloads"),
-          width = NULL,
-          checkboxGroupInput(
-            "files_to_include",
-            "Optional Files to Include",
-            choices = list(
-              "CSV" = "csv",
-              "Metadata" = "metadata",
-              "Source Files" = "pipeline_dependencies"
-            ),
-          ),
-          p(
-            class = "text-muted",
-            paste(
-              'Selecting "Source Files" will significantly increase download time due to large file sizes.'
-            )
-          ),
-          downloadButton(
-            outputId = "download_data",
-            label = "Download",
-          )
-        )
+# Sidebar with a slider input for number of bins
+
+body <- dashboardBody(
+  fluidRow(
+    column(
+      width = 9,
+      box(
+        title = "Dataset",
+        width = NULL,
+        DT::dataTableOutput("data_table") %>% withSpinner(color = "#FDBF57"),
+        style = "height: fit-content; overflow-y:scroll; overflow-x:scroll;"
       )
     ),
+    column(
+      width = 3,
+      box(
+        h3("Dataset Selection"),
+        width = NULL,
+        selectInput(
+          inputId = "data_type",
+          label = "Dataset Type",
+          choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .resourceType .resourceType] | unique'),
+          selected = "Communicable Disease Incidence"
+        ),
+        uiOutput("dataset_name"),
+        p(
+          class = "text-muted",
+          paste(
+            'Changes will only apply when you click "Apply Changes"'
+          )
+        ),
+        actionButton("select_data", "Apply Changes")
+      ),
+      box(
+        h3("Downloads"),
+        width = NULL,
+        checkboxGroupInput(
+          "files_to_include",
+          "Optional Files to Include",
+          choices = list(
+            "CSV" = "csv",
+            "Metadata" = "metadata",
+            "Source Files" = "pipeline_dependencies"
+          ),
+        ),
+        p(
+          class = "text-muted",
+          paste(
+            'Selecting "Source Files" will significantly increase download time due to large file sizes.'
+          )
+        ),
+        downloadButton(
+          outputId = "download_data",
+          label = "Download",
+        )
+      )
+    )
+  ),
+  tags$head(tags$style(
+    HTML(
+      '
+        .has-feedback .form-control {
+          padding-right: 0;
+        }
+        '
+    )
+    )
+  )
 )
-  
+
 ui <- dashboardPage(
-    header,
-    dashboardSidebar(disable = TRUE),
-    body
+  header,
+  dashboardSidebar(disable = TRUE),
+  body
 )
 
 # Define server logic required to draw a histogram
@@ -138,7 +146,7 @@ server <- function(input, output) {
     },
     content = function(file)
     {
-      showModal(modalDialog("Downloading files...", footer  =  NULL))
+      withProgress(message = 'Preparing files for download...', {
       writeBin(
         iidda.api::ops$download(
           dataset_ids = input$dataset_name,
@@ -146,7 +154,7 @@ server <- function(input, output) {
         ),
         file
       )
-      on.exit(removeModal())
+      })
     },
     contentType = "application/zip"
   )
