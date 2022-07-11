@@ -8,8 +8,10 @@ from io import BytesIO, StringIO
 import zipfile
 import json
 from fastapi.responses import PlainTextResponse
+from aiohttp_client_cache import CachedSession, FileBackend
+from appdirs import *
 
-def get_dataset(dataset_name, version):
+async def get_dataset(dataset_name, version):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     github = Github(ACCESS_TOKEN)
@@ -39,11 +41,22 @@ def get_dataset(dataset_name, version):
         'Accept': 'application/octet-stream'
     }
 
+    # make cache directory
+    cache_path = user_cache_dir("iidda-api-cache","")
+    if not os.path.isdir(cache_path):
+        os.makedirs(cache_path)
+    # Cache configurations
+    assets_cache = FileBackend(
+        cache_name = cache_path  + "/assets"
+    )
+
     for asset in release.get_assets():
         if asset.name == dataset_name + '.csv':
-            response = requests.get(asset.url, stream=True, headers=headers)
-            if response.ok:
-                return BytesIO(response.content)
-            else:
-                return "Download failed: {}\n{}".format(response.status_code, response.text)
+            async with CachedSession(cache=assets_cache, headers=headers) as session:
+                async with session.get(asset.url) as response:
+                    if response.ok:
+                        file_content = await response.read()
+                        return BytesIO(file_content)
+                    else:
+                        return "Download failed: {}\n{}".format(response.status_code, response.text)
 

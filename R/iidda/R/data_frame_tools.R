@@ -49,23 +49,23 @@ get_unique_col_values = function(l) {
 }
 
 #' @export
-drop_empty_cols = function(table) {
-  drop_indices = (table
-                  %>% lapply(is_empty)
-                  %>% sapply(all)
-                  %>% which
-                  %>% `[`
-  )
-  if(length(drop_indices) > 0) table = table[-drop_indices]
-  return(table)
+drop_empty_rows = function(table) {
+  empty_cells = sapply(table, is_empty)
+  if (!is.logical(empty_cells) | !is.matrix(empty_cells) | is.null(empty_cells) | !all(dim(table) == dim(empty_cells))) {
+    return(table)
+  }
+  empty_rows = apply(empty_cells, 1, all)
+  #empty_cols = apply(empty_cells, 2, all)
+  table[!empty_rows, ]
 }
 
-#' @importFrom dplyr ungroup rowwise filter c_across
-#' @export
-drop_empty_rows = function(table) {
-  (table
-   %>% rowwise
-   %>% filter(!all(is_empty(c_across())))
-   %>% ungroup
-  )
-}
+# @importFrom dplyr ungroup rowwise filter c_across
+
+# drop_empty_rows = function(table) {
+#   keep_fn = function(x) !all(is_empty(as.character(x)))
+#   (table
+#    %>% rowwise
+#    %>% filter(keep_fn(c_across()))
+#    %>% ungroup
+#   )
+# }
