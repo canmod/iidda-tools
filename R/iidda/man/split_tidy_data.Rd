@@ -7,5 +7,6 @@
 split_tidy_data(tidy_data)
 }
 \description{
-Creates 6 tidy data sets with no duplicate data, broken down by period (wk, mt, quarter, year) and province/Canada.
+Creates 6 tidy data sets with no duplicate data, broken down by period
+(wk, mt, quarter, year) and province/Canada.
 }

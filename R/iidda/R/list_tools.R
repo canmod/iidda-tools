@@ -41,6 +41,7 @@ get_elements = `[`
 #' values of \code{keys}
 #' @export
 lookup = function(named_keys, l) {
+  if (is.null(names(named_keys))) named_keys = setNames(named_keys, named_keys)
   stopifnot(is.recursive(l))
   stopifnot(!any(is_empty(names(l))))
   stopifnot(is.character(named_keys))

@@ -12,7 +12,8 @@ col_classes_dict = list(
 
 #' @export
 resource_type_dict = list(
-  CDI = "Communicable Disease Incidence"
+  CDI = "Communicable Disease Incidence",
+  Population = "Population"
 )
 
 #' @export
