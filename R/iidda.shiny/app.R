@@ -76,7 +76,7 @@ body <- dashboardBody(
         }
         '
     )
-    )
+  )
   )
 )
 
@@ -103,9 +103,7 @@ server <- function(input, output) {
           'map_values(select(. != "No metadata." and .resourceType .resourceType == "%s") ) | keys',
           input$data_type
         )
-      ),
-      options = list(maxOptions = 5)
-      
+      )
     )
   )
   output$data_table = renderDT({
@@ -147,13 +145,13 @@ server <- function(input, output) {
     content = function(file)
     {
       withProgress(message = 'Preparing files for download...', {
-      writeBin(
-        iidda.api::ops$download(
-          dataset_ids = input$dataset_name,
-          resource = input$files_to_include
-        ),
-        file
-      )
+        writeBin(
+          iidda.api::ops$download(
+            dataset_ids = input$dataset_name,
+            resource = input$files_to_include
+          ),
+          file
+        )
       })
     },
     contentType = "application/zip"
