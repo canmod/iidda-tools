@@ -74,6 +74,11 @@ body <- dashboardBody(
         .has-feedback .form-control {
           padding-right: 0;
         }
+        
+        .sorting {
+        white-space: nowrap;
+        }
+      
         '
     )
   )
@@ -109,7 +114,7 @@ server <- function(input, output) {
   output$data_table = renderDT({
     data_dictionary <-
       iidda.api::ops$metadata(
-        dataset_ids = input$dataset_name,
+        dataset_ids = isolate(input$dataset_name),
         response_type = "data_dictionary",
         jq_query = '[.[] | select(. != "No metadata.") | .[] | {(.name) : [(.title), (.description)]} ] | unique | add'
       )
