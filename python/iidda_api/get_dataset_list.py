@@ -1,4 +1,4 @@
-from functools import cache
+#from functools import cache
 import requests
 import os
 import configparser
