@@ -44,10 +44,18 @@ make_ops_list = function(api_base_url) {
     raw_requests[[name]] <- set_default_args_list(raw_requests[[name]], parameter_list(name))
   }
 
-  requests_names = summary_to_function_name(
-    unlist(list_xpath(iidda_api$paths, 'get', 'summary'))
+  get_request_names = summary_to_function_name(
+    list_xpath(iidda_api$paths, 'get', 'summary')
   )
-  setNames(raw_requests, requests_names)
+  post_request_names = summary_to_function_name(
+    list_xpath(iidda_api$paths, 'post', 'summary')
+  )
+  request_names = ifelse(
+    get_request_names == "list()",
+    post_request_names,
+    get_request_names
+  )
+  setNames(raw_requests, request_names)
 }
 
 #' IIDDA Requests
