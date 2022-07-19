@@ -9,6 +9,8 @@ from io import BytesIO
 from fastapi.responses import StreamingResponse
 import zipfile
 
+from sqlalchemy import null
+
 
 def convert_to_raw(url):
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
@@ -68,7 +70,11 @@ def get_pipeline_dependencies(dataset_name, version="latest", version_tag=""):
                             return files
                                 
                     async def download_dependencies(url, session):
-                        file_name = version_tag + dataset_name + "/" + version_tag + dataset_name + "_dependencies/" + os.path.basename(url[34:])
+                        if url == "on mcmaster math server (file to large for github)":
+                            file_name = file_name = version_tag + dataset_name + "/" + version_tag + dataset_name + "_dependencies/" + url + ".txt"
+                            return (file_name, "on mcmaster math server (file to large for github)")
+                        else:
+                            file_name = version_tag + dataset_name + "/" + version_tag + dataset_name + "_dependencies/" + os.path.basename(url[34:])
                         async with session.get(url) as response:
                             file_content = await response.read()
                             return (file_name,file_content)

@@ -12,6 +12,7 @@ import aiohttp
 import asyncio
 import pandas as pd
 from io import StringIO
+import time
 nest_asyncio.apply()
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
@@ -24,6 +25,14 @@ def generate_filters():
     for x in range(len(data)):
         data[x] = "." + data[x]
     return data
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 
 @app.get("/metadata")
 async def metadata(
@@ -144,6 +153,7 @@ async def raw_csv(
             raise HTTPException(status_code=400, detail=error_list)
         else:
             merged_csv = pd.concat(map(pd.read_csv, csv_list), ignore_index=True)
+            write_stats(endpoint="/raw_csv", datasets=dataset_list)
             return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
     return asyncio.run(main())
@@ -252,7 +262,7 @@ async def download(
                             zf.writestr(item[0], item[1])
                     else:
                         zf.writestr(f[0], f[1])
-
+            write_stats(endpoint="/download", datasets=dataset_list)
             return StreamingResponse(
                 iter([mem_zip.getvalue()]),
                 media_type="application/x-zip-compressed",
