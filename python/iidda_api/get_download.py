@@ -13,7 +13,7 @@ from fastapi.responses import PlainTextResponse
 from aiohttp_client_cache import CachedSession, FileBackend
 from appdirs import *
 
-def get_download(dataset_name, version, resource=None):
+async def get_download(dataset_name, version, resource=None):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     github = Github(ACCESS_TOKEN)
@@ -60,7 +60,7 @@ def get_download(dataset_name, version, resource=None):
         async with CachedSession(cache=assets_cache, headers=headers) as session:
             tasks = []
             if "pipeline_dependencies" in resource:
-                task = asyncio.create_task(asyncio.coroutine(get_pipeline_dependencies)(dataset_name, version=version, version_tag=version_tag))
+                task = asyncio.ensure_future(get_pipeline_dependencies(dataset_name, version=version, version_tag=version_tag))
                 tasks.append(task)
             for asset in release.get_assets():
                 if (asset.name.endswith(".csv") and "csv" in resource) or (asset.name.endswith(".json") and "metadata" in resource):

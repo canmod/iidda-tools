@@ -15,7 +15,7 @@ from sqlalchemy import null
 def convert_to_raw(url):
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
 
-def get_pipeline_dependencies(dataset_name, version="latest", version_tag=""):
+async def get_pipeline_dependencies(dataset_name, version="latest", version_tag=""):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     github = Github(ACCESS_TOKEN)

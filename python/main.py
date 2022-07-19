@@ -13,10 +13,12 @@ import asyncio
 import pandas as pd
 from io import StringIO
 import time
+# from fastapi_cprofile.profiler import CProfileMiddleware
 nest_asyncio.apply()
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
               "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
+# app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
 
 def generate_filters():
     dataset_list = get_dataset_list(clear_cache=False)
@@ -132,7 +134,7 @@ async def raw_csv(
                 dataset = r.search(dataset).group(2)
             else:
                 version = "latest"
-            task = asyncio.create_task(asyncio.coroutine(get_dataset)(
+            task = asyncio.ensure_future(get_dataset(
                 dataset_name = dataset, version=version))
             tasks.append(task)
 
@@ -227,11 +229,11 @@ async def download(
             else:
                 version = "latest"
             if "metadata" in resource:
-                task = asyncio.create_task(asyncio.coroutine(get_download)(
+                task = asyncio.ensure_future(get_download(
                     dataset_name=dataset, version=version, resource=resource))
                 tasks.append(task)
             else:
-                task = asyncio.create_task(asyncio.coroutine(get_download)(
+                task = asyncio.ensure_future(get_download(
                     dataset_name=dataset, version=version, resource=resource))
                 tasks.append(task)
 
@@ -278,7 +280,6 @@ async def download(
 async def webhook(req: Request):
     get_dataset_list(clear_cache=True)
     return "Cache cleared."
-
 
 def custom_openapi():
     if app.openapi_schema:
