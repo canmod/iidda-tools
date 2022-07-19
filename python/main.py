@@ -68,7 +68,7 @@ async def metadata(
             keys = key.split(" ")
             if len(keys) > 1:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | {string_matching}) else select(. | {string_matching}) end) else select({keys[1]} | {string_matching}) end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_matching}) else select(. != null) | select(. | {string_matching}) end) else select({keys[1]} != null) | select({keys[1]} | {string_matching}) end)) | keys').transform(data)
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
@@ -112,7 +112,7 @@ async def raw_csv(
             keys = key.split(" ")
             if len(keys) > 1:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | {string_matching}) else select(. | {string_matching}) end) else select({keys[1]} | {string_matching}) end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_matching}) else select(. != null) | select(. | {string_matching}) end) else select({keys[1]} != null) | select({keys[1]} | {string_matching}) end)) | keys').transform(data)
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
@@ -210,7 +210,7 @@ async def download(
             keys = key.split(" ")
             if len(keys) > 1:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then select(.[] | {string_matching}) else select(. | {string_matching}) end) else select({keys[1]} | {string_matching}) end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_matching}) else select(. != null) | select(. | {string_matching}) end) else select({keys[1]} != null) | select({keys[1]} | {string_matching}) end)) | keys').transform(data)
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
