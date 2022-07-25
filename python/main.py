@@ -9,6 +9,7 @@ from jq import jq
 import re
 import aiohttp
 import asyncio
+from typing import List
 import pandas as pd
 from io import StringIO
 import time
@@ -37,7 +38,7 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.get("/metadata")
 async def metadata(
-    dataset_ids: list[str] = Query(default=None),
+    dataset_ids: List[str] = Query(default=None),
     string_matching: str = Query(
         "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
     key: str = Query(
@@ -83,7 +84,7 @@ async def metadata(
 
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
-    dataset_ids: list[str] = Query(default=None),
+    dataset_ids: List[str] = Query(default=None),
     string_matching: str = Query(
         "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
     key: str = Query(
@@ -162,7 +163,7 @@ async def raw_csv(
 
 @app.get("/download", responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
 async def download(
-    dataset_ids: list[str] = Query(default=None),
+    dataset_ids: List[str] = Query(default=None),
     string_matching: str = Query(
         "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
     key: str = Query(
@@ -171,7 +172,7 @@ async def download(
     ),
     value: str = "",
     jq_query: str = "",
-    resource: list[str] = Query(
+    resource: List[str] = Query(
         default=None, description="Options include: csv, pipeline_dependencies, metadata")
 ):
     # making sure resource types are valid
