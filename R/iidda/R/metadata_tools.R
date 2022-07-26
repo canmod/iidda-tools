@@ -200,7 +200,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     language = 'en',
     resourceType = list(
       resourceTypeGeneral = "Dataset",
-      resourceType = lookup(metadata$Source$type, resource_type_dict)
+      resourceType = lookup(metadata$Source$type, resource_type_dict)[[1L]]
     ),
     # TODO: move main identifier here once we get DOI's going
     # https://github.com/canmod/iidda-tools/issues/8
