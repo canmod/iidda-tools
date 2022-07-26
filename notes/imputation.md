@@ -46,7 +46,7 @@ This is related to the data-checking-while-imputing situation above.
 
 Firstly, sometimes we are in the better 4-weekly case so that is good.
 
-But even with monthly data things are not that bad for the 1924-55 data, because the original data define the monthly totals as the sum over a set of full 7-day weeks. This makes imputation much easier, at least conceptually. But it creates a problem for the monthly data, because the months that have been based on 3 weeks say are less comparable with those based on 4 or 5 weeks. Gabrielle's great idea is that we use the monthly data entered in the original sheets for imputation and cross checking purposes, but conduct data analysis on weekly and/or 4-weekly scales. This will still require us to impute data for particular 4-weekly periods, which could get a little more interesting because the 4-weekly periods will necessarily get out of sync with the monthly periods.
+But even with monthly data things are not that bad for the 1924-55 data, because the original data define the monthly totals as the sum over a set of full 7-day weeks for most years. This makes imputation much easier, at least conceptually. But it creates a problem for the monthly data, because the months that have been based on 3 weeks say are less comparable with those based on 4 or 5 weeks. Gabrielle's great idea is that we use the monthly data entered in the original sheets for imputation and cross checking purposes, but conduct data analysis on weekly and/or 4-weekly scales. This will still require us to impute data for particular 4-weekly periods, which could get a little more interesting because the 4-weekly periods will necessarily get out of sync with the monthly periods.
 
 ## Imputation using Temporal Patterns
 

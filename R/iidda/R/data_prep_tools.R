@@ -346,12 +346,13 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
 
 #' @export
 add_column_summaries = function(tidy_data, dataset_name, metadata) {
-  metadata$ColumnSummary = lapply(
+  metadata$ColumnSummary = sapply(
     names(tidy_data),
     column_summary,
     tidy_data,
     dataset_name,
-    metadata
+    metadata,
+    simplify = FALSE
   )
   metadata
 }
