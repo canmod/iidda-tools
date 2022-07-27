@@ -300,14 +300,7 @@ async def download(
 # ‘/githubwebhook’ specifies which link will it work on
 
 
-@app.get('/filter')
-async def filter(req: Request):
-    return get_dataset_list(clear_cache=False, response_type="columns")
-
-# ‘/githubwebhook’ specifies which link will it work on
-
-
-@app.post('/githubwebhook', status_code=http.HTTPStatus.ACCEPTED)
+@app.post('/githubwebhook', status_code=http.HTTPStatus.ACCEPTED, include_in_schema=False)
 async def webhook(req: Request, x_hub_signature: str = Header(None)):
     payload = await req.body()
     secret = read_config("webhook_secret").encode("utf-8")
