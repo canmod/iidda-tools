@@ -1,6 +1,6 @@
 from http.client import responses
 from urllib import response
-from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query
+from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query, Header
 from iidda_api import *
 from fastapi.responses import FileResponse, PlainTextResponse
 import nest_asyncio
@@ -13,12 +13,16 @@ from typing import List
 import pandas as pd
 from io import StringIO
 import time
+import hashlib
+import hmac
+import http
 # from fastapi_cprofile.profiler import CProfileMiddleware
 nest_asyncio.apply()
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
               "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
+
 
 def generate_filters():
     dataset_list = get_dataset_list(clear_cache=False)
@@ -28,6 +32,15 @@ def generate_filters():
         data[x] = "." + data[x]
     return data
 
+
+def generate_hash_signature(
+    secret: bytes,
+    payload: bytes,
+    digest_method=hashlib.sha1,
+):
+    return hmac.new(secret, payload, digest_method).hexdigest()
+
+
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
@@ -35,6 +48,7 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
+
 
 @app.get("/metadata")
 async def metadata(
@@ -47,7 +61,7 @@ async def metadata(
     ),
     value: str = "",
     jq_query: str = "",
-    response_type = Query("metadata", enum=sorted(
+    response_type=Query("metadata", enum=sorted(
         ["github_url", "metadata", "csv_dialect", "data_dictionary"]))
 ):
     # Defining list of datasets to download
@@ -72,14 +86,14 @@ async def metadata(
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
-    
+
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
 
     if jq_query != "":
-        return jq(f'{jq_query}').transform(get_dataset_list(clear_cache=False, response_type=response_type, subset = dataset_list))
+        return jq(f'{jq_query}').transform(get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list))
     else:
-        return get_dataset_list(clear_cache=False, response_type=response_type, subset = dataset_list)
+        return get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
 
 
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
@@ -116,15 +130,18 @@ async def raw_csv(
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
-    
+
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
 
     # Handling responses
     conditions = " or .key == ".join(f'"{d}"' for d in dataset_list)
-    data_types = jq(f'[with_entries(select(.key == {conditions})) | .[] .resourceType .resourceType] | unique').transform(data)
+    data_types = jq(
+        f'[with_entries(select(.key == {conditions})) | .[] .resourceType .resourceType] | unique').transform(data)
     if len(data_types) > 1:
-        raise HTTPException(status_code=400, detail="In order to use the 'raw_csv' response type, all datasets in question must be of the same resource type.")
+        raise HTTPException(
+            status_code=400, detail="In order to use the 'raw_csv' response type, all datasets in question must be of the same resource type.")
+
     async def main():
         tasks = []
         for dataset in dataset_list:
@@ -135,13 +152,14 @@ async def raw_csv(
             else:
                 version = "latest"
             task = asyncio.ensure_future(get_dataset(
-                dataset_name = dataset, version=version))
+                dataset_name=dataset, version=version))
             tasks.append(task)
 
         csv_list = await asyncio.gather(*tasks)
 
         # Error handling
-        version_regex = re.compile('The supplied version of (.*) is greater than the latest version of ([0-9]+)')
+        version_regex = re.compile(
+            'The supplied version of (.*) is greater than the latest version of ([0-9]+)')
         exists_regex = re.compile(f'(.*) does not exist in the releases')
         error_list = []
         for file in csv_list:
@@ -150,11 +168,12 @@ async def raw_csv(
                     error_list.append(exists_regex.search(file).group(0))
                 elif version_regex.match(file):
                     error_list.append(version_regex.search(file).group(0))
-        
+
         if len(error_list) != 0:
             raise HTTPException(status_code=400, detail=error_list)
         else:
-            merged_csv = pd.concat(map(pd.read_csv, csv_list), ignore_index=True)
+            merged_csv = pd.concat(
+                map(pd.read_csv, csv_list), ignore_index=True)
             write_stats(endpoint="/raw_csv", datasets=dataset_list)
             return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
@@ -177,8 +196,9 @@ async def download(
 ):
     # making sure resource types are valid
     if resource == None:
-        raise HTTPException(status_code=400, detail="No resource was selected for download.")
-        
+        raise HTTPException(
+            status_code=400, detail="No resource was selected for download.")
+
     bad_resources = []
     for i in range(len(resource)):
         resource[i] = resource[i].lower()
@@ -186,11 +206,13 @@ async def download(
             bad_resources.append(resource[i])
         else:
             continue
-    
+
     if len(bad_resources) == 1:
-        raise HTTPException(status_code=400, detail=f"{bad_resources[0]} is not a valid resource. Only 'csv', 'pipeline_dependencies', and 'metadata' are valid.")
+        raise HTTPException(
+            status_code=400, detail=f"{bad_resources[0]} is not a valid resource. Only 'csv', 'pipeline_dependencies', and 'metadata' are valid.")
     elif len(bad_resources) > 1:
-        raise HTTPException(status_code=400, detail=f"{', '.join(bad_resources[:-1])} and {bad_resources[-1]} are not valid resources. Only 'csv', 'pipeline_dependencies', and 'metadata' are valid.")
+        raise HTTPException(
+            status_code=400, detail=f"{', '.join(bad_resources[:-1])} and {bad_resources[-1]} are not valid resources. Only 'csv', 'pipeline_dependencies', and 'metadata' are valid.")
 
     # Defining list of datasets to download
     if dataset_ids != None:
@@ -214,7 +236,7 @@ async def download(
             else:
                 dataset_list = jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
-   
+
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
 
@@ -239,8 +261,9 @@ async def download(
 
         files = await asyncio.gather(*tasks)
 
-        #Error handling
-        version_regex = re.compile('The supplied version of (.*) is greater than the latest version of ([0-9]+)')
+        # Error handling
+        version_regex = re.compile(
+            'The supplied version of (.*) is greater than the latest version of ([0-9]+)')
         exists_regex = re.compile(f'(.*) does not exist in the releases')
         error_list = []
         for file in files:
@@ -249,7 +272,7 @@ async def download(
                     error_list.append(exists_regex.search(file).group(0))
                 elif version_regex.match(file):
                     error_list.append(version_regex.search(file).group(0))
-        
+
         if len(error_list) != 0:
             raise HTTPException(status_code=400, detail=error_list)
         else:
@@ -259,7 +282,7 @@ async def download(
             zip_filename = "%s.zip" % zip_sub_dir
             with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
                 for f in files:
-                    if isinstance(f,list):
+                    if isinstance(f, list):
                         for item in f:
                             zf.writestr(item[0], item[1])
                     else:
@@ -269,17 +292,32 @@ async def download(
                 iter([mem_zip.getvalue()]),
                 media_type="application/x-zip-compressed",
                 headers={"Content-Disposition": f"attachment;filename=%s" %
-                        zip_filename}
+                         zip_filename}
             )
 
     return asyncio.run(main())
 
+# ‘/githubwebhook’ specifies which link will it work on
+
+
+@app.get('/filter')
+async def filter(req: Request):
+    return get_dataset_list(clear_cache=False, response_type="columns")
 
 # ‘/githubwebhook’ specifies which link will it work on
-@app.post('/githubwebhook', include_in_schema=False)
-async def webhook(req: Request):
-    get_dataset_list(clear_cache=True)
-    return "Cache cleared."
+
+
+@app.post('/githubwebhook', status_code=http.HTTPStatus.ACCEPTED)
+async def webhook(req: Request, x_hub_signature: str = Header(None)):
+    payload = await req.body()
+    secret = read_config("webhook_secret").encode("utf-8")
+    signature = generate_hash_signature(secret,payload)
+    if x_hub_signature != f"sha1={signature}":
+        raise HTTPException(status_code=401, detail="Authentication error.")
+    else:
+        get_dataset_list(clear_cache=True)
+        return "Cache cleared."
+
 
 def custom_openapi():
     if app.openapi_schema:
