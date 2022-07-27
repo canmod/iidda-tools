@@ -3,14 +3,35 @@
 \docType{data}
 \name{ops}
 \alias{ops}
-\title{IIDDA Requests}
+\alias{ops_local}
+\alias{ops_staging}
+\title{IIDDA API Operations}
 \format{
-An object of class \code{list} of length 2.
+An object of class \code{list} of length 3.
+
+An object of class \code{try-error} of length 1.
+
+An object of class \code{list} of length 3.
 }
 \usage{
 ops
+
+ops_local
+
+ops_staging
 }
 \description{
-IIDDA Requests
+IIDDA API Operations
 }
+\section{Functions}{
+\itemize{
+\item \code{ops}: List containing available operations from the IIDDA API
+as \code{R} functions
+
+\item \code{ops_local}: Operations list for a local development environment,
+if it exists
+
+\item \code{ops_staging}: Operations list for a staging environment, if it exists
+}}
+
 \keyword{datasets}
