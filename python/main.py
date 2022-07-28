@@ -1,3 +1,4 @@
+from filecmp import clear_cache
 from http.client import responses
 from urllib import response
 from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query, Header
@@ -33,6 +34,13 @@ def generate_filters():
     return data
 
 
+def get_resource_types():
+    dataset_list = get_dataset_list(clear_cache=False)
+    data = jq('[.[] | select(. != "No metadata.") | .resourceType .resourceType] | unique').transform(
+        dataset_list)
+    return data
+
+
 def generate_hash_signature(
     secret: bytes,
     payload: bytes,
@@ -62,7 +70,7 @@ async def metadata(
     value: str = "",
     jq_query: str = "",
     response_type=Query("metadata", enum=sorted(
-        ["github_url", "metadata", "csv_dialect", "data_dictionary"]))
+        ["github_url", "metadata", "csv_dialect", "data_dictionary", "columns"]))
 ):
     # Defining list of datasets to download
     data = get_dataset_list(clear_cache=False)
@@ -297,6 +305,72 @@ async def download(
 
     return asyncio.run(main())
 
+
+@app.get("/filter", responses={200: {"content": {"application/json": {}}}})
+async def filter(
+    resource_type: str = Query(
+        enum=get_resource_types()),
+    location: List[str] = Query(default=None),
+    disease: List[str] = Query(default=None),
+    disease_family: List[str] = Query(default=None),
+    disease_subclass: List[str] = Query(default=None),
+    icd_7: List[str] = Query(default=None),
+    icd_9: List[str] = Query(default=None),
+):
+    if resource_type not in get_resource_types():
+        raise HTTPException(
+            status_code=400, detail=f"'{resource_type}' is not a valid resource_type. Available values are {get_resource_types()}")
+
+    filter_arguments = locals()
+    filter_arguments = jq(
+        'del(.resource_type) | map_values(select(. != null))').transform(filter_arguments)
+    filter_list = list()
+    pandas_query = list()
+    for key in filter_arguments:
+        filter = f'(select(.{key} != null) | .{key} | contains({filter_arguments[key]}))'.replace(
+            "'", '"')
+        query = f'{key} == {filter_arguments[key]}'
+        pandas_query.append(query)
+        filter_list.append(filter)
+    pandas_query = ' and '.join(pandas_query)
+    filter_string = ' and '.join(filter_list)
+    # Initial dataset_list
+    dataset_list = get_dataset_list(clear_cache=False)
+    dataset_list = jq(
+        f'map_values(select(. != "No metadata.") | select(.resourceType .resourceType == "{resource_type}")) | . |=  keys').transform(dataset_list)
+    dataset_list = get_dataset_list(
+        clear_cache=False, response_type="columns", subset=dataset_list)
+    dataset_list = jq(
+        f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
+
+    if len(dataset_list) == 0:
+        return "No datasets match the provided criteria."
+
+    async def main():
+        tasks = []
+        for dataset in dataset_list:
+            r = re.compile('^v([0-9]+)-(.*)')
+            task = asyncio.ensure_future(get_dataset(
+                dataset_name=dataset, version="latest"))
+            tasks.append(task)
+
+        csv_list = await asyncio.gather(*tasks)
+
+        merged_csv = pd.concat(
+            map(pd.read_csv, csv_list), ignore_index=True)
+        
+        missing_cols = list()
+        for key in filter_arguments:
+            if key not in merged_csv.columns:
+                missing_cols.append(key)
+        if len(missing_cols) > 0:
+            raise HTTPException(status_code=400, detail=f"These columns do not exist in these dataset(s): {missing_cols}")
+        merged_csv = merged_csv.query(pandas_query)
+        write_stats(endpoint="/filter", datasets=dataset_list)
+        return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
+
+    return asyncio.run(main())
+
 # ‘/githubwebhook’ specifies which link will it work on
 
 
@@ -304,7 +378,7 @@ async def download(
 async def webhook(req: Request, x_hub_signature: str = Header(None)):
     payload = await req.body()
     secret = read_config("webhook_secret").encode("utf-8")
-    signature = generate_hash_signature(secret,payload)
+    signature = generate_hash_signature(secret, payload)
     if x_hub_signature != f"sha1={signature}":
         raise HTTPException(status_code=401, detail="Authentication error.")
     else:
