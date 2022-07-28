@@ -200,7 +200,7 @@ async def download(
     value: str = "",
     jq_query: str = "",
     resource: List[str] = Query(
-        default=None, description="Options include: csv, pipeline_dependencies, metadata")
+        default=None, description="Options include: csv, pipeline_dependencies, metadata. Due to large file sizes, including 'pipeline_dependencies' will significantly increase download time.")
 ):
     # making sure resource types are valid
     if resource == None:
