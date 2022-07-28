@@ -316,6 +316,8 @@ async def filter(
     disease_subclass: List[str] = Query(default=None),
     icd_7: List[str] = Query(default=None),
     icd_9: List[str] = Query(default=None),
+    period_start_date: List[str] = Query(default=None),
+    period_end_date: List[str] = Query(default=None)
 ):
     if resource_type not in get_resource_types():
         raise HTTPException(
@@ -327,10 +329,18 @@ async def filter(
     filter_list = list()
     pandas_query = list()
     for key in filter_arguments:
-        containment_filter = " or ".join(
-            map(lambda value: f'contains(["{value}"])', filter_arguments[key]))
-        pandas_containment_filter = " | ".join(
-            map(lambda value: f'({key} == "{value}")', filter_arguments[key]))
+        if key == "period_start_date" or key == "period_end_date":
+            if len(filter_arguments[key]) < 2:
+                raise HTTPException(status_code=400, detail="Date query parameters must have a minimum and maximum date. Only one date was input.")
+            if filter_arguments[key][1] < filter_arguments[key][0]:
+                raise HTTPException(status_code=400, detail="The input should be in the form ['min','max']. The first date input is larger than the second.")
+            containment_filter = f'select((.[0] >= "{filter_arguments[key][0]}") and (.[1] <= "{filter_arguments[key][1]}"))'
+            pandas_containment_filter = f"{key} >= '{filter_arguments[key][0]}' and {key} <= '{filter_arguments[key][1]}'"
+        else:
+            containment_filter = " or ".join(
+                map(lambda value: f'contains(["{value}"])', filter_arguments[key]))
+            pandas_containment_filter = " | ".join(
+                map(lambda value: f'({key} == "{value}")', filter_arguments[key]))
         filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
             "'", '"')
         query = f'({pandas_containment_filter})'
@@ -346,7 +356,7 @@ async def filter(
         clear_cache=False, response_type="columns", subset=dataset_list)
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
-
+    print(dataset_list)
     if len(dataset_list) == 0:
         return "No datasets match the provided criteria."
 
@@ -362,7 +372,6 @@ async def filter(
 
         merged_csv = pd.concat(
             map(pd.read_csv, csv_list), ignore_index=True)
-
         missing_cols = list()
         for key in filter_arguments:
             if key not in merged_csv.columns:
