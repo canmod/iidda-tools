@@ -356,7 +356,6 @@ async def filter(
         clear_cache=False, response_type="columns", subset=dataset_list)
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
-    print(dataset_list)
     if len(dataset_list) == 0:
         return "No datasets match the provided criteria."
 
