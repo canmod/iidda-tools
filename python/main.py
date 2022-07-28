@@ -330,11 +330,11 @@ async def filter(
     pandas_query = list()
     for key in filter_arguments:
         if key == "period_start_date" or key == "period_end_date":
-            if len(filter_arguments[key]) < 2:
-                raise HTTPException(status_code=400, detail="Date query parameters must have a minimum and maximum date. Only one date was input.")
+            if len(filter_arguments[key]) != 2:
+                raise HTTPException(status_code=400, detail="Date query parameters must have only 2 inputs (a minimum and maximum date.)")
             if filter_arguments[key][1] < filter_arguments[key][0]:
                 raise HTTPException(status_code=400, detail="The input should be in the form ['min','max']. The first date input is larger than the second.")
-            containment_filter = f'select((.[0] >= "{filter_arguments[key][0]}") and (.[1] <= "{filter_arguments[key][1]}"))'
+            containment_filter = f'select((.[0] <= "{filter_arguments[key][1]}") and (.[1] >= "{filter_arguments[key][0]}"))'
             pandas_containment_filter = f"{key} >= '{filter_arguments[key][0]}' and {key} <= '{filter_arguments[key][1]}'"
         else:
             containment_filter = " or ".join(
