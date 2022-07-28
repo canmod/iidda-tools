@@ -327,9 +327,13 @@ async def filter(
     filter_list = list()
     pandas_query = list()
     for key in filter_arguments:
-        filter = f'(select(.{key} != null) | .{key} | contains({filter_arguments[key]}))'.replace(
+        containment_filter = " or ".join(
+            map(lambda value: f'contains(["{value}"])', filter_arguments[key]))
+        pandas_containment_filter = " | ".join(
+            map(lambda value: f'({key} == "{value}")', filter_arguments[key]))
+        filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
             "'", '"')
-        query = f'{key} == {filter_arguments[key]}'
+        query = f'({pandas_containment_filter})'
         pandas_query.append(query)
         filter_list.append(filter)
     pandas_query = ' and '.join(pandas_query)
@@ -358,13 +362,14 @@ async def filter(
 
         merged_csv = pd.concat(
             map(pd.read_csv, csv_list), ignore_index=True)
-        
+
         missing_cols = list()
         for key in filter_arguments:
             if key not in merged_csv.columns:
                 missing_cols.append(key)
         if len(missing_cols) > 0:
-            raise HTTPException(status_code=400, detail=f"These columns do not exist in these dataset(s): {missing_cols}")
+            raise HTTPException(
+                status_code=400, detail=f"These columns do not exist in these dataset(s): {missing_cols}")
         merged_csv = merged_csv.query(pandas_query)
         write_stats(endpoint="/filter", datasets=dataset_list)
         return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
