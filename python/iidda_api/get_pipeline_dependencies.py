@@ -10,7 +10,6 @@ from iidda_api import get_release_list
 from fastapi.responses import StreamingResponse
 import zipfile
 from aiohttp_client_cache import CachedSession, FileBackend
-from sqlalchemy import null
 from appdirs import *
 
 

@@ -1,10 +1,9 @@
-from filecmp import clear_cache
+import nest_asyncio
+nest_asyncio.apply()
 from http.client import responses
-from urllib import response
 from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query, Header
 from iidda_api import *
 from fastapi.responses import FileResponse, PlainTextResponse
-import nest_asyncio
 from fastapi.openapi.utils import get_openapi
 from jq import jq
 import re
@@ -18,7 +17,6 @@ import hashlib
 import hmac
 import http
 # from fastapi_cprofile.profiler import CProfileMiddleware
-nest_asyncio.apply()
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
               "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
@@ -56,7 +54,6 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
-
 
 @app.get("/metadata")
 async def metadata(
