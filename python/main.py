@@ -323,6 +323,9 @@ async def filter(
     filter_arguments = locals()
     filter_arguments = jq(
         'del(.resource_type) | map_values(select(. != null))').transform(filter_arguments)
+    if filter_arguments == {}:
+        raise HTTPException(
+            status_code=400, detail="Please provide at least one column filter.")
     filter_list = list()
     pandas_query = list()
     for key in filter_arguments:
