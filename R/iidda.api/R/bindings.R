@@ -14,6 +14,35 @@ local = list(
 # production environment
 production = staging
 
+# data dictionary location
+global_data_dictionary_url = file.path(
+  "https://raw.githubusercontent.com", # api
+  "canmod", # github user/org
+  "iidda", # github repo
+  "main", # github branch
+  "global-metadata", # folder
+  "data-dictionary.json" # file
+)
+
+default_global_data_dictionary = try(
+  read_json(global_data_dictionary_url),
+  silent = TRUE
+)
+
+global_data_dictionary = function() {
+  current_global_data_dictionary_url = try(
+    read_json(global_data_dictionary_url),
+    silent = TRUE
+  )
+  if (class(current_global_data_dictionary_url) != 'try-error') {
+    return(current_global_data_dictionary_url)
+  } else if (class(default_global_data_dictionary) != 'try-error') {
+    return(default_global_data_dictionary)
+  } else {
+    stop('cannot find iidda data dictionary')
+  }
+}
+
 make_ops_list = function(api_url, base_path) {
   handle_iidda_response <- function(x) {
     content_type <- x$headers$`content-type`
@@ -21,7 +50,30 @@ make_ops_list = function(api_url, base_path) {
       return(httr::content(x))
     }
     else if (content_type == 'text/plain; charset=utf-8') {
-      return(httr::content(x, type="text/csv", encoding = "UTF-8"))
+      x_data_frame = httr::content(
+        x,
+        type="text/csv",
+        encoding = "UTF-8",
+        col_types = readr::cols(.default = "c")
+      )
+      dict = iidda.api:::global_data_dictionary()
+      allowed_names = iidda::list_xpath(dict, 'name') %>% unlist
+      if (!all(names(x_data_frame) %in% allowed_names)) {
+        warning(
+          "\nthe global iidda data dictionary is out of sync",
+          "\nwith one or more iidda datasets. returning all",
+          "\ncolumns as strings."
+        )
+        return(x_data_frame)
+      }
+      tidy_data = (dict
+        %>% iidda::key_val('name', 'type')
+        %>% get_elements(colnames(x_data_frame))
+        %>% unlist
+        %>% iidda::lookup(iidda::col_classes_dict)
+        %>% iidda::set_types(data = x_data_frame)
+      )
+      return(tidy_data)
     }
     else {
       return(httr::content(x))
@@ -32,25 +84,32 @@ make_ops_list = function(api_url, base_path) {
     gsub(pattern = " ", replacement = "_", tolower(x))
   }
 
-  iidda_api = get_api(
-    url = file.path(api_url,  base_path, 'openapi.json')
+  iidda_api = try(
+    get_api(
+      url = file.path(
+        rm_trailing_slash(file.path(api_url, base_path)),
+        'openapi.json'
+      )
+    ),
+    silent = TRUE
   )
 
-  iidda_api$basePath = paste('/', base_path, sep = "")
+  if (class(iidda_api)[1] == 'try-error') return(iidda_api)
+
+  iidda_api$basePath = file.path('',  base_path)
 
   raw_requests = get_operations(
     iidda_api,
     handle_response = handle_iidda_response
   )
 
-  raw_requests$metadata_metadata_get()
-
   parameter_list <- function(x) {
     parameters <- environment(raw_requests[[x]])[["op_def"]][["parameters"]]
     default_values <- list()
     for (parameter in parameters) {
       if(parameter[["required"]] == FALSE) {
-        default_values[[parameter[["name"]]]] <- parameter[["schema"]][["default"]]
+        default_values[[parameter[["name"]]]] <-
+          parameter[["schema"]][["default"]]
       } else {
         next
       }
@@ -59,7 +118,10 @@ make_ops_list = function(api_url, base_path) {
   }
 
   for (name in names(raw_requests)) {
-    raw_requests[[name]] <- set_default_args_list(raw_requests[[name]], parameter_list(name))
+    raw_requests[[name]] <- set_default_args_list(
+      raw_requests[[name]],
+      parameter_list(name)
+    )
   }
 
   get_request_names = summary_to_function_name(
