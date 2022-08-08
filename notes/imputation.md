@@ -1,6 +1,64 @@
-# Data Imputation, Time-Scale Cross-Checks, and Time-Series Resolution
+# Missing Values, Data Imputation, Time-Scale Cross-Checks, and Time-Series Resolution
 
 These three topics are inextricably linked.
+
+## Terms
+
+* Missing values -- a value that we do not have data on (i.e. not a zero or any other numeric value)
+* Time-series resolution -- time interval that each time-step in a time series represents (e.g. weekly, 4-weekly, monthly)
+* Imputation -- filling in missing values in a time series so that there is one observation at every step
+* Time-scale cross-checks -- checking that recorded totals for one time scale (e.g. monthly) match computed totals
+
+## Missing Values
+
+If we believe that a certain symbol or data entry marking/technique indicates a genuine zero for a particular period, then we should change that symbol/marking to a zero in the _harmonization step_
+
+Task: function to replace missing values with zeros when appropriate -- such that the strategy for deciding appropriateness is easily readable in the code, with a view towards allowing the user to adjust the strategy.
+
+There may be different kinds of missing values -- not reportable versus not available -- what do these mean??
+
+Another issue is missing at random versus missing for some reason. The former is typically easier to impute, and the latter people often want to keep as missing because they could contain information.
+
+Sometimes missing values show up as a missing record (i.e. there is no record in the dataset for a particular week) and sometimes it is NA, sometimes empty string, sometimes special string (e.g. "not available").
+
+## Time-Series Resolution
+
+Goal -- one CSV file for each of the following resolutions for all diseases and years from 1924-2000:
+
+  * weekly (1924-1978)
+  * 4-weekly (1924-1989)
+  * 13-weekly (1924-2000)
+  * 52-weekly (1924-2000)
+  * monthly (1924-1992)
+  * quarterly (1924-2000)
+  * yearly (1924-2000)
+
+The first four of these can be addressed with the following harmonization proceedure:
+
+  * Define a single week as the starting week for the entire project
+  * For each disease and location create a dataset with the following fields:
+      * `period_start_date`
+      * `period_end_date`
+      * `cases`
+      * `information_source_type` -- `recorded`, `imputed_from_monthly`, ...
+  * Aggregate each of these datasets to the desired resolution by doing the the following:
+      * `period_start_date = min(period_start_date)`
+      * `period_end_date = max(period_end_date)`
+      * `cases = sum(cases)`
+      * `information_quality = mean(information_source_type %in% c('recorded', 'imputed_from_monthly')` -- or some sensible definition of quality
+
+The last three (monthly, quarterly, and yearly) are not so easy, but could be handled with a more refined proceedure that deals with weeks that are in two months/quarters/years and divides up the weekly totals in proportion to the number of days in the focal month/quarter/year.
+
+When do we leave values missing and when do we impute?  At least do not impute values at the beginning and end of the series.
+
+
+## Imputation
+
+Types of imputation:
+
+* Summing values at finer resolutions if all finer-scale values are observed (e.g. for a 4-weekly period we have no data, but we do have data on all four of those weeks so we can sum them up)
+
+
 
 ## Data Harmonization Issues
 
