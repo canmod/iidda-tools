@@ -286,3 +286,31 @@ get_canmod_digitization_metadata = function(tracking_list) {
     %>% filter(!is_empty(path_tidy_data))
   )
 }
+
+#' @importFrom jsonlite read_json
+iidda_data_dictionary = function() {
+  # data dictionary location
+  global_data_dictionary_url = file.path(
+    "https://raw.githubusercontent.com", # api
+    "canmod", # github user/org
+    "iidda", # github repo
+    "main", # github branch
+    "global-metadata", # folder
+    "data-dictionary.json" # file
+  )
+
+  try(
+    read_json(global_data_dictionary_url),
+    silent = TRUE
+  )
+
+  # (ops$metadata(response_type = 'data_dictionary')
+  #  %>% lapply(toJSON)
+  #  %>% lapply(fromJSON)
+  #  %>% rbind_pages
+  #  %>% unique
+  #  %>% remove_rownames
+  # )
+  # api_template = "%{api_url}s/datasets/%{dataset_id}s?response_type=raw_csv"
+
+}

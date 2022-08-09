@@ -1,3 +1,28 @@
+#' @export
+set_iidda_col_types = function(data) {
+  if (names(data)[1] == 'Internal Server Error') {
+    stop("API Error")
+  }
+  dict = iidda_data_dictionary()
+  allowed_names = iidda::list_xpath(dict, 'name') %>% unlist
+  if (!all(names(data) %in% allowed_names)) {
+    warning(
+      "\nthe global iidda data dictionary is out of sync",
+      "\nwith one or more iidda datasets. returning all",
+      "\ncolumns as strings."
+    )
+    return(data)
+  }
+
+  (dict
+    %>% iidda::key_val('name', 'type')
+    %>% get_elements(colnames(data))
+    %>% unlist
+    %>% iidda::lookup(iidda::col_classes_dict)
+    %>% iidda::set_types(data = data)
+  )
+}
+
 #' Set Data Frame Column Types
 #'
 #' Set the types of the columns of a data frame.
@@ -18,6 +43,9 @@ set_types = function(data, types) {
    %>% as.data.frame
   )
 }
+
+# for some reason there is no character to date as method
+setAs('character', 'Date', function(from) as.Date(from))
 
 #' Unique Column Values
 #'

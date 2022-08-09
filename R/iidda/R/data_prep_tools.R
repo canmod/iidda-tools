@@ -149,6 +149,9 @@ empty_to_na = function(tidy_data) {
 #' \code{iso_3166_2} containing equivalent ISO-3166-2 codes (if applicable)
 #' @export
 iso_3166_codes = function(tidy_data, locations_iso) {
+  if (missing(locations_iso)) {
+    locations_iso = harmonization_lookup_tables$location
+  }
   (tidy_data
     %>% left_join(locations_iso, by = "location")
     %>% relocate(iso_3166_2, .after = location)
