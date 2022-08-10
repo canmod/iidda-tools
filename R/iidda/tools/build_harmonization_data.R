@@ -31,27 +31,28 @@ lookup_to_synonym_list = function(
   (lookup_table
     %>% split(unifier)
     %>% lapply(getElement, to_col)
+    %>% lapply(list)
+    %>% lapply(setNames, to_col)
   )
 }
 
 
-harmonized = list()
+standards = list()
 
 # harmonize the location field --------------------------------
 
-harmonized$location = list()
-harmonized$location$iso_3166 = lookup_to_synonym_list(
+standards$iso_3166 = lookup_to_synonym_list(
   lookup_table = harmonization_lookup_tables$location,
   from_col = "iso_3166",
   to_col = "location",
   empty_cols = "iso_3166_2"
 )
-harmonized$location$iso_3166_inclusive = lookup_to_synonym_list(
+standards$iso_3166_inclusive = lookup_to_synonym_list(
   lookup_table = harmonization_lookup_tables$location,
   from_col = "iso_3166",
   to_col = "location"
 )
-harmonized$location$iso_3166_2 = lookup_to_synonym_list(
+standards$iso_3166_2 = lookup_to_synonym_list(
   lookup_table = harmonization_lookup_tables$location,
   from_col = "iso_3166_2",
   to_col = "location"
@@ -59,14 +60,13 @@ harmonized$location$iso_3166_2 = lookup_to_synonym_list(
 
 # harmonize the sex field --------------------------------
 
-harmonized$sex$iso_5218 = lookup_to_synonym_list(
+standards$iso_5218 = lookup_to_synonym_list(
   lookup_table = harmonization_lookup_tables$sex,
   from_col = "iso_5218",
   to_col = "sex"
 )
 
-
 save(
-  harmonized,
-  file = "data/harmonized.rda"
+  standards,
+  file = "data/standards.rda"
 )
