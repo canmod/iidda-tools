@@ -315,8 +315,10 @@ async def filter(
     disease_subclass: List[str] = Query(default=None),
     icd_7: List[str] = Query(default=None),
     icd_9: List[str] = Query(default=None),
-    period_start_date: str = Query(default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
-    period_end_date: str = Query(default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
+    period_start_date: str = Query(
+        default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
+    period_end_date: str = Query(
+        default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
     cases_prev_period: List[str] = Query(default=None),
     lower_age: List[str] = Query(default=None)
 ):
@@ -335,19 +337,20 @@ async def filter(
     if filter_arguments == {}:
         raise HTTPException(
             status_code=400, detail="Please provide at least one column filter.")
-    
+
     # Define list of column filters in both JQ and panda query syntax
     filter_list = list()
     pandas_query = list()
 
     # columns is a list containing all unique columns found in the datasets and their metadata
-    columns = get_dataset_list(clear_cache=False, response_type="data_dictionary")
+    columns = get_dataset_list(
+        clear_cache=False, response_type="data_dictionary")
     columns = jq('add | unique').transform(columns)
 
     # Create a list of any column filters that apply to a 'num_missing' column as they must be specially treated
     num_missing_columns = list()
 
-    # loop over the filter_arguments to generate a filter 
+    # loop over the filter_arguments to generate a filter
     for key in filter_arguments:
         if jq(f'.[] | select(.name == "{key}")').transform(columns)["type"] == "date":
             date_range = filter_arguments[key].split("/")
@@ -366,8 +369,8 @@ async def filter(
 
             # Create name of a new temporary column (this column will contain the contents of the original column but converted to numbers or NaN allowing for proper filtering)
             temporary_column_name = key + "_num_missing"
-            num_missing_columns.append((key,temporary_column_name))
-            
+            num_missing_columns.append((key, temporary_column_name))
+
             if filter_arguments[key][0].lower() == "all":
                 number_range = ["-infinite", "infinite"]
                 pandas_containment_filter = None
@@ -379,7 +382,7 @@ async def filter(
                 if int(number_range[1]) < int(number_range[0]):
                     raise HTTPException(
                         status_code=400, detail="The input should be in the form {min}-{max}. The first date number is larger than the second.")
-                
+
                 # All filters on numbers will be applied to the temporary column while all filters on strings (i.e. the "unavailable values") will be applied to the original column
                 pandas_containment_filter = f"{temporary_column_name} >= {number_range[0]} and {temporary_column_name} <= {number_range[1]}"
 
@@ -407,12 +410,13 @@ async def filter(
 
     # Get list of datasets of the specific resource type
     dataset_list = get_dataset_list(clear_cache=False)
-    dataset_list = jq(f'map_values(select(. != "No metadata.") | select(.resourceType .resourceType == "{resource_type}")) | . |=  keys').transform(dataset_list)
+    dataset_list = jq(
+        f'map_values(select(. != "No metadata.") | select(.resourceType .resourceType == "{resource_type}")) | . |=  keys').transform(dataset_list)
 
     # Get columns metadata for all the datasets of the specific resource type
     dataset_list = get_dataset_list(
         clear_cache=False, response_type="columns", subset=dataset_list)
-    
+
     # Apply filter_string to dataset_list
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
@@ -437,7 +441,8 @@ async def filter(
         # Create temporary columns for any num_missing columns that is being filtered
         if len(num_missing_columns) != 0:
             for column in num_missing_columns:
-                merged_csv[column[1]] = pd.to_numeric(merged_csv[column[0]], errors = 'coerce')
+                merged_csv[column[1]] = pd.to_numeric(
+                    merged_csv[column[0]], errors='coerce')
 
         missing_cols = list()
         for key in filter_arguments:
@@ -449,7 +454,8 @@ async def filter(
         if pandas_query != "":
             merged_csv = merged_csv.query(pandas_query)
         if len(num_missing_columns) != 0:
-            merged_csv = merged_csv.drop(list(map(lambda x: x[1], num_missing_columns)), axis = 1)
+            merged_csv = merged_csv.drop(
+                list(map(lambda x: x[1], num_missing_columns)), axis=1)
         write_stats(endpoint="/filter", datasets=dataset_list)
         return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
