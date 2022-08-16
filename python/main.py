@@ -320,7 +320,7 @@ async def filter(
     period_end_date: str = Query(
         default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
     cases_prev_period: List[str] = Query(default=None),
-    lower_age: List[str] = Query(default=None)
+    lower_age: List[str] = Query(default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'.")
 ):
     if resource_type not in get_resource_types():
         raise HTTPException(
@@ -366,39 +366,57 @@ async def filter(
             # pandas_containment_filter is a pandas filter that will be used to filter the dataframe
             pandas_containment_filter = f"{key} >= '{date_range[0]}' and {key} <= '{date_range[1]}'"
         elif jq(f'.[] | select(.name == "{key}")').transform(columns)["format"] == "num_missing":
-
             # Create name of a new temporary column (this column will contain the contents of the original column but converted to numbers or NaN allowing for proper filtering)
             temporary_column_name = key + "_num_missing"
             num_missing_columns.append((key, temporary_column_name))
 
-            if filter_arguments[key][0].lower() == "all":
+            if filter_arguments[key][0].lower() == "none":
                 number_range = ["-infinite", "infinite"]
                 pandas_containment_filter = None
             else:
                 number_range = filter_arguments[key][0].split("-")
                 if len(number_range) != 2:
                     raise HTTPException(
-                        status_code=400, detail="This query parameter must have only 2 inputs (a minimum and maximum date.)")
+                        status_code=400, detail="The input should be in the form {min}-{max}.")
                 if int(number_range[1]) < int(number_range[0]):
                     raise HTTPException(
-                        status_code=400, detail="The input should be in the form {min}-{max}. The first date number is larger than the second.")
+                        status_code=400, detail="The input should be in the form {min}-{max}. The first number is larger than the second.")
 
                 # All filters on numbers will be applied to the temporary column while all filters on strings (i.e. the "unavailable values") will be applied to the original column
-                pandas_containment_filter = f"{temporary_column_name} >= {number_range[0]} and {temporary_column_name} <= {number_range[1]}"
+                pandas_containment_filter = f"({temporary_column_name} >= {number_range[0]} and {temporary_column_name} <= {number_range[1]})"
 
-            containment_filter = f'select((.[0] <= {number_range[1]}) and (.[1] >= {number_range[0]}))'
+            containment_filter = f'select((.range[0] <= {number_range[1]}) and (.range[1] >= {number_range[0]}))'
 
+    
+            if len(filter_arguments[key]) > 1:
+                # list of all filters applied to num_missing column
+                containment_filter_list = [containment_filter]
+                if pandas_containment_filter is None:
+                    pandas_containment_filter_list = []
+                else:
+                    pandas_containment_filter_list = [pandas_containment_filter]
+                # Iterate over all unavailable values input by user
+                for i in range(1,len(filter_arguments[key])):
+                    if filter_arguments[key][i].lower() == 'null' or filter_arguments[key][i].lower() == None:
+                        unavailable_value_filter = f'(.unavailable_values | if type=="array" then any(.[]; . == null) else (. == null) end)'
+                        pandas_unavailable_value_filter = f'({key}.isnull())'
+                    else:
+                        unavailable_value_filter = f'(select(.unavailable_values != null) | .unavailable_values | if type=="array" then any(.[]; . == "{filter_arguments[key][i]}") else (. == "{filter_arguments[key][i]}") end)'
+                        pandas_unavailable_value_filter = f'({key} == "{filter_arguments[key][i]}")'
+                    containment_filter_list.append(unavailable_value_filter)
+                    pandas_containment_filter_list.append(pandas_unavailable_value_filter)
+
+                containment_filter = " or ".join(containment_filter_list)
+                pandas_containment_filter = " or ".join(pandas_containment_filter_list)
         else:
             containment_filter = " or ".join(
                 map(lambda value: f'contains(["{value}"])', filter_arguments[key]))
             pandas_containment_filter = " | ".join(
                 map(lambda value: f'({key} == "{value}")', filter_arguments[key]))
-        if jq(f'.[] | select(.name == "{key}")').transform(columns)["format"] == "num_missing":
-            filter = f'(select(.{key} .range != null) | .{key} .range | {containment_filter})'.replace(
-                "'", '"')
-        else:
-            filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
-                "'", '"')
+
+        filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
+            "'", '"')
+
         if pandas_containment_filter is not None:
             pandas_containment_filter = f'({pandas_containment_filter})'
             pandas_query.append(pandas_containment_filter)
@@ -420,7 +438,6 @@ async def filter(
     # Apply filter_string to dataset_list
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
-    print(f'map_values(select(. != {{}}) | select({filter_string})) | keys')
     # Check if no datasets satisfy the filter
     if len(dataset_list) == 0:
         return "No datasets match the provided criteria."
