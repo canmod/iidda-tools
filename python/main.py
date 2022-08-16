@@ -320,7 +320,8 @@ async def filter(
     period_end_date: str = Query(
         default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
     cases_prev_period: List[str] = Query(default=None),
-    lower_age: List[str] = Query(default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'.")
+    lower_age: List[str] = Query(
+        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'.")
 ):
     if resource_type not in get_resource_types():
         raise HTTPException(
@@ -387,16 +388,16 @@ async def filter(
 
             containment_filter = f'select((.range[0] <= {number_range[1]}) and (.range[1] >= {number_range[0]}))'
 
-    
             if len(filter_arguments[key]) > 1:
                 # list of all filters applied to num_missing column
                 containment_filter_list = [containment_filter]
                 if pandas_containment_filter is None:
                     pandas_containment_filter_list = []
                 else:
-                    pandas_containment_filter_list = [pandas_containment_filter]
+                    pandas_containment_filter_list = [
+                        pandas_containment_filter]
                 # Iterate over all unavailable values input by user
-                for i in range(1,len(filter_arguments[key])):
+                for i in range(1, len(filter_arguments[key])):
                     if filter_arguments[key][i].lower() == 'null' or filter_arguments[key][i].lower() == None:
                         unavailable_value_filter = f'(.unavailable_values | if type=="array" then any(.[]; . == null) else (. == null) end)'
                         pandas_unavailable_value_filter = f'({key}.isnull())'
@@ -404,10 +405,12 @@ async def filter(
                         unavailable_value_filter = f'(select(.unavailable_values != null) | .unavailable_values | if type=="array" then any(.[]; . == "{filter_arguments[key][i]}") else (. == "{filter_arguments[key][i]}") end)'
                         pandas_unavailable_value_filter = f'({key} == "{filter_arguments[key][i]}")'
                     containment_filter_list.append(unavailable_value_filter)
-                    pandas_containment_filter_list.append(pandas_unavailable_value_filter)
+                    pandas_containment_filter_list.append(
+                        pandas_unavailable_value_filter)
 
                 containment_filter = " or ".join(containment_filter_list)
-                pandas_containment_filter = " or ".join(pandas_containment_filter_list)
+                pandas_containment_filter = " or ".join(
+                    pandas_containment_filter_list)
         else:
             containment_filter = " or ".join(
                 map(lambda value: f'contains(["{value}"])', filter_arguments[key]))
