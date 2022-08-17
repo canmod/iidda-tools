@@ -103,6 +103,12 @@ async def metadata(
         return get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
 
 
+@app.get("/data_dictionary")
+async def data_dictionary():
+    dictionary = requests.get(
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
+    return dictionary
+
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
     dataset_ids: List[str] = Query(default=None),
@@ -310,18 +316,32 @@ async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
     location: List[str] = Query(default=None),
-    disease: List[str] = Query(default=None),
-    disease_family: List[str] = Query(default=None),
-    disease_subclass: List[str] = Query(default=None),
-    icd_7: List[str] = Query(default=None),
-    icd_9: List[str] = Query(default=None),
+    iso_3166: List[str] = Query(default=None),
+    iso_3166_2: List[str] = Query(default=None),
     period_start_date: str = Query(
         default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
     period_end_date: str = Query(
         default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
-    cases_prev_period: List[str] = Query(default=None),
+    disease_family: List[str] = Query(default=None),
+    disease: List[str] = Query(default=None),
+    icd_9: List[str] = Query(default=None),
+    icd_7: List[str] = Query(default=None),
+    disease_subclass: List[str] = Query(default=None),
+    icd_9_subclass: List[str] = Query(default=None),
+    icd_7_subclass: List[str] = Query(default=None),
     lower_age: List[str] = Query(
-        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'.")
+        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    upper_age: List[str] = Query(
+        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    sex: List[str] = Query(default=None),
+    cases_this_period: List[str] = Query(default=None),
+    cases_prev_period: List[str] = Query(default=None),
+    cases_cum_report_year: List[str] = Query(default=None),
+    cases_cum_prev_year: List[str] = Query(default=None),
+    cases_median_prev_5_years: List[str] = Query(default=None),
+    cases_cum_median_prev_5_years: List[str] = Query(default=None),
+    population: List[str] = Query(default=None),
+    cause: List[str] = Query(default=None)
 ):
     if resource_type not in get_resource_types():
         raise HTTPException(
@@ -343,17 +363,16 @@ async def filter(
     filter_list = list()
     pandas_query = list()
 
-    # columns is a list containing all unique columns found in the datasets and their metadata
-    columns = get_dataset_list(
-        clear_cache=False, response_type="data_dictionary")
-    columns = jq('add | unique').transform(columns)
-
     # Create a list of any column filters that apply to a 'num_missing' column as they must be specially treated
     num_missing_columns = list()
 
+    # Fetch data_dictionary from github
+    data_dictionary = requests.get(
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
+
     # loop over the filter_arguments to generate a filter
     for key in filter_arguments:
-        if jq(f'.[] | select(.name == "{key}")').transform(columns)["type"] == "date":
+        if jq(f'.[] | select(.name == "{key}")').transform(data_dictionary)["type"] == "date":
             date_range = filter_arguments[key].split("/")
             if len(date_range) != 2:
                 raise HTTPException(
@@ -366,7 +385,7 @@ async def filter(
 
             # pandas_containment_filter is a pandas filter that will be used to filter the dataframe
             pandas_containment_filter = f"{key} >= '{date_range[0]}' and {key} <= '{date_range[1]}'"
-        elif jq(f'.[] | select(.name == "{key}")').transform(columns)["format"] == "num_missing":
+        elif jq(f'.[] | select(.name == "{key}")').transform(data_dictionary)["format"] == "num_missing":
             # Create name of a new temporary column (this column will contain the contents of the original column but converted to numbers or NaN allowing for proper filtering)
             temporary_column_name = key + "_num_missing"
             num_missing_columns.append((key, temporary_column_name))
@@ -476,6 +495,13 @@ async def filter(
         if len(num_missing_columns) != 0:
             merged_csv = merged_csv.drop(
                 list(map(lambda x: x[1], num_missing_columns)), axis=1)
+
+        all_columns_list = list(map(lambda x: x['name'], data_dictionary))
+
+        cols = merged_csv.columns.tolist()
+        cols = sorted(cols, key=all_columns_list.index)
+        merged_csv = merged_csv[cols]
+
         write_stats(endpoint="/filter", datasets=dataset_list)
         return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
