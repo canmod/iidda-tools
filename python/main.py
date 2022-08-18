@@ -329,6 +329,9 @@ async def filter(
     filter_list = list()
     pandas_query = list()
     for key in filter_arguments:
+
+        # containment_filter -- components of the jq query for identifying required datasets by looking in the column summaries
+        # pandas_containment_filter -- components of the pandas query for filtering the datasets identified
         if key == "period_start_date" or key == "period_end_date":
             if len(filter_arguments[key]) != 2:
                 raise HTTPException(status_code=400, detail="Date query parameters must have only 2 inputs (a minimum and maximum date.)")
@@ -348,14 +351,22 @@ async def filter(
         filter_list.append(filter)
     pandas_query = ' and '.join(pandas_query)
     filter_string = ' and '.join(filter_list)
+    
     # Initial dataset_list
     dataset_list = get_dataset_list(clear_cache=False)
+    
+    # Filter to include only the datasets of the correct resource type
     dataset_list = jq(
         f'map_values(select(. != "No metadata.") | select(.resourceType .resourceType == "{resource_type}")) | . |=  keys').transform(dataset_list)
+    
+    # Obtain column summaries for all datasets of the correct resource type
     dataset_list = get_dataset_list(
         clear_cache=False, response_type="columns", subset=dataset_list)
+    
+    # Apply filter to the column summaries to get the list of required datasets
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
+    
     if len(dataset_list) == 0:
         return "No datasets match the provided criteria."
 
