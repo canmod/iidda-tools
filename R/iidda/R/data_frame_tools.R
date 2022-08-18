@@ -4,7 +4,7 @@ set_iidda_col_types = function(data) {
     stop("API Error")
   }
   dict = iidda_data_dictionary()
-  allowed_names = iidda::list_xpath(dict, 'name') %>% unlist
+  allowed_names = dict$name
   if (!all(names(data) %in% allowed_names)) {
     warning(
       "\nthe global iidda data dictionary is out of sync",
@@ -56,8 +56,8 @@ get_unique_col_values = function(l) {
   if(is.recursive(l)) {
     # check if all sub-lists have the same names
     col_nms = (l
-               %>% lapply(names)
-               %>% unique
+     %>% lapply(names)
+     %>% unique
     )
     stopifnot(length(col_nms) == 1L)
   } else {

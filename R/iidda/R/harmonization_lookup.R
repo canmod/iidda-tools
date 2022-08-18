@@ -27,7 +27,7 @@
 #' }
 "harmonization_lookup_tables"
 
-#' Harmonized Synonyms List
+#' Standards
 #'
 #' List of lists of lists that exploits tab completion to make it convenient
 #' to get vectors of all synonyms associated with a particular standard code.
@@ -59,4 +59,4 @@
 #'     }
 #'   }
 #' }
-"harmonized"
+"standards"

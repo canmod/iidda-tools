@@ -85,11 +85,24 @@ write_tidy_data = function(tidy_data, metadata) {
 #' @export
 read_tidy_data = function(tidy_data_path) {
 
-  path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
-  path_meta_file = grep(list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE), pattern = "\\csv_dialect.json|\\_data_dictionary.json", invert = TRUE, value = TRUE)
-  path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
-  path_dial_file = list.files(tidy_data_path, pattern="\\csv_dialect.json.*", full.names = TRUE)
+  stop("I am broken ... please fix me")
 
+  path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
+  valid_metadata_types = c(
+    "data_dictionary",
+    "csv_dialect",
+    "columns"
+  )
+
+  path_meta_file = grep(
+    list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE),
+    pattern = "\\_csv_dialect.json|\\_data_dictionary.json",
+    invert = TRUE,
+    value = TRUE
+  )
+  path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
+  path_dial_file = list.files(tidy_data_path, pattern="\\_csv_dialect.json.*", full.names = TRUE)
+  path_col_file = list.files(tidy_data_path, pattern="\\_columns.json.*", full.names = TRUE)
   data_dictionary = (path_dict_file
                      %>% read_json()
   )
@@ -326,13 +339,27 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 split_tidy_data = function(tidy_data){
   (tidy_data
     %>% mutate(period = ifelse(period_end_date == period_start_date +6 | period_end_date == period_start_date +7, "wk", "mt"))
-    %>% mutate(period = ifelse(period_start_end_date-period_start_date>40, "quarter", period))
+    %>% mutate(period = ifelse(period_end_date-period_start_date>40, "quarter", period))
     %>% mutate(period = ifelse(period_end_date-period_start_date > 100, "year", period))
     %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
     %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
     %>% select(-is_canada, -period)
   )
 }
+
+# Another version:
+# split_data = function(tidy_data){
+#   (tidy_data
+#    %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6 | period_end_date == as.Date(period_start_date) +7, "wk", "mt"))
+#    %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
+#    %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
+#    %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
+#    %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
+#    %>% select(-is_canada, -period)
+#    %>% split(.$splitting_column)
+#   )
+# }
+
 
 #' @export
 column_summary = function(column, tidy_data, dataset_name, metadata) {
