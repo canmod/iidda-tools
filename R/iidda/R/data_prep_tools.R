@@ -339,7 +339,13 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
   column_metadata <- metadata[["Columns"]][[dataset_name]]
   column_metadata_row <- subset(column_metadata, rownames(column_metadata) %in% column)
   if (column_metadata_row[["format"]] == "num_missing") {
-    list(range = range(as.numeric(tidy_data[[column]]), na.rm=TRUE), unavailable_values = unique(tidy_data[[column]][is.na(as.numeric(tidy_data[[column]]))]))
+    range <- suppressWarnings(list(range = range(as.numeric(tidy_data[[column]]), na.rm=TRUE), unavailable_values = unique(tidy_data[[column]][is.na(as.numeric(tidy_data[[column]]))])))
+    if (identical(is.infinite(range[['range']]),c(TRUE,TRUE))) {
+      range[['range']] = c(NA,NA)
+      return(range)
+    } else {
+      return(range)
+    }
   } else if (column_metadata_row[["type"]] == "date") {
     range(tidy_data[[column]], na.rm=TRUE)
   } else {
