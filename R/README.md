@@ -14,3 +14,8 @@ The `iidda.api` package is an R binding to the [iidda_api](../python/README.md)
 ```
 remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda.api')
 ```
+
+This `iidda.api` package depends on our specific [fork](https://github.com/canmod/rapiclient/) of [`rapiclient`](https://github.com/bergant/rapiclient).
+```
+remotes::install_github('canmod/rapiclient')
+```
