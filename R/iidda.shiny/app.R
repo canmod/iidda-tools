@@ -4,7 +4,6 @@ library(iidda.api)
 library(shinydashboard)
 library(shinycssloaders)
 library(purrr)
-library(shinyBS)
 require(plyr)
 library(jsonlite)
 
