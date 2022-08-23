@@ -12,7 +12,7 @@ local = list(
 )
 
 # production environment
-production = staging
+production = local
 
 # data dictionary location
 global_data_dictionary_url = file.path(
