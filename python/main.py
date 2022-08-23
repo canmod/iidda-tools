@@ -52,6 +52,9 @@ def generate_hash_signature(
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
+    ACCESS_TOKEN = read_config('access_token')
+    rate_limit = requests.get("https://api.github.com/rate_limit", headers={"Authorization": "token " + ACCESS_TOKEN}).headers
+    response.headers["X-github-rate-limit-remaining"] = rate_limit['x-ratelimit-remaining']
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
@@ -105,8 +108,9 @@ async def metadata(
 
 @app.get("/data_dictionary")
 async def data_dictionary():
+    ACCESS_TOKEN = read_config('access_token')
     dictionary = requests.get(
-        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json', headers={"Authorization": "token " + ACCESS_TOKEN}).json()
     return dictionary
 
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
@@ -417,7 +421,7 @@ async def filter(
                         pandas_containment_filter]
                 # Iterate over all unavailable values input by user
                 for i in range(1, len(filter_arguments[key])):
-                    if filter_arguments[key][i].lower() == 'null' or filter_arguments[key][i].lower() == None:
+                    if filter_arguments[key][i].lower() == 'null' or filter_arguments[key][i] == None:
                         unavailable_value_filter = f'(.unavailable_values | if type=="array" then any(.[]; . == null) else (. == null) end)'
                         pandas_unavailable_value_filter = f'({key}.isnull())'
                     else:
