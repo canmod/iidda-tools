@@ -74,11 +74,11 @@ body <- dashboardBody(
         .has-feedback .form-control {
           padding-right: 0;
         }
-        
+
         .sorting {
         white-space: nowrap;
         }
-      
+
         '
     )
   )
@@ -96,7 +96,7 @@ server <- function(input, output) {
   data <- eventReactive(input$select_data, {
     iidda.api::ops$raw_csv(input$dataset_name)
   })
-  
+
   output$dataset_name = renderUI(
     selectizeInput(
       inputId = "dataset_name",
@@ -118,7 +118,7 @@ server <- function(input, output) {
         response_type = "data_dictionary",
         jq_query = '[.[] | select(. != "No metadata.") | .[] | {(.name) : [(.title), (.description)]} ] | unique | add'
       )
-    
+
     datatable(
       data(),
       filter = "top",
@@ -138,10 +138,10 @@ server <- function(input, output) {
           toJSON(data_dictionary)
         )
       )
-      
+
     )
   })
-  
+
   output$download_data <- downloadHandler(
     filename = function()
     {

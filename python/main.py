@@ -1,21 +1,22 @@
+from heapq import merge
+import http
+import hmac
+import hashlib
+import time
+from io import StringIO
+import pandas as pd
+from typing import List
+import asyncio
+import aiohttp
+import re
+from jq import jq
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import FileResponse, PlainTextResponse
+from iidda_api import *
+from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query, Header
+from http.client import responses
 import nest_asyncio
 nest_asyncio.apply()
-from http.client import responses
-from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query, Header
-from iidda_api import *
-from fastapi.responses import FileResponse, PlainTextResponse
-from fastapi.openapi.utils import get_openapi
-from jq import jq
-import re
-import aiohttp
-import asyncio
-from typing import List
-import pandas as pd
-from io import StringIO
-import time
-import hashlib
-import hmac
-import http
 # from fastapi_cprofile.profiler import CProfileMiddleware
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
@@ -54,6 +55,7 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
+
 
 @app.get("/metadata")
 async def metadata(
@@ -100,6 +102,12 @@ async def metadata(
     else:
         return get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
 
+
+@app.get("/data_dictionary")
+async def data_dictionary():
+    dictionary = requests.get(
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
+    return dictionary
 
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
@@ -308,65 +316,153 @@ async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
     location: List[str] = Query(default=None),
-    disease: List[str] = Query(default=None),
+    iso_3166: List[str] = Query(default=None),
+    iso_3166_2: List[str] = Query(default=None),
+    period_start_date: str = Query(
+        default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
+    period_end_date: str = Query(
+        default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
     disease_family: List[str] = Query(default=None),
-    disease_subclass: List[str] = Query(default=None),
-    icd_7: List[str] = Query(default=None),
+    disease: List[str] = Query(default=None),
     icd_9: List[str] = Query(default=None),
-    period_start_date: List[str] = Query(default=None),
-    period_end_date: List[str] = Query(default=None)
+    icd_7: List[str] = Query(default=None),
+    disease_subclass: List[str] = Query(default=None),
+    icd_9_subclass: List[str] = Query(default=None),
+    icd_7_subclass: List[str] = Query(default=None),
+    lower_age: List[str] = Query(
+        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    upper_age: List[str] = Query(
+        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    sex: List[str] = Query(default=None),
+    cases_this_period: List[str] = Query(default=None),
+    cases_prev_period: List[str] = Query(default=None),
+    cases_cum_report_year: List[str] = Query(default=None),
+    cases_cum_prev_year: List[str] = Query(default=None),
+    cases_median_prev_5_years: List[str] = Query(default=None),
+    cases_cum_median_prev_5_years: List[str] = Query(default=None),
+    population: List[str] = Query(default=None),
+    cause: List[str] = Query(default=None)
 ):
     if resource_type not in get_resource_types():
         raise HTTPException(
             status_code=400, detail=f"'{resource_type}' is not a valid resource_type. Available values are {get_resource_types()}")
 
+    # filter_arguments is a dictionary containing the arguments input into the function
     filter_arguments = locals()
+
+    # Delete the resource_type argument from filter_arguments
     filter_arguments = jq(
         'del(.resource_type) | map_values(select(. != null))').transform(filter_arguments)
+
+    # Check if no column filters were applied
     if filter_arguments == {}:
         raise HTTPException(
             status_code=400, detail="Please provide at least one column filter.")
+
+    # Define list of column filters in both JQ and panda query syntax
     filter_list = list()
     pandas_query = list()
-    for key in filter_arguments:
 
-        # containment_filter -- components of the jq query for identifying required datasets by looking in the column summaries
-        # pandas_containment_filter -- components of the pandas query for filtering the datasets identified
-        if key == "period_start_date" or key == "period_end_date":
-            if len(filter_arguments[key]) != 2:
-                raise HTTPException(status_code=400, detail="Date query parameters must have only 2 inputs (a minimum and maximum date.)")
-            if filter_arguments[key][1] < filter_arguments[key][0]:
-                raise HTTPException(status_code=400, detail="The input should be in the form ['min','max']. The first date input is larger than the second.")
-            containment_filter = f'select((.[0] <= "{filter_arguments[key][1]}") and (.[1] >= "{filter_arguments[key][0]}"))'
-            pandas_containment_filter = f"{key} >= '{filter_arguments[key][0]}' and {key} <= '{filter_arguments[key][1]}'"
+    # Create a list of any column filters that apply to a 'num_missing' column as they must be specially treated
+    num_missing_columns = list()
+
+    # Fetch data_dictionary from github
+    data_dictionary = requests.get(
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
+
+    # loop over the filter_arguments to generate a filter
+    for key in filter_arguments:
+        if jq(f'.[] | select(.name == "{key}")').transform(data_dictionary)["type"] == "date":
+            date_range = filter_arguments[key].split("/")
+            if len(date_range) != 2:
+                raise HTTPException(
+                    status_code=400, detail="This query parameter should have an argument of the form <start date>/<end date> with dates in ISO 8601 format")
+            if date_range[1] < date_range[0]:
+                raise HTTPException(
+                    status_code=400, detail="The input should be in the form <start date>/<end date> with dates in ISO 8601 format. The first date is larger than the second.")
+            # containment_filter is a jq filter that will be used to filter the columns metadata
+            containment_filter = f'select((.[0] <= "{date_range[1]}") and (.[1] >= "{date_range[0]}"))'
+
+            # pandas_containment_filter is a pandas filter that will be used to filter the dataframe
+            pandas_containment_filter = f"{key} >= '{date_range[0]}' and {key} <= '{date_range[1]}'"
+        elif jq(f'.[] | select(.name == "{key}")').transform(data_dictionary)["format"] == "num_missing":
+            # Create name of a new temporary column (this column will contain the contents of the original column but converted to numbers or NaN allowing for proper filtering)
+            temporary_column_name = key + "_num_missing"
+            num_missing_columns.append((key, temporary_column_name))
+
+            if filter_arguments[key][0].lower() == "none":
+                number_range = ["-infinite", "infinite"]
+                pandas_containment_filter = None
+            else:
+                number_range = filter_arguments[key][0].split("-")
+                if len(number_range) != 2:
+                    raise HTTPException(
+                        status_code=400, detail="The input should be in the form {min}-{max}.")
+                if int(number_range[1]) < int(number_range[0]):
+                    raise HTTPException(
+                        status_code=400, detail="The input should be in the form {min}-{max}. The first number is larger than the second.")
+
+                # All filters on numbers will be applied to the temporary column while all filters on strings (i.e. the "unavailable values") will be applied to the original column
+                pandas_containment_filter = f"({temporary_column_name} >= {number_range[0]} and {temporary_column_name} <= {number_range[1]})"
+
+            containment_filter = f'select((.range[0] <= {number_range[1]}) and (.range[1] >= {number_range[0]}))'
+
+            if len(filter_arguments[key]) > 1:
+                # list of all filters applied to num_missing column
+                containment_filter_list = [containment_filter]
+                if pandas_containment_filter is None:
+                    pandas_containment_filter_list = []
+                else:
+                    pandas_containment_filter_list = [
+                        pandas_containment_filter]
+                # Iterate over all unavailable values input by user
+                for i in range(1, len(filter_arguments[key])):
+                    if filter_arguments[key][i].lower() == 'null' or filter_arguments[key][i].lower() == None:
+                        unavailable_value_filter = f'(.unavailable_values | if type=="array" then any(.[]; . == null) else (. == null) end)'
+                        pandas_unavailable_value_filter = f'({key}.isnull())'
+                    else:
+                        unavailable_value_filter = f'(select(.unavailable_values != null) | .unavailable_values | if type=="array" then any(.[]; . == "{filter_arguments[key][i]}") else (. == "{filter_arguments[key][i]}") end)'
+                        pandas_unavailable_value_filter = f'({key} == "{filter_arguments[key][i]}")'
+                    containment_filter_list.append(unavailable_value_filter)
+                    pandas_containment_filter_list.append(
+                        pandas_unavailable_value_filter)
+
+                containment_filter = " or ".join(containment_filter_list)
+                pandas_containment_filter = " or ".join(
+                    pandas_containment_filter_list)
         else:
             containment_filter = " or ".join(
                 map(lambda value: f'contains(["{value}"])', filter_arguments[key]))
             pandas_containment_filter = " | ".join(
                 map(lambda value: f'({key} == "{value}")', filter_arguments[key]))
+
         filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
             "'", '"')
-        query = f'({pandas_containment_filter})'
-        pandas_query.append(query)
+
+        if pandas_containment_filter is not None:
+            pandas_containment_filter = f'({pandas_containment_filter})'
+            pandas_query.append(pandas_containment_filter)
         filter_list.append(filter)
+    # combine all the individual pandas queries into a single string
     pandas_query = ' and '.join(pandas_query)
+    # combine all the individual jq filters into a single string
     filter_string = ' and '.join(filter_list)
 
-    # Initial dataset_list
+    # Get list of datasets of the specific resource type
     dataset_list = get_dataset_list(clear_cache=False)
     
     # Filter to include only the datasets of the correct resource type
     dataset_list = jq(
         f'map_values(select(. != "No metadata.") | select(.resourceType .resourceType == "{resource_type}")) | . |=  keys').transform(dataset_list)
 
-    # Obtain column summaries for all datasets of the correct resource type
+    # Get columns metadata for all the datasets of the specific resource type
     dataset_list = get_dataset_list(
         clear_cache=False, response_type="columns", subset=dataset_list)
 
-    # Apply filter to the column summaries to get the list of required datasets
+    # Apply filter_string to dataset_list
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
-    
+    # Check if no datasets satisfy the filter
     if len(dataset_list) == 0:
         return "No datasets match the provided criteria."
 
@@ -382,6 +478,13 @@ async def filter(
 
         merged_csv = pd.concat(
             map(pd.read_csv, csv_list), ignore_index=True)
+
+        # Create temporary columns for any num_missing columns that is being filtered
+        if len(num_missing_columns) != 0:
+            for column in num_missing_columns:
+                merged_csv[column[1]] = pd.to_numeric(
+                    merged_csv[column[0]], errors='coerce')
+
         missing_cols = list()
         for key in filter_arguments:
             if key not in merged_csv.columns:
@@ -389,7 +492,18 @@ async def filter(
         if len(missing_cols) > 0:
             raise HTTPException(
                 status_code=400, detail=f"These columns do not exist in these dataset(s): {missing_cols}")
+        if pandas_query != "":
             merged_csv = merged_csv.query(pandas_query)
+        if len(num_missing_columns) != 0:
+            merged_csv = merged_csv.drop(
+                list(map(lambda x: x[1], num_missing_columns)), axis=1)
+
+        all_columns_list = list(map(lambda x: x['name'], data_dictionary))
+
+        cols = merged_csv.columns.tolist()
+        cols = sorted(cols, key=all_columns_list.index)
+        merged_csv = merged_csv[cols]
+
         write_stats(endpoint="/filter", datasets=dataset_list)
         return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
