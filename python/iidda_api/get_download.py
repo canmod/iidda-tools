@@ -33,18 +33,18 @@ async def get_download(dataset_name, version, resource=None):
         lambda release: release['name'] == dataset_name, releases)
     release_list = sorted(
         release_list, key=lambda release: int(release['body'][8:]))
-    
+
     # check if dataset is contained in repo
     if not release_list:
         return f"{dataset_name} does not exist in the releases"
-    
+
     if version == "latest":
         # version_tag is for creating file names later on
         version_tag = ""
         version = len(release_list)
     else:
         version_tag = f"v{version}-"
-    
+
     if int(version) > len(release_list):
         return f"The supplied version of {dataset_name} is greater than the latest version of {len(release_list)}"
 
@@ -74,10 +74,10 @@ async def get_download(dataset_name, version, resource=None):
                 if (asset['name'].endswith(".csv") and "csv" in resource) or (asset['name'].endswith(".json") and "metadata" in resource):
                     task = asyncio.ensure_future(download_asset(asset['url'], asset['name'], session))
                     tasks.append(task)
-                    
+
             files = await asyncio.gather(*tasks)
             return files
-                
+
     async def download_asset(url, asset_name, session):
         file_name = version_tag + dataset_name + "/" + version_tag + asset_name
         async with session.get(url) as response:
@@ -86,5 +86,5 @@ async def get_download(dataset_name, version, resource=None):
                 return (file_name,file_content)
             else:
                 return "Download failed: {}\n{}".format(response.status_code, response.text)
-    
+
     return asyncio.run(main())

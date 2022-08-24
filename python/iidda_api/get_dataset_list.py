@@ -9,7 +9,7 @@ import asyncio
 from aiohttp_client_cache import CachedSession, FileBackend
 import requests_cache
 from appdirs import *
-import re 
+import re
 
 async def get_release_list(access_token, cache_config, clear_cache):
     async with CachedSession(cache=cache_config) as session:
@@ -23,9 +23,9 @@ async def get_release_list(access_token, cache_config, clear_cache):
                 if not releases:
                     break
                 release_list.extend(list(releases))
-                page += 1  
+                page += 1
         return release_list
-        
+
 def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
@@ -34,7 +34,7 @@ def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
         'Authorization': 'token ' + ACCESS_TOKEN,
         'Accept': 'application/octet-stream'
     }
-    
+
     # make cache directory
     cache_path = user_cache_dir("iidda-api-cache","")
     if not os.path.isdir(cache_path):
@@ -43,20 +43,20 @@ def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
     assets_cache = FileBackend(
         cache_name = cache_path + "/assets"
     )
-    
+
     release_list_cache = FileBackend(
         cache_name = cache_path + "/release_list"
     )
-    
+
     releases = asyncio.run(get_release_list(ACCESS_TOKEN,release_list_cache,clear_cache))
-    
+
     if subset == "all":
         dataset_title_list = map(lambda release: release['name'], releases)
-            
+
         dataset_title_list = list(dict.fromkeys(dataset_title_list))
     else:
         dataset_title_list = subset
-    
+
     async def main():
         async with CachedSession(cache=assets_cache) as session:
             if clear_cache == True or (isinstance(clear_cache,str) and clear_cache.lower() == 'true'):
@@ -108,7 +108,7 @@ def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
                 return metadata
         else:
             return 'No metadata.'
-            
+
     # If OS is windows then include the below line
     # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     return asyncio.run(main())

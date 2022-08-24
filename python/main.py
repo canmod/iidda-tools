@@ -351,18 +351,18 @@ async def filter(
         filter_list.append(filter)
     pandas_query = ' and '.join(pandas_query)
     filter_string = ' and '.join(filter_list)
-    
+
     # Initial dataset_list
     dataset_list = get_dataset_list(clear_cache=False)
     
     # Filter to include only the datasets of the correct resource type
     dataset_list = jq(
         f'map_values(select(. != "No metadata.") | select(.resourceType .resourceType == "{resource_type}")) | . |=  keys').transform(dataset_list)
-    
+
     # Obtain column summaries for all datasets of the correct resource type
     dataset_list = get_dataset_list(
         clear_cache=False, response_type="columns", subset=dataset_list)
-    
+
     # Apply filter to the column summaries to get the list of required datasets
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
@@ -389,7 +389,7 @@ async def filter(
         if len(missing_cols) > 0:
             raise HTTPException(
                 status_code=400, detail=f"These columns do not exist in these dataset(s): {missing_cols}")
-        merged_csv = merged_csv.query(pandas_query)
+            merged_csv = merged_csv.query(pandas_query)
         write_stats(endpoint="/filter", datasets=dataset_list)
         return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
