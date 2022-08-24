@@ -53,8 +53,8 @@ async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     ACCESS_TOKEN = read_config('access_token')
-    rate_limit = requests.get("https://api.github.com/rate_limit", headers={"Authorization": "token " + ACCESS_TOKEN}).headers
-    response.headers["X-github-rate-limit-remaining"] = rate_limit['x-ratelimit-remaining']
+    rate_limit = requests.get("https://api.github.com/rate_limit", headers={"Authorization": "token " + ACCESS_TOKEN}).headers['x-ratelimit-remaining']
+    response.headers["X-github-rate-limit-remaining"] = rate_limit
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response

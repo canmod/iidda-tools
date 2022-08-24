@@ -271,7 +271,7 @@ server <- function(input, output) {
               multiple = TRUE,
               choices = columns %>%
                 lapply(function(z) {
-                  z[['cases_prev_period']][['unavailable_values']]
+                  z[[x$name]][['unavailable_values']]
                 }) %>%
                 unlist(recursive = FALSE) %>%
                 unname %>%
