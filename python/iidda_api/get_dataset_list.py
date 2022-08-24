@@ -11,9 +11,10 @@ import requests_cache
 from appdirs import *
 import re
 
+
 async def get_release_list(access_token, cache_config, clear_cache):
     async with CachedSession(cache=cache_config) as session:
-        if clear_cache == True or (isinstance(clear_cache,str) and clear_cache.lower() == 'true'):
+        if clear_cache == True or (isinstance(clear_cache, str) and clear_cache.lower() == 'true'):
             await session.cache.clear()
         page = 1
         release_list = []
@@ -26,7 +27,8 @@ async def get_release_list(access_token, cache_config, clear_cache):
                 page += 1
         return release_list
 
-def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
+
+def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
@@ -36,19 +38,20 @@ def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
     }
 
     # make cache directory
-    cache_path = user_cache_dir("iidda-api-cache","")
+    cache_path = user_cache_dir("iidda-api-cache", "")
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
     # Cache configurations
     assets_cache = FileBackend(
-        cache_name = cache_path + "/assets"
+        cache_name=cache_path + "/assets"
     )
 
     release_list_cache = FileBackend(
-        cache_name = cache_path + "/release_list"
+        cache_name=cache_path + "/release_list"
     )
 
-    releases = asyncio.run(get_release_list(ACCESS_TOKEN,release_list_cache,clear_cache))
+    releases = asyncio.run(get_release_list(
+        ACCESS_TOKEN, release_list_cache, clear_cache))
 
     if subset == "all":
         dataset_title_list = map(lambda release: release['name'], releases)
@@ -59,7 +62,7 @@ def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
 
     async def main():
         async with CachedSession(cache=assets_cache) as session:
-            if clear_cache == True or (isinstance(clear_cache,str) and clear_cache.lower() == 'true'):
+            if clear_cache == True or (isinstance(clear_cache, str) and clear_cache.lower() == 'true'):
                 await session.cache.clear()
             tasks = []
             for title in dataset_title_list:
@@ -69,19 +72,22 @@ def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
                     title = r.search(title).group(2)
                 else:
                     version = "latest"
-                task = asyncio.ensure_future(get_dataset_data(session, title, version))
+                task = asyncio.ensure_future(
+                    get_dataset_data(session, title, version))
                 tasks.append(task)
 
             dataset_metadata = await asyncio.gather(*tasks)
 
-            result_file = dict(zip(dataset_title_list,dataset_metadata))
+            result_file = dict(zip(dataset_title_list, dataset_metadata))
 
             return result_file
 
-    async def get_dataset_data(session,title,version): 
+    async def get_dataset_data(session, title, version):
         # Search for latest version
-        title_version_list = filter(lambda release: release['name'] == title, releases)
-        title_version_list = sorted(title_version_list, key=lambda release: int(release['body'][8:]))
+        title_version_list = filter(
+            lambda release: release['name'] == title, releases)
+        title_version_list = sorted(
+            title_version_list, key=lambda release: int(release['body'][8:]))
         if len(title_version_list) == 0:
             return "This dataset does not exist."
         if version == "latest":
@@ -90,19 +96,20 @@ def get_dataset_list(clear_cache, response_type="metadata", subset = "all"):
             return f"The supplied version of this dataset is greater than the latest version of {len(title_version_list)}"
         version_in_question = title_version_list[int(version) - 1]
 
-        
         # get metadata
         latest_version_metadata = version_in_question['assets']
         if response_type == "metadata":
-            latest_version_metadata = list(filter(lambda asset: asset['name'] == title + '.json', latest_version_metadata))
+            latest_version_metadata = list(
+                filter(lambda asset: asset['name'] == title + '.json', latest_version_metadata))
         elif response_type == "github_url":
             return {"github_url": version_in_question["html_url"]}
         else:
-            latest_version_metadata = list(filter(lambda asset: asset['name'] == title + "_" + response_type + '.json', latest_version_metadata))
+            latest_version_metadata = list(filter(
+                lambda asset: asset['name'] == title + "_" + response_type + '.json', latest_version_metadata))
 
         if latest_version_metadata != []:
             metadata_url = latest_version_metadata[0]['url']
-            async with session.get(metadata_url,headers=headers) as response:
+            async with session.get(metadata_url, headers=headers) as response:
                 metadata = await response.text()
                 metadata = json.loads(metadata)
                 return metadata
