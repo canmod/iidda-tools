@@ -12,7 +12,7 @@ local = list(
 )
 
 # production environment
-production = staging
+production = local
 
 make_ops_list = function(api_url, base_path) {
   handle_iidda_response <- function(x) {
