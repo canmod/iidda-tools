@@ -6,6 +6,34 @@ library(shinycssloaders)
 library(purrr)
 require(plyr)
 library(jsonlite)
+source("ui.R")
+
+downloadMenuServer <- function(id, datasets) {
+  moduleServer(
+    id,
+    function(input, output, session) {
+      output$download_data <- downloadHandler(
+        filename = function()
+        {
+          sprintf("%s.zip", 'datasets_combined')
+        },
+        content = function(file)
+        {
+          withProgress(message = 'Preparing files for download...', {
+            writeBin(
+              iidda.api::ops$download(
+                dataset_ids = datasets,
+                resource = input$files_to_include
+              ),
+              file
+            )
+          })
+        },
+        contentType = "application/zip"
+      )
+    }
+  )
+}
 
 server <- function(input, output) {
   data <- eventReactive(input$select_data, {
@@ -32,7 +60,7 @@ server <- function(input, output) {
       na.omit
   )
   
-  filtered_data <- eventReactive(input$filter_data, {
+  data_filters <- eventReactive(input$filter_data, {
     filter_params <- lapply(data_dictionary(), function(x) {
       named_list <- list()
       if (x$format == "num_missing") {
@@ -55,7 +83,11 @@ server <- function(input, output) {
       }
       named_list
     }) %>% unlist(recursive = FALSE)
-    response <- do.call(iidda.api::ops$filter, c(list(resource_type = input$data_filter_type), filter_params))
+    return(filter_params)
+  })
+  
+  filtered_data <- eventReactive(input$filter_data, {
+    response <- do.call(iidda.api::ops$filter, c(list(resource_type = input$data_filter_type), data_filters()))
     if(is.data.frame(response)) {
       response
     } else {
@@ -229,18 +261,54 @@ server <- function(input, output) {
     )
   })
   
-  output$download_data <- downloadHandler(
+  downloadMenuServer(id="dataset_selection", datasets = input$dataset_name)
+  
+  output$filter_data_download_menu = renderUI({
+    req(input$filter_data, filtered_data())
+    box(
+      width = NULL,
+      h4("Download Filtered Data"),
+      downloadButton('download_filtered_data',"Download"),
+      h4("Download Individual Datasets"),
+      checkboxGroupInput(
+        "filtered_data_files_to_include",
+        "Files to Include",
+        choices = list(
+          "CSV" = "csv",
+          "Metadata" = "metadata",
+          "Source Files" = "pipeline_dependencies"
+        ),
+      ),
+      p(
+        class = "text-muted",
+        paste(
+          'Selecting "Source Files" will significantly increase download time due to large file sizes.'
+        )
+      ),
+      downloadButton(outputId =  "download_filtered_data_individual",
+                     label = "Download", )
+    )
+  })
+  
+  output$download_filtered_data <- downloadHandler(
+    filename = function(){"filtered_data.csv"}, 
+    content = function(fname){
+      write.csv(filtered_data(), fname)
+    }
+  )
+  
+  output$download_filtered_data_individual <- downloadHandler(
     filename = function()
     {
-      paste(paste(input$dataset_name, collapse = '-'), ".zip", sep  =  '')
+      sprintf("%s.zip", 'filtered_datasets_combined')
     },
     content = function(file)
     {
       withProgress(message = 'Preparing files for download...', {
         writeBin(
           iidda.api::ops$download(
-            dataset_ids = input$dataset_name,
-            resource = input$files_to_include
+            dataset_ids = do.call(iidda.api::ops$filter, c(list(resource_type = input$data_filter_type, response_type="dataset list"), data_filters())),
+            resource = input$filtered_data_files_to_include
           ),
           file
         )
@@ -248,4 +316,6 @@ server <- function(input, output) {
     },
     contentType = "application/zip"
   )
+  
+
 }

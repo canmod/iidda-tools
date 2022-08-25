@@ -315,10 +315,11 @@ async def download(
     return asyncio.run(main())
 
 
-@app.get("/filter", responses={200: {"content": {"application/json": {}}}})
+@app.get("/filter", responses={200: {"content": {"application/json": {}, "text/plain": {}}}})
 async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
+    response_type: str = Query("csv", enum=["csv", "dataset list"]),
     location: List[str] = Query(default=None),
     iso_3166: List[str] = Query(default=None),
     iso_3166_2: List[str] = Query(default=None),
@@ -356,7 +357,7 @@ async def filter(
 
     # Delete the resource_type argument from filter_arguments
     filter_arguments = jq(
-        'del(.resource_type) | map_values(select(. != null))').transform(filter_arguments)
+        'del(.resource_type, .response_type) | map_values(select(. != null))').transform(filter_arguments)
 
     # Check if no column filters were applied
     if filter_arguments == {}:
@@ -469,6 +470,9 @@ async def filter(
     # Check if no datasets satisfy the filter
     if len(dataset_list) == 0:
         return "No datasets match the provided criteria."
+
+    if response_type == "dataset list":
+        return dataset_list
 
     async def main():
         tasks = []
