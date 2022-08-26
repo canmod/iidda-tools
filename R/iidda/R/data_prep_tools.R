@@ -317,31 +317,19 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 
 #' Split Tidy Data
 #'
-#' Creates 6 tidy data sets with no duplicate data, broken down by period
-#' (wk, mt, quarter, year) and province/Canada.
+#' Creates 6 tidy data sets with no duplicate data, broken down by available time-series scales
+#' (week, month, quarter, year) and by Province/Canada.
 #' @export
 split_tidy_data = function(tidy_data){
   (tidy_data
-    %>% mutate(period = ifelse(period_end_date == period_start_date +6 | period_end_date == period_start_date +7, "wk", "mt"))
-    %>% mutate(period = ifelse(period_start_end_date-period_start_date>40, "quarter", period))
-    %>% mutate(period = ifelse(period_end_date-period_start_date > 100, "year", period))
-    %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
-    %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
-    %>% select(-is_canada, -period)
+   %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
+   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
+   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
+   %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
+   %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
+   %>% select(-is_canada, -period)
+   %>% split(.$splitting_column)
   )
-}
-
-#' @export
-column_summary = function(column, tidy_data, dataset_name, metadata) {
-  column_metadata <- metadata[["Columns"]][[dataset_name]]
-  column_metadata_row <- subset(column_metadata, rownames(column_metadata) %in% column)
-  if (column_metadata_row[["format"]] == "num_missing") {
-    list(range = range(as.numeric(tidy_data[[column]]), na.rm=TRUE), unavailable_values = unique(tidy_data[[column]][is.na(as.numeric(tidy_data[[column]]))]))
-  } else if (column_metadata_row[["type"]] == "date") {
-    range(tidy_data[[column]], na.rm=TRUE)
-  } else {
-    as.list(unique(tidy_data[[column]][!is.na(tidy_data[[column]])]))
-  }
 }
 
 #' @export
