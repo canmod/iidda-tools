@@ -13,6 +13,9 @@ These three topics are inextricably linked.
 
 If we believe that a certain symbol or data entry marking/technique indicates a genuine zero for a particular period, then we should change that symbol/marking to a zero in the _harmonization step_
 
+From 1956 onward, Samara's scripts convert '-' to zero. 
+For 1924-55, the scripts do not convert empty values to 0. 
+
 Task: function to replace missing values with zeros when appropriate -- such that the strategy for deciding appropriateness is easily readable in the code, with a view towards allowing the user to adjust the strategy.
 
 There may be different kinds of missing values -- not reportable versus not available -- what do these mean??
@@ -33,7 +36,7 @@ Goal -- one CSV file for each of the following resolutions for all diseases and 
   * quarterly (1924-2000)
   * yearly (1924-2000)
 
-The first four of these can be addressed with the following harmonization proceedure:
+The first four of these can be addressed with the following harmonization procedure:
 
   * Define a single week as the starting week for the entire project
   * For each disease and location create a dataset with the following fields:
