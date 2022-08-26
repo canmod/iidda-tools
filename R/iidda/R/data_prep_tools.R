@@ -85,7 +85,7 @@ write_tidy_data = function(tidy_data, metadata) {
 #' @export
 read_tidy_data = function(tidy_data_path) {
 
-  stop("I am broken ... please fix me")
+  #stop("I am broken ... please fix me")
 
   path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
   valid_metadata_types = c(
@@ -345,7 +345,7 @@ split_tidy_data = function(tidy_data){
    %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
    %>% select(-is_canada, -period)
    %>% split(.$splitting_column)
-)
+  )
 }
 
 # Another version:
