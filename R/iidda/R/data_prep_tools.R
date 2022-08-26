@@ -85,11 +85,24 @@ write_tidy_data = function(tidy_data, metadata) {
 #' @export
 read_tidy_data = function(tidy_data_path) {
 
-  path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
-  path_meta_file = grep(list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE), pattern = "\\csv_dialect.json|\\_data_dictionary.json", invert = TRUE, value = TRUE)
-  path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
-  path_dial_file = list.files(tidy_data_path, pattern="\\csv_dialect.json.*", full.names = TRUE)
+  stop("I am broken ... please fix me")
 
+  path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
+  valid_metadata_types = c(
+    "data_dictionary",
+    "csv_dialect",
+    "columns"
+  )
+
+  path_meta_file = grep(
+    list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE),
+    pattern = "\\_csv_dialect.json|\\_data_dictionary.json",
+    invert = TRUE,
+    value = TRUE
+  )
+  path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
+  path_dial_file = list.files(tidy_data_path, pattern="\\_csv_dialect.json.*", full.names = TRUE)
+  path_col_file = list.files(tidy_data_path, pattern="\\_columns.json.*", full.names = TRUE)
   data_dictionary = (path_dict_file
                      %>% read_json()
   )
@@ -149,6 +162,9 @@ empty_to_na = function(tidy_data) {
 #' \code{iso_3166_2} containing equivalent ISO-3166-2 codes (if applicable)
 #' @export
 iso_3166_codes = function(tidy_data, locations_iso) {
+  if (missing(locations_iso)) {
+    locations_iso = harmonization_lookup_tables$location
+  }
   (tidy_data
     %>% left_join(locations_iso, by = "location")
     %>% relocate(iso_3166_2, .after = location)
@@ -329,7 +345,40 @@ split_tidy_data = function(tidy_data){
    %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
    %>% select(-is_canada, -period)
    %>% split(.$splitting_column)
-  )
+)
+}
+
+# Another version:
+# split_data = function(tidy_data){
+#   (tidy_data
+#    %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6 | period_end_date == as.Date(period_start_date) +7, "wk", "mt"))
+#    %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
+#    %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
+#    %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
+#    %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
+#    %>% select(-is_canada, -period)
+#    %>% split(.$splitting_column)
+#   )
+# }
+
+
+#' @export
+column_summary = function(column, tidy_data, dataset_name, metadata) {
+  column_metadata <- metadata[["Columns"]][[dataset_name]]
+  column_metadata_row <- subset(column_metadata, rownames(column_metadata) %in% column)
+  if (column_metadata_row[["format"]] == "num_missing") {
+    range <- suppressWarnings(list(range = range(as.numeric(tidy_data[[column]]), na.rm=TRUE), unavailable_values = unique(tidy_data[[column]][is.na(as.numeric(tidy_data[[column]]))])))
+    if (identical(is.infinite(range[['range']]),c(TRUE,TRUE))) {
+      range[['range']] = c(NA,NA)
+      return(range)
+    } else {
+      return(range)
+    }
+  } else if (column_metadata_row[["type"]] == "date") {
+    range(tidy_data[[column]], na.rm=TRUE)
+  } else {
+    as.list(unique(tidy_data[[column]][!is.na(tidy_data[[column]])]))
+  }
 }
 
 #' @export

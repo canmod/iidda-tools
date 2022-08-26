@@ -1,3 +1,28 @@
+#' @export
+set_iidda_col_types = function(data) {
+  if (names(data)[1] == 'Internal Server Error') {
+    stop("API Error")
+  }
+  dict = iidda_data_dictionary()
+  allowed_names = dict$name
+  if (!all(names(data) %in% allowed_names)) {
+    warning(
+      "\nthe global iidda data dictionary is out of sync",
+      "\nwith one or more iidda datasets. returning all",
+      "\ncolumns as strings."
+    )
+    return(data)
+  }
+
+  (dict
+    %>% iidda::key_val('name', 'type')
+    %>% get_elements(colnames(data))
+    %>% unlist
+    %>% iidda::lookup(iidda::col_classes_dict)
+    %>% iidda::set_types(data = data)
+  )
+}
+
 #' Set Data Frame Column Types
 #'
 #' Set the types of the columns of a data frame.
@@ -19,6 +44,9 @@ set_types = function(data, types) {
   )
 }
 
+# for some reason there is no character to date as method
+setAs('character', 'Date', function(from) as.Date(from))
+
 #' Unique Column Values
 #'
 #' @param l list of data frames with the same column names
@@ -28,8 +56,8 @@ get_unique_col_values = function(l) {
   if(is.recursive(l)) {
     # check if all sub-lists have the same names
     col_nms = (l
-               %>% lapply(names)
-               %>% unique
+     %>% lapply(names)
+     %>% unique
     )
     stopifnot(length(col_nms) == 1L)
   } else {

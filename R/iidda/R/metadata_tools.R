@@ -21,6 +21,10 @@ read_tracking_tables = function(path) {
   )
 }
 
+filter_dependencies = function(tidy_dataset, tracking_table, dependencies_table) {
+
+}
+
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr filter mutate relocate select semi_join left_join right_join
 #' @importFrom tibble column_to_rownames remove_rownames
@@ -285,4 +289,44 @@ get_canmod_digitization_metadata = function(tracking_list) {
     %>% left_join(d$TidyDatasets, by = "digitization", suffix = c("", "_tidy"))
     %>% filter(!is_empty(path_tidy_data))
   )
+}
+
+#' IIDDA Data Dictionary
+#'
+#' Get the global data dictionary for IIDDA
+#'
+#' This function requires an internet connection.
+#'
+#' @importFrom jsonlite read_json fromJSON toJSON
+#' @export
+iidda_data_dictionary = function() {
+  # data dictionary location
+  global_data_dictionary_url = file.path(
+    "https://raw.githubusercontent.com", # api
+    "canmod", # github user/org
+    "iidda", # github repo
+    "main", # github branch
+    "global-metadata", # folder
+    "data-dictionary.json" # file
+  )
+
+  (global_data_dictionary_url
+    %>% read_json
+    %>% toJSON
+    %>% fromJSON
+  )
+  # try(
+  #   read_json(global_data_dictionary_url),
+  #   silent = TRUE
+  # )
+
+  # (ops$metadata(response_type = 'data_dictionary')
+  #  %>% lapply(toJSON)
+  #  %>% lapply(fromJSON)
+  #  %>% rbind_pages
+  #  %>% unique
+  #  %>% remove_rownames
+  # )
+  # api_template = "%{api_url}s/datasets/%{dataset_id}s?response_type=raw_csv"
+
 }

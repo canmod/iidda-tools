@@ -50,7 +50,7 @@ The first four of these can be addressed with the following harmonization proced
       * `cases = sum(cases)`
       * `information_quality = mean(information_source_type %in% c('recorded', 'imputed_from_monthly')` -- or some sensible definition of quality
 
-The last three (monthly, quarterly, and yearly) are not so easy, but could be handled with a more refined proceedure that deals with weeks that are in two months/quarters/years and divides up the weekly totals in proportion to the number of days in the focal month/quarter/year.
+The last three (monthly, quarterly, and yearly) are not so easy, but could be handled with a more refined procedure that deals with weeks that are in two months/quarters/years and divides up the weekly totals in proportion to the number of days in the focal month/quarter/year.
 
 When do we leave values missing and when do we impute?  At least do not impute values at the beginning and end of the series.
 
