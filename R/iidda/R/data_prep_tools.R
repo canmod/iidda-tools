@@ -96,7 +96,7 @@ read_tidy_data = function(tidy_data_path) {
 
   path_meta_file = grep(
     list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE),
-    pattern = "\\_csv_dialect.json|\\_data_dictionary.json",
+    pattern = "\\_csv_dialect.json|\\_data_dictionary.json|\\_columns.json",
     invert = TRUE,
     value = TRUE
   )
