@@ -85,7 +85,7 @@ write_tidy_data = function(tidy_data, metadata) {
 #' @export
 read_tidy_data = function(tidy_data_path) {
 
-  stop("I am broken ... please fix me")
+  #stop("I am broken ... please fix me")
 
   path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
   valid_metadata_types = c(
@@ -96,7 +96,7 @@ read_tidy_data = function(tidy_data_path) {
 
   path_meta_file = grep(
     list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE),
-    pattern = "\\_csv_dialect.json|\\_data_dictionary.json",
+    pattern = "\\_csv_dialect.json|\\_data_dictionary.json|\\_columns.json",
     invert = TRUE,
     value = TRUE
   )
@@ -333,17 +333,18 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 
 #' Split Tidy Data
 #'
-#' Creates 6 tidy data sets with no duplicate data, broken down by period
-#' (wk, mt, quarter, year) and province/Canada.
+#' Creates 6 tidy data sets with no duplicate data, broken down by available time-series scales
+#' (week, month, quarter, year) and by Province/Canada.
 #' @export
 split_tidy_data = function(tidy_data){
   (tidy_data
-    %>% mutate(period = ifelse(period_end_date == period_start_date +6 | period_end_date == period_start_date +7, "wk", "mt"))
-    %>% mutate(period = ifelse(period_end_date-period_start_date>40, "quarter", period))
-    %>% mutate(period = ifelse(period_end_date-period_start_date > 100, "year", period))
-    %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
-    %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
-    %>% select(-is_canada, -period)
+   %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
+   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
+   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
+   %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
+   %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
+   %>% select(-is_canada, -period)
+   %>% split(.$splitting_column)
   )
 }
 
