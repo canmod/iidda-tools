@@ -7,32 +7,6 @@ library(purrr)
 require(plyr)
 library(jsonlite)
 
-
-downloadMenu <- function(id) {
-  box(
-    h3("Downloads"),
-    width = NULL,
-    checkboxGroupInput(
-      NS(id, "files_to_include"),
-      "Optional Files to Include",
-      choices = list(
-        "CSV" = "csv",
-        "Metadata" = "metadata",
-        "Source Files" = "pipeline_dependencies"
-      ),
-    ),
-    p(
-      class = "text-muted",
-      paste(
-        'Selecting "Source Files" will significantly increase download time due to large file sizes.'
-      )
-    ),
-    downloadButton(outputId =  NS(id,"download_data"),
-                   label = "Download", )
-  )
-}
-
-
 header <- dashboardHeader(title = "IIDDA")
 
 sidebar <- dashboardSidebar(sidebarMenu(
@@ -44,9 +18,7 @@ sidebar <- dashboardSidebar(sidebarMenu(
   menuItem(
     "Data Filtering",
     icon = icon("filter"),
-    tabName = "data_filtering",
-    badgeLabel = "new",
-    badgeColor = "green"
+    tabName = "data_filtering"
   )
 ))
 
@@ -54,19 +26,24 @@ body <- dashboardBody(tabItems(tabItem(
   tabName = "dataset_selection",
   h2("Dataset Selection"),
   fluidRow(column(
-    width = 9,
-    box(
-      title = "Dataset",
-      width = NULL,
-      DT::dataTableOutput("data_table") %>% withSpinner(color = "#FDBF57"),
-      style = "height: fit-content; overflow-y:scroll; overflow-x:scroll;"
-    )
+    width = 12,
+    tabBox(
+      width = 12,
+      tabPanel(
+        "Data Viewer",
+        DT::dataTableOutput("data_table") %>% withSpinner(color = "#FDBF57"),
+        style = "height: fit-content; overflow-y:scroll; overflow-x:scroll;"
+      ),
+      tabPanel(
+        "Download",
+        uiOutput("dataset_selection_download_menu")
+      )),
   ),
   column(
-    width = 3,
+    width = 12,
     box(
       h3("Dataset Selection"),
-      width = NULL,
+      width = 12,
       selectInput(
         inputId = "data_type",
         label = "Dataset Type",
@@ -79,8 +56,7 @@ body <- dashboardBody(tabItems(tabItem(
         paste('Changes will only apply when you click "Apply Changes"')
       ),
       actionButton("select_data", "Apply Changes")
-    ),
-    downloadMenu(id="dataset_selection")
+    )
     )
   )),
 tabItem(

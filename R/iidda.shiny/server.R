@@ -8,7 +8,7 @@ require(plyr)
 library(jsonlite)
 source("ui.R")
 
-downloadMenuServer <- function(id, datasets) {
+downloadMenuServer <- function(id, datasets, action_button_id, data) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -263,31 +263,101 @@ server <- function(input, output) {
   
   downloadMenuServer(id="dataset_selection", datasets = input$dataset_name)
   
-  output$filter_data_download_menu = renderUI({
-    req(input$filter_data, filtered_data())
-    box(
-      width = NULL,
-      h4("Download Filtered Data"),
-      downloadButton('download_filtered_data',"Download"),
-      h4("Download Individual Datasets"),
-      checkboxGroupInput(
-        "filtered_data_files_to_include",
-        "Files to Include",
-        choices = list(
-          "CSV" = "csv",
-          "Metadata" = "metadata",
-          "Source Files" = "pipeline_dependencies"
+  output$dataset_selection_download_menu <- renderUI({
+    if (isTruthy(input$dataset_name) && isTruthy(data())) {
+      box(
+        width = NULL,
+        h4("Download Combined Data"),
+        downloadButton('download_combined_datasets',"Download"),
+        h4("Download Individual Datasets"),
+        checkboxGroupInput(
+          "files_to_include",
+          "Optional Files to Include",
+          choices = list(
+            "CSV" = "csv",
+            "Metadata" = "metadata",
+            "Source Files" = "pipeline_dependencies"
+          ),
         ),
-      ),
+        p(
+          class = "text-muted",
+          paste(
+            'Selecting "Source Files" will significantly increase download time due to large file sizes.'
+          )
+        ),
+        downloadButton(outputId = "download_data",
+                       label = "Download", )
+      )
+    } else {
       p(
         class = "text-muted",
         paste(
-          'Selecting "Source Files" will significantly increase download time due to large file sizes.'
+          'Please select some datasets before attempting to download.'
         )
-      ),
-      downloadButton(outputId =  "download_filtered_data_individual",
-                     label = "Download", )
-    )
+      )
+    }
+  })
+  
+  output$download_combined_datasets <- downloadHandler(
+    filename = function(){"combined_datasets.csv"}, 
+    content = function(fname){
+      write.csv(data(), fname)
+    }
+  )
+  
+  output$download_data <- downloadHandler(
+    filename = function()
+    {
+      sprintf("%s.zip", 'datasets_combined')
+    },
+    content = function(file)
+    {
+      withProgress(message = 'Preparing files for download...', {
+        writeBin(
+          iidda.api::ops$download(
+            dataset_ids = input$dataset_name,
+            resource = input$files_to_include
+          ),
+          file
+        )
+      })
+    },
+    contentType = "application/zip"
+  )
+  
+  output$filter_data_download_menu = renderUI({
+    if (isTruthy(input$filter_data) && isTruthy(filtered_data())) {
+      box(
+        width = NULL,
+        h4("Download Filtered Data"),
+        downloadButton('download_filtered_data',"Download"),
+        h4("Download Individual Datasets"),
+        checkboxGroupInput(
+          "filtered_data_files_to_include",
+          "Files to Include",
+          choices = list(
+            "CSV" = "csv",
+            "Metadata" = "metadata",
+            "Source Files" = "pipeline_dependencies"
+          ),
+        ),
+        p(
+          class = "text-muted",
+          paste(
+            'Selecting "Source Files" will significantly increase download time due to large file sizes.'
+          )
+        ),
+        downloadButton(outputId =  "download_filtered_data_individual",
+                       label = "Download", )
+      )
+    } else {
+      p(
+        class = "text-muted",
+        paste(
+          'Please apply a filter before attempting to download.'
+        )
+      )
+    }
   })
   
   output$download_filtered_data <- downloadHandler(
