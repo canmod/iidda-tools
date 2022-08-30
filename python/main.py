@@ -23,6 +23,9 @@ app = FastAPI(title="IIDDA API", swagger_ui_parameters={
               "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
 
+global_data_dictionary = requests.get(
+    'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
+global_data_dictionary = dict((item['name'], item) for item in global_data_dictionary)
 
 def generate_filters():
     dataset_list = get_dataset_list(clear_cache=False)
@@ -53,7 +56,8 @@ async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     ACCESS_TOKEN = read_config('access_token')
-    rate_limit = requests.get("https://api.github.com/rate_limit", headers={"Authorization": "token " + ACCESS_TOKEN}).headers['x-ratelimit-remaining']
+    rate_limit = requests.get("https://api.github.com/rate_limit", headers={
+                              "Authorization": "token " + ACCESS_TOKEN}).headers['x-ratelimit-remaining']
     response.headers["X-github-rate-limit-remaining"] = rate_limit
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
@@ -62,40 +66,46 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.get("/metadata")
 async def metadata(
-    dataset_ids: List[str] = Query(default=None),
-    string_matching: str = Query(
-        "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
+    metadata_search: str = "",
     key: str = Query(
-        "", description="Descriptions of the different paths leading to strings:\n * **.contributors .contributorType:** \n * **.contributors .name:** name of the contributor(s) of the dataset\n * **.contributors .nameType:**\n * **.creators .creatorName:** name of the creator(s) of the dataset\n * **creators .nameType:** type of creator (e.g. organizational) \n * **.descriptions .description:** description of the dataset \n * **.descriptions .descriptionType:** type of description (e.g. abstract, methods, etc.) \n* **.descriptions .lang:** language of the description \n * **.formats:** file formats available for download (e.g. csv), \n * **geoLocations .geoLocationPlace:** location(s) in which data was collected \n * **.identifier .identifier:** GitHub URL of the dataset \n * **.identifier .identifierType:** \n * **.language:** language the dataset is available in \n * **.publicationYear:** year of publication of the dataset \n * **.publisher:** publisher of the dataset \n * **.relatedIdentifiers .relatedIdentifier:**  \n * **.relatedIdentifiers .relatedIdentifierType:** type of content inside .relatedIdentifiers .relatedIdentifier (e.g. URL)\n * **.relatedIdentifiers .relationType:** \n * **resourceType .resourceType:** \n * **.resourceType .resourceTypeGeneral:** \n * **.rightsList .lang:** \n * **.rightsList .rights:** \n * **.rightsList .rightsURI:** \n * **.titles .lang:** language of the title \n * **.titles .title:** title of the dataset \n * **.version:** version of the dataset",
+        "", description="Key in metadata to search for metadata_search value. Descriptions of the different paths leading to strings:\n * **.contributors .contributorType:** \n * **.contributors .name:** name of the contributor(s) of the dataset\n * **.contributors .nameType:**\n * **.creators .creatorName:** name of the creator(s) of the dataset\n * **creators .nameType:** type of creator (e.g. organizational) \n * **.descriptions .description:** description of the dataset \n * **.descriptions .descriptionType:** type of description (e.g. abstract, methods, etc.) \n* **.descriptions .lang:** language of the description \n * **.formats:** file formats available for download (e.g. csv), \n * **geoLocations .geoLocationPlace:** location(s) in which data was collected \n * **.identifier .identifier:** GitHub URL of the dataset \n * **.identifier .identifierType:** \n * **.language:** language the dataset is available in \n * **.publicationYear:** year of publication of the dataset \n * **.publisher:** publisher of the dataset \n * **.relatedIdentifiers .relatedIdentifier:**  \n * **.relatedIdentifiers .relatedIdentifierType:** type of content inside .relatedIdentifiers .relatedIdentifier (e.g. URL)\n * **.relatedIdentifiers .relationType:** \n * **resourceType .resourceType:** \n * **.resourceType .resourceTypeGeneral:** \n * **.rightsList .lang:** \n * **.rightsList .rights:** \n * **.rightsList .rightsURI:** \n * **.titles .lang:** language of the title \n * **.titles .title:** title of the dataset \n * **.version:** version of the dataset",
         enum=generate_filters()
     ),
-    value: str = "",
-    jq_query: str = "",
+    string_comparison: str = Query(
+        "Equals", description='Method to compare string in metadata_search and key. Both options are case sensitive."', enum=["Contains", "Equals"]),
+    dataset_ids: List[str] = Query(default=None, description="Return metadata for the datasets specified."),
+    jq_query: str = Query("", description="JSON filter written in jq notation. Filter is applied to the metadata of the selected response_type. Cannot be used in conjuction with dataset_ids, key, and metadata_search parameters. Docs: https://stedolan.github.io/jq/"),
     response_type=Query("metadata", enum=sorted(
         ["github_url", "metadata", "csv_dialect", "data_dictionary", "columns"]))
 ):
+    """
+    Get metadata for datasets. There are 3 ways to filter datasets; they cannot be used in conjuction:
+    - ***metadata_search, key, and string_comparison***
+    - ***dataset_ids*** 
+    - ***jq_query***
+    """
     # Defining list of datasets to download
     data = get_dataset_list(clear_cache=False)
     if dataset_ids != None:
         dataset_list = dataset_ids
     else:
-        if (key == "" or value == "") and jq_query == "":
+        if (key == "" or metadata_search == "") and jq_query == "":
             return get_dataset_list(clear_cache=False, response_type=response_type)
-        elif jq_query != "" and (key == "" and value == "" and dataset_ids == None):
+        elif jq_query != "" and (key == "" and metadata_search == "" and dataset_ids == None):
             return jq(f'{jq_query}').transform(get_dataset_list(clear_cache=False, response_type=response_type))
-        elif key != "" and value != "":
-            if string_matching == "Contains":
-                string_matching = f'contains("{value}")'
-            elif string_matching == None or string_matching == "Equals":
-                string_matching = f'. == "{value}"'
+        elif key != "" and metadata_search != "":
+            if string_comparison == "Contains":
+                string_comparison = f'contains("{metadata_search}")'
+            elif string_comparison == None or string_comparison == "Equals":
+                string_comparison = f'. == "{metadata_search}"'
 
             keys = key.split(" ")
             if len(keys) > 1:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_matching}) else select(. != null) | select(. | {string_matching}) end) else select({keys[1]} != null) | select({keys[1]} | {string_matching}) end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys').transform(data)
             else:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
 
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
@@ -113,43 +123,54 @@ async def data_dictionary():
         'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json', headers={"Authorization": "token " + ACCESS_TOKEN}).json()
     return dictionary
 
+
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
-    dataset_ids: List[str] = Query(default=None),
-    string_matching: str = Query(
-        "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
+    metadata_search: str = "",
     key: str = Query(
-        "", description="Descriptions of the different paths leading to strings:\n * **.contributors .contributorType:** \n * **.contributors .name:** name of the contributor(s) of the dataset\n * **.contributors .nameType:**\n * **.creators .creatorName:** name of the creator(s) of the dataset\n * **creators .nameType:** type of creator (e.g. organizational) \n * **.descriptions .description:** description of the dataset \n * **.descriptions .descriptionType:** type of description (e.g. abstract, methods, etc.) \n* **.descriptions .lang:** language of the description \n * **.formats:** file formats available for download (e.g. csv), \n * **geoLocations .geoLocationPlace:** location(s) in which data was collected \n * **.identifier .identifier:** GitHub URL of the dataset \n * **.identifier .identifierType:** \n * **.language:** language the dataset is available in \n * **.publicationYear:** year of publication of the dataset \n * **.publisher:** publisher of the dataset \n * **.relatedIdentifiers .relatedIdentifier:**  \n * **.relatedIdentifiers .relatedIdentifierType:** type of content inside .relatedIdentifiers .relatedIdentifier (e.g. URL)\n * **.relatedIdentifiers .relationType:** \n * **resourceType .resourceType:** \n * **.resourceType .resourceTypeGeneral:** \n * **.rightsList .lang:** \n * **.rightsList .rights:** \n * **.rightsList .rightsURI:** \n * **.titles .lang:** language of the title \n * **.titles .title:** title of the dataset \n * **.version:** version of the dataset",
+        "", description="Key in metadata to search for metadata_search value. Descriptions of the different paths leading to strings:\n * **.contributors .contributorType:** \n * **.contributors .name:** name of the contributor(s) of the dataset\n * **.contributors .nameType:**\n * **.creators .creatorName:** name of the creator(s) of the dataset\n * **creators .nameType:** type of creator (e.g. organizational) \n * **.descriptions .description:** description of the dataset \n * **.descriptions .descriptionType:** type of description (e.g. abstract, methods, etc.) \n* **.descriptions .lang:** language of the description \n * **.formats:** file formats available for download (e.g. csv), \n * **geoLocations .geoLocationPlace:** location(s) in which data was collected \n * **.identifier .identifier:** GitHub URL of the dataset \n * **.identifier .identifierType:** \n * **.language:** language the dataset is available in \n * **.publicationYear:** year of publication of the dataset \n * **.publisher:** publisher of the dataset \n * **.relatedIdentifiers .relatedIdentifier:**  \n * **.relatedIdentifiers .relatedIdentifierType:** type of content inside .relatedIdentifiers .relatedIdentifier (e.g. URL)\n * **.relatedIdentifiers .relationType:** \n * **resourceType .resourceType:** \n * **.resourceType .resourceTypeGeneral:** \n * **.rightsList .lang:** \n * **.rightsList .rights:** \n * **.rightsList .rightsURI:** \n * **.titles .lang:** language of the title \n * **.titles .title:** title of the dataset \n * **.version:** version of the dataset",
         enum=generate_filters()
     ),
-    value: str = "",
-    jq_query: str = "",
+    string_comparison: str = Query(
+        "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
+    dataset_ids: List[str] = Query(default=None),
+    jq_query: str = Query("", description="JSON filter written in jq notation. Filter is applied to the data found at '/metadata?response_type=metadata'; your filter must return a JSON object of the same format. Cannot be used in conjuction with dataset_ids, key, and metadata_search parameters. Docs: https://stedolan.github.io/jq/"),
 ):
+    """
+    Get raw csvs for datasets. There are 3 ways to filter datasets; they cannot be used in conjuction:
+    - ***metadata_search, key, and string_comparison***
+    - ***dataset_ids*** 
+    - ***jq_query***
+    """
     # Defining list of datasets to download
     data = get_dataset_list(clear_cache=False)
     if dataset_ids != None:
         dataset_list = dataset_ids
     else:
-        if (key == "" or value == "") and jq_query == "":
+        if (key == "" or metadata_search == "") and jq_query == "":
             dataset_list = jq("keys").transform(data)
         elif jq_query != "":
             dataset_list = jq(f'{jq_query} | keys').transform(data)
-        elif key != "" and value != "":
-            if string_matching == "Contains":
-                string_matching = f'contains("{value}")'
-            elif string_matching == None or string_matching == "Equals":
-                string_matching = f'. == "{value}"'
+        elif key != "" and metadata_search != "":
+            if string_comparison == "Contains":
+                string_comparison = f'contains("{metadata_search}")'
+            elif string_comparison == None or string_comparison == "Equals":
+                string_comparison = f'. == "{metadata_search}"'
 
             keys = key.split(" ")
             if len(keys) > 1:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_matching}) else select(. != null) | select(. | {string_matching}) end) else select({keys[1]} != null) | select({keys[1]} | {string_matching}) end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys').transform(data)
             else:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
 
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
+
+    if len(dataset_list) == 0:
+        raise HTTPException(
+            status_code=400, detail="No datasets found.")
 
     # Handling responses
     conditions = " or .key == ".join(f'"{d}"' for d in dataset_list)
@@ -199,18 +220,24 @@ async def raw_csv(
 
 @app.get("/download", responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
 async def download(
-    dataset_ids: List[str] = Query(default=None),
-    string_matching: str = Query(
+    resource: List[str] = Query(
+        description="Options include: csv, pipeline_dependencies, metadata. Due to large file sizes, including 'pipeline_dependencies' will significantly increase download time."),
+    metadata_search: str = "",
+    string_comparison: str = Query(
         "", description='Both options are case sensitive. Default is "Equals."', enum=["Contains", "Equals"]),
     key: str = Query(
-        "", description="Descriptions of the different paths leading to strings:\n * **.contributors .contributorType:** \n * **.contributors .name:** name of the contributor(s) of the dataset\n * **.contributors .nameType:**\n * **.creators .creatorName:** name of the creator(s) of the dataset\n * **creators .nameType:** type of creator (e.g. organizational) \n * **.descriptions .description:** description of the dataset \n * **.descriptions .descriptionType:** type of description (e.g. abstract, methods, etc.) \n* **.descriptions .lang:** language of the description \n * **.formats:** file formats available for download (e.g. csv), \n * **geoLocations .geoLocationPlace:** location(s) in which data was collected \n * **.identifier .identifier:** GitHub URL of the dataset \n * **.identifier .identifierType:** \n * **.language:** language the dataset is available in \n * **.publicationYear:** year of publication of the dataset \n * **.publisher:** publisher of the dataset \n * **.relatedIdentifiers .relatedIdentifier:**  \n * **.relatedIdentifiers .relatedIdentifierType:** type of content inside .relatedIdentifiers .relatedIdentifier (e.g. URL)\n * **.relatedIdentifiers .relationType:** \n * **resourceType .resourceType:** \n * **.resourceType .resourceTypeGeneral:** \n * **.rightsList .lang:** \n * **.rightsList .rights:** \n * **.rightsList .rightsURI:** \n * **.titles .lang:** language of the title \n * **.titles .title:** title of the dataset \n * **.version:** version of the dataset",
+        "", description="Key in metadata to search for metadata_search value. Descriptions of the different paths leading to strings:\n * **.contributors .contributorType:** \n * **.contributors .name:** name of the contributor(s) of the dataset\n * **.contributors .nameType:**\n * **.creators .creatorName:** name of the creator(s) of the dataset\n * **creators .nameType:** type of creator (e.g. organizational) \n * **.descriptions .description:** description of the dataset \n * **.descriptions .descriptionType:** type of description (e.g. abstract, methods, etc.) \n* **.descriptions .lang:** language of the description \n * **.formats:** file formats available for download (e.g. csv), \n * **geoLocations .geoLocationPlace:** location(s) in which data was collected \n * **.identifier .identifier:** GitHub URL of the dataset \n * **.identifier .identifierType:** \n * **.language:** language the dataset is available in \n * **.publicationYear:** year of publication of the dataset \n * **.publisher:** publisher of the dataset \n * **.relatedIdentifiers .relatedIdentifier:**  \n * **.relatedIdentifiers .relatedIdentifierType:** type of content inside .relatedIdentifiers .relatedIdentifier (e.g. URL)\n * **.relatedIdentifiers .relationType:** \n * **resourceType .resourceType:** \n * **.resourceType .resourceTypeGeneral:** \n * **.rightsList .lang:** \n * **.rightsList .rights:** \n * **.rightsList .rightsURI:** \n * **.titles .lang:** language of the title \n * **.titles .title:** title of the dataset \n * **.version:** version of the dataset",
         enum=generate_filters()
     ),
-    value: str = "",
-    jq_query: str = "",
-    resource: List[str] = Query(
-        default=None, description="Options include: csv, pipeline_dependencies, metadata. Due to large file sizes, including 'pipeline_dependencies' will significantly increase download time.")
+    dataset_ids: List[str] = Query(default=None),
+    jq_query: str = Query("", description="JSON filter written in jq notation. Filter is applied to the data found at '/metadata?response_type=metadata'; your filter must return a JSON object of the same format. Cannot be used in conjuction with dataset_ids, key, and metadata_search parameters. Docs: https://stedolan.github.io/jq/"),
 ):
+    """
+    Download specific dataset files (pipeline dependencies, csv, and/or metadata). There are 3 ways to filter datasets; they cannot be used in conjuction:
+    - ***metadata_search, key, and string_comparison***
+    - ***dataset_ids*** 
+    - ***jq_query***
+    """
     # making sure resource types are valid
     if resource == None:
         raise HTTPException(
@@ -236,23 +263,23 @@ async def download(
         dataset_list = dataset_ids
     else:
         data = get_dataset_list(clear_cache=False)
-        if (key == "" or value == "") and jq_query == "":
+        if (key == "" or metadata_search == "") and jq_query == "":
             dataset_list = jq("keys").transform(data)
         elif jq_query != "":
             dataset_list = jq(f'{jq_query} | keys').transform(data)
-        elif key != "" and value != "":
-            if string_matching == "Contains":
-                string_matching = f'contains("{value}")'
-            elif string_matching == None or string_matching == "Equals":
-                string_matching = f'. == "{value}"'
+        elif key != "" and metadata_search != "":
+            if string_comparison == "Contains":
+                string_comparison = f'contains("{metadata_search}")'
+            elif string_comparison == None or string_comparison == "Equals":
+                string_comparison = f'. == "{metadata_search}"'
 
             keys = key.split(" ")
             if len(keys) > 1:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_matching}) else select(. != null) | select(. | {string_matching}) end) else select({keys[1]} != null) | select({keys[1]} | {string_matching}) end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys').transform(data)
             else:
                 dataset_list = jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_matching}) else {string_matching} end)) | keys').transform(data)
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
 
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
@@ -320,34 +347,37 @@ async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
     response_type: str = Query("csv", enum=["csv", "dataset list"]),
-    location: List[str] = Query(default=None),
-    iso_3166: List[str] = Query(default=None),
-    iso_3166_2: List[str] = Query(default=None),
+    location: List[str] = Query(default=None, description=global_data_dictionary['location']['description']),
+    iso_3166: List[str] = Query(default=None, description=global_data_dictionary['iso_3166']['description']),
+    iso_3166_2: List[str] = Query(default=None, description=global_data_dictionary['iso_3166_2']['description']),
     period_start_date: str = Query(
-        default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
+        default=None, description=f"{global_data_dictionary['period_start_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     period_end_date: str = Query(
-        default=None, description="Must be in the form {start date}/{end date}. Both dates must be in ISO 8601 format."),
-    disease_family: List[str] = Query(default=None),
-    disease: List[str] = Query(default=None),
-    icd_9: List[str] = Query(default=None),
-    icd_7: List[str] = Query(default=None),
-    disease_subclass: List[str] = Query(default=None),
-    icd_9_subclass: List[str] = Query(default=None),
-    icd_7_subclass: List[str] = Query(default=None),
+        default=None, description=f"{global_data_dictionary['period_end_date']['description']} Must be in the form \<start date\>/\<end date\>."),
+    disease_family: List[str] = Query(default=None, description=global_data_dictionary['disease_family']['description']),
+    disease: List[str] = Query(default=None, description=global_data_dictionary['disease']['description']),
+    icd_9: List[str] = Query(default=None, description=global_data_dictionary['icd_9']['description']),
+    icd_7: List[str] = Query(default=None, description=global_data_dictionary['icd_7']['description']),
+    disease_subclass: List[str] = Query(default=None, description=global_data_dictionary['disease_subclass']['description']),
+    icd_9_subclass: List[str] = Query(default=None, description=global_data_dictionary['icd_9_subclass']['description']),
+    icd_7_subclass: List[str] = Query(default=None, description=global_data_dictionary['icd_7_subclass']['description']),
     lower_age: List[str] = Query(
-        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+        default=None, description=f"{global_data_dictionary['lower_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     upper_age: List[str] = Query(
-        default=None, description="The first item must either be a number interval of the form {min}-{max} or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+        default=None, description=f"{global_data_dictionary['upper_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     sex: List[str] = Query(default=None),
-    cases_this_period: List[str] = Query(default=None),
-    cases_prev_period: List[str] = Query(default=None),
-    cases_cum_report_year: List[str] = Query(default=None),
-    cases_cum_prev_year: List[str] = Query(default=None),
-    cases_median_prev_5_years: List[str] = Query(default=None),
-    cases_cum_median_prev_5_years: List[str] = Query(default=None),
-    population: List[str] = Query(default=None),
-    cause: List[str] = Query(default=None)
+    cases_this_period: List[str] = Query(default=None, description=f"{global_data_dictionary['cases_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    cases_prev_period: List[str] = Query(default=None, description=f"{global_data_dictionary['cases_prev_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    cases_cum_report_year: List[str] = Query(default=None, description=f"{global_data_dictionary['cases_cum_report_year']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    cases_cum_prev_year: List[str] = Query(default=None, description=global_data_dictionary['cases_cum_prev_year']['description']),
+    cases_median_prev_5_years: List[str] = Query(default=None, description=f"{global_data_dictionary['cases_median_prev_5_years']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    cases_cum_median_prev_5_years: List[str] = Query(default=None, description=f"{global_data_dictionary['cases_cum_median_prev_5_years']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    population: List[str] = Query(default=None, description=f"{global_data_dictionary['population']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    cause: List[str] = Query(default=None, description=global_data_dictionary['cause']['description']),
 ):
+    """
+    Get a csv containing data satisfying filters provided by the user.
+    """
     if resource_type not in get_resource_types():
         raise HTTPException(
             status_code=400, detail=f"'{resource_type}' is not a valid resource_type. Available values are {get_resource_types()}")
@@ -455,7 +485,7 @@ async def filter(
 
     # Get list of datasets of the specific resource type
     dataset_list = get_dataset_list(clear_cache=False)
-    
+
     # Filter to include only the datasets of the correct resource type
     dataset_list = jq(
         f'map_values(select(. != "No metadata.") | select(.resourceType .resourceType == "{resource_type}")) | . |=  keys').transform(dataset_list)

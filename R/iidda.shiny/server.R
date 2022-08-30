@@ -301,7 +301,7 @@ server <- function(input, output) {
   output$download_combined_datasets <- downloadHandler(
     filename = function(){"combined_datasets.csv"}, 
     content = function(fname){
-      write.csv(data(), fname)
+      write.csv(data(), fname, na="", row.names=FALSE)
     }
   )
   
@@ -363,7 +363,7 @@ server <- function(input, output) {
   output$download_filtered_data <- downloadHandler(
     filename = function(){"filtered_data.csv"}, 
     content = function(fname){
-      write.csv(filtered_data(), fname)
+      write.csv(filtered_data(), fname,na="", row.names=FALSE)
     }
   )
   
