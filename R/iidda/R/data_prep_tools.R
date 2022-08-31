@@ -85,9 +85,7 @@ write_tidy_data = function(tidy_data, metadata) {
 #' @export
 read_tidy_data = function(tidy_data_path) {
 
-  #stop("I am broken ... please fix me")
-
-  path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
+  path_tidy_file = list.files(tidy_data_path, pattern = "\\.csv.*", full.names = TRUE)
   valid_metadata_types = c(
     "data_dictionary",
     "csv_dialect",
@@ -95,14 +93,14 @@ read_tidy_data = function(tidy_data_path) {
   )
 
   path_meta_file = grep(
-    list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE),
+    list.files(tidy_data_path, pattern = "\\.json.*", full.names = TRUE),
     pattern = "\\_csv_dialect.json|\\_data_dictionary.json|\\_columns.json",
     invert = TRUE,
     value = TRUE
   )
-  path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
-  path_dial_file = list.files(tidy_data_path, pattern="\\_csv_dialect.json.*", full.names = TRUE)
-  path_col_file = list.files(tidy_data_path, pattern="\\_columns.json.*", full.names = TRUE)
+  path_dict_file = list.files(tidy_data_path, pattern = "\\_data_dictionary.json.*", full.names = TRUE)
+  path_dial_file = list.files(tidy_data_path, pattern = "\\_csv_dialect.json.*", full.names = TRUE)
+  path_col_file = list.files(tidy_data_path, pattern = "\\_columns.json.*", full.names = TRUE)
   data_dictionary = (path_dict_file
                      %>% read_json()
   )

@@ -1,6 +1,6 @@
 #' @export
 read_tracking_tables = function(path) {
-  valid_colnames = c("disease_family", "disease", "disease_subclass", "icd_7", "icd_9",
+  valid_colnames = c("access_script", "disease_family", "disease", "disease_subclass", "icd_7", "icd_9",
     "icd_7_subclass", "icd_9_subclass", "disease_level", "column",
     "title", "type", "format", "description", "pattern", "organization",
     "name", "email", "Notes", "data_enterer", "digitized", "path_digitized_data",
@@ -25,37 +25,109 @@ filter_dependencies = function(tidy_dataset, tracking_table, dependencies_table)
 
 }
 
+#' @param original_format should the original tracking table format be used?
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr filter mutate relocate select semi_join left_join right_join
 #' @importFrom tibble column_to_rownames remove_rownames
 #' @export
-get_tracking_metadata = function(tidy_dataset, digitization, tracking_path) {
+get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, original_format = TRUE) {
   current_tidy_dataset = tidy_dataset
   current_digitization = digitization
-  d = read_tracking_tables(tracking_path)
 
-  metadata = list(
-    TidyDataset = (d$TidyDatasets
-                   %>% filter(tidy_dataset == current_tidy_dataset)
-    ),
-    Digitization = (d$Digitizations
-                    %>% filter(digitization == current_digitization)
-    ),
-    Source = (d$Originals
-              %>% filter(digitization == current_digitization)
-              %>% semi_join(x = d$Sources, by = "source")
-    ),
-    Originals = (d$Originals
-                 %>% filter(digitization == current_digitization)
-                 %>% mutate(original = basename(path_original_data))
-                 %>% relocate(original, .before = source)
-    ),
-    # deleted reference to tables.csv, move info from tables.csv to tidydataset.csv
-    Columns = (d$Schema
-               %>% filter(tidy_dataset == current_tidy_dataset)
-               %>% left_join(d$Columns, by = "column")
+  if (!original_format) {
+    paths = file.path(tracking_path, list.files(tracking_path, pattern = '.csv'))
+    d = (paths
+      %>% lapply(read.csv, check.names = FALSE)
+      %>% setNames(tools::file_path_sans_ext(basename(paths)))
+      #%>% lapply(function(x) select(x, any_of(valid_colnames)))
+      #%>% lapply(drop_empty_cols)
+      %>% lapply(drop_empty_rows)
     )
-  )
+    lookup_tidy_dataset = data.frame(tidy_dataset = current_tidy_dataset)
+    lookup_digitization = data.frame(digitization = current_digitization)
+    dependency_re = "^([A-Z]{1}[a-z]*)Dependencies$"
+    dep_files = grep(dependency_re, names(d), value = TRUE)
+    dep_id = sub(dependency_re, "\\1", dep_files)
+    source_file_re = sprintf("^%s.*(?<!Dependencies)$", dep_id)
+    source_files = vapply(
+      source_file_re,
+      grep,
+      character(1L),
+      names(d),
+      value = TRUE, perl = TRUE, USE.NAMES = FALSE
+    )
+
+    filtered_tidy_datasets = semi_join(
+      d$TidyDatasets,
+      lookup_tidy_dataset,
+      by = "tidy_dataset"
+    )
+    filtered_dependencies = mapply(
+      semi_join,
+      d[dep_files],
+      MoreArgs = list(
+        y = lookup_tidy_dataset,
+        by = "tidy_dataset"
+      ),
+      SIMPLIFY = FALSE,
+      USE.NAMES = TRUE
+    )
+    filtered_source_files = mapply(
+      semi_join,
+      d[source_files],
+      filtered_dependencies
+    )
+    filtered_digitizations = semi_join(
+      d$Digitizations,
+      lookup_digitization,
+      "digitization"
+    )
+    filtered_source_info = semi_join(
+      d$Sources,
+      filtered_digitizations,
+      "source"
+    )
+    filtered_columns = (d$Schema
+       %>% filter(tidy_dataset == current_tidy_dataset)
+       %>% left_join(d$Columns, by = "column")
+    )
+
+    metadata = list(
+      TidyDataset = filtered_tidy_datasets,
+      Digitization = filtered_source_files$Digitizations,
+      Source = filtered_source_info,
+      Originals = rename(filtered_source_files$Scans, original = scan),
+      Columns = filtered_columns
+    )
+
+  } else {
+
+    d = read_tracking_tables(tracking_path)
+
+    metadata = list(
+      TidyDataset = (d$TidyDatasets
+                     %>% filter(tidy_dataset == current_tidy_dataset)
+      ),
+      Digitization = (d$Digitizations
+                      %>% filter(digitization == current_digitization)
+      ),
+      Source = (d$Originals
+                %>% filter(digitization == current_digitization)
+                %>% semi_join(x = d$Sources, by = "source")
+      ),
+      Originals = (d$Originals
+                   %>% filter(digitization == current_digitization)
+                   %>% mutate(original = basename(path_original_data))
+                   %>% relocate(original, .before = source)
+      ),
+      # deleted reference to tables.csv, move info from tables.csv to tidydataset.csv
+      Columns = (d$Schema
+                 %>% filter(tidy_dataset == current_tidy_dataset)
+                 %>% left_join(d$Columns, by = "column")
+      )
+    )
+  }
+
   metadata$Columns = (metadata$Columns
                       %>% split(metadata$Columns$tidy_dataset)
                       %>% lapply(remove_rownames)
@@ -64,17 +136,17 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path) {
   metadata$Originals = split(metadata$Originals, metadata$Originals$original)
 
   metadata$Characteristics = (metadata$Originals
-                              %>% bind_rows
-                              %>% summarise(
-                                type = summarise_strings(type),
-                                disease = summarise_strings(disease),
-                                location = summarise_strings(type),
-                                years = summarise_integers(years),
-                                dates = summarise_dates(start_date, end_date),
-                                frequency = summarise_strings(frequency),
-                                breakdown = summarise_strings(breakdown)
-                              )
-                              %>% as.list
+    %>% bind_rows
+    %>% summarise(
+      type = summarise_strings(type),
+      disease = summarise_strings(disease),
+      location = summarise_strings(type),
+      years = summarise_integers(years),
+      dates = summarise_dates(start_date, end_date),
+      frequency = summarise_strings(frequency),
+      breakdown = summarise_strings(breakdown)
+    )
+    %>% as.list
   )
   metadata
 }
