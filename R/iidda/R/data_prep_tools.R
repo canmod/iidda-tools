@@ -329,24 +329,20 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
   )
 }
 
-#' Split Tidy Data
+#' Identify Scales
 #'
-#' Creates 6 tidy data sets with no duplicate data, broken down by available time-series scales
-#' (week, month, quarter, year) and by Province/Canada.
+#' Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset. 
 #' @export
-split_tidy_data = function(tidy_data){
+identify_scales = function(tidy_data){
   (tidy_data
-   %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
-   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
-   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
-   %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
-   %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
-   %>% select(-is_canada, -period)
-   %>% split(.$splitting_column)
+   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", period))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", period))
+   %>% mutate(location_scale = ifelse(location == "Canada" | location == "CANADA", "can", "prov"))
   )
 }
 
-# Another version:
+# Previouse split tidy data version:
 # split_data = function(tidy_data){
 #   (tidy_data
 #    %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6 | period_end_date == as.Date(period_start_date) +7, "wk", "mt"))
