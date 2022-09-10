@@ -85,9 +85,7 @@ write_tidy_data = function(tidy_data, metadata) {
 #' @export
 read_tidy_data = function(tidy_data_path) {
 
-  #stop("I am broken ... please fix me")
-
-  path_tidy_file = list.files(tidy_data_path, pattern="\\.csv.*", full.names = TRUE)
+  path_tidy_file = list.files(tidy_data_path, pattern = "\\.csv.*", full.names = TRUE)
   valid_metadata_types = c(
     "data_dictionary",
     "csv_dialect",
@@ -95,14 +93,14 @@ read_tidy_data = function(tidy_data_path) {
   )
 
   path_meta_file = grep(
-    list.files(tidy_data_path, pattern ="\\.json.*", full.names = TRUE),
+    list.files(tidy_data_path, pattern = "\\.json.*", full.names = TRUE),
     pattern = "\\_csv_dialect.json|\\_data_dictionary.json|\\_columns.json",
     invert = TRUE,
     value = TRUE
   )
-  path_dict_file = list.files(tidy_data_path, pattern="\\_data_dictionary.json.*", full.names = TRUE)
-  path_dial_file = list.files(tidy_data_path, pattern="\\_csv_dialect.json.*", full.names = TRUE)
-  path_col_file = list.files(tidy_data_path, pattern="\\_columns.json.*", full.names = TRUE)
+  path_dict_file = list.files(tidy_data_path, pattern = "\\_data_dictionary.json.*", full.names = TRUE)
+  path_dial_file = list.files(tidy_data_path, pattern = "\\_csv_dialect.json.*", full.names = TRUE)
+  path_col_file = list.files(tidy_data_path, pattern = "\\_columns.json.*", full.names = TRUE)
   data_dictionary = (path_dict_file
                      %>% read_json()
   )
@@ -331,24 +329,20 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
   )
 }
 
-#' Split Tidy Data
+#' Identify Scales
 #'
-#' Creates 6 tidy data sets with no duplicate data, broken down by available time-series scales
-#' (week, month, quarter, year) and by Province/Canada.
+#' Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset. 
 #' @export
-split_tidy_data = function(tidy_data){
+identify_scales = function(tidy_data){
   (tidy_data
-   %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
-   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
-   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
-   %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
-   %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
-   %>% select(-is_canada, -period)
-   %>% split(.$splitting_column)
+   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", time_scale))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
+   %>% mutate(location_scale = ifelse(location == "Canada" | location == "CANADA", "can", "prov"))
   )
 }
 
-# Another version:
+# Previouse split tidy data version:
 # split_data = function(tidy_data){
 #   (tidy_data
 #    %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6 | period_end_date == as.Date(period_start_date) +7, "wk", "mt"))

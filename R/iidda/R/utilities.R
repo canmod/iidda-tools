@@ -18,3 +18,4 @@ open_locally = function(blob_github_url, command = 'open', args = character()) {
    %>% system2(command = command, stdout = FALSE)
   )
 }
+
