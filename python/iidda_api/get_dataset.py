@@ -61,5 +61,6 @@ async def get_dataset(dataset_name, version):
         if asset['name'] == dataset_name + '.csv':
             async with CachedSession(cache=assets_cache) as session:
                 async with session.get(asset['url'], headers=headers) as response:
+                    print(asset['url'])
                     file_content = await response.read()
                     return BytesIO(file_content)

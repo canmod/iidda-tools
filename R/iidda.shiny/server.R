@@ -49,12 +49,27 @@ server <- function(input, output) {
     response_type = "metadata",
     jq_query = sprintf(
       'map_values(select(. != "No metadata." and .resourceType .resourceType == "%s") ) | keys',
+      input$data_type
+    )
+  ))
+  
+  filter_datasets <- reactive(iidda.api::ops$metadata(
+    response_type = "metadata",
+    jq_query = sprintf(
+      'map_values(select(. != "No metadata." and .resourceType .resourceType == "%s") ) | keys',
       input$data_filter_type
     )
   ))
   
   data_dictionary <- reactive(
     iidda.api::ops$metadata(response_type = "data_dictionary", dataset_ids = datasets()) %>%   unlist(recursive = FALSE) %>%
+      unname %>%
+      unique %>%
+      na.omit
+  )
+  
+  filter_data_dictionary <- reactive(
+    iidda.api::ops$metadata(response_type = "data_dictionary", dataset_ids = filter_datasets()) %>%   unlist(recursive = FALSE) %>%
       unname %>%
       unique %>%
       na.omit
@@ -105,8 +120,8 @@ server <- function(input, output) {
   )
   output$column_filters = renderUI({
     columns <-
-      iidda.api::ops$metadata(response_type = "columns", dataset_ids = datasets())
-    lapply(data_dictionary(), function(x) {
+      iidda.api::ops$metadata(response_type = "columns", dataset_ids = filter_datasets())
+    lapply(filter_data_dictionary(), function(x) {
       if (x$type == "string" && x$format == "default") {
         tags$div(title=x$description,
                  selectizeInput(
@@ -129,9 +144,9 @@ server <- function(input, output) {
                    label = x$title,
                    start = NA,
                    end = NA,
-                   min = NULL,
+                   min = "1924-09-24",
                    
-                   max = NULL,
+                   max = "1956-09-24",
                    format = "yyyy-mm-dd",
                    startview = "month",
                    weekstart = 0,
@@ -228,11 +243,11 @@ server <- function(input, output) {
   })
   
   output$data_filter_table = renderDT({
-    data_dictionary_names <- lapply(data_dictionary(), function(x) {
+    data_dictionary_names <- lapply(filter_data_dictionary(), function(x) {
       x$name
     })
     
-    data_dictionary <- lapply(data_dictionary(), function(x) {
+    data_dictionary <- lapply(filter_data_dictionary(), function(x) {
       list(x$title, x$description)
     })
     

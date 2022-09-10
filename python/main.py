@@ -211,7 +211,7 @@ async def raw_csv(
             raise HTTPException(status_code=400, detail=error_list)
         else:
             merged_csv = pd.concat(
-                map(pd.read_csv, csv_list), ignore_index=True)
+                map(lambda x: pd.read_csv(x, dtype=str), csv_list), ignore_index=True)
             write_stats(endpoint="/raw_csv", datasets=dataset_list)
             return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
@@ -515,7 +515,7 @@ async def filter(
         csv_list = await asyncio.gather(*tasks)
 
         merged_csv = pd.concat(
-            map(pd.read_csv, csv_list), ignore_index=True)
+            map(lambda x: pd.read_csv(x, dtype=str), csv_list), ignore_index=True)
 
         # Create temporary columns for any num_missing columns that is being filtered
         if len(num_missing_columns) != 0:
