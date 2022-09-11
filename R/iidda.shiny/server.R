@@ -138,15 +138,23 @@ server <- function(input, output) {
                  )
         )
       } else if (x$type == "date") {
+        date_range <- columns %>%  
+          lapply(function(z) {
+            z[x$name]
+          }) %>% 
+          unlist(recursive = FALSE) %>% 
+          unname() %>% 
+          range(na.rm = FALSE)
+        
         tags$div(title=x$description,
                  dateRangeInput(
                    inputId = x$name,
                    label = x$title,
-                   start = NA,
-                   end = NA,
-                   min = "1924-09-24",
+                   start = date_range[1],
+                   end = date_range[2],
+                   min = date_range[1],
                    
-                   max = "1956-09-24",
+                   max = date_range[2],
                    format = "yyyy-mm-dd",
                    startview = "month",
                    weekstart = 0,
