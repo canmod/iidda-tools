@@ -25,6 +25,16 @@ filter_dependencies = function(tidy_dataset, tracking_table, dependencies_table)
 
 }
 
+#' Read Tracking Metadata
+#'
+#' Read in CSV files that contain the single-source-of-truth for metadata
+#' to be used in a data prep script.
+#'
+#' This function currently assumes that a single tidy dataset is being
+#' produced from a single digitized file.
+#'
+#' @param tidy_dataset key to the tidy dataset being produced by the script
+#' @param digitization key to the digitization being used by the script
 #' @param original_format should the original tracking table format be used?
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr filter mutate relocate select semi_join left_join right_join
