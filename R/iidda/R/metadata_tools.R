@@ -253,10 +253,10 @@ make_data_cite_tidy_data = function(metadata, file) {
   data_cite = list(
     # TODO: move this identifier down to alternateIdentifiers
     # https://github.com/canmod/iidda-tools/issues/8
-    identifiers = list(
+    identifiers = list(list(
       identifier = metadata$TidyDataset$path_tidy_data,
       identifierType = 'iidda_product'
-    ),
+    )),
     creators = list(
       list(
         # TODO: iidda@mcmaster.ca should be the contact
@@ -274,15 +274,15 @@ make_data_cite_tidy_data = function(metadata, file) {
     ),
     publisher = metadata$TidyDataset$publisher,
     publicationYear = metadata$TidyDataset$publicationYear,
-    subjects = NULL,
-    contributors = list(
+    subjects = list(),
+    contributors = list(list(
       # wish there was a better type than "Other", but this contributor
       # is intended to provide the organization from whom we obtained
       # the original source documents
       contributorType = "Other",
       name = metadata$Source$organization,
       nameType = "Organizational"
-    ),
+    )),
     language = 'en',
     types = list(
       resourceTypeGeneral = "Dataset",
@@ -290,7 +290,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     ),
     # TODO: move main identifier here once we get DOI's going
     # https://github.com/canmod/iidda-tools/issues/8
-    alternateIdentifiers = NULL,
+    alternateIdentifiers = list(),
     relatedIdentifiers = list(
       list(
         relatedIdentifier = metadata$Digitization$path_digitized_data,
@@ -303,7 +303,7 @@ make_data_cite_tidy_data = function(metadata, file) {
         relationType = "IsSourceOf"
       )
     ),
-    sizes = NULL,  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
+    sizes = list(),  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
     formats = list("csv"),
     version = metadata$TidyDataset$current_version,
     rightsList = list(
@@ -325,19 +325,19 @@ make_data_cite_tidy_data = function(metadata, file) {
         description = "This data set is a part of a systematic effort to make Canada's historical record of infectious diseases publicly and conveniently available. We are systematically contacting data stewards across Canada to access the disparate source documents that contain Canada's historical record of infectious diseases. We are making scans of these documents conveniently available for all. We are manually entering the information provided by these source documents into Excel spreadsheets, which we are making publicly available. The layout of these spreadsheets are identical to the originals, making it as easy as possible to compare the reproductions with the sources. We are producing reproducible automated processes for converting the digitized spreadsheets into tidy data structures. These tidy data structures contain all of the information in the original source documents, but are more convenient for analysis and discovery."
       )
     ),
-    dates = list(
+    dates = list(list(
       date = iso_8601_dateranges(
         metadata$TidyDataset$period_start_date,
         metadata$TidyDataset$period_end_date
       ),
-      dateType = "Collected"
-    ),
-    dateInformation = "Date ranges refer to the start and end dates of the historical period described by these data.",
-    fundingReferences = NULL,
-    geoLocations = list(
+      dateType = "Collected",
+      dateInformation = "Date ranges refer to the start and end dates of the historical period described by these data."
+    )),
+    fundingReferences = list(),
+    geoLocations = list(list(
       geoLocationPlace = metadata$Source$location
-    ),
-    schemaVersion = "4.3"
+    )),
+    schemaVersion = "http://datacite.org/schema/kernel-4"
   )
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
 }
