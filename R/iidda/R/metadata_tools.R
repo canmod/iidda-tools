@@ -253,7 +253,7 @@ make_data_cite_tidy_data = function(metadata, file) {
   data_cite = list(
     # TODO: move this identifier down to alternateIdentifiers
     # https://github.com/canmod/iidda-tools/issues/8
-    identifier = list(
+    identifiers = list(
       identifier = metadata$TidyDataset$path_tidy_data,
       identifierType = 'iidda_product'
     ),
@@ -262,7 +262,7 @@ make_data_cite_tidy_data = function(metadata, file) {
         # TODO: iidda@mcmaster.ca should be the contact
         # bouncing now -- send a message to sys admin
         # https://github.com/canmod/iidda-tools/issues/9
-        creatorName = "McMaster University Theo-Bio Lab",
+        name = "McMaster University Theo-Bio Lab",
         nameType = "Organizational"
       )
     ),
@@ -284,7 +284,7 @@ make_data_cite_tidy_data = function(metadata, file) {
       nameType = "Organizational"
     ),
     language = 'en',
-    resourceType = list(
+    types = list(
       resourceTypeGeneral = "Dataset",
       resourceType = lookup(metadata$Source$type, resource_type_dict)[[1L]]
     ),
@@ -336,7 +336,8 @@ make_data_cite_tidy_data = function(metadata, file) {
     fundingReferences = NULL,
     geoLocations = list(
       geoLocationPlace = metadata$Source$location
-    )
+    ),
+    schemaVersion = "4.3"
   )
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
 }
