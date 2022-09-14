@@ -292,10 +292,10 @@ make_data_cite_tidy_data = function(metadata, file) {
     # https://github.com/canmod/iidda-tools/issues/8
     alternateIdentifiers = list(),
     relatedIdentifiers = lapply(
-      c(
+      unname(c(
         metadata$Digitization$path_digitized_data,
         sapply(metadata$Originals,`[[`,'path_original_data')
-      ),
+      )),
       function(x) {
         list(
           relatedIdentifier = x,
