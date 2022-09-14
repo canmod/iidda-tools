@@ -291,17 +291,18 @@ make_data_cite_tidy_data = function(metadata, file) {
     # TODO: move main identifier here once we get DOI's going
     # https://github.com/canmod/iidda-tools/issues/8
     alternateIdentifiers = list(),
-    relatedIdentifiers = list(
-      list(
-        relatedIdentifier = metadata$Digitization$path_digitized_data,
-        relatedIdentifierType = "URL",
-        relationType = "IsSourceOf"
+    relatedIdentifiers = lapply(
+      c(
+        metadata$Digitization$path_digitized_data,
+        sapply(metadata$Originals,`[[`,'path_original_data')
       ),
-      list(
-        relatedIdentifier = sapply(metadata$Originals,`[[`,'path_original_data'),
-        relatedIdentifierType = "URL",
-        relationType = "IsSourceOf"
-      )
+      function(x) {
+        list(
+          relatedIdentifier = x,
+          relatedIdentifierType = "URL",
+          relationType = "IsSourceOf"
+        )
+      }
     ),
     sizes = list(),  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
     formats = list("csv"),
