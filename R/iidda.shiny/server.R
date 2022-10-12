@@ -48,7 +48,7 @@ server <- function(input, output) {
   datasets <- reactive(iidda.api::ops$metadata(
     response_type = "metadata",
     jq_query = sprintf(
-      'map_values(select(. != "No metadata." and .resourceType .resourceType == "%s") ) | keys',
+      'map_values(select(. != "No metadata." and .types .resourceType == "%s") ) | keys',
       input$data_type
     )
   ))
@@ -56,7 +56,7 @@ server <- function(input, output) {
   filter_datasets <- reactive(iidda.api::ops$metadata(
     response_type = "metadata",
     jq_query = sprintf(
-      'map_values(select(. != "No metadata." and .resourceType .resourceType == "%s") ) | keys',
+      'map_values(select(. != "No metadata." and .types .resourceType == "%s") ) | keys',
       input$data_filter_type
     )
   ))
