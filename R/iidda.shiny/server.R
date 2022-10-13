@@ -37,7 +37,7 @@ downloadMenuServer <- function(id, datasets, action_button_id, data) {
 
 server <- function(input, output) {
   data <- eventReactive(input$select_data, {
-    response <- iidda.api::ops$raw_csv(input$dataset_name)
+    response <- iidda.api::ops$raw_csv(dataset_ids = input$dataset_name)
     if(is.data.frame(response)) {
       response
     } else {
@@ -166,7 +166,8 @@ server <- function(input, output) {
       } else if (x$format == "num_missing") {
         range_of_values = columns %>%
           lapply(function(z) {
-            z[[x$name]][['range']]
+            range = z[[x$name]][['range']]
+            range[lengths(range) != 0]
           }) %>%
           unlist(recursive = FALSE) %>%
           unname %>%
@@ -222,7 +223,6 @@ server <- function(input, output) {
   output$data_table = renderDT({
     data_dictionary <-
       iidda.api::ops$metadata(
-        dataset_ids = isolate(input$dataset_name),
         response_type = "data_dictionary",
         jq_query = '[.[] | select(. != "No metadata.") | .[] | {(.name) : [(.title), (.description)]} ] | unique | add'
       )

@@ -54,24 +54,27 @@ def generate_hash_signature(
 
 
 def dataset_list_search(
-    key, metadata_search, jq_query, string_comparison, response_type="metadata"
-):
-    data = get_dataset_list(clear_cache=False, response_type=response_type)
-    if (key is None or metadata_search is None) and jq_query is None:
-        raise HTTPException(
-            status_code=400, detail="There are three ways to filter datasets; they cannot be used in conjunction. 1. Provide values for metadata_search, key, and string_comparison, 2. Explicitly provide dataset_ids, 3. Provide a value for jq_query.")
-    elif jq_query is not None:
-        return jq(f'{jq_query} | keys').transform(data)
-    elif key is not None and metadata_search is not None:
-        if string_comparison == "Contains":
-            string_comparison = f'contains("{metadata_search}")'
-        elif string_comparison == None or string_comparison == "Equals":
-            string_comparison = f'. == "{metadata_search}"'
+    dataset_ids, key, metadata_search, jq_query, string_comparison, response_type="metadata"
+): 
+    if dataset_ids is not None:
+        return dataset_ids
+    else:
+        data = get_dataset_list(clear_cache=False, response_type=response_type)
+        if (key is None or metadata_search is None) and jq_query is None:
+            raise HTTPException(
+                status_code=400, detail="There are three ways to filter datasets; they cannot be used in conjunction. 1. Provide values for metadata_search, key, and string_comparison, 2. Explicitly provide dataset_ids, 3. Provide a value for jq_query.")
+        elif jq_query is not None:
+            return jq(f'{jq_query} | keys').transform(data)
+        elif key is not None and metadata_search is not None:
+            if string_comparison == "Contains":
+                string_comparison = f'contains("{metadata_search}")'
+            elif string_comparison == None or string_comparison == "Equals":
+                string_comparison = f'. == "{metadata_search}"'
 
-        keys = key.split(" ")
-        if len(keys) > 1:
-            return jq(
-                f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys').transform(data)
+            keys = key.split(" ")
+            if len(keys) > 1:
+                return jq(
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys').transform(data)
         else:
             return jq(
                 f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
@@ -117,11 +120,11 @@ async def metadata(
         except:
             raise HTTPException(
                 status_code=400, detail="Something went wrong. Make sure the jq_query value returns data in the correct format.")
-    elif (key is None or metadata_search is None) and jq_query is None:
+    elif (key is None or metadata_search is None) and jq_query is None and dataset_ids is None:
         return get_dataset_list(clear_cache=False, response_type=response_type)
 
     dataset_list = dataset_list_search(
-        key, metadata_search, None, string_comparison)
+        dataset_ids, key, metadata_search, None, string_comparison)
 
     return get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
 
@@ -154,11 +157,8 @@ async def raw_csv(
     """
     # Defining list of datasets to download
     data = get_dataset_list(clear_cache=False)
-    if dataset_ids != None:
-        dataset_list = dataset_ids
-    else:
-        dataset_list = dataset_list_search(
-            key, metadata_search, jq_query, string_comparison)
+    dataset_list = dataset_list_search(
+        dataset_ids, key, metadata_search, jq_query, string_comparison)
 
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
@@ -255,11 +255,8 @@ async def download(
 
     # Defining list of datasets to download
     data = get_dataset_list(clear_cache=False)
-    if dataset_ids != None:
-        dataset_list = dataset_ids
-    else:
-        dataset_list = dataset_list_search(
-            key, metadata_search, jq_query, string_comparison)
+    dataset_list = dataset_list_search(
+        dataset_ids, key, metadata_search, jq_query, string_comparison)
 
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
