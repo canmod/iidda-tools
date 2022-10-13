@@ -32,7 +32,7 @@ The API can be used in a few ways.
 
 ### Using the Deployed Version
 
-We are working to get https://davidearn.mcmaster.ca/iidda/ back up as a deployed version of the API in this repository. It is not currently up.
+We are working to get https://davidearn.mcmaster.ca/iidda/ back up as a deployed version of the API in this repository. It is not currently up 😢.
 
 ### Using the Development Version
 
