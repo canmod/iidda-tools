@@ -14,7 +14,7 @@ def config_path():
     return path
 
 
-def generate_config(token, repository, webhook_secret):
+def generate_config(token, repository="canmod/iidda-test-assets", webhook_secret=""):
     # defining structure of the file
     config = configparser.ConfigParser()
     config.add_section('github_info')

@@ -69,6 +69,3 @@ def write_stats(endpoint, datasets=None, repo=read_config('repository')):
 
     with open(stats_path(), 'w+') as file:
         json.dump(stats, file, indent=4)
-    
-
-

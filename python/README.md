@@ -1,22 +1,32 @@
 # IIDDA Python Packages
 
-## Installation
+## Development Environment Installation and Setup :computer:
 
+* Make sure that Python 3.8 or higher is installed and being used (see `python --version`)
 * Navigate to the `python` directory
-* Execute `pip install -r requirements.txt`
-* Execute `pip install .`
-* To generate a config file, import the `generate_config` function from `iidda_api` and pass a Github access token and repository (in the form `{user}/{repository}`) into the function (parameters in the form `(token, repository)`). This will generate a `config.ini` file on your computer.
-* You can update the configuration simply by re-generating the configuration file.
-* Execute `uvicorn main:app`. Open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) in a browser.
+* Optional: establish a Python virtual environment for this repo -- for example
+  * (one-time) make a virtual environment with something like this `/usr/local/anaconda3/bin/python -m venv venv` (here I'm pointing explicitly to the python that I want)
+  * (every-time) then activate the virtual environment with this `source venv/bin/activate`
+* (whenever package dependencies change) Execute `pip install -r requirements.txt`
+* (whenever `iidda_api` package changes) Execute `pip install .` to install the `iidda_api` package (and potentially others)
+* (whenever your GitHub personal access tokens expire) Start a Python process and do the following:
+```
+from iidda_api import generate_config
+generate_config(token="TOKEN", repository="canmod/iidda-test-assets")
+```
+  * You can get your personal access token [here](https://github.com/settings/tokens)
+  * In the future we likely will modify the repository containing the data and so the second argument may also need changing (in the form `{user}/{repository}`)
+  * To find the location of your config file do the following
+```
+from iidda_api import config_path
+config_path()
+```
+  * You can update the configuration simply by re-generating the configuration file, or you can edit this config file directly instead of re-generating it
 
 **Note:**
 If the `uvloop` package is installed on your computer, you may get the error: `ValueError: Can't patch loop of type <class 'uvloop.Loop’>`. Simply uninstall the `uvloop` package to fix this error.
 
 ## Usage
 
-* The `/resource` endpoint has the following options for the `response_type` parameter:
-    * `github_url`: returns a JSON object containing the GitHub URL to the release.
-    * `raw_csv`: returns the raw CSV file of the dataset (if multiple datasets were selected, then it will return a combined dataset if they are all of the same type) which can then be used in functions like `read.csv()` in R. Note that this will not work in the Swagger UI but only as a URL (for example, [http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv](http://127.0.0.1:8000/datasets/cdi_ca_1957_wk_prov_dbs?response_type=raw_csv))
-    * `metadata`: returns the content inside the `{dataset_name}.json` asset.
-    * `csv_dialect`: returns the content inside the `{dataset_name}_csv_dialect.json` asset.
-    * `data_dictionary`: returns the content inside the `{dataset_name}_data_dictionary.json` asset.
+* From a terminal in the `python` directory, execute `uvicorn main:app`
+* If all goes well, open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) in a browser, which will reveal interactive documentation
