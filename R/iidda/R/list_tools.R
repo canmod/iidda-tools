@@ -20,7 +20,7 @@ get_with_key = function(l, key, pattern, ...) {
              %>% sapply(grepl, pattern = pattern, ...)
              %>% which
   )
-  stopifnot(length(indices) > 0L)
+  #stopifnot(length(indices) > 0L)
   l[indices]
 }
 
@@ -86,6 +86,14 @@ extract_or_blank = function(l, e) {
   le = l[[e]]
   if (is.null(le)) return(list())
   le
+}
+
+#' @export
+extract_char_or_blank = function(l, e) {
+  if (!is.recursive(l)) return("")
+  le = l[[e]]
+  if (is.null(le)) return("")
+  as.character(le)
 }
 
 #' @export

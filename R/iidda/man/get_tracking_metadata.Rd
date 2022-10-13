@@ -8,7 +8,8 @@ get_tracking_metadata(
   tidy_dataset,
   digitization,
   tracking_path,
-  original_format = TRUE
+  original_format = TRUE,
+  for_lbom = FALSE
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ get_tracking_metadata(
 \item{digitization}{key to the digitization being used by the script}
 
 \item{original_format}{should the original tracking table format be used?}
+
+\item{for_lbom}{are these data being read for the LBoM repo?}
 }
 \description{
 Read in CSV files that contain the single-source-of-truth for metadata

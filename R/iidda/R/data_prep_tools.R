@@ -8,7 +8,7 @@ write_tidy_data = function(tidy_data, metadata) {
   tidy_dataset = metadata$TidyDataset$tidy_dataset
 
   tidy_dir = strip_blob_github(metadata$TidyDataset$path_tidy_data)
-  if(!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
+  if (!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
 
   tidy_file = file.path(tidy_dir, tidy_dataset %.% 'csv')
   meta_file = file.path(tidy_dir, tidy_dataset %.% 'json')
@@ -19,22 +19,21 @@ write_tidy_data = function(tidy_data, metadata) {
   files = nlist(tidy_file, meta_file, dict_file, dial_file, col_file)
 
   make_data_cite_tidy_data(metadata, meta_file)
-  global_dictionary = ('iidda_global_data_dictionary'
-   %>% getOption
-   %>% blob_to_raw
-   %>% read_json
-  )
-  local_dictionary = (metadata
-                      %>% getElement('Columns')
-                      %>% getElement(metadata$TidyDataset$tidy_dataset)
-                      %>% rownames
-                      %>% or_pattern
-                      %>% get_with_key(l = global_dictionary, key = 'name')
-  )
-  write_json(local_dictionary, dict_file, pretty = TRUE, auto_unbox = TRUE)
-  columns_file = (metadata
-                      %>% getElement('ColumnSummary')
-  )
+  # global_dictionary = ('iidda_global_data_dictionary'
+  #  %>% getOption
+  #  %>% blob_to_raw
+  #  %>% read_json
+  # )
+  # local_dictionary = (metadata
+  #   %>% getElement('Columns')
+  #   %>% getElement(metadata$TidyDataset$tidy_dataset)
+  #   %>% rownames
+  #   %>% or_pattern
+  #   %>% get_with_key(l = global_dictionary, key = 'name')
+  # )
+  local_dictionary = write_local_data_dictionaries(metadata, dict_file)
+  #write_json(local_dictionary, dict_file, pretty = TRUE, auto_unbox = TRUE)
+  columns_file = getElement(metadata, 'ColumnSummary')
   write_json(columns_file, col_file, pretty = TRUE, auto_unbox = TRUE)
   .trash = list(
     dialect = list(
@@ -53,9 +52,11 @@ write_tidy_data = function(tidy_data, metadata) {
 
   check_metadata_cols(tidy_data, metadata)
 
-  .trash = ('iidda_global_data_dictionary'
-            %>% getOption
-            %>% blob_to_raw
+  .trash = #('iidda_global_data_dictionary'
+            #%>% getOption
+            #%>% blob_to_raw
+            #%>% read_json
+          (dict_file
             %>% read_json
             %>% key_val('name', 'type')
             %>% get_elements(colnames(tidy_data))
@@ -63,16 +64,16 @@ write_tidy_data = function(tidy_data, metadata) {
             %>% lookup(col_classes_dict)
             %>% set_types(data = tidy_data)
             %>% write.table(tidy_file,
-                            # CSV Dialect Translation
-                            sep = ',',              # delimiter
-                            eol = '\r\n',           # lineTerminator
-                            qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
-                            na = "",                # nullSequence=""
-                            col.names = TRUE,       # header=true
-                            # skipInitialSpace=false
-                            # commentChar='#'
-                            # caseSensitiveHeader=true
-                            row.names = FALSE
+              # CSV Dialect Translation
+              sep = ',',              # delimiter
+              eol = '\r\n',           # lineTerminator
+              qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
+              na = "",                # nullSequence=""
+              col.names = TRUE,       # header=true
+              # skipInitialSpace=false
+              # commentChar='#'
+              # caseSensitiveHeader=true
+              row.names = FALSE
             )
   )
   return(files)
@@ -207,7 +208,7 @@ check_metadata_cols = function(tidy_data, metadata) {
   tidy_data_cols = colnames(tidy_data)
   tidy_data_diff = setdiff(tidy_data_cols, metadata_cols)
 
-  if(setequal(metadata_cols, tidy_data_cols) == FALSE) stop(paste("Metadata does not contain columns", tidy_data_diff, "from tidy data", collapse = ' '))
+  if(setequal(metadata_cols, tidy_data_cols) == FALSE) stop(paste("Metadata does not contain columns", tidy_data_diff, "from tidy data", collapse = '\n'))
 
   if(any(colSums(!is.na(tidy_data)) == 0)) stop(paste(names(tidy_data)[sapply(tidy_data, function(x) sum(is.na(x)) == length(x))], "is missing all values", collapse = ' '))
 }
@@ -305,13 +306,15 @@ schema_check = function(table, metadata) {
   stop('work in progress')
 }
 
+#' @importFrom tidyxl xlsx_cells
 #' @export
-read_digitized_data = function (metadata) {
+read_digitized_data = function(metadata) {
   path = strip_blob_github(metadata$Digitization$path_digitized_data)
   read_func = switch(
     tools::file_ext(path),
     xlsx = xlsx_cells,
-    csv = read.csv
+    csv = read.csv,
+    rds = readRDS
   )
   read_func(path)
 }
@@ -331,7 +334,7 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 
 #' Identify Scales
 #'
-#' Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset. 
+#' Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset.
 #' @export
 identify_scales = function(tidy_data){
   (tidy_data

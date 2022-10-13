@@ -9,7 +9,7 @@ read_tracking_tables = function(path) {
     "notes", "source", "years", "start_date", "end_date", "frequency",
     "breakdown", "urls", "date_of_url_access", "tidy_dataset", "path_prep_script",
     "path_tidy_data", "publisher", "publicationYear", "current_version",
-    "staging_url_prefix"
+    "staging_url_prefix", "scan", "access_script", "prep_script"
   )
   paths = file.path(path, list.files(path, pattern = '.csv'))
   (paths
@@ -19,10 +19,6 @@ read_tracking_tables = function(path) {
     #%>% lapply(drop_empty_cols)
     %>% lapply(drop_empty_rows)
   )
-}
-
-filter_dependencies = function(tidy_dataset, tracking_table, dependencies_table) {
-
 }
 
 #' Read Tracking Metadata
@@ -36,18 +32,19 @@ filter_dependencies = function(tidy_dataset, tracking_table, dependencies_table)
 #' @param tidy_dataset key to the tidy dataset being produced by the script
 #' @param digitization key to the digitization being used by the script
 #' @param original_format should the original tracking table format be used?
+#' @param for_lbom are these data being read for the LBoM repo?
 #' @importFrom tidyr pivot_longer
-#' @importFrom dplyr filter mutate relocate select semi_join left_join right_join
+#' @importFrom dplyr filter mutate relocate select semi_join left_join right_join rename
 #' @importFrom tibble column_to_rownames remove_rownames
 #' @export
-get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, original_format = TRUE) {
+get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, original_format = TRUE, for_lbom = FALSE) {
   current_tidy_dataset = tidy_dataset
   current_digitization = digitization
 
   if (!original_format) {
     paths = file.path(tracking_path, list.files(tracking_path, pattern = '.csv'))
     d = (paths
-      %>% lapply(read.csv, check.names = FALSE)
+      %>% lapply(read.csv, check.names = FALSE, colClasses = "character")
       %>% setNames(tools::file_path_sans_ext(basename(paths)))
       #%>% lapply(function(x) select(x, any_of(valid_colnames)))
       #%>% lapply(drop_empty_cols)
@@ -82,10 +79,16 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
       SIMPLIFY = FALSE,
       USE.NAMES = TRUE
     )
+    dependency_keys = (filtered_dependencies
+      %>% lapply(names)
+      %>% lapply(getElement, 1L) ## require key to be in first column!!
+    )
+    # this mapply filter needs to be explicit about the 'by' argument
     filtered_source_files = mapply(
       semi_join,
       d[source_files],
-      filtered_dependencies
+      filtered_dependencies,
+      dependency_keys  # by keys
     )
     filtered_digitizations = semi_join(
       d$Digitizations,
@@ -106,8 +109,10 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
       TidyDataset = filtered_tidy_datasets,
       Digitization = filtered_source_files$Digitizations,
       Source = filtered_source_info,
-      Originals = rename(filtered_source_files$Scans, original = scan),
-      Columns = filtered_columns
+      Originals = rename(filtered_source_files$Scans, original = scan),  ## IsOriginalOf
+      Columns = filtered_columns,
+      PrepScript = filtered_source_files$PrepScripts,
+      AccessScripts = filtered_source_files$AccessScripts
     )
 
   } else {
@@ -139,25 +144,47 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
   }
 
   metadata$Columns = (metadata$Columns
-                      %>% split(metadata$Columns$tidy_dataset)
-                      %>% lapply(remove_rownames)
-                      %>% lapply(column_to_rownames, var = "column")
+    %>% split(metadata$Columns$tidy_dataset)
+    %>% lapply(remove_rownames)
+    %>% lapply(column_to_rownames, var = "column")
   )
-  metadata$Originals = split(metadata$Originals, metadata$Originals$original)
 
-  metadata$Characteristics = (metadata$Originals
-    %>% bind_rows
-    %>% summarise(
-      type = summarise_strings(type),
-      disease = summarise_strings(disease),
-      location = summarise_strings(type),
-      years = summarise_integers(years),
-      dates = summarise_dates(start_date, end_date),
-      frequency = summarise_strings(frequency),
-      breakdown = summarise_strings(breakdown)
+  if (nrow(metadata$Originals) > 0L) {
+    metadata$Originals = split(metadata$Originals, metadata$Originals$original)
+
+    ## are characteristics used anywhere? these are just causing problems, no?
+    metadata$Characteristics = (metadata$Originals
+      %>% bind_rows
+      %>% summarise(
+        type = summarise_strings(type),
+        disease = summarise_strings(disease),
+        location = summarise_strings(type),
+        years = summarise_integers(years),
+        dates = summarise_dates(start_date, end_date),
+        frequency = summarise_strings(frequency),
+        breakdown = summarise_strings(breakdown)
+      )
+      %>% as.list
     )
-    %>% as.list
-  )
+  } else {
+    metadata$Originals = list(metadata$Originals)
+  }
+  if (for_lbom) {
+    abs_path = metadata$Digitization$path_digitized_data
+    if (!is.null(abs_path)) {
+      if (length(abs_path) == 1L & is.character(abs_path)) {
+        metadata$lbom_info$relative_path = file.path(".", strip_blob_github(abs_path))
+      }
+    }
+    metadata$lbom_info$data_category = switch(
+      metadata$TidyDataset$type,
+      Mortality = "mortality",
+      ACM = "all-cause-mortality",
+      Births = "births",
+      Plague = "plague",
+      Population = "population"
+    )
+  }
   metadata
 }
 
@@ -213,6 +240,23 @@ check_tracking_tables = function(path) {
 }
 
 
+#' @importFrom tibble rownames_to_column
+#' @importFrom jsonlite write_json
+#' @export
+write_local_data_dictionaries = function(metadata, path) {
+  dictionary_data_frames = (metadata$Columns
+   %>% lapply(rownames_to_column, var = "name")
+   %>% lapply(select, -tidy_dataset)
+   # %>% lapply(toJSON, pretty = TRUE)
+   # %>% setNames(names(metadata$Columns))
+  )
+  if (length(dictionary_data_frames) != 1L) {
+    stop("cannot create data dictionary from more than one Columns data frame")
+  }
+  write_json(dictionary_data_frames[[1]], path, pretty = TRUE, auto_unbox = TRUE)
+}
+
+
 #' Add Metadata
 #'
 #' Add title and description metadata to a table and its columns.
@@ -239,6 +283,41 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
   table
 }
 
+make_related_identifier = function(
+    metadata,
+    relation_type = c("IsCompiledBy", "IsDerivedFrom", "References")
+  ) {
+
+  get_original_data_paths = function(metadata) {
+    path_vec = unlist_char_list(
+      lapply(metadata$Originals, `[[`, "path_original_data")
+    )
+    path_vec[!is_empty(path_vec)]
+  }
+
+  # From Table 9 in https://schema.datacite.org/meta/kernel-4.3/doc/DataCite-MetadataKernel_v4.3.pdf
+  # IsCompiledBy -- for prep scripts and access scripts -- Scripts
+  # IsDerivedFrom -- for digitizations -- Digitizations
+  # References -- for scans -- Originals
+  relation_type = match.arg(relation_type)
+  path_vec = switch(relation_type
+    , IsCompiledBy = c(
+      metadata$PrepScript$path_prep_script,
+      metadata$AccessScripts$path_access_script
+    )
+    , IsDerivedFrom = metadata$Digitization$path_digitized_data
+    , References = get_original_data_paths(metadata)
+  )
+  if (length(path_vec) == 0L) return(list())
+  listify_relation = function(x) list(
+    relatedIdentifier = x,
+    relatedIdentifierType = "URL",
+    relationType = relation_type
+  )
+  lapply(unname(path_vec), listify_relation)
+}
+
+
 
 #' Make DataCite JSON Metadata
 #'
@@ -247,6 +326,13 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
 #' @importFrom jsonlite write_json
 #' @export
 make_data_cite_tidy_data = function(metadata, file) {
+  # schema:
+  # https://github.com/datacite/schema/blob/master/source/json/kernel-4.3/datacite_4.3_schema.json
+
+  # From Table 9 in https://schema.datacite.org/meta/kernel-4.3/doc/DataCite-MetadataKernel_v4.3.pdf
+  # IsCompiledBy -- for prep scripts and access scripts
+  # IsDerivedFrom -- for digitizations
+  # References -- for scans
 
   # TODO: remove much of the hard-coding below
   # https://github.com/canmod/iidda-tools/issues/7
@@ -255,7 +341,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     # https://github.com/canmod/iidda-tools/issues/8
     identifiers = list(list(
       identifier = metadata$TidyDataset$path_tidy_data,
-      identifierType = 'iidda_product'
+      identifierType = 'iidda-id'
     )),
     creators = list(
       list(
@@ -286,23 +372,16 @@ make_data_cite_tidy_data = function(metadata, file) {
     language = 'en',
     types = list(
       resourceTypeGeneral = "Dataset",
-      resourceType = lookup(metadata$Source$type, resource_type_dict)[[1L]]
+      resourceType = lookup(metadata$TidyDataset$type, resource_type_dict)[[1L]]
     ),
     # TODO: move main identifier here once we get DOI's going
     # https://github.com/canmod/iidda-tools/issues/8
     alternateIdentifiers = list(),
-    relatedIdentifiers = lapply(
-      unname(c(
-        metadata$Digitization$path_digitized_data,
-        sapply(metadata$Originals,`[[`,'path_original_data')
-      )),
-      function(x) {
-        list(
-          relatedIdentifier = x,
-          relatedIdentifierType = "URL",
-          relationType = "IsSourceOf"
-        )
-      }
+    relatedIdentifiers = c(
+      list(),
+      make_related_identifier(metadata, "IsCompiledBy"),
+      make_related_identifier(metadata, "IsDerivedFrom"),
+      make_related_identifier(metadata, "References")
     ),
     sizes = list(),  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
     formats = list("csv"),
