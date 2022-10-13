@@ -120,3 +120,26 @@ If it is possible to use both within-month-based and temporal-pattern-based appr
 ## Placing Uncertainty Estimates on the Imputed Values
 
 Ultimately there is no free lunch, and imputed values are just not as reliable as observed values. More sophisticated statical approaches will be able to utilize estimates of imputation uncertainty, and so we should think about how to generate these uncertainty estimates. But doing so requires more principled statistical frameworks than just averaging and multiplying by factors that seem to make intuitive sense.
+
+
+## Options for Identifying Different Kinds of Missing
+
+NA for not available and not reportable:
+  pros -- easy to implement and less for the user to think about
+  cons -- user cannot distinguish between types of missing
+
+One column for each cases column with strings giving the kind of missing
+  pros -- easy to implement and easy to interpret and easy to filter
+  cons -- lots of columns
+
+Make cases columns be character with numbers and types of missing
+  pros -- easy to implement and easy to interpret (without multiplying the number of columns) and easy to filter
+  cons -- need to cast column types to use in analysis
+
+Make cases columns be a custom class with user-convenient magic
+  pros -- easy for user if we get it right
+  cons -- hard to implement and unclear how this will help in the csv versions (and other non-R versions like a Python table)
+
+Place missingness type data in the attributes of columns
+  pros -- doesn't multiply numbers of columns 
+  cons -- hidden from users who don't know or think about this and can be messed up if user uses functions that don't preserve attributes and gives us no solution outside of R
