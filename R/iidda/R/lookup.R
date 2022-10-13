@@ -12,8 +12,14 @@ col_classes_dict = list(
 
 #' @export
 resource_type_dict = list(
+  # TODO: populate/harmonize from/with:
+  # https://github.com/davidearn/data_work/blob/main/tracking/DataTypes.csv
   CDI = "Communicable Disease Incidence",
-  Population = "Population"
+  Population = "Population",
+  Mortality = "Mortality",
+  ACM = "All-Cause Mortality",
+  Birth = "Birth",
+  Plague = "Plague" ## TODO: should this really be a dataset type? too specific to LBoM?
 )
 
 #' @export
