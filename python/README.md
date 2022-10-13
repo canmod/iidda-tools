@@ -28,5 +28,22 @@ If the `uvloop` package is installed on your computer, you may get the error: `V
 
 ## Usage
 
+The API can be used in a few ways.
+
+### Using the Deployed Version
+
+We are working to get https://davidearn.mcmaster.ca/iidda/ back up as a deployed version of the API in this repository. It is not currently up.
+
+### Using the Development Version
+
+* Follow the instructions above to set up a development environment
 * From a terminal in the `python` directory, execute `uvicorn main:app`
 * If all goes well, open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) in a browser, which will reveal interactive documentation
+
+### Using the R Bindings
+
+The [iidda.api](../R/iidda.api) package can be used to interact with the API. Currently these bindings depend on having a running development version of the API (see instructions above).
+
+### Using a Shiny App
+
+The [iidda.shiny](../R/iidda.shiny) app is another way to interact with the API. As with the R bindings, this app depends on having a running development version of the API.

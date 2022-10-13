@@ -10,7 +10,7 @@ The `iidda.analysis` package is a new development effort intended to contain fun
 remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda.analysis')
 ```
 
-The `iidda.api` package is an R binding to the [iidda_api](../python/README.md)
+The `iidda.api` package is an R binding to the [iidda_api](../python/README.md).
 ```
 remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda.api')
 ```
