@@ -565,9 +565,9 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="IIDDA API",
+        title="API for the International Infectious Disease Data Archive (IIDDA)",
         version="1.0.0",
-        description="Open toolchain for processing infectious disease datasets available through IIDDA and other repositories",
+        description="API for searching, combining, filtering, and downloading infectious disease datasets available through IIDDA",
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {
