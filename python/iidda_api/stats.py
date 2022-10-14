@@ -15,7 +15,10 @@ def stats_path():
     path = directory_path + '/stats.json'
     return path
 
-def write_stats(endpoint, datasets=None, repo=read_config('repository')):
+def write_stats(endpoint, datasets=None, repo=None):
+    if repo is None:
+        repo = read_config('repository')
+    
     path = Path(stats_path())
     path.touch(exist_ok=True)
     with open(stats_path(), "r") as file:
