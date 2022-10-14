@@ -1,15 +1,10 @@
-from github import Github
 import requests
 import os
-import configparser
 from iidda_api import read_config
 import aiohttp
 import asyncio
-from io import BytesIO
 from iidda_api import get_release_list
-from fastapi.responses import StreamingResponse
-import zipfile
-from aiohttp_client_cache import CachedSession, FileBackend
+from aiohttp_client_cache import FileBackend
 from appdirs import *
 
 
