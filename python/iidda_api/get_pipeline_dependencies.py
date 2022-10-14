@@ -65,7 +65,7 @@ async def get_pipeline_dependencies(dataset_name, version="latest", version_tag=
                     async with aiohttp.ClientSession(headers={'Authorization': 'token ' + ACCESS_TOKEN, 'Accept': 'application/vnd.github.v3.raw'}) as session:
                         tasks = []
                         for relatedIdentifier in dataset_metadata['relatedIdentifiers']:
-                            if relatedIdentifier['relatedIdentifierType'] == "URL" and relatedIdentifier['relationType'] == "IsSourceOf":
+                            if relatedIdentifier['relatedIdentifierType'] == "URL":
                                 if isinstance(relatedIdentifier['relatedIdentifier'], list):
                                     for link in relatedIdentifier['relatedIdentifier']:
                                         url = convert_to_raw(link)
