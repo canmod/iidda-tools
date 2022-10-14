@@ -1,20 +1,17 @@
-from heapq import merge
 import http
 import hmac
 import hashlib
 import time
-from io import StringIO
 import pandas as pd
 from typing import List
 import asyncio
-import aiohttp
 import re
+import zipfile
 from jq import jq
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import StreamingResponse
 from iidda_api import *
-from fastapi import FastAPI, Request, HTTPException, Depends, FastAPI, Query, Header
-from http.client import responses
+from fastapi import FastAPI, Request, HTTPException,FastAPI, Query, Header
 import nest_asyncio
 nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
@@ -55,7 +52,7 @@ def generate_hash_signature(
 
 def dataset_list_search(
     dataset_ids, key, metadata_search, jq_query, string_comparison, response_type="metadata"
-): 
+):
     if dataset_ids is not None:
         return dataset_ids
     else:
@@ -75,9 +72,9 @@ def dataset_list_search(
             if len(keys) > 1:
                 return jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys').transform(data)
-        else:
-            return jq(
-                f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
+            else:
+                return jq(
+                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
 
 
 @app.middleware("http")
@@ -207,6 +204,10 @@ async def raw_csv(
         else:
             merged_csv = pd.concat(
                 map(lambda x: pd.read_csv(x, dtype=str), csv_list), ignore_index=True)
+            all_columns_list = list(global_data_dictionary.keys())
+            cols = merged_csv.columns.tolist()
+            cols = sorted(cols, key=all_columns_list.index)
+            merged_csv = merged_csv[cols]
             write_stats(endpoint="/raw_csv", datasets=dataset_list)
             return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
@@ -370,9 +371,9 @@ async def filter(
     cause: List[str] = Query(
         default=None, description=global_data_dictionary['cause']['description']),
     location_scale: List[str] = Query(
-    default=None, description=global_data_dictionary['location_scale']['description']),
+        default=None, description=global_data_dictionary['location_scale']['description']),
     time_scale: List[str] = Query(
-    default=None, description=global_data_dictionary['time_scale']['description']),
+        default=None, description=global_data_dictionary['time_scale']['description']),
 ):
     """
     Get a csv containing data satisfying filters provided by the user.
@@ -400,13 +401,9 @@ async def filter(
     # Create a list of any column filters that apply to a 'num_missing' column as they must be specially treated
     num_missing_columns = list()
 
-    # Fetch data_dictionary from github
-    data_dictionary = requests.get(
-        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
-
     # loop over the filter_arguments to generate a filter
     for key in filter_arguments:
-        if jq(f'.[] | select(.name == "{key}")').transform(data_dictionary)["type"] == "date":
+        if global_data_dictionary[key]["type"] == "date":
             date_range = filter_arguments[key].split("/")
             if len(date_range) != 2:
                 raise HTTPException(
@@ -419,7 +416,7 @@ async def filter(
 
             # pandas_containment_filter is a pandas filter that will be used to filter the dataframe
             pandas_containment_filter = f"{key} >= '{date_range[0]}' and {key} <= '{date_range[1]}'"
-        elif jq(f'.[] | select(.name == "{key}")').transform(data_dictionary)["format"] == "num_missing":
+        elif global_data_dictionary[key]["format"] == "num_missing":
             # Create name of a new temporary column (this column will contain the contents of the original column but converted to numbers or NaN allowing for proper filtering)
             temporary_column_name = key + "_num_missing"
             num_missing_columns.append((key, temporary_column_name))
@@ -535,7 +532,7 @@ async def filter(
             merged_csv = merged_csv.drop(
                 list(map(lambda x: x[1], num_missing_columns)), axis=1)
 
-        all_columns_list = list(map(lambda x: x['name'], data_dictionary))
+        all_columns_list = list(global_data_dictionary.keys())
 
         cols = merged_csv.columns.tolist()
         cols = sorted(cols, key=all_columns_list.index)

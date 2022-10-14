@@ -36,6 +36,8 @@ downloadMenuServer <- function(id, datasets, action_button_id, data) {
 }
 
 server <- function(input, output) {
+  
+  # Dataset Selection Section
   data <- eventReactive(input$select_data, {
     response <- iidda.api::ops$raw_csv(dataset_ids = input$dataset_name)
     if(is.data.frame(response)) {
@@ -45,31 +47,134 @@ server <- function(input, output) {
     }
   })
   
-  datasets <- reactive(iidda.api::ops$metadata(
+  datasets <- reactive(names(iidda.api::ops$metadata(
     response_type = "metadata",
-    jq_query = sprintf(
-      'map_values(select(. != "No metadata." and .types .resourceType == "%s") ) | keys',
-      input$data_type
-    )
-  ))
-  
-  filter_datasets <- reactive(iidda.api::ops$metadata(
-    response_type = "metadata",
-    jq_query = sprintf(
-      'map_values(select(. != "No metadata." and .types .resourceType == "%s") ) | keys',
-      input$data_filter_type
-    )
-  ))
+    metadata_search = input$data_type,
+    key = ".types .resourceType"
+  )))
   
   data_dictionary <- reactive(
-    iidda.api::ops$metadata(response_type = "data_dictionary", dataset_ids = datasets()) %>%   unlist(recursive = FALSE) %>%
+    iidda.api::ops$metadata(
+      response_type = "data_dictionary",
+      metadata_search = input$data_type,
+      key = ".types .resourceType"
+      ) %>%   unlist(recursive = FALSE) %>%
       unname %>%
       unique %>%
       na.omit
   )
   
+  output$dataset_name = renderUI(
+    selectizeInput(
+      inputId = "dataset_name",
+      label = "Dataset Name",
+      multiple = TRUE,
+      choices = datasets()
+    )
+  )
+  
+  output$data_table = renderDT({
+    data_dictionary <-
+      iidda.api::ops$metadata(
+        response_type = "data_dictionary",
+        jq_query = '[.[] | select(. != "No metadata.") | .[] | {(.name) : [(.title), (.description)]} ] | unique | add'
+      )
+    
+    datatable(
+      data(),
+      filter = "top",
+      rownames = F,
+      callback = JS(
+        sprintf(
+          "
+                    header = table.columns().header();
+                    var data_dictionary = %s
+                    for (var i = 0; i < header.length; i++) {
+                      var raw_header = $(header[i]).text()
+                      $(header[i]).attr('title', data_dictionary[raw_header][1]);
+                      $(header[i]).css('[title]:hover', 'background-color: red');
+                      $(header[i]).text(data_dictionary[raw_header][0])
+                    }
+                              ",
+          toJSON(data_dictionary)
+        )
+      )
+      
+    )
+  })
+  
+  downloadMenuServer(id="dataset_selection", datasets = input$dataset_name)
+  
+  output$dataset_selection_download_menu <- renderUI({
+    if (isTruthy(input$dataset_name) && isTruthy(data())) {
+      box(
+        width = NULL,
+        h4("Download Combined Data"),
+        downloadButton('download_combined_datasets',"Download"),
+        h4("Download Individual Datasets"),
+        checkboxGroupInput(
+          "files_to_include",
+          "Optional Files to Include",
+          choices = list(
+            "CSV" = "csv",
+            "Metadata" = "metadata",
+            "Source Files" = "pipeline_dependencies"
+          ),
+        ),
+        p(
+          class = "text-muted",
+          paste(
+            'Selecting "Source Files" will significantly increase download time due to large file sizes.'
+          )
+        ),
+        downloadButton(outputId = "download_data",
+                       label = "Download", )
+      )
+    } else {
+      p(
+        class = "text-muted",
+        paste(
+          'Please select some datasets before attempting to download.'
+        )
+      )
+    }
+  })
+  
+  output$download_combined_datasets <- downloadHandler(
+    filename = function(){"combined_datasets.csv"}, 
+    content = function(fname){
+      write.csv(data(), fname, na="", row.names=FALSE)
+    }
+  )
+  
+  output$download_data <- downloadHandler(
+    filename = function()
+    {
+      sprintf("%s.zip", 'datasets_combined')
+    },
+    content = function(file)
+    {
+      withProgress(message = 'Preparing files for download...', {
+        writeBin(
+          iidda.api::ops$download(
+            dataset_ids = input$dataset_name,
+            resource = input$files_to_include
+          ),
+          file
+        )
+      })
+    },
+    contentType = "application/zip"
+  )
+  
+  #Dataset Filtering Section
+  
   filter_data_dictionary <- reactive(
-    iidda.api::ops$metadata(response_type = "data_dictionary", dataset_ids = filter_datasets()) %>%   unlist(recursive = FALSE) %>%
+    iidda.api::ops$metadata(
+      response_type = "data_dictionary", 
+      metadata_search = input$filter_data_type,
+      key = ".types .resourceType"
+      ) %>%   unlist(recursive = FALSE) %>%
       unname %>%
       unique %>%
       na.omit
@@ -102,7 +207,7 @@ server <- function(input, output) {
   })
   
   filtered_data <- eventReactive(input$filter_data, {
-    response <- do.call(iidda.api::ops$filter, c(list(resource_type = input$data_filter_type), data_filters()))
+    response <- do.call(iidda.api::ops$filter, c(list(resource_type = input$filter_data_type), data_filters()))
     if(is.data.frame(response)) {
       response
     } else {
@@ -110,17 +215,14 @@ server <- function(input, output) {
     }
   })
   
-  output$dataset_name = renderUI(
-    selectizeInput(
-      inputId = "dataset_name",
-      label = "Dataset Name",
-      multiple = TRUE,
-      choices = datasets()
-    )
-  )
+
   output$column_filters = renderUI({
     columns <-
-      iidda.api::ops$metadata(response_type = "columns", dataset_ids = filter_datasets())
+      iidda.api::ops$metadata(
+        response_type = "columns", 
+        metadata_search = input$filter_data_type,
+        key = ".types .resourceType"
+        )
     lapply(filter_data_dictionary(), function(x) {
       if (x$type == "string" && x$format == "default") {
         tags$div(title=x$description,
@@ -220,37 +322,8 @@ server <- function(input, output) {
       }
     })
   })
-  output$data_table = renderDT({
-    data_dictionary <-
-      iidda.api::ops$metadata(
-        response_type = "data_dictionary",
-        jq_query = '[.[] | select(. != "No metadata.") | .[] | {(.name) : [(.title), (.description)]} ] | unique | add'
-      )
-    
-    datatable(
-      data(),
-      filter = "top",
-      rownames = F,
-      callback = JS(
-        sprintf(
-          "
-                    header = table.columns().header();
-                    var data_dictionary = %s
-                    for (var i = 0; i < header.length; i++) {
-                      var raw_header = $(header[i]).text()
-                      $(header[i]).attr('title', data_dictionary[raw_header][1]);
-                      $(header[i]).css('[title]:hover', 'background-color: red');
-                      $(header[i]).text(data_dictionary[raw_header][0])
-                    }
-                              ",
-          toJSON(data_dictionary)
-        )
-      )
-      
-    )
-  })
   
-  output$data_filter_table = renderDT({
+  output$filter_data_table = renderDT({
     data_dictionary_names <- lapply(filter_data_dictionary(), function(x) {
       x$name
     })
@@ -284,69 +357,6 @@ server <- function(input, output) {
     )
   })
   
-  downloadMenuServer(id="dataset_selection", datasets = input$dataset_name)
-  
-  output$dataset_selection_download_menu <- renderUI({
-    if (isTruthy(input$dataset_name) && isTruthy(data())) {
-      box(
-        width = NULL,
-        h4("Download Combined Data"),
-        downloadButton('download_combined_datasets',"Download"),
-        h4("Download Individual Datasets"),
-        checkboxGroupInput(
-          "files_to_include",
-          "Optional Files to Include",
-          choices = list(
-            "CSV" = "csv",
-            "Metadata" = "metadata",
-            "Source Files" = "pipeline_dependencies"
-          ),
-        ),
-        p(
-          class = "text-muted",
-          paste(
-            'Selecting "Source Files" will significantly increase download time due to large file sizes.'
-          )
-        ),
-        downloadButton(outputId = "download_data",
-                       label = "Download", )
-      )
-    } else {
-      p(
-        class = "text-muted",
-        paste(
-          'Please select some datasets before attempting to download.'
-        )
-      )
-    }
-  })
-  
-  output$download_combined_datasets <- downloadHandler(
-    filename = function(){"combined_datasets.csv"}, 
-    content = function(fname){
-      write.csv(data(), fname, na="", row.names=FALSE)
-    }
-  )
-  
-  output$download_data <- downloadHandler(
-    filename = function()
-    {
-      sprintf("%s.zip", 'datasets_combined')
-    },
-    content = function(file)
-    {
-      withProgress(message = 'Preparing files for download...', {
-        writeBin(
-          iidda.api::ops$download(
-            dataset_ids = input$dataset_name,
-            resource = input$files_to_include
-          ),
-          file
-        )
-      })
-    },
-    contentType = "application/zip"
-  )
   
   output$filter_data_download_menu = renderUI({
     if (isTruthy(input$filter_data) && isTruthy(filtered_data())) {
@@ -400,7 +410,7 @@ server <- function(input, output) {
       withProgress(message = 'Preparing files for download...', {
         writeBin(
           iidda.api::ops$download(
-            dataset_ids = do.call(iidda.api::ops$filter, c(list(resource_type = input$data_filter_type, response_type="dataset list"), data_filters())),
+            dataset_ids = do.call(iidda.api::ops$filter, c(list(resource_type = input$filter_data_type, response_type="dataset list"), data_filters())),
             resource = input$filtered_data_files_to_include
           ),
           file

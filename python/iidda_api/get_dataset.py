@@ -1,15 +1,8 @@
-from github import Github
-import requests
 import os
-from fastapi.responses import StreamingResponse
-import configparser
-from iidda_api import read_config, get_pipeline_dependencies
-from io import BytesIO, StringIO
-import zipfile
+from iidda_api import read_config
+from io import BytesIO
 import asyncio
-import json
 from iidda_api import get_release_list
-from fastapi.responses import PlainTextResponse
 from aiohttp_client_cache import CachedSession, FileBackend
 from appdirs import *
 

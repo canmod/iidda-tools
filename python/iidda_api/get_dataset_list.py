@@ -1,13 +1,8 @@
-#from functools import cache
-import requests
 import os
-import configparser
 from iidda_api import read_config
 import json
-import aiohttp
 import asyncio
 from aiohttp_client_cache import CachedSession, FileBackend
-import requests_cache
 from appdirs import *
 import re
 

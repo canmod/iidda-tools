@@ -68,7 +68,7 @@ tabItem(
       width = 12,
       tabPanel(
         "Filtered Data",
-        DT::dataTableOutput("data_filter_table") %>% withSpinner(color = "#FDBF57"),
+        DT::dataTableOutput("filter_data_table") %>% withSpinner(color = "#FDBF57"),
         style = "height: fit-content; overflow-y:scroll; overflow-x:scroll;"
       ),
       tabPanel(
@@ -84,7 +84,7 @@ tabItem(
       ),
       actionButton("filter_data", "Apply Changes"),
       selectInput(
-        inputId = "data_filter_type",
+        inputId = "filter_data_type",
         label = "Dataset Type",
         choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .types .resourceType] | unique'),
         selected = "Communicable Disease Incidence"
