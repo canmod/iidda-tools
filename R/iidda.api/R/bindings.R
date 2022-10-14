@@ -114,3 +114,15 @@ ops_local = try(do.call(make_ops_list, local), silent = TRUE)
 #' @describeIn ops Operations list for a staging environment, if it exists
 #' @export
 ops_staging = try(do.call(make_ops_list, staging), silent = TRUE)
+
+#' @describeIn ops Print link to interactive documentation for the IIDDA API (not currently up)
+#' @export
+docs_url = file.path(production$api_url, "docs")
+
+#' @describeIn ops Print link to interactive documentation for a development environment
+#' @export
+docs_url_local = file.path(local$api_url, "docs")
+
+#' @describeIn ops Print link to interactive documentation for a staging environment, if it exists
+#' @export
+docs_url_staging = file.path(staging$api_url, "docs")

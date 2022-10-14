@@ -29,6 +29,16 @@ async def get_release_list(access_token, cache_config, clear_cache):
 
 
 def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
+    """Clear Cache of GitHub API Results
+
+    Args:
+        clear_cache (bool): Clear cache of GitHub API results
+        response_type (str, optional): Type of API response.  Acceptable values include "columns", "csv_dialect", "data_dictionary", "github_url", "metadata". Defaults to "metadata".
+        subset (str or List(str), optional): List of strings giving dataset IDs, or "all" to return all datasets. Defaults to "all".
+
+    Returns:
+        dict: Dictionary with keys given by dataset IDs and values containing the response of the requested type (see response_type)
+    """
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
