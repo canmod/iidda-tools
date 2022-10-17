@@ -18,7 +18,7 @@ set_iidda_col_types = function(data) {
     %>% iidda::key_val('name', 'type')
     %>% get_elements(colnames(data))
     %>% unlist
-    %>% iidda::lookup(iidda::col_classes_dict)
+    %>% iidda.list::lookup(iidda::col_classes_dict)
     %>% iidda::set_types(data = data)
   )
 }

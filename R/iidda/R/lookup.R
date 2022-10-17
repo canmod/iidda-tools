@@ -1,3 +1,27 @@
+LookupHarmonizerInterface = function() {
+  self = Interface()
+  self$harmonize = function(column = character(0L)) character(length(column))
+  return_object(self, "LookupHarmonizerInterface")
+}
+LookupHarmonizer = function(lookup_list) {
+  self = implements(LookupHarmonizerInterface)
+  self$.lookup_list = lookup_list
+  self$harmonize = function(column = character(0L)) {
+    l = self$.lookup_list
+
+  }
+}
+LookupHarmonizerDataFrame = function(lookup_table, key, value) {
+  self = LookupHarmonizer(
+    lookup_list = setNames(
+      as.list(lookup_table[[value]]),
+      lookup_table[[key]]
+    )
+  )
+  return_object(self, "LookupHarmonizerDataFrame")
+}
+
+
 #' @export
 col_classes_dict = list(
   string = "character",

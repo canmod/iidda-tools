@@ -2,6 +2,7 @@
 #'
 #' @importFrom jsonlite write_json read_json
 #' @importFrom dplyr `%>%`
+#' @importFrom iidda.list get_elements
 #' @return file names where data were written
 #' @export
 write_tidy_data = function(tidy_data, metadata) {
@@ -61,7 +62,7 @@ write_tidy_data = function(tidy_data, metadata) {
             %>% key_val('name', 'type')
             %>% get_elements(colnames(tidy_data))
             %>% unlist
-            %>% lookup(col_classes_dict)
+            %>% iidda.list::lookup(col_classes_dict)
             %>% set_types(data = tidy_data)
             %>% write.table(tidy_file,
               # CSV Dialect Translation
@@ -110,7 +111,7 @@ read_tidy_data = function(tidy_data_path) {
                  %>% read_json()
                  %>% key_val('name', 'type')
                  %>% unlist
-                 %>% lookup(col_classes_dict)
+                 %>% iidda.list::lookup(col_classes_dict)
                  %>% unlist()
   )
 
