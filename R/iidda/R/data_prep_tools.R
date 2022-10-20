@@ -362,10 +362,23 @@ identify_scales = function(tidy_data){
 
 #' @export
 column_summary = function(column, tidy_data, dataset_name, metadata) {
+  if (!column %in% colnames(tidy_data)) {
+    stop(
+      "column in the tidy data does not exist in the metadata schema\n",
+      "please check Schema.csv and Columns.csv."
+    )
+  }
   column_metadata <- metadata[["Columns"]][[dataset_name]]
   column_metadata_row <- subset(column_metadata, rownames(column_metadata) %in% column)
   if (column_metadata_row[["format"]] == "num_missing") {
-    range <- suppressWarnings(list(range = range(as.numeric(tidy_data[[column]]), na.rm=TRUE), unavailable_values = unique(tidy_data[[column]][is.na(as.numeric(tidy_data[[column]]))])))
+    range <- suppressWarnings(
+      list(
+        range = range(as.numeric(tidy_data[[column]]), na.rm=TRUE),
+        unavailable_values = unique(
+          tidy_data[[column]][is.na(as.numeric(tidy_data[[column]]))]
+        )
+      )
+    )
     if (identical(is.infinite(range[['range']]),c(TRUE,TRUE))) {
       range[['range']] = c(NA,NA)
       return(range)
