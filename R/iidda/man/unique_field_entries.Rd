@@ -7,7 +7,8 @@
 unique_field_entries(
   response_type = c("metadata", "columns", "data_dictionary"),
   metadata_search = "disease",
-  string_comparison = "contains"
+  string_comparison = "contains",
+  sort = TRUE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ unique_field_entries(
 \item{metadata_search}{Character, name of a metadata field}
 
 \item{string_comparison}{Character, one of `"exact"` or `"contains"`}
+
+\item{sort}{Logical, sort tokens alphabetically (in order of occurence if FALSE)}
 }
 \value{
 Character vector of unique tokens for a given field from all iidda datasets
@@ -28,5 +31,5 @@ Query unique tokens for a field in iidda metadata
 unique_field_entries(response_type = "columns"
                      , metadata_search = "disease"
                      , string_comparison = "contains")
-                     
+
 }

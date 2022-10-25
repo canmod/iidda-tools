@@ -6,7 +6,8 @@
 \usage{
 query_options(
   response_type = c("metadata", "columns", "data_dictionary"),
-  data_type = c("Communicable Disease Incidence", "Population")
+  data_type = c("Communicable Disease Incidence", "Population", "cdi", "CDI", "pop",
+    "Pop")
 )
 }
 \arguments{
@@ -26,17 +27,17 @@ Get field names for iidda queries
 
 query_options(response_type = "metadata"
               , data_type = "Communicable Disease Incidence")
-             
+
 query_options(response_type = "columns"
               , data_type = "Population")
 
 # error for disallowed searches
 # query_options(response_type = "disease"
-# , data_type = "Communicable Disease Incidence") 
+# , data_type = "Communicable Disease Incidence")
 
 # in some cases, abbreviations allowed
 query_options(response_type = "columns"
-              , data_type = "cdi") 
+              , data_type = "cdi")
 # data dictionary returns a named list
 query_options(response_type = "data_dictionary"
               , data_type = "pop")
