@@ -28,7 +28,7 @@
 #'               , data_type = "pop")
 
 query_options <- function(response_type = c("metadata", "columns", "data_dictionary")
-                          , data_type = c("Communicable Disease Incidence", "Population")){
+                          , data_type = c("Communicable Disease Incidence", "Population", "cdi", "CDI", "pop", "Pop")){
 
   response_type = match.arg(response_type)
   data_type = match.arg(data_type)
