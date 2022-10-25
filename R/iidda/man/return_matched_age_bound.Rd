@@ -12,6 +12,9 @@ containing regex matches of age bound information contained in
 disease category names. each \code{x} corresponds to a single
 category.}
 }
+\value{
+Character string with matched age bound
+}
 \description{
 Process output from regmatches to return the correct age bound.
 Used in the lookup function created by \code{make_age_hash_table}
