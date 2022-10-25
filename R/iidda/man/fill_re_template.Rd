@@ -7,6 +7,9 @@
 fill_re_template(re_template, which_bound = "neither")
 }
 \arguments{
+\item{re_template}{template that resolve to regular expressions
+for matching age information contained in category names}
+
 \item{which_bound}{resolve the template to match lower or upper bounds,
 neither (the default), or single}
 }
