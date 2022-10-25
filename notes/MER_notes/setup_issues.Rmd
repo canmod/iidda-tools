@@ -1,0 +1,46 @@
+---
+title: "MR_setup_notes"
+author: "Michael Roswell"
+date: "2022-10-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Stuff I've tried
+When setting up the IIDDA python development environment:
+
+1. I found that `which python` gave me a very old python 2.7, but there was an
+up to date installation from homebrew (not sure why it wasn't found by which).
+
+1. To create the virtual environment (in R studio terminal) after cloning the
+repo
+    * `cd phython`
+    * `/usr/local/Cellar/python\@3.10/3.10.8/bin/python3.10 -m venv venv`
+    * `source venv/bin/activate`
+    
+1. To install packages and api package itself
+    * `pip install -r requirements.txt` (this one initiated a bunch of stuff
+    installing on the computer, maybe took 45 seconds)which 
+    * `pip install .` took essentially no time at all. Got a warning that
+    package "wheel" was not installed.
+    
+1. To get the config set up 
+    * did the generate_config thing  wrong several times
+    * eventually started a python process
+    * but ran into errors trying to run this: `/usr/local/Cellar/python\@3.10/3.10.8/bin/python3.10 -m venv venv`
+`from iidda_api import generate_config`
+`generate_config(token="MYSPECIALTOKENHERE", repository="canmod/iidda-test-assets")`
+    * error message says 
+    `Traceback (most recent call last):`
+    `File "<stdin>", line 1, in <module>`
+    `File "/System/Volumes/Data/Rstudio_Git/iidda-tools/python/iidda_api/__init__.py", line 1, in <module>`
+    `  from iidda_api.generate_config import *`
+    `File "/System/Volumes/Data/Rstudio_Git/iidda-tools/python/iidda_api/generate_config.py", line 3, in <module>`
+    `  from appdirs import *`
+    `ModuleNotFoundError: No module named 'appdirs'`
+    
+1. needed to install uvicorn. In virtual environment, `pip install uvicorn` 
+
