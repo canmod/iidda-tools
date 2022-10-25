@@ -4,7 +4,7 @@
 #' regular expression for matching age bound information in disease category
 #' names
 #'
-#' @params re_template template that resolve to regular expressions
+#' @param re_template template that resolve to regular expressions
 #' for matching age information contained in category names
 #' @param which_bound resolve the template to match lower or upper bounds,
 #' neither (the default), or single
@@ -86,7 +86,7 @@ fill_and_wrap = function(re_templates, which_bound, purpose, prefix = '') {
 #' containing regex matches of age bound information contained in
 #' disease category names. each \code{x} corresponds to a single
 #' category.
-#' @return
+#' @return Character string with matched age bound
 #' @export
 return_matched_age_bound = function(x) {
 
