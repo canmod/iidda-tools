@@ -50,8 +50,8 @@ all_vir <- bind_rows(ttr
 
 head(all_vir)
 nrow(all_vir)
-# unfortunately place names are kind of a mess. 
-# Probably easiest to find the intersection between two datasets to filter 
+# unfortunately place names are kind of a mess.
+# Probably easiest to find the intersection between two datasets to filter
 # by both disease and location
 
 #Nova Scotia

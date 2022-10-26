@@ -77,7 +77,8 @@ unique_entries <- function(entries, metadata_search){
         unique
     }) %>%
     unname %>%
-    unlist
+    unlist %>% 
+    unique
 }
 
 
@@ -87,6 +88,7 @@ unique_entries <- function(entries, metadata_search){
 #' @inheritParams query_options
 #' @param metadata_search Character, name of a metadata field
 #' @param string_comparison Character, one of `"exact"` or `"contains"`
+#' @param sort Logical, sort tokens alphabetically (in order of occurence if FALSE)
 #'
 #' @return Character vector of unique tokens for a given field from all iidda datasets
 #' @export
@@ -102,12 +104,14 @@ unique_field_entries <- function(response_type = c("metadata"
                                                    , "data_dictionary")
                                  , metadata_search = "disease"
                                  , string_comparison = "contains"
+                                 , sort = TRUE
 ){
   entries <- iidda.api::ops$metadata(response_type = response_type
                                      , metadata_search = metadata_search
                                      , string_comparison = string_comparison)
   ue <- unique_entries(entries, metadata_search = metadata_search)
-  return(ue)
+  if(sort){ return(ue %>% sort)}
+  else(return(ue))
 }
 
 
