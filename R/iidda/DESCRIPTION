@@ -7,12 +7,12 @@ Maintainer: Steve Walker <swalk@mcmaster.ca>
 Depends: 
   dplyr, 
   tidyr, 
-  memoise, 
   jsonlite, 
   tibble
 Imports: 
   lubridate,
   tidyxl, 
+  memoise, 
   iidda.list
 Description: Part of an open toolchain for processing infectious disease datasets available through the IIDDA data repository.
 License: GPL (>= 3)
