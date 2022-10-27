@@ -1,0 +1,5 @@
+^LICENSE\.md$
+git ^Makefile$
+^config\.json$
+^misc$
+^install$

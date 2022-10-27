@@ -6,7 +6,6 @@
 .DS_Store
 .Rprofile
 *.Rcheck
-.Rbuildignore
 *.Rproj
 renv*
 *tar.gz
