@@ -2,14 +2,15 @@
 #'
 #' Requires an internet connection
 #'
-#' @param disease Regex pattern describing a disease
+#' @param disease_pattern Regex pattern describing a disease
 #' @export
-icd_finder = function(disease) {
+icd_finder = function(disease_pattern) {
   icd_10 = (
     "https://github.com/kamillamagna/ICD-10-CSV/raw/master/categories.csv"
     %>% read.csv(header = FALSE)
     %>% setNames(c("code", "description"))
-    %>% filter(grepl(pattern = disease, description, ignore.case = TRUE))
+    %>% filter(grepl(pattern = disease_pattern, description, ignore.case = TRUE))
     %>% filter(nchar(code) == min(nchar(code)))
   )
+  return(icd_10)
 }

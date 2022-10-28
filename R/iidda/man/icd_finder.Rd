@@ -4,10 +4,10 @@
 \alias{icd_finder}
 \title{Return the Shortest ICD-10 Codes that Match a Regex Pattern}
 \usage{
-icd_finder(disease)
+icd_finder(disease_pattern)
 }
 \arguments{
-\item{disease}{Regex pattern describing a disease}
+\item{disease_pattern}{Regex pattern describing a disease}
 }
 \description{
 Requires an internet connection

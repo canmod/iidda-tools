@@ -276,7 +276,7 @@ add_metadata = function(table, table_metadata, column_metadata, product) {
   check_tidy_data_cols(table, column_metadata)
   attr(table, 'title') = table_metadata$Title
   attr(table, 'description') = table_metadata$Description
-  for(column in rownames(column_metadata)) {
+  for (column in rownames(column_metadata)) {
     attr(table[[column]], 'label') = column_metadata[column, "title"]
     attr(table[[column]], 'description') = column_metadata[column, "description"]
   }

@@ -373,7 +373,7 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
   if (column_metadata_row[["format"]] == "num_missing") {
     range <- suppressWarnings(
       list(
-        range = range(as.numeric(tidy_data[[column]]), na.rm=TRUE),
+        range = range(as.numeric(tidy_data[[column]]), na.rm = TRUE),
         unavailable_values = unique(
           tidy_data[[column]][is.na(as.numeric(tidy_data[[column]]))]
         )
@@ -386,7 +386,7 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
       return(range)
     }
   } else if (column_metadata_row[["type"]] == "date") {
-    range(tidy_data[[column]], na.rm=TRUE)
+    range(tidy_data[[column]], na.rm = TRUE)
   } else {
     as.list(unique(tidy_data[[column]][!is.na(tidy_data[[column]])]))
   }
