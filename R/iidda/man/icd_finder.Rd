@@ -2,13 +2,20 @@
 % Please edit documentation in R/icd_convert.R
 \name{icd_finder}
 \alias{icd_finder}
-\title{Return the Shortest ICD-10 Codes that Match a Regex Pattern}
+\title{ICD Finder}
 \usage{
-icd_finder(disease_pattern)
+icd_finder(disease_pattern, maximum_number_results = 10L)
 }
 \arguments{
-\item{disease_pattern}{Regex pattern describing a disease}
+\item{disease_pattern}{Regex pattern describing a disease.}
+
+\item{maximum_number_results}{Integer giving the maximum number
+of ICD codes to return, with preference given to shorter codes.}
 }
 \description{
-Requires an internet connection
+Return the Shortest ICD-10 Codes that Match a Regex Pattern.
+Requires an internet connection.
+}
+\examples{
+icd_finder("chick")  ## Struc by chicken!!
 }
