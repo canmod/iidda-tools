@@ -31,6 +31,7 @@ read_tracking_tables = function(path) {
 #'
 #' @param tidy_dataset key to the tidy dataset being produced by the script
 #' @param digitization key to the digitization being used by the script
+#' @param tracking_path string giving path to the tracking data
 #' @param original_format should the original tracking table format be used?
 #' @param for_lbom are these data being read for the LBoM repo?
 #' @importFrom tidyr pivot_longer
@@ -223,6 +224,7 @@ tracking_table_keys = list(
   )
 )
 
+
 #' @export
 melt_tracking_table_keys = function(keys) {
   (keys
@@ -270,7 +272,11 @@ write_local_data_dictionaries = function(metadata, path) {
 #' giving the title and description of each column in \code{table}
 #' @return version of \code{table} with added metadata \code{attributes}
 #' @export
-add_metadata = function(table, table_metadata, column_metadata, product) {
+add_metadata = function(
+    table,
+    table_metadata,
+    column_metadata
+  ) {
   table = as.data.frame(table)
   table_metadata = as.list(table_metadata)
   check_tidy_data_cols(table, column_metadata)
@@ -372,7 +378,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     language = 'en',
     types = list(
       resourceTypeGeneral = "Dataset",
-      resourceType = iidda.list::lookup(metadata$TidyDataset$type, resource_type_dict)[[1L]]
+      resourceType = lookup(metadata$TidyDataset$type, resource_type_dict)[[1L]]
     ),
     # TODO: move main identifier here once we get DOI's going
     # https://github.com/canmod/iidda-tools/issues/8
@@ -422,8 +428,7 @@ make_data_cite_tidy_data = function(metadata, file) {
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
 }
 
-#' @inheritParams make_data_cite_tidy_data
-#' @export
+# inheritParams make_data_cite_tidy_data
 make_data_cite_digitization = function(metadata, file) {
   data_cite = list(
     identifier = list()
@@ -431,8 +436,7 @@ make_data_cite_digitization = function(metadata, file) {
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
 }
 
-#' @inheritParams make_data_cite_tidy_data
-#' @export
+# inheritParams make_data_cite_tidy_data
 make_data_cite_scans = function(metadata, file) {
   data_cite = list(
     identifier = list()
@@ -440,6 +444,10 @@ make_data_cite_scans = function(metadata, file) {
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)
 }
 
+#' Get CANMOD Digitization Metadata
+#'
+#' Superseded by functionality in `iidda.api`.
+#'
 #' @param tracking_list output of \code{read_tracking_tables}
 #' @export
 get_canmod_digitization_metadata = function(tracking_list) {

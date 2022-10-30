@@ -8,6 +8,7 @@
 #' of ICD codes to return, with preference given to shorter codes.
 #' @examples
 #' icd_finder("chick")  ## Struc by chicken!!
+#' @importFrom utils head
 #' @export
 icd_finder = function(disease_pattern, maximum_number_results = 10L) {
   icd_10 = (

@@ -17,6 +17,8 @@ remove_between_paren(
 \item{left}{Left parenthetical string}
 
 \item{right}{Right parenthetical string}
+
+\item{contents_pattern}{Regex pattern for the contents between parentheses}
 }
 \value{
 Version of \code{x} with first parenthesized substrings removed

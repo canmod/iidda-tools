@@ -7,6 +7,7 @@
 #' @param trim_top number of pixels at the top of the page to trim off
 #' @param trim_bottom number of pixels at the bottom of the page to trim off
 #' @param edge_geometry parameters to pass to the imagemagick edge detector
+#' @importFrom magick image_threshold image_transparent image_negate image_flatten image_canny image_hough_txt
 #' @export
 school_term_ocr = function(pdf_image, page,
                            trim_top = 570, trim_bottom = 330,
@@ -48,6 +49,8 @@ find_table = function(pdf_image, page,
     image_quantize(colorspace = 'gray')
 }
 
+#' @importFrom dplyr mutate_all
+#' @importFrom tidyr separate
 edge_detect_school_term_grid = function(focal_page, geometry = "10x10+20%+50%") {
   # Prep the image for fitting the rows and columns model
   focal_page_for_lines =
@@ -94,6 +97,7 @@ edge_detect_school_term_grid = function(focal_page, geometry = "10x10+20%+50%") 
   return(list(row = row_locations, col = column_locations))
 }
 
+#' @importFrom magick image_data image_crop geometry_area image_trim image_quantize
 ocr_school_term_text = function(focal_page, locations) {
   # Prep the image for fitting the ocr models
   focal_page_for_text =

@@ -4,7 +4,7 @@
 \alias{add_metadata}
 \title{Add Metadata}
 \usage{
-add_metadata(table, table_metadata, column_metadata, product)
+add_metadata(table, table_metadata, column_metadata)
 }
 \arguments{
 \item{table}{dataframe (or dataframe-like object)}

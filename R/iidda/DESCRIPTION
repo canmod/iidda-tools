@@ -2,12 +2,18 @@ Type: Package
 Package: iidda
 Title: Processing Infectious Disease Datasets in IIDDA
 Version: 0.1.0
-Author: Steve Walker
 Maintainer: Steve Walker <swalk@mcmaster.ca>
+Authors@R: 
+  c(person("Steve Walker", rol = c("aut", "cre"), email = "swalk@mcmaster.ca"),
+    person("Samara Manzin", rol = "aut"),
+    person("Michael Roswell", role = "aut"),
+    person("Gabrielle MacKinnon", rol = "aut"),
+    person("Ronald Jin", rol = "aut"))
 Description: Part of an open toolchain for processing infectious disease
     datasets available through the IIDDA data repository.
 License: GPL (>= 3)
 Depends: 
+    R (>= 3.5.0),
     dplyr,
     jsonlite,
     tibble,
@@ -15,8 +21,14 @@ Depends:
 Imports: 
     lubridate,
     memoise,
-    tidyxl
-Additional_repositories: https://canmod.github.io/drat
+    tidyxl,
+    ggplot2,
+    magick,
+    tidyselect,
+    stringr,
+    methods,
+    utils,
+    stats
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.1.9000

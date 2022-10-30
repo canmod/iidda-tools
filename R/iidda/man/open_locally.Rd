@@ -2,10 +2,17 @@
 % Please edit documentation in R/utilities.R
 \name{open_locally}
 \alias{open_locally}
-\title{Open a Path}
+\title{Open a Path on Mac OS}
 \usage{
-open_locally(blob_github_url, command = "open", args = character())
+open_locally(urls, command = "open", args = character())
+}
+\arguments{
+\item{urls}{Character vector of GitHub URLs in blob storage}
+
+\item{command}{Command-line function to use to open the file.}
+
+\item{args}{Additional options to pass to \code{command}.}
 }
 \description{
-Open a Path
+Open a Path on Mac OS
 }

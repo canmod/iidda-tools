@@ -14,6 +14,9 @@ memoise_remove_age(categories, re_templates, prefix = "")
 
 \item{re_templates}{list of templates that resolve to regular expressions
 for matching age information contained in category names}
+
+\item{prefix}{pattern to match at the beginning of the string that marks
+the beginning of age information}
 }
 \description{
 Remove age information from a vector of category names

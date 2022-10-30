@@ -2,7 +2,7 @@
 % Please edit documentation in R/list_tools.R
 \name{nlist}
 \alias{nlist}
-\title{self-naming list (copied from lme4:::namedList)}
+\title{Self-Naming List}
 \usage{
 nlist(...)
 }
@@ -10,5 +10,5 @@ nlist(...)
 \item{...}{a list of objects}
 }
 \description{
-self-naming list (copied from lme4:::namedList)
+Copied from \code{lme4:::namedList}.
 }

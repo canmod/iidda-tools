@@ -6,6 +6,8 @@
 #'   `Population` for historical demographic census datasets"
 #'
 #' @return A Vector of field names, or if `response_type = "data_dictionary"`, a named list
+#'
+#' @importFrom stats na.omit
 #' @export
 #'
 #' @examples
@@ -77,7 +79,7 @@ unique_entries <- function(entries, metadata_search){
         unique
     }) %>%
     unname %>%
-    unlist %>% 
+    unlist %>%
     unique
 }
 
@@ -124,6 +126,7 @@ unique_field_entries <- function(response_type = c("metadata"
 #' @return Charaacter vector of unique matching tokens
 #' @export
 #'
+#' @importFrom stringr str_match_all
 #'
 #' @examples
 #' token_matcher(strings =c(".*sis.*", ".*itis.*")

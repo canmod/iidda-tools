@@ -48,20 +48,36 @@ git_path_to_raw_github = function(urls, branch = 'master') {
   mapply(raw_github, users, repos, paths, 'master', USE.NAMES = FALSE)
 }
 
+#' Blob to Raw
+#'
+#' Convert URL in GitHub blob storage format to GitHub raw data format.
+#'
+#' @param urls Character vector of GitHub URLs in blob storage
+#'
 #' @export
+#' @examples
+#' blob_to_raw("https://github.com/canmod/iidda-tools/blob/main/R/iidda/R/github_parsing.R")
 blob_to_raw = function(urls) {
   urls %>%
     gsub(pattern = 'github.com', replacement = 'raw.githubusercontent.com') %>%
     gsub(pattern = '/blob/', replacement = '/')
 }
 
+#' Strip Blob
+#'
+#' Strip the 'blob part' of a GitHub URL so that it is
+#' a path relative to a local clone of the associated repo.
+#'
+#' @inheritParams blob_to_raw
+#'
 #' @export
+#' @examples
+#' strip_blob_github("https://github.com/canmod/iidda-tools/blob/main/R/iidda/R/github_parsing.R")
 strip_blob_github = function(urls) {
   ## https://stackoverflow.com/a/64147124/2047693
   sub("^https://github.com/[A-z0-9\\.-]+/[A-z0-9\\.-]+/blob/(main|master)/", "", urls)
 }
 
-#' @export
 strip_raw_github = function(urls) {
   stop('todo ... but see strip_blob_github')
 }

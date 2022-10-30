@@ -17,6 +17,8 @@ get_tracking_metadata(
 
 \item{digitization}{key to the digitization being used by the script}
 
+\item{tracking_path}{string giving path to the tracking data}
+
 \item{original_format}{should the original tracking table format be used?}
 
 \item{for_lbom}{are these data being read for the LBoM repo?}

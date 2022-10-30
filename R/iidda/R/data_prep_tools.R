@@ -1,9 +1,13 @@
 #' Write Tidy Digitized Data and Metadata
 #'
+#' @param tidy_data Data frame of prepared data that
+#' are ready to be packaged as an IIDDA tidy data set.
+#' @param metadata Output of \code{\link{get_tracking_metadata}}.
+#'
 #' @importFrom jsonlite write_json read_json
 #' @importFrom dplyr `%>%`
-#' @importFrom iidda.list get_elements
 #' @return file names where data were written
+#' @importFrom utils write.table
 #' @export
 write_tidy_data = function(tidy_data, metadata) {
   tidy_dataset = metadata$TidyDataset$tidy_dataset
@@ -62,7 +66,7 @@ write_tidy_data = function(tidy_data, metadata) {
             %>% key_val('name', 'type')
             %>% get_elements(colnames(tidy_data))
             %>% unlist
-            %>% iidda.list::lookup(col_classes_dict)
+            %>% lookup(col_classes_dict)
             %>% set_types(data = tidy_data)
             %>% write.table(tidy_file,
               # CSV Dialect Translation
@@ -84,6 +88,7 @@ write_tidy_data = function(tidy_data, metadata) {
 #'
 #' @param tidy_data_path path to folder containing 4 files: tidy data
 #' and resulting metadata for each prep script
+#' @importFrom utils read.table
 #' @export
 read_tidy_data = function(tidy_data_path) {
 
@@ -111,7 +116,7 @@ read_tidy_data = function(tidy_data_path) {
                  %>% read_json()
                  %>% key_val('name', 'type')
                  %>% unlist
-                 %>% iidda.list::lookup(col_classes_dict)
+                 %>% lookup(col_classes_dict)
                  %>% unlist()
   )
 
@@ -140,9 +145,9 @@ read_tidy_data = function(tidy_data_path) {
 
 #' Convert all missing values to NA
 #'
-#' @param tidy_data tidy data.frame resulting from data prep scripts
+#' @param data data frame resulting from data prep scripts
 #' @export
-empty_to_na = function(tidy_data) {
+empty_to_na = function(data) {
   (tidy_data
    %>% replace(apply(tidy_data, 2, is_empty) == TRUE, NA)
   )
@@ -172,17 +177,38 @@ iso_3166_codes = function(tidy_data, locations_iso) {
   )
 }
 
+#' Iso Codes
+#'
+#' Superseded by \code{\link{iso_3166_codes}}.
+#'
+#' @inheritParams iso_3166_codes
+#' @importFrom utils read.csv
 #' @export
 iso_codes = function(tidy_data, locations_iso = read.csv("tracking/locations_ISO.csv")) {
   warning('this function is deprecated -- please use iso_3166_codes instead')
   iso_3166_codes(tidy_data, locations_iso)
 }
 
+#' ISO-8601 Date Ranges
+#'
+#' Converts start and end dates
+#' into ISO-8601-compliant date ranges.
+#'
+#' @param start_date date vector
+#' @param end_date date vector
+#'
 #' @export
 iso_8601_dateranges = function(start_date, end_date) {
   paste(iso_8601_dates(start_date), iso_8601_dates(end_date), sep = "/")
 }
 
+#' ISO-8601 Dates
+#'
+#' Convert date vectors into string vectors with ISO-8601
+#' compliant format.
+#'
+#' @param dates date vector
+#'
 #' @importFrom lubridate day year month
 #' @export
 iso_8601_dates = function(dates) {
@@ -236,6 +262,11 @@ check_tidy_data_cols = function(table, column_metadata) {
 #'
 #' @param table dataframe (or dataframe-like object). Tidy dataset of all compiled datasets
 #' @param disease_col specifies level of disease (i.e. disease_family, disease, disease_subclass)
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr distinct across
+#' @importFrom tidyr pivot_wider
+#' @importFrom ggplot2 ggplot aes geom_tile
+#'
 #' @export
 disease_coverage_heatmap = function(table, disease_col = "disease") {
   (table
@@ -277,6 +308,11 @@ save_result = function(result, metadata) {
   save(list = names(result), file = output_file, envir = list2env(result))
 }
 
+#' Test Results
+#'
+#' Test the results of a data prep script (not finished).
+#'
+#' @inheritParams save_result
 #' @export
 test_result = function(result) {
   md_nms = grep('_metadata$', names(result), value = TRUE)
@@ -302,11 +338,15 @@ test_result = function(result) {
   mapply(compare_columns, result, previous_result)
 }
 
-#' @export
 schema_check = function(table, metadata) {
   stop('work in progress')
 }
 
+#' Read Digitized Data
+#'
+#' Read in digitized data to be prepared within the IIDDA project.
+#'
+#' @inheritParams write_tidy_data
 #' @importFrom tidyxl xlsx_cells
 #' @export
 read_digitized_data = function(metadata) {
@@ -320,6 +360,17 @@ read_digitized_data = function(metadata) {
   read_func(path)
 }
 
+#' Combine Weeks
+#'
+#' Combine data from different Excel sheets associated with
+#' specific weeks in 1956-2000 Canadian communicable disease
+#' incidence data prep pipelines.
+#'
+#' @inheritParams write_tidy_data
+#'
+#' @param cleaned_sheets List of data frames -- one for each sheet
+#' @param sheet_dates Data frame describing sheet dates (TODO: more info needed)
+#' @importFrom dplyr bind_rows
 #' @export
 combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
   (cleaned_sheets
@@ -335,10 +386,13 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 
 #' Identify Scales
 #'
+#' @param data data frame in IIDDA tidy format to add time scale
+#' and location scale information
+#'
 #' Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset.
 #' @export
-identify_scales = function(tidy_data){
-  (tidy_data
+identify_scales = function(data){
+  (data
    %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
@@ -360,7 +414,6 @@ identify_scales = function(tidy_data){
 # }
 
 
-#' @export
 column_summary = function(column, tidy_data, dataset_name, metadata) {
   if (!column %in% colnames(tidy_data)) {
     stop(
@@ -392,6 +445,15 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
   }
 }
 
+#' Add Column Summaries
+#'
+#' Add lists of unique values and ranges of values to a
+#' the metadata of an IIDDA data set.
+#'
+#' @inheritParams write_tidy_data
+#' @param dataset_name Character string giving IIDDA identifier
+#' of the dataset.
+#'
 #' @export
 add_column_summaries = function(tidy_data, dataset_name, metadata) {
   metadata$ColumnSummary = sapply(

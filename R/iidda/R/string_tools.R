@@ -63,10 +63,11 @@ sprintf_named <- function(template, ..., .check = TRUE) {
 #' if there are multiple sets of parentheses. You can use exclusion patterns
 #' to make this work better (e.g. \code{content_pattern = '[^)]*'}).
 #'
+#' @inheritParams remove_between_paren
+#'
 #' @param x Character vector
 #' @param left Left parenthetical string
 #' @param right Right parenthetical string
-#' @param contents_pattern Regex pattern for the contents between parentheses
 #' @return Character vector with NA's for elements in \code{x} that
 #' do not have parentheses and the substring between the first matching
 #' parentheses.
@@ -107,6 +108,7 @@ extract_between_paren = function(x, left = "\\(", right = "\\)",
 #' @param x Character vector
 #' @param left Left parenthetical string
 #' @param right Right parenthetical string
+#' @param contents_pattern Regex pattern for the contents between parentheses
 #' @return Version of \code{x} with first parenthesized substrings removed
 #' @examples
 #' x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")
