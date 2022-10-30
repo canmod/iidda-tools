@@ -5,8 +5,9 @@ Authors@R:
     person("First", "Last", , "swalk@mcmaster.ca", role = c("aut", "cre"))
 Description: R Bindings for the IIDDA API.
 License: GPL (>= 3)
-Depends: iidda, rapiclient, httr, readr
+Depends: iidda, rapiclient, readr
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1.9000
+Additional_repositories: https://canmod.github.io/drat

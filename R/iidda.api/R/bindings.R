@@ -23,7 +23,7 @@ make_ops_list = function(api_url, base_path) {
     else if (content_type == 'text/plain; charset=utf-8') {
       return(httr::content(
         x,
-        type="text/csv",
+        type = "text/csv",
         encoding = "UTF-8",
         col_types = readr::cols(.default = "c") # read all columns in as strings
       ))
@@ -51,7 +51,7 @@ make_ops_list = function(api_url, base_path) {
 
   iidda_api$basePath = file.path('',  base_path)
 
-  raw_requests = get_operations(
+  raw_requests = rapiclient::get_operations(
     iidda_api,
     handle_response = handle_iidda_response
   )
@@ -60,7 +60,7 @@ make_ops_list = function(api_url, base_path) {
     parameters <- environment(raw_requests[[x]])[["op_def"]][["parameters"]]
     default_values <- list()
     for (parameter in parameters) {
-      if(parameter[["required"]] == FALSE) {
+      if (parameter[["required"]] == FALSE) {
         default_values[[parameter[["name"]]]] <-
           parameter[["schema"]][["default"]]
       } else {
@@ -71,17 +71,17 @@ make_ops_list = function(api_url, base_path) {
   }
 
   for (name in names(raw_requests)) {
-    raw_requests[[name]] <- set_default_args_list(
+    raw_requests[[name]] <- rapiclient::set_default_args_list(
       raw_requests[[name]],
       parameter_list(name)
     )
   }
 
   get_request_names = summary_to_function_name(
-    list_xpath(iidda_api$paths, 'get', 'summary')
+    iidda::list_xpath(iidda_api$paths, 'get', 'summary')
   )
   post_request_names = summary_to_function_name(
-    list_xpath(iidda_api$paths, 'post', 'summary')
+    iidda::list_xpath(iidda_api$paths, 'post', 'summary')
   )
   request_names = ifelse(
     get_request_names == "list()",
@@ -101,6 +101,7 @@ make_ops_list = function(api_url, base_path) {
 #' @name ops
 NULL
 
+#' @importFrom iidda list_xpath
 #' @describeIn ops List containing available operations from the IIDDA API
 #' as \code{R} functions
 #' @export
