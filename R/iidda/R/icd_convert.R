@@ -6,11 +6,18 @@
 #' @param disease_pattern Regex pattern describing a disease.
 #' @param maximum_number_results Integer giving the maximum number
 #' of ICD codes to return, with preference given to shorter codes.
+#' @param ... Arguments to pass on to \code{\link{grepl}}.
+#' It is recommended to set \code{ignore.case = TRUE} and often
+#' \code{perl = TRUE}.
 #' @examples
 #' icd_finder("chick")  ## Struc by chicken!!
 #' @importFrom utils head
 #' @export
-icd_finder = function(disease_pattern, maximum_number_results = 10L) {
+icd_finder = function(
+    disease_pattern,
+    maximum_number_results = 10L,
+    ...
+  ) {
   icd_10 = (
     "https://github.com/kamillamagna/ICD-10-CSV/raw/master/categories.csv"
     %>% read.csv(header = FALSE)
@@ -18,7 +25,7 @@ icd_finder = function(disease_pattern, maximum_number_results = 10L) {
     %>% filter(grepl(
       pattern = disease_pattern,
       description,
-      ignore.case = TRUE
+      ...
     ))
     %>% arrange(nchar(code))
     %>% head(maximum_number_results)

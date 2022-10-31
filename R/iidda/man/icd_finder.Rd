@@ -4,13 +4,17 @@
 \alias{icd_finder}
 \title{ICD Finder}
 \usage{
-icd_finder(disease_pattern, maximum_number_results = 10L)
+icd_finder(disease_pattern, maximum_number_results = 10L, ...)
 }
 \arguments{
 \item{disease_pattern}{Regex pattern describing a disease.}
 
 \item{maximum_number_results}{Integer giving the maximum number
 of ICD codes to return, with preference given to shorter codes.}
+
+\item{...}{Arguments to pass on to \code{\link{grepl}}.
+It is recommended to set \code{ignore.case = TRUE} and often
+\code{perl = TRUE}.}
 }
 \description{
 Return the Shortest ICD-10 Codes that Match a Regex Pattern.
