@@ -44,7 +44,7 @@ head(ttr)
 
 # some things might be listed as viral under disease_subclass instead.
 # concatenate data from two `flexi_filter` calls
-all_vir <- bind_rows(ttr
+all_vir <- dplyr::bind_rows(ttr
 , flexi_filter(strings, fields = "disease_subclass"))
 
 
@@ -63,7 +63,7 @@ nrow(nsDat)
 
 # viruses in nova scotia
 
-ns_vir <- all_vir \%>\% inner_join(nsDat)
+ns_vir <- all_vir \%>\% dplyr::inner_join(nsDat)
 
 head(ns_vir)
 nrow(ns_vir)

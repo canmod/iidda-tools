@@ -150,6 +150,7 @@ token_matcher <- function(strings, tokens){
 #' @param fields Character vector, names of field(s) to match
 #' @inheritParams query_options
 #' @param ... Optional arguments passed to iidda.api functions
+#' @importFrom stats setNames
 #'
 #' @return Flat data with unique entries matching
 #'
@@ -169,7 +170,7 @@ token_matcher <- function(strings, tokens){
 #'
 #' # some things might be listed as viral under disease_subclass instead.
 #' # concatenate data from two `flexi_filter` calls
-#' all_vir <- bind_rows(ttr
+#' all_vir <- dplyr::bind_rows(ttr
 #' , flexi_filter(strings, fields = "disease_subclass"))
 #'
 #'
@@ -188,7 +189,7 @@ token_matcher <- function(strings, tokens){
 #'
 #' # viruses in nova scotia
 #'
-#' ns_vir <- all_vir %>% inner_join(nsDat)
+#' ns_vir <- all_vir %>% dplyr::inner_join(nsDat)
 #'
 #' head(ns_vir)
 #' nrow(ns_vir)
