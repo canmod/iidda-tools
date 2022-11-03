@@ -74,7 +74,12 @@ tabItem(
       tabPanel(
         "Download",
         uiOutput("filter_data_download_menu")
-      )),
+      ),
+      tabPanel(
+        "iidda.api Code",
+        uiOutput("iidda_api_code")
+      )
+      ),
     box(
       h3("Dataset Filtering"),
       width = 12,

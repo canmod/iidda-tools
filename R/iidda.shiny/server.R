@@ -181,7 +181,7 @@ server <- function(input, output) {
   )
   
   data_filters <- eventReactive(input$filter_data, {
-    filter_params <- lapply(data_dictionary(), function(x) {
+    filter_params <- lapply(filter_data_dictionary(), function(x) {
       named_list <- list()
       if (x$format == "num_missing") {
         if (input[[sprintf("%s_checkbox", x$name)]]) {
@@ -213,6 +213,22 @@ server <- function(input, output) {
     } else {
       data.frame(response)
     }
+  })
+  
+  
+  filtered_data_source_code <- eventReactive(input$filter_data, {
+    df <- data_filters()
+    df_names <- names(df)
+    df_names <- lapply(df_names, 
+                       function(x) {
+                         if(length(df[x][[1]]) > 1) {
+                           sprintf('%s = %s', x, df[x])
+                         } else {
+                           sprintf('%s = "%s"', x, df[x])
+                         }
+                         })
+    df <- paste(df_names, collapse=', ')
+    sprintf('iidda.api::ops$filter(resource_type = "%s", %s)', input$filter_data_type, df)
   })
   
 
@@ -419,6 +435,21 @@ server <- function(input, output) {
     },
     contentType = "application/zip"
   )
+  
+  output$iidda_api_code <- renderUI({
+    if (isTruthy(input$filter_data) && isTruthy(filtered_data())) {
+      tags$pre(tags$code(
+filtered_data_source_code()
+      ))
+    } else {
+      p(
+        class = "text-muted",
+        paste(
+          'Please apply a filter before attempting to access iidda.api code.'
+        )
+      )
+    }
+  })
   
 
 }

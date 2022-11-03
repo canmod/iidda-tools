@@ -11,7 +11,7 @@ from jq import jq
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import StreamingResponse
 from iidda_api import *
-from fastapi import FastAPI, Request, HTTPException,FastAPI, Query, Header
+from fastapi import FastAPI, Request, HTTPException, FastAPI, Query, Header
 import nest_asyncio
 nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
@@ -128,9 +128,8 @@ async def metadata(
 
 @app.get("/data_dictionary")
 async def data_dictionary():
-    ACCESS_TOKEN = read_config('access_token')
     dictionary = requests.get(
-        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json', headers={"Authorization": "token " + ACCESS_TOKEN}).json()
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
     return dictionary
 
 
@@ -353,7 +352,8 @@ async def filter(
         default=None, description=f"{global_data_dictionary['lower_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     upper_age: List[str] = Query(
         default=None, description=f"{global_data_dictionary['upper_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
-    sex: List[str] = Query(default=None),
+    sex: List[str] = Query(
+        default=None, description=global_data_dictionary['sex']['description']),
     cases_this_period: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cases_prev_period: List[str] = Query(
