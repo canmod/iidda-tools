@@ -123,7 +123,7 @@ unique_field_entries <- function(response_type = c("metadata"
 #' @param strings Character vector of regex strings to match
 #' @param tokens Character vector of tokens to match against
 #'
-#' @return Charaacter vector of unique matching tokens
+#' @return Character vector of unique matching tokens
 #' @export
 #'
 #' @importFrom stringr str_match_all

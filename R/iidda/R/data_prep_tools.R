@@ -148,8 +148,8 @@ read_tidy_data = function(tidy_data_path) {
 #' @param data data frame resulting from data prep scripts
 #' @export
 empty_to_na = function(data) {
-  (tidy_data
-   %>% replace(apply(tidy_data, 2, is_empty) == TRUE, NA)
+  (data
+   %>% replace(apply(data, 2, is_empty) == TRUE, NA)
   )
 }
 
@@ -400,18 +400,18 @@ identify_scales = function(data){
   )
 }
 
-# Previouse split tidy data version:
-# split_data = function(tidy_data){
-#   (tidy_data
-#    %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6 | period_end_date == as.Date(period_start_date) +7, "wk", "mt"))
-#    %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
-#    %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
-#    %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
-#    %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
-#    %>% select(-is_canada, -period)
-#    %>% split(.$splitting_column)
-#   )
-# }
+
+split_data = function(tidy_data){
+  (tidy_data
+   %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6 | period_end_date == as.Date(period_start_date) +7, "wk", "mt"))
+   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "quarterly", period))
+   %>% mutate(period = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "year", period))
+   %>% mutate(is_canada = ifelse(location == "Canada" | location == "CANADA", "canada", "province"))
+   %>% mutate(splitting_column = paste(period, is_canada, sep="_"))
+   %>% select(-is_canada, -period)
+   %>% split(.$splitting_column)
+  )
+}
 
 
 column_summary = function(column, tidy_data, dataset_name, metadata) {
