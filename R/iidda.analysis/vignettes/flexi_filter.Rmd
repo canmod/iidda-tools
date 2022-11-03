@@ -1,0 +1,31 @@
+---
+title: "flexi_filter"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{flexi_filter}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(iidda.analysis)
+```
+
+# What is `flexi_filter` for?
+The IIDDA api is designed to allow users to obtain filtered subseets of the
+data. The function `iidda.analysis::flexi_filter` enables filtering IIDDA
+datasets with regex queries. `flexi_filter` is [currently] bare-bones; searches
+that involve filtering on more than one field simultaneously usually have to be
+be handled by joining the results of two or more separate calls to
+`flexi_filter`.
+
+# The IIDDA datasets
+
+
