@@ -164,7 +164,7 @@ token_matcher <- function(strings, tokens){
 #' @param ... Optional arguments passed to iidda.api functions
 #' @importFrom stats setNames
 #'
-#' @return Flat data with unique entries matching
+#' @return Flat data with unique entries matching query
 #'
 #' @export
 #'
@@ -173,7 +173,7 @@ token_matcher <- function(strings, tokens){
 #'   complex searches may best be handled on the fly, filtering or combining the
 #'   data returned by individual, simpler searches.
 #'
-#' @seealso \code{query_options()}
+#' @seealso \code{\link{query_options}}
 #'
 #' @examples
 #' # get some viral diseases

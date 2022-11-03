@@ -19,13 +19,26 @@ library(iidda.analysis)
 ```
 
 # What is `flexi_filter` for?
-The IIDDA api is designed to allow users to obtain filtered subseets of the
-data. The function `iidda.analysis::flexi_filter` enables filtering IIDDA
-datasets with regex queries. `flexi_filter` is [currently] bare-bones; searches
-that involve filtering on more than one field simultaneously usually have to be
-be handled by joining the results of two or more separate calls to
-`flexi_filter`.
+The International Infectious Disease Data Archive (IIDDA) api is designed to
+allow users to obtain filtered subsets of the data. The function
+`iidda.analysis::flexi_filter` enables filtering IIDDA datasets with regex
+queries. `flexi_filter` is [currently] bare-bones; searches that involve
+filtering on more than one field simultaneously usually have to be be handled by
+joining the results of two or more separate calls to `flexi_filter`.
 
-# The IIDDA datasets
+# What does `flexi_filter` return?
+
+
+
+# What you can search
+
+`flexi_filter` can query any of the fields from different types of IIDDA
+datasets. The type of dataset queried is specified with the argument
+`response_type`, and can take the values `"metadata"` for metadata headers for
+each flat datafile, `"columns"` for field names in the flat data files
+themselves, or `"data_dictionary"` for definitions of the field names in either
+the flat data files or their associated metadata. 
+
+  
 
 
