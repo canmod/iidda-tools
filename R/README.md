@@ -1,5 +1,10 @@
 # IIDDA R Packages and App
 
+```
+pkgs = c("iidda", "iidda.api", "iidda.analysis")
+Vectorize(remotes::install_github, "subdir")("canmod/iidda-tools", subdir = file.path("R", pkgs))
+```
+
 ## `iidda`
 
 The `iidda` package contains general utilities that are consumed by the open data pipelines in https://github.com/davidearn/iidda.

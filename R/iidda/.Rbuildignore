@@ -3,3 +3,5 @@ git ^Makefile$
 ^config\.json$
 ^misc$
 ^install$
+^.*\.Rproj$
+^\.Rproj\.user$
