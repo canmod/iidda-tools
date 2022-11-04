@@ -12,16 +12,19 @@ unique_field_entries(
 )
 }
 \arguments{
-\item{response_type}{Character, one of `metadata`, `columns`, or `data_dictionary`}
+\item{response_type}{Character, one of `metadata`, `columns`, or 
+`data_dictionary`}
 
 \item{metadata_search}{Character, name of a metadata field}
 
 \item{string_comparison}{Character, one of `"exact"` or `"contains"`}
 
-\item{sort}{Logical, sort tokens alphabetically (in order of occurence if FALSE)}
+\item{sort}{Logical, sort tokens alphabetically (in order of occurence if
+FALSE)}
 }
 \value{
-Character vector of unique tokens for a given field from all iidda datasets
+Character vector of unique tokens for a given field from all iidda
+  datasets
 }
 \description{
 Query unique tokens for a field in iidda metadata

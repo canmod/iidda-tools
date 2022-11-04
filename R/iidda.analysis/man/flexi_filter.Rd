@@ -17,7 +17,8 @@ flexi_filter(
 
 \item{fields}{Character vector, names of field(s) to match}
 
-\item{response_type}{Character, one of `metadata`, `columns`, or `data_dictionary`}
+\item{response_type}{Character, one of `metadata`, `columns`, or 
+`data_dictionary`}
 
 \item{data_type}{Character, one of `cdi`, `CDI`, or `Communicable Disease
 Incidence` for disease incidence time series datasets, or `pop`, `Pop`,  or
@@ -26,13 +27,16 @@ Incidence` for disease incidence time series datasets, or `pop`, `Pop`,  or
 \item{...}{Optional arguments passed to iidda.api functions}
 }
 \value{
-Flat data with unique entries matching
+Flat data with unique entries matching query
 }
 \description{
 Get data where any field(s) match inputted strings
 }
 \details{
-the `filter` function searches using a logical "OR" between strings within fields, but an "AND" between fields. Searches are fast and so more complex searches may best be handled on the fly, filtering or combining the data returned by individual, simpler searches.
+the `filter` function searches using a logical "OR" between strings
+  within fields, but an "AND" between fields. Searches are fast and so more
+  complex searches may best be handled on the fly, filtering or combining the
+  data returned by individual, simpler searches.
 }
 \examples{
 # get some viral diseases
@@ -44,7 +48,7 @@ head(ttr)
 
 # some things might be listed as viral under disease_subclass instead.
 # concatenate data from two `flexi_filter` calls
-all_vir <- bind_rows(ttr
+all_vir <- dplyr::bind_rows(ttr
 , flexi_filter(strings, fields = "disease_subclass"))
 
 
@@ -63,11 +67,11 @@ nrow(nsDat)
 
 # viruses in nova scotia
 
-ns_vir <- all_vir \%>\% inner_join(nsDat)
+ns_vir <- all_vir \%>\% dplyr::inner_join(nsDat)
 
 head(ns_vir)
 nrow(ns_vir)
 }
 \seealso{
-\code{query_options()}
+\code{\link{query_options}}
 }

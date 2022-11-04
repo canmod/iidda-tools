@@ -6,19 +6,21 @@
 \usage{
 query_options(
   response_type = c("metadata", "columns", "data_dictionary"),
-  data_type = c("Communicable Disease Incidence", "Population", "cdi", "CDI", "pop",
+  data_type = c("Communicable Disease Incidence", "cdi", "CDI", "Population", "pop",
     "Pop")
 )
 }
 \arguments{
-\item{response_type}{Character, one of `metadata`, `columns`, or `data_dictionary`}
+\item{response_type}{Character, one of `metadata`, `columns`, or 
+`data_dictionary`}
 
 \item{data_type}{Character, one of `cdi`, `CDI`, or `Communicable Disease
 Incidence` for disease incidence time series datasets, or `pop`, `Pop`,  or
 `Population` for historical demographic census datasets"}
 }
 \value{
-A Vector of field names, or if `response_type = "data_dictionary"`, a named list
+A Vector of field names, or if `response_type = "data_dictionary"`, a 
+   named list
 }
 \description{
 Get field names for iidda queries
