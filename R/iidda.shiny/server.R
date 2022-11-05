@@ -438,9 +438,7 @@ server <- function(input, output) {
   
   output$iidda_api_code <- renderUI({
     if (isTruthy(input$filter_data) && isTruthy(filtered_data())) {
-      tags$pre(tags$code(
-filtered_data_source_code()
-      ))
+      tags$pre(tags$code(filtered_data_source_code()))
     } else {
       p(
         class = "text-muted",
