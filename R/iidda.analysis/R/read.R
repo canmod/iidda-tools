@@ -3,6 +3,7 @@
 #' @param dataset_id ID for a dataset in the IIDDA
 #'
 #' @importFrom iidda sprintf_named
+#' @importFrom utils read.csv
 #' @export
 read_iidda_dataset = function(dataset_id) {
   api_template = "%{api_url}s/datasets/%{dataset_id}s?response_type=raw_csv"

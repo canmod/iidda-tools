@@ -1,11 +1,13 @@
 #' Get field names for iidda queries
 #'
-#' @param response_type Character, one of `metadata`, `columns`, or `data_dictionary`
+#' @param response_type Character, one of `metadata`, `columns`, or 
+#'     `data_dictionary`
 #' @param data_type Character, one of `cdi`, `CDI`, or `Communicable Disease
 #'   Incidence` for disease incidence time series datasets, or `pop`, `Pop`,  or
 #'   `Population` for historical demographic census datasets"
 #'
-#' @return A Vector of field names, or if `response_type = "data_dictionary"`, a named list
+#' @return A Vector of field names, or if `response_type = "data_dictionary"`, a 
+#'    named list
 #'
 #' @importFrom stats na.omit
 #' @export
@@ -29,8 +31,15 @@
 #' query_options(response_type = "data_dictionary"
 #'               , data_type = "pop")
 
-query_options <- function(response_type = c("metadata", "columns", "data_dictionary")
-                          , data_type = c("Communicable Disease Incidence", "Population", "cdi", "CDI", "pop", "Pop")){
+query_options <- function(response_type = c("metadata"
+                                            , "columns"
+                                            , "data_dictionary")
+                          , data_type = c("Communicable Disease Incidence"
+                                          , "cdi"
+                                          , "CDI"
+                                          , "Population"
+                                          , "pop"
+                                          , "Pop")){
 
   response_type = match.arg(response_type)
   data_type = match.arg(data_type)
@@ -69,7 +78,8 @@ query_options <- function(response_type = c("metadata", "columns", "data_diction
 #' @param entries List returned by \code{iidda.api::ops$metadata}
 #' @param metadata_search Character, field from which unique tokens are desired
 #'
-#' @return Character vector of unique tokens for a given field from all iidda datasets
+#' @return Character vector of unique tokens for a given field from all iidda 
+#'    datasets
 
 unique_entries <- function(entries, metadata_search){
   entries %>%
@@ -90,9 +100,11 @@ unique_entries <- function(entries, metadata_search){
 #' @inheritParams query_options
 #' @param metadata_search Character, name of a metadata field
 #' @param string_comparison Character, one of `"exact"` or `"contains"`
-#' @param sort Logical, sort tokens alphabetically (in order of occurence if FALSE)
+#' @param sort Logical, sort tokens alphabetically (in order of occurence if
+#'   FALSE)
 #'
-#' @return Character vector of unique tokens for a given field from all iidda datasets
+#' @return Character vector of unique tokens for a given field from all iidda
+#'   datasets
 #' @export
 #'
 #' @examples
@@ -150,14 +162,18 @@ token_matcher <- function(strings, tokens){
 #' @param fields Character vector, names of field(s) to match
 #' @inheritParams query_options
 #' @param ... Optional arguments passed to iidda.api functions
+#' @importFrom stats setNames
 #'
-#' @return Flat data with unique entries matching
+#' @return Flat data with unique entries matching query
 #'
 #' @export
 #'
-#' @details the `filter` function searches using a logical "OR" between strings within fields, but an "AND" between fields. Searches are fast and so more complex searches may best be handled on the fly, filtering or combining the data returned by individual, simpler searches.
+#' @details the `filter` function searches using a logical "OR" between strings
+#'   within fields, but an "AND" between fields. Searches are fast and so more
+#'   complex searches may best be handled on the fly, filtering or combining the
+#'   data returned by individual, simpler searches.
 #'
-#' @seealso \code{query_options()}
+#' @seealso \code{\link{query_options}}
 #'
 #' @examples
 #' # get some viral diseases
@@ -169,7 +185,7 @@ token_matcher <- function(strings, tokens){
 #'
 #' # some things might be listed as viral under disease_subclass instead.
 #' # concatenate data from two `flexi_filter` calls
-#' all_vir <- bind_rows(ttr
+#' all_vir <- dplyr::bind_rows(ttr
 #' , flexi_filter(strings, fields = "disease_subclass"))
 #'
 #'
@@ -188,7 +204,7 @@ token_matcher <- function(strings, tokens){
 #'
 #' # viruses in nova scotia
 #'
-#' ns_vir <- all_vir %>% inner_join(nsDat)
+#' ns_vir <- all_vir %>% dplyr::inner_join(nsDat)
 #'
 #' head(ns_vir)
 #' nrow(ns_vir)

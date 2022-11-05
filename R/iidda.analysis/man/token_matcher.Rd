@@ -12,7 +12,7 @@ token_matcher(strings, tokens)
 \item{tokens}{Character vector of tokens to match against}
 }
 \value{
-Charaacter vector of unique matching tokens
+Character vector of unique matching tokens
 }
 \description{
 Obtain tokens matching regex strings

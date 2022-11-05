@@ -76,7 +76,7 @@ tabItem(
         uiOutput("filter_data_download_menu")
       ),
       tabPanel(
-        "iidda.api Code",
+        "R Code",
         uiOutput("iidda_api_code")
       )
       ),
