@@ -11,14 +11,14 @@ header <- dashboardHeader(title = "IIDDA")
 
 sidebar <- dashboardSidebar(sidebarMenu(
   menuItem(
-    "Dataset Selection",
-    tabName = "dataset_selection",
-    icon = icon("th")
-  ),
-  menuItem(
     "Data Filtering",
     icon = icon("filter"),
     tabName = "data_filtering"
+  ),
+  menuItem(
+    "Dataset Selection",
+    tabName = "dataset_selection",
+    icon = icon("th")
   )
 ))
 
