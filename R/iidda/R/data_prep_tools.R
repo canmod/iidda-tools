@@ -338,11 +338,11 @@ identify_scales = function(tidy_data){
    %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-   %>% mutate(location_scale = ifelse(location == "Canada" | location == "CANADA", "can", "prov"))
+   %>% mutate(location_type = ifelse(location == "Canada" | location == "CANADA", "country", "province"))
   )
 }
 
-# Previouse split tidy data version:
+# Previous split tidy data version:
 # split_data = function(tidy_data){
 #   (tidy_data
 #    %>% mutate(period = ifelse(period_end_date == as.Date(period_start_date) +6 | period_end_date == as.Date(period_start_date) +7, "wk", "mt"))
