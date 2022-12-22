@@ -4,8 +4,12 @@
 \alias{identify_scales}
 \title{Identify Scales}
 \usage{
-identify_scales(tidy_data)
+identify_scales(data)
+}
+\arguments{
+\item{data}{data frame in IIDDA tidy format to add time scale
+and location scale information}
 }
 \description{
-Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset.
+Identifies time scales (wk, mt, qrtr, yr) and location types (province or country) within a tidy dataset.
 }

@@ -17,8 +17,11 @@ make_age_hash_table(
 \item{re_templates}{list of templates that resolve to regular expressions
 for matching age information contained in category names}
 
-\item{which_bound}{should the lookup function return lower or upper age
-bounds}
+\item{which_bound}{resolve the template to match lower or upper bounds,
+neither (the default), or single}
+
+\item{prefix}{pattern to match at the beginning of the string that marks
+the beginning of age information}
 }
 \value{
 vector containing either the lower or upper age bounds contained

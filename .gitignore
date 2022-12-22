@@ -1,11 +1,11 @@
 .Rproj.user
+*.Rproj
 .Rhistory
 .RData
 .Ruserdata
 .DS_Store
 .Rprofile
 *.Rcheck
-.Rbuildignore
 *.Rproj
 renv*
 *tar.gz

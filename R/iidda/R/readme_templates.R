@@ -3,19 +3,7 @@ readme_classic_iidda = "# %{new_data_name}s
 
 [![Dataset Lifecycle Badge](https://img.shields.io/static/v1.svg?label=Lifecycle&message=%{lifecycle}s&color=blue)](https://github.com/davidearn/iidda/blob/main/docs/lifecycle.md)
 
-# Derived Data
-
-[How to create Derived Data for an IIDDA dataset](https://github.com/davidearn/iidda/blob/main/CONTRIBUTING.md)
-
 # Source Data
 
 [%{new_data_name}s](%{source_url}s)
-
-# Data Derivation Process
-
-[How to write a data derivation process for an IIDDA dataset](https://github.com/davidearn/iidda/blob/main/CONTRIBUTING.md)
-
-# Data Access Method
-
-[How to describe the method by which _you_ accessed the data source for an IIDDA dataset](https://github.com/davidearn/iidda/blob/main/CONTRIBUTING.md)
 "

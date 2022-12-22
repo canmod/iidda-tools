@@ -1,20 +1,22 @@
-from github import Github
-import requests
 import os
-from fastapi.responses import StreamingResponse
-import configparser
-from iidda_api import read_config, get_pipeline_dependencies
-from io import BytesIO, StringIO
-import zipfile
+from iidda_api import read_config
+from io import BytesIO
 import asyncio
-import json
 from iidda_api import get_release_list
-from fastapi.responses import PlainTextResponse
 from aiohttp_client_cache import CachedSession, FileBackend
 from appdirs import *
 
 
 async def get_dataset(dataset_name, version):
+    '''Gets the csv file of a dataset by name
+
+    Args:
+        dataset_name (str): name of the dataset
+        version (str, int): version of the dataset
+
+    Returns:
+        BytesIO Object: contains content of the csv file
+    '''
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 

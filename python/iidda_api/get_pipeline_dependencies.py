@@ -1,23 +1,36 @@
-from github import Github
 import requests
 import os
-import configparser
 from iidda_api import read_config
 import aiohttp
 import asyncio
-from io import BytesIO
 from iidda_api import get_release_list
-from fastapi.responses import StreamingResponse
-import zipfile
-from aiohttp_client_cache import CachedSession, FileBackend
+from aiohttp_client_cache import FileBackend
 from appdirs import *
 
 
 def convert_to_raw(url):
+    '''Converts github.com url to raw.githubusercontent.com url
+
+    Args:
+        url (str): link with base url "github.com" to a file stored on github
+
+    Returns:
+        str: equivalent url with "raw.githubusercontent.com" base url
+    '''
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
 
 
 async def get_pipeline_dependencies(dataset_name, version="latest", version_tag=""):
+    '''Downloads all pipeline_dependencies of a dataset
+
+    Args:
+        dataset_name (str): name of the dataset
+        version (str, int, optional): version of the dataset
+        version_tag (str, optional): version prefix of dataset (e.g. "v9-" indicates version 9 of a particular dataset)
+
+    Returns:
+        list: list of tuples. Each tuple contains a file's name and content
+    '''
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     # make cache directory
@@ -65,7 +78,7 @@ async def get_pipeline_dependencies(dataset_name, version="latest", version_tag=
                     async with aiohttp.ClientSession(headers={'Authorization': 'token ' + ACCESS_TOKEN, 'Accept': 'application/vnd.github.v3.raw'}) as session:
                         tasks = []
                         for relatedIdentifier in dataset_metadata['relatedIdentifiers']:
-                            if relatedIdentifier['relatedIdentifierType'] == "URL" and relatedIdentifier['relationType'] == "IsSourceOf":
+                            if relatedIdentifier['relatedIdentifierType'] == "URL":
                                 if isinstance(relatedIdentifier['relatedIdentifier'], list):
                                     for link in relatedIdentifier['relatedIdentifier']:
                                         url = convert_to_raw(link)

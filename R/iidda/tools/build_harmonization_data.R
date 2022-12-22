@@ -24,7 +24,7 @@ lookup_to_synonym_list = function(
     lookup_table, from_col, to_col, empty_cols = character(0L)
   ) {
   lookup_table = lookup_table[!iidda::is_empty(lookup_table[[from_col]]), ]
-  for(i in seq_along(empty_cols)) {
+  for (i in seq_along(empty_cols)) {
     lookup_table = lookup_table[iidda::is_empty(lookup_table[[empty_cols[i]]]), ]
   }
   unifier = lookup_table[[from_col]]

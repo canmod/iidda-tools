@@ -22,7 +22,7 @@
 sprintf_named <- function(template, ..., .check = TRUE) {
   args <- list(...)
   argn <- names(args)
-  if(.check) {
+  if (.check) {
     names_in_template = extract_all_between_paren(
       template, left = '%\\{', right = '\\}s',
       contents_pattern = '[^%]*')
@@ -30,24 +30,24 @@ sprintf_named <- function(template, ..., .check = TRUE) {
     # if no checks, assume no names in template
     names_in_template = character(0)
   }
-  if(is.null(argn)) {
-    if(length(names_in_template) != 0L) {
+  if (is.null(argn)) {
+    if (length(names_in_template) != 0L) {
       stop("There are items in the template, but none were specified as arguments.")
     } else {
       return(sprintf(template, ...))
     }
   }
-  if(.check) {
+  if (.check) {
     arg_check_pattern = paste0("%\\{", argn, '\\}s')
-    if(!all(sapply(arg_check_pattern, grepl, template))) {
+    if (!all(sapply(arg_check_pattern, grepl, template))) {
       stop("Not all items specified as arguments are in the template.")
-    } else if(!all(names_in_template %in% argn)){
+    } else if (!all(names_in_template %in% argn)) {
       stop("Not all items in the template were specified as arguments.")
     }
   }
 
-  for(i in seq_along(args)) {
-    if(argn[i] == "") next;
+  for (i in seq_along(args)) {
+    if (argn[i] == "") next;
     template <- gsub(sprintf("%%{%s}", argn[i]),
                      sprintf("%%%d$", i),
                      template, fixed = TRUE)
@@ -63,10 +63,11 @@ sprintf_named <- function(template, ..., .check = TRUE) {
 #' if there are multiple sets of parentheses. You can use exclusion patterns
 #' to make this work better (e.g. \code{content_pattern = '[^)]*'}).
 #'
+#' @inheritParams remove_between_paren
+#'
 #' @param x Character vector
 #' @param left Left parenthetical string
 #' @param right Right parenthetical string
-#' @param contents_pattern Regex pattern for the contents between parentheses
 #' @return Character vector with NA's for elements in \code{x} that
 #' do not have parentheses and the substring between the first matching
 #' parentheses.
@@ -80,8 +81,8 @@ extract_between_paren = function(x, left = "\\(", right = "\\)",
   # -------------------
   # TODO: unfinished
   content_patterns = function(type) {
-    switch (type,
-            multi = sprintf_named("[^%{left}s]*", left = left)
+    switch(type,
+           multi = sprintf_named("[^%{left}s]*", left = left)
     )
   }
   # -------------------
@@ -96,7 +97,7 @@ extract_between_paren = function(x, left = "\\(", right = "\\)",
     %>% regmatches(x = x)
     %>% vapply(function(x) {
       stopifnot(is.character(x))
-      if(length(x) == 0L) return(as.character(NA))
+      if (length(x) == 0L) return(as.character(NA))
       else return(x[1])
     }, character(1L))
   )
@@ -107,6 +108,7 @@ extract_between_paren = function(x, left = "\\(", right = "\\)",
 #' @param x Character vector
 #' @param left Left parenthetical string
 #' @param right Right parenthetical string
+#' @param contents_pattern Regex pattern for the contents between parentheses
 #' @return Version of \code{x} with first parenthesized substrings removed
 #' @examples
 #' x = c("-", "", NA, "1", "3", "1 (Alta.)", "(Sask) 20")
@@ -130,10 +132,10 @@ extract_all_between_paren = function(x, left = "\\(", right = "\\)",
                                      max_iters = 100) {
   stopifnot(length(x) == 1L)
   output = c()
-  for(i in 1:max_iters) {
+  for (i in 1:max_iters) {
     output = append(output, extract_between_paren(x, left, right, contents_pattern))
     y = remove_between_paren(x, left, right, contents_pattern)
-    if(x == y) {break}
+    if (x == y) {break}
     else {x = y}
   }
   return(output[!is.na(output)])
@@ -149,7 +151,7 @@ vsub = function(pattern, replacement, x, ...) {
   f = Vectorize(sub, vectorize.args = 'pattern')
   stopifnot(length(pattern) == length(x))
   non_empty = !is_empty(pattern)
-  if(length(replacement) != 1L) {
+  if (length(replacement) != 1L) {
     stopifnot(length(replacement) == length(pattern))
     replacement = replacement[non_empty]
   }
@@ -170,10 +172,10 @@ rm_leading_slash = function(x) sub('^/', '', x)
 #' @export
 or_pattern = function(x, at_start = TRUE, at_end = TRUE) {
   x = "(" %+% paste0(x, collapse = "|") %+% ")"
-  if(at_start) {
+  if (at_start) {
     x = "^" %+% x
   }
-  if(at_end) {
+  if (at_end) {
     x = x %+% "$"
   }
   x
@@ -267,7 +269,7 @@ summarise_integers = function(x, range_operator = "-", collapse = TRUE) {
   )
   x = x[o]
   y = x[1]
-  for(z in x[-1]) {
+  for (z in x[-1]) {
     ly = length(y)
     that_head = sub(range_regex, '\\1', y[ly]) %>% as.integer
     this_head = sub(range_regex, '\\1', z) %>% as.integer
@@ -276,11 +278,11 @@ summarise_integers = function(x, range_operator = "-", collapse = TRUE) {
     this_tail = sub(range_regex, '\\2', z) %>% as.integer
     if(between(that_tail, this_head - 1, this_tail)) {
       y[ly] = that_head %+% range_operator %+% this_tail
-    } else if(this_head > that_tail + 1) {
+    } else if (this_head > that_tail + 1) {
       y = append(y, z)
     }
   }
-  if(collapse) y = paste0(y, collapse = ", ")
+  if (collapse) y = paste0(y, collapse = ", ")
   y
 }
 
@@ -305,6 +307,6 @@ summarise_dates = function(x_start, x_end, range_operator = " to ", collapse = T
     " to " %+%
     as.character(as.Date(as.integer(sub(range_regex, '\\2', x_integer)), origin = "1970-01-01"))
   )
-  if(collapse) y = paste0(y, collapse = ', ')
+  if (collapse) y = paste0(y, collapse = ', ')
   y
 }

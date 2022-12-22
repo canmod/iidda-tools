@@ -1,18 +1,23 @@
-#from functools import cache
-import requests
 import os
-import configparser
 from iidda_api import read_config
 import json
-import aiohttp
 import asyncio
 from aiohttp_client_cache import CachedSession, FileBackend
-import requests_cache
 from appdirs import *
 import re
 
 
 async def get_release_list(access_token, cache_config, clear_cache):
+    '''Gets list of all releases in a github respository
+
+    Args:
+        access_token (str): github access token
+        cache_config (aiohttp_client_cache Backend Object): aiohttp_client_cache Backend Object (e.g. FileBackend object)
+        clear_cache (bool): clears all cache stored in the cache backend
+
+    Returns:
+        list: list of all releases found in a github repository
+    '''
     async with CachedSession(cache=cache_config) as session:
         if clear_cache == True or (isinstance(clear_cache, str) and clear_cache.lower() == 'true'):
             await session.cache.clear()
@@ -29,6 +34,16 @@ async def get_release_list(access_token, cache_config, clear_cache):
 
 
 def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
+    """Returns dictionary containg all (or some) datasets found in the releases and their corresponding metadata, data dictionaries, etc.
+
+    Args:
+        clear_cache (bool): clears all cache stored in the cache backend
+        response_type (str, optional): Type of information stored in the dictionary. Acceptable values include "columns", "csv_dialect", "data_dictionary", "github_url", "metadata". Defaults to "metadata".
+        subset (str or List(str), optional): List of dataset ID strings, or "all" to return all datasets. Defaults to "all".
+
+    Returns:
+        dict: Dictionary with keys given by dataset IDs and values containing the response of the requested type (see response_type)
+    """
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 

@@ -15,11 +15,11 @@ set_iidda_col_types = function(data) {
   }
 
   (dict
-    %>% iidda::key_val('name', 'type')
+    %>% key_val('name', 'type')
     %>% get_elements(colnames(data))
     %>% unlist
-    %>% iidda::lookup(iidda::col_classes_dict)
-    %>% iidda::set_types(data = data)
+    %>% lookup(iidda::col_classes_dict)
+    %>% set_types(data = data)
   )
 }
 
@@ -33,6 +33,7 @@ set_iidda_col_types = function(data) {
 #' @return data frame with changed column types -- note that the
 #' returned data frame is a plain base R \code{data.frame}
 #' (i.e. not a \code{tibble} or \code{data.table}).
+#' @importFrom methods as
 #' @export
 set_types = function(data, types) {
   (data
@@ -76,6 +77,12 @@ get_unique_col_values = function(l) {
   )
 }
 
+#' Drop Empty Rows
+#'
+#' Drop empty rows in a table using \code{\link{is_empty}}.
+#'
+#' @param table data frame
+#'
 #' @export
 drop_empty_rows = function(table) {
   empty_cells = sapply(table, is_empty)

@@ -11,14 +11,14 @@ header <- dashboardHeader(title = "IIDDA")
 
 sidebar <- dashboardSidebar(sidebarMenu(
   menuItem(
-    "Dataset Selection",
-    tabName = "dataset_selection",
-    icon = icon("th")
-  ),
-  menuItem(
     "Data Filtering",
     icon = icon("filter"),
     tabName = "data_filtering"
+  ),
+  menuItem(
+    "Dataset Selection",
+    tabName = "dataset_selection",
+    icon = icon("th")
   )
 ))
 
@@ -47,7 +47,7 @@ body <- dashboardBody(tabItems(tabItem(
       selectInput(
         inputId = "data_type",
         label = "Dataset Type",
-        choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .resourceType .resourceType] | unique'),
+        choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .types .resourceType] | unique'),
         selected = "Communicable Disease Incidence"
       ),
       uiOutput("dataset_name"),
@@ -68,13 +68,18 @@ tabItem(
       width = 12,
       tabPanel(
         "Filtered Data",
-        DT::dataTableOutput("data_filter_table") %>% withSpinner(color = "#FDBF57"),
+        DT::dataTableOutput("filter_data_table") %>% withSpinner(color = "#FDBF57"),
         style = "height: fit-content; overflow-y:scroll; overflow-x:scroll;"
       ),
       tabPanel(
         "Download",
         uiOutput("filter_data_download_menu")
-      )),
+      ),
+      tabPanel(
+        "R Code",
+        uiOutput("iidda_api_code")
+      )
+      ),
     box(
       h3("Dataset Filtering"),
       width = 12,
@@ -84,9 +89,9 @@ tabItem(
       ),
       actionButton("filter_data", "Apply Changes"),
       selectInput(
-        inputId = "data_filter_type",
+        inputId = "filter_data_type",
         label = "Dataset Type",
-        choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .resourceType .resourceType] | unique'),
+        choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .types .resourceType] | unique'),
         selected = "Communicable Disease Incidence"
       ),
       uiOutput("column_filters"),

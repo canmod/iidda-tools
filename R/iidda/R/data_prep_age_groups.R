@@ -4,7 +4,7 @@
 #' regular expression for matching age bound information in disease category
 #' names
 #'
-#' @params re_template template that resolve to regular expressions
+#' @param re_template template that resolve to regular expressions
 #' for matching age information contained in category names
 #' @param which_bound resolve the template to match lower or upper bounds,
 #' neither (the default), or single
@@ -67,8 +67,15 @@ wrap_age_patterns = function(
 
 #' Fill Template and Wrap the Results
 #'
-#' Convenience function to do \code{fill_re_template} and
-#' \code{wrap_age_patterns} in one step
+#' Convenience function to do \code{\link{fill_re_template}} and
+#' \code{\link{wrap_age_patterns}} in one step.
+#'
+#' @param re_templates a set of \code{re_template}s each passed to
+#' \code{\link{fill_re_template}}
+#'
+#' @inheritParams fill_re_template
+#' @inheritParams wrap_age_patterns
+#'
 #' @export
 fill_and_wrap = function(re_templates, which_bound, purpose, prefix = '') {
   (re_templates
@@ -86,7 +93,7 @@ fill_and_wrap = function(re_templates, which_bound, purpose, prefix = '') {
 #' containing regex matches of age bound information contained in
 #' disease category names. each \code{x} corresponds to a single
 #' category.
-#' @return
+#' @return Character string with matched age bound
 #' @export
 return_matched_age_bound = function(x) {
 
@@ -113,11 +120,12 @@ return_matched_age_bound = function(x) {
 #' or upper age bounds contained in the categories. If no bound is present
 #' then \code{NA} is returned.
 #'
+#' @inheritParams wrap_age_patterns
+#' @inheritParams fill_re_template
+#'
 #' @param categories character vector of disease category names
 #' @param re_templates list of templates that resolve to regular expressions
 #' for matching age information contained in category names
-#' @param which_bound should the lookup function return lower or upper age
-#' bounds
 #' @return vector containing either the lower or upper age bounds contained
 #' in the categories
 #' @export
@@ -144,6 +152,8 @@ make_age_hash_table = function(categories, re_templates, which_bound = c('lower'
 #' Remove Age
 #'
 #' Remove age information from a vector of category names
+#'
+#' @inheritParams wrap_age_patterns
 #'
 #' @param categories vector of category names
 #' @param re_templates list of templates that resolve to regular expressions

@@ -25,7 +25,7 @@ names:
   \item{sex}{
     \describe{
       \item{iso_5218}{
-        Historical names refering to sexes associated with
+        Historical names referring to sexes associated with
         each iso-5218 code.
       }
     }

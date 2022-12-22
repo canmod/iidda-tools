@@ -1,4 +1,36 @@
+#' Get Firsts
+#'
+#' Get the first item in each sublist of sublists (ugh ... I know).
+#'
+#' @param l A list of lists of lists
+#' @param key Name of focal sublist (TODO: needs better description/motivation)
+#'
 #' @export
+#' @examples
+#' l = list(
+#'   a = list(
+#'     A = list(
+#'       i = 1,
+#'       ii = 2
+#'     ),
+#'     B = list(
+#'       i = 3,
+#'       ii = 4
+#'     )
+#'  ),
+#'  b = list(
+#'     A = list(
+#'       i = 5,
+#'       ii = 6
+#'     ),
+#'     B = list(
+#'       i = 7,
+#'       ii = 8
+#'     )
+#'   )
+#' )
+#' get_firsts(l, "A")
+#' get_firsts(l, "B")
 get_firsts = function(l, key) {
   (l
    %>% lapply(getElement, key)
@@ -16,20 +48,30 @@ get_firsts = function(l, key) {
 #' @export
 get_with_key = function(l, key, pattern, ...) {
   indices = (l
-             %>% get_firsts(key) # keys can only be length-1, so taking first silently
-             %>% sapply(grepl, pattern = pattern, ...)
-             %>% which
+     %>% get_firsts(key) # keys can only be length-1, so taking first silently
+     %>% sapply(grepl, pattern = pattern, ...)
+     %>% which
   )
-  stopifnot(length(indices) > 0L)
+  #stopifnot(length(indices) > 0L)
   l[indices]
 }
 
+#' Get Items
+#'
+#' Get list of items within each inner list of a list of lists
+#'
+#' @param l A list of lists.
+#' @param keys Name of the items in the inner lists.
+#'
 #' @export
 get_items = function(l, keys) {
   lapply(l ,`[`, keys)
 }
 
-
+#' Get Elements
+#'
+#' Synonym for the \code{`[`} operator for use in pipelines.
+#'
 #' @export
 get_elements = `[`
 
@@ -52,7 +94,20 @@ lookup = function(named_keys, l) {
   lapply(named_keys, function(key) l[[key]])
 }
 
+#' Key-Value
+#'
+#' Create a set of key-value pairs by extracting elements from
+#' within a list of named-lists.
+#'
+#' @param l A list of named lists
+#' @param key A name of an element in each list in \code{l}
+#' @param value A name of an element in each list in \code{l}
+#'
 #' @export
+#' @examples
+#' f = system.file("example_data_dictionary.json", package = "iidda")
+#' d = jsonlite::read_json(f)
+#' key_val(d, "name", "type")
 key_val = function(l, key, value) {
   (l
    %>% get_firsts(value)
@@ -60,14 +115,26 @@ key_val = function(l, key, value) {
   )
 }
 
+#' List Extract
+#'
+#' Extract list items by regular expression matching
+#' on their names.
+#'
+#' @param x A list.
+#' @param pattern A regular expression
+#' @param ... Arguments to pass to \code{\link{grepl}}
+#'
 #' @export
 list_extract = function(x, pattern, ...) {
   x[grepl(pattern, names(x), ...)]
 }
 
-##' self-naming list (copied from lme4:::namedList)
-##' @param ... a list of objects
-##' @export
+#' Self-Naming List
+#'
+#' Copied from \code{lme4:::namedList}.
+#'
+#' @param ... a list of objects
+#' @export
 nlist <- function(...) {
   L <- list(...)
   snm <- vapply(substitute(list(...)), deparse, character(1))[-1]
@@ -80,6 +147,13 @@ nlist <- function(...) {
   setNames(L, nm)
 }
 
+#' Extract or Blank
+#'
+#' Try to extract a list element, and return a blank
+#' list if it doesn't exist or if a proper list is not passed.
+#'
+#' @param l List
+#' @param e Name of the focal element
 #' @export
 extract_or_blank = function(l, e) {
   if (!is.recursive(l)) return(list())
@@ -88,7 +162,54 @@ extract_or_blank = function(l, e) {
   le
 }
 
+#' Extract Character or Blank
+#'
+#' Extract a character vector from a list or return
+#' a blank string if it doesn't exist or if a proper
+#' list isn't passed.
+#' @inheritParams extract_or_blank
+#'
 #' @export
+extract_char_or_blank = function(l, e) {
+  if (!is.recursive(l)) return("")
+  le = l[[e]]
+  if (is.null(le)) return("")
+  as.character(le)
+}
+
+#' List XPath
+#'
+#' Extract elements of lists using x-path-like syntax.
+#'
+#' @param l A hierarchical list.
+#' @param ... Character strings describing the path down the hierarchy.
+#'
+#' @export
+#' @examples
+#' l = list(
+#'   a = list(
+#'     A = list(
+#'       i = 1,
+#'       ii = 2
+#'     ),
+#'     B = list(
+#'       i = 3,
+#'       ii = 4
+#'     )
+#'  ),
+#'  b = list(
+#'     A = list(
+#'       i = 5,
+#'       ii = 6
+#'     ),
+#'     B = list(
+#'       i = 7,
+#'       ii = 8
+#'     )
+#'   )
+#' )
+#' list_xpath(l, "A", "i")
+#' list_xpath(l, "B", "ii")
 list_xpath = function(l, ...) {
   path_names = list(...)
   for (i in seq_along(path_names)) {

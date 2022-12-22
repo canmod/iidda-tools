@@ -55,8 +55,8 @@ iidda_from_single_file = function(single_file, new_repo, lifecycle) {
   initialize_iidda_readme(new_data_path, new_data_name, base_source_file, lifecycle)
 }
 
-#' Make IIDDA Dataset README File
-#'
+# Make IIDDA Dataset README File
+#
 initialize_iidda_readme = function(
   new_data_path, new_data_name, base_source_file, lifecycle) {
 

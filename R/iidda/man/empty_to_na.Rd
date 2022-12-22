@@ -4,10 +4,10 @@
 \alias{empty_to_na}
 \title{Convert all missing values to NA}
 \usage{
-empty_to_na(tidy_data)
+empty_to_na(data)
 }
 \arguments{
-\item{tidy_data}{tidy data.frame resulting from data prep scripts}
+\item{data}{data frame resulting from data prep scripts}
 }
 \description{
 Convert all missing values to NA

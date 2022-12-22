@@ -1,19 +1,21 @@
-from github import Github
-import requests
 import os
-from fastapi.responses import StreamingResponse
-import configparser
 from iidda_api import read_config, get_pipeline_dependencies, get_release_list
-from io import BytesIO
-import zipfile
-import json
-import aiohttp
 import asyncio
-from fastapi.responses import PlainTextResponse
 from aiohttp_client_cache import CachedSession, FileBackend
 from appdirs import *
 
+
 async def get_download(dataset_name, version, resource=None):
+    '''Downloads files of a dataset
+
+    Args:
+        dataset_name (str): name of the dataset
+        version (str, int): version of the dataset
+        resource (list): list of resources to download (e.g. csv, pipeline_dependencies, metadata)
+
+    Returns:
+        list: list of tuples. Each tuple contains a file's name and content
+    '''
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     # make cache directory
@@ -56,23 +58,25 @@ async def get_download(dataset_name, version, resource=None):
     }
 
     # make cache directory
-    cache_path = user_cache_dir("iidda-api-cache","")
+    cache_path = user_cache_dir("iidda-api-cache", "")
     if not os.path.isdir(cache_path):
         os.makedirs(cache_path)
     # Cache configurations
     assets_cache = FileBackend(
-        cache_name = cache_path  + "/assets"
+        cache_name=cache_path + "/assets"
     )
 
     async def main():
         async with CachedSession(cache=assets_cache, headers=headers) as session:
             tasks = []
             if "pipeline_dependencies" in resource:
-                task = asyncio.ensure_future(get_pipeline_dependencies(dataset_name, version=version, version_tag=version_tag))
+                task = asyncio.ensure_future(get_pipeline_dependencies(
+                    dataset_name, version=version, version_tag=version_tag))
                 tasks.append(task)
             for asset in release['assets']:
                 if (asset['name'].endswith(".csv") and "csv" in resource) or (asset['name'].endswith(".json") and "metadata" in resource):
-                    task = asyncio.ensure_future(download_asset(asset['url'], asset['name'], session))
+                    task = asyncio.ensure_future(download_asset(
+                        asset['url'], asset['name'], session))
                     tasks.append(task)
 
             files = await asyncio.gather(*tasks)
@@ -83,7 +87,7 @@ async def get_download(dataset_name, version, resource=None):
         async with session.get(url) as response:
             if response.ok:
                 file_content = await response.read()
-                return (file_name,file_content)
+                return (file_name, file_content)
             else:
                 return "Download failed: {}\n{}".format(response.status_code, response.text)
 
