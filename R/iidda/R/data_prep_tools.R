@@ -408,17 +408,18 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 
 #' Identify Scales
 #'
+#'Identifies time scales (wk, mt, qrtr, yr) and location types (province or country) within a tidy dataset.
+#'
 #' @param data data frame in IIDDA tidy format to add time scale
 #' and location scale information
 #'
-#' Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset.
 #' @export
 identify_scales = function(data){
   (data
    %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-   %>% mutate(location_scale = ifelse(location == "Canada" | location == "CANADA", "can", "prov"))
+   %>% mutate(location_type = ifelse(location == "Canada" | location == "CANADA", "country", "province"))
   )
 }
 
@@ -434,6 +435,7 @@ split_data = function(tidy_data){
    %>% split(.$splitting_column)
   )
 }
+
 
 
 column_summary = function(column, tidy_data, dataset_name, metadata) {
