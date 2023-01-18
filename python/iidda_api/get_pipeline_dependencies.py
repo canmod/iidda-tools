@@ -9,10 +9,28 @@ from appdirs import *
 
 
 def convert_to_raw(url):
+    '''Converts github.com url to raw.githubusercontent.com url
+
+    Args:
+        url (str): link with base url "github.com" to a file stored on github
+
+    Returns:
+        str: equivalent url with "raw.githubusercontent.com" base url
+    '''
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
 
 
 async def get_pipeline_dependencies(dataset_name, version="latest", version_tag=""):
+    '''Downloads all pipeline_dependencies of a dataset
+
+    Args:
+        dataset_name (str): name of the dataset
+        version (str, int, optional): version of the dataset
+        version_tag (str, optional): version prefix of dataset (e.g. "v9-" indicates version 9 of a particular dataset)
+
+    Returns:
+        list: list of tuples. Each tuple contains a file's name and content
+    '''
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
     # make cache directory

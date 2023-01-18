@@ -11,7 +11,7 @@ from jq import jq
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import StreamingResponse
 from iidda_api import *
-from fastapi import FastAPI, Request, HTTPException,FastAPI, Query, Header
+from fastapi import FastAPI, Request, HTTPException, FastAPI, Query, Header
 import nest_asyncio
 nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
@@ -128,9 +128,8 @@ async def metadata(
 
 @app.get("/data_dictionary")
 async def data_dictionary():
-    ACCESS_TOKEN = read_config('access_token')
     dictionary = requests.get(
-        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json', headers={"Authorization": "token " + ACCESS_TOKEN}).json()
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
     return dictionary
 
 
@@ -353,7 +352,8 @@ async def filter(
         default=None, description=f"{global_data_dictionary['lower_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     upper_age: List[str] = Query(
         default=None, description=f"{global_data_dictionary['upper_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
-    sex: List[str] = Query(default=None),
+    sex: List[str] = Query(
+        default=None, description=global_data_dictionary['sex']['description']),
     cases_this_period: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cases_prev_period: List[str] = Query(
@@ -416,6 +416,10 @@ async def filter(
 
             # pandas_containment_filter is a pandas filter that will be used to filter the dataframe
             pandas_containment_filter = f"{key} >= '{date_range[0]}' and {key} <= '{date_range[1]}'"
+
+            filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
+                "'", '"')
+
         elif global_data_dictionary[key]["format"] == "num_missing":
             # Create name of a new temporary column (this column will contain the contents of the original column but converted to numbers or NaN allowing for proper filtering)
             temporary_column_name = key + "_num_missing"
@@ -461,14 +465,31 @@ async def filter(
                 containment_filter = " or ".join(containment_filter_list)
                 pandas_containment_filter = " or ".join(
                     pandas_containment_filter_list)
-        else:
-            containment_filter = " or ".join(
-                map(lambda value: f'contains(["{value}"])', filter_arguments[key]))
-            pandas_containment_filter = " | ".join(
-                map(lambda value: f'({key} == "{value}")', filter_arguments[key]))
 
-        filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
-            "'", '"')
+            filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
+                "'", '"')
+        else:
+            def containment_filter_generation(val):
+                if val == "":
+                    return 'any(.[]; . == "")'
+                return f'contains(["{val}"])'
+
+            def pandas_filter_generation(val):
+                if val == "":
+                    return f'({key}.isnull())'
+                return f'({key} == "{val}")'
+
+            containment_filter = " or ".join(
+                map(containment_filter_generation, filter_arguments[key]))
+            pandas_containment_filter = " | ".join(
+                map(pandas_filter_generation, filter_arguments[key]))
+
+            if "" in filter_arguments[key] and len(filter_arguments) > 1:
+                filter = f'((.disease_subclass == null) or (select(.{key} != null) | .{key} | {containment_filter}))'.replace(
+                    "'", '"')
+            else:
+                filter = f'(select(.{key} != null) | .{key} | {containment_filter})'.replace(
+                    "'", '"')
 
         if pandas_containment_filter is not None:
             pandas_containment_filter = f'({pandas_containment_filter})'
@@ -519,13 +540,14 @@ async def filter(
                 merged_csv[column[1]] = pd.to_numeric(
                     merged_csv[column[0]], errors='coerce')
 
-        missing_cols = list()
-        for key in filter_arguments:
-            if key not in merged_csv.columns:
-                missing_cols.append(key)
-        if len(missing_cols) > 0:
-            raise HTTPException(
-                status_code=400, detail=f"These columns do not exist in these dataset(s): {missing_cols}")
+        # missing_cols = list()
+        # for key in filter_arguments:
+        #     if key not in merged_csv.columns:
+        #         missing_cols.append(key)
+        # if len(missing_cols) > 0:
+        #     raise HTTPException(
+        #         status_code=400, detail=f"These columns do not exist in these dataset(s): {missing_cols}")
+
         if pandas_query != "":
             merged_csv = merged_csv.query(pandas_query)
         if len(num_missing_columns) != 0:
@@ -537,11 +559,11 @@ async def filter(
         cols = merged_csv.columns.tolist()
         cols = sorted(cols, key=all_columns_list.index)
         merged_csv = merged_csv[cols]
-
         write_stats(endpoint="/filter", datasets=dataset_list)
         return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
     return asyncio.run(main())
+
 
 # ‘/githubwebhook’ specifies which link will it work on
 

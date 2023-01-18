@@ -36,7 +36,7 @@ downloadMenuServer <- function(id, datasets, action_button_id, data) {
 }
 
 server <- function(input, output) {
-  
+
   # Dataset Selection Section
   data <- eventReactive(input$select_data, {
     response <- iidda.api::ops$raw_csv(dataset_ids = input$dataset_name)
@@ -46,13 +46,13 @@ server <- function(input, output) {
       data.frame(response)
     }
   })
-  
+
   datasets <- reactive(names(iidda.api::ops$metadata(
     response_type = "metadata",
     metadata_search = input$data_type,
     key = ".types .resourceType"
   )))
-  
+
   data_dictionary <- reactive(
     iidda.api::ops$metadata(
       response_type = "data_dictionary",
@@ -63,7 +63,7 @@ server <- function(input, output) {
       unique %>%
       na.omit
   )
-  
+
   output$dataset_name = renderUI(
     selectizeInput(
       inputId = "dataset_name",
@@ -72,14 +72,14 @@ server <- function(input, output) {
       choices = datasets()
     )
   )
-  
+
   output$data_table = renderDT({
     data_dictionary <-
       iidda.api::ops$metadata(
         response_type = "data_dictionary",
         jq_query = '[.[] | select(. != "No metadata.") | .[] | {(.name) : [(.title), (.description)]} ] | unique | add'
       )
-    
+
     datatable(
       data(),
       filter = "top",
@@ -99,12 +99,12 @@ server <- function(input, output) {
           toJSON(data_dictionary)
         )
       )
-      
+
     )
   })
-  
+
   downloadMenuServer(id="dataset_selection", datasets = input$dataset_name)
-  
+
   output$dataset_selection_download_menu <- renderUI({
     if (isTruthy(input$dataset_name) && isTruthy(data())) {
       box(
@@ -139,14 +139,14 @@ server <- function(input, output) {
       )
     }
   })
-  
+
   output$download_combined_datasets <- downloadHandler(
-    filename = function(){"combined_datasets.csv"}, 
+    filename = function(){"combined_datasets.csv"},
     content = function(fname){
       write.csv(data(), fname, na="", row.names=FALSE)
     }
   )
-  
+
   output$download_data <- downloadHandler(
     filename = function()
     {
@@ -166,12 +166,12 @@ server <- function(input, output) {
     },
     contentType = "application/zip"
   )
-  
+
   #Dataset Filtering Section
-  
+
   filter_data_dictionary <- reactive(
     iidda.api::ops$metadata(
-      response_type = "data_dictionary", 
+      response_type = "data_dictionary",
       metadata_search = input$filter_data_type,
       key = ".types .resourceType"
       ) %>%   unlist(recursive = FALSE) %>%
@@ -179,9 +179,9 @@ server <- function(input, output) {
       unique %>%
       na.omit
   )
-  
+
   data_filters <- eventReactive(input$filter_data, {
-    filter_params <- lapply(data_dictionary(), function(x) {
+    filter_params <- lapply(filter_data_dictionary(), function(x) {
       named_list <- list()
       if (x$format == "num_missing") {
         if (input[[sprintf("%s_checkbox", x$name)]]) {
@@ -201,11 +201,16 @@ server <- function(input, output) {
       } else{
         named_list[[x$name]] = input[[x$name]]
       }
+      if (length(named_list) != 0L) {
+        if (isTRUE(x$format == "default") & isTRUE(x$type == "string")) {
+          named_list[[x$name]][named_list[[x$name]] == " -- EMPTY -- "] = ""
+        }
+      }
       named_list
     }) %>% unlist(recursive = FALSE)
     return(filter_params)
   })
-  
+
   filtered_data <- eventReactive(input$filter_data, {
     response <- do.call(iidda.api::ops$filter, c(list(resource_type = input$filter_data_type), data_filters()))
     if(is.data.frame(response)) {
@@ -214,40 +219,68 @@ server <- function(input, output) {
       data.frame(response)
     }
   })
-  
 
+
+  filtered_data_source_code <- eventReactive(input$filter_data, {
+    df <- data_filters()
+    df_names <- names(df)
+    df_names <- lapply(df_names,
+                       function(x) {
+                         if(length(df[x][[1]]) > 1) {
+                           sprintf('%s = %s', x, df[x])
+                         } else {
+                           sprintf('%s = "%s"', x, df[x])
+                         }
+                         })
+    df <- paste(df_names, collapse=', ')
+    sprintf('iidda.api::ops$filter(resource_type = "%s", %s)', input$filter_data_type, df)
+  })
+
+  make_default_string_choices = function(columns, name) {
+    choices = columns %>%
+       lapply(function(z) {
+         z[[name]]
+       }) %>%
+       unlist(recursive = FALSE) %>%
+       unname() %>%
+       unique()
+
+    ## the " -- EMPTY -- " token will get mapped to a blank
+    ## string, "",  in data_filters reactive event.
+    ## this mapping will take place before the before
+    ## the API code is generated.
+    ## the blank string is the NULL token in iidda,
+    ## for better or for worse.
+    choices = c(" -- EMPTY -- ", choices)
+    choices
+  }
   output$column_filters = renderUI({
     columns <-
       iidda.api::ops$metadata(
-        response_type = "columns", 
+        response_type = "columns",
         metadata_search = input$filter_data_type,
         key = ".types .resourceType"
         )
     lapply(filter_data_dictionary(), function(x) {
       if (x$type == "string" && x$format == "default") {
         tags$div(title=x$description,
-                 selectizeInput(
+                 selectInput(
                    inputId = x$name,
                    label = x$title,
                    multiple = TRUE,
-                   choices = columns %>%
-                     lapply(function(z) {
-                       z[[x$name]]
-                     }) %>%
-                     unlist(recursive = FALSE) %>%
-                     unname() %>%
-                     unique()
+                   choices = make_default_string_choices(columns, x$name),
+                   selectize = TRUE
                  )
         )
       } else if (x$type == "date") {
-        date_range <- columns %>%  
+        date_range <- columns %>%
           lapply(function(z) {
             z[x$name]
-          }) %>% 
-          unlist(recursive = FALSE) %>% 
-          unname() %>% 
+          }) %>%
+          unlist(recursive = FALSE) %>%
+          unname() %>%
           range(na.rm = FALSE)
-        
+
         tags$div(title=x$description,
                  dateRangeInput(
                    inputId = x$name,
@@ -255,7 +288,7 @@ server <- function(input, output) {
                    start = date_range[1],
                    end = date_range[2],
                    min = date_range[1],
-                   
+
                    max = date_range[2],
                    format = "yyyy-mm-dd",
                    startview = "month",
@@ -276,7 +309,7 @@ server <- function(input, output) {
           as.integer() %>%
           na.omit %>%
           range
-        
+
         tags$div(title=x$description,
                  tags$label(x$title),
                  tabBox(
@@ -322,18 +355,18 @@ server <- function(input, output) {
       }
     })
   })
-  
+
   output$filter_data_table = renderDT({
     data_dictionary_names <- lapply(filter_data_dictionary(), function(x) {
       x$name
     })
-    
+
     data_dictionary <- lapply(filter_data_dictionary(), function(x) {
       list(x$title, x$description)
     })
-    
+
     names(data_dictionary) <- data_dictionary_names
-    
+
     datatable(
       filtered_data(),
       filter = "top",
@@ -353,11 +386,11 @@ server <- function(input, output) {
           toJSON(data_dictionary)
         )
       )
-      
+
     )
   })
-  
-  
+
+
   output$filter_data_download_menu = renderUI({
     if (isTruthy(input$filter_data) && isTruthy(filtered_data())) {
       box(
@@ -392,14 +425,14 @@ server <- function(input, output) {
       )
     }
   })
-  
+
   output$download_filtered_data <- downloadHandler(
-    filename = function(){"filtered_data.csv"}, 
+    filename = function(){"filtered_data.csv"},
     content = function(fname){
       write.csv(filtered_data(), fname,na="", row.names=FALSE)
     }
   )
-  
+
   output$download_filtered_data_individual <- downloadHandler(
     filename = function()
     {
@@ -419,6 +452,19 @@ server <- function(input, output) {
     },
     contentType = "application/zip"
   )
-  
+
+  output$iidda_api_code <- renderUI({
+    if (isTruthy(input$filter_data) && isTruthy(filtered_data())) {
+      tags$pre(tags$code(filtered_data_source_code()))
+    } else {
+      p(
+        class = "text-muted",
+        paste(
+          'Please apply a filter before attempting to access R code.'
+        )
+      )
+    }
+  })
+
 
 }

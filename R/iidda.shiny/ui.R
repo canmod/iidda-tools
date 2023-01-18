@@ -11,14 +11,14 @@ header <- dashboardHeader(title = "IIDDA")
 
 sidebar <- dashboardSidebar(sidebarMenu(
   menuItem(
-    "Dataset Selection",
-    tabName = "dataset_selection",
-    icon = icon("th")
-  ),
-  menuItem(
     "Data Filtering",
     icon = icon("filter"),
     tabName = "data_filtering"
+  ),
+  menuItem(
+    "Dataset Selection",
+    tabName = "dataset_selection",
+    icon = icon("th")
   )
 ))
 
@@ -74,7 +74,12 @@ tabItem(
       tabPanel(
         "Download",
         uiOutput("filter_data_download_menu")
-      )),
+      ),
+      tabPanel(
+        "R Code",
+        uiOutput("iidda_api_code")
+      )
+      ),
     box(
       h3("Dataset Filtering"),
       width = 12,

@@ -14,6 +14,12 @@ local = list(
 # production environment
 production = local
 
+#' @importFrom stats setNames
+#' @importFrom readr cols
+#' @importFrom httr content
+#' @importFrom rapiclient get_api get_operations set_default_args_list
+#' @importFrom iidda list_xpath rm_trailing_slash
+
 make_ops_list = function(api_url, base_path) {
   handle_iidda_response <- function(x) {
     content_type <- x$headers$`content-type`
@@ -21,11 +27,11 @@ make_ops_list = function(api_url, base_path) {
       return(httr::content(x))
     }
     else if (content_type == 'text/plain; charset=utf-8') {
-      return(httr::content(
-        x,
-        type = "text/csv",
-        encoding = "UTF-8",
-        col_types = readr::cols(.default = "c") # read all columns in as strings
+      return(httr::content(x
+        , type = "text/csv"
+        , encoding = "UTF-8"
+        , col_types = readr::cols(.default = "c") # read all columns in as strings
+        , na = character() # nothing is missing, only blank
       ))
     }
     else {
@@ -38,9 +44,9 @@ make_ops_list = function(api_url, base_path) {
   }
 
   iidda_api = try(
-    get_api(
+    rapiclient::get_api(
       url = file.path(
-        rm_trailing_slash(file.path(api_url, base_path)),
+        iidda::rm_trailing_slash(file.path(api_url, base_path)),
         'openapi.json'
       )
     ),
@@ -61,7 +67,7 @@ make_ops_list = function(api_url, base_path) {
     default_values <- list()
     for (parameter in parameters) {
       if (parameter[["required"]] == FALSE) {
-        default_values[[parameter[["name"]]]] <-
+        default_values[[parameter[["name"]]]] =
           parameter[["schema"]][["default"]]
       } else {
         next
@@ -118,12 +124,12 @@ ops_staging = try(do.call(make_ops_list, staging), silent = TRUE)
 
 #' @describeIn ops Print link to interactive documentation for the IIDDA API (not currently up)
 #' @export
-docs_url = file.path(production$api_url, "docs")
+docs_url = try(file.path(production$api_url, "docs"), silent = TRUE)
 
 #' @describeIn ops Print link to interactive documentation for a development environment
 #' @export
-docs_url_local = file.path(local$api_url, "docs")
+docs_url_local = try(file.path(local$api_url, "docs"), silent = TRUE)
 
 #' @describeIn ops Print link to interactive documentation for a staging environment, if it exists
 #' @export
-docs_url_staging = file.path(staging$api_url, "docs")
+docs_url_staging = try(file.path(staging$api_url, "docs"), silent = TRUE)

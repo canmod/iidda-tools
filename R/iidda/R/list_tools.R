@@ -109,10 +109,20 @@ lookup = function(named_keys, l) {
 #' d = jsonlite::read_json(f)
 #' key_val(d, "name", "type")
 key_val = function(l, key, value) {
+  UseMethod("key_val")
+}
+
+#' @export
+key_val.list = function(l, key, value) {
   (l
    %>% get_firsts(value)
    %>% setNames(unlist(get_firsts(l, key)))
   )
+}
+
+#' @export
+key_val.data.frame = function(l, key, value) {
+  setNames(l[[value]], as.character(l[[key]]))
 }
 
 #' List Extract

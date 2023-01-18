@@ -104,3 +104,28 @@ drop_empty_rows = function(table) {
 #    %>% ungroup
 #   )
 # }
+
+#' Write Data Frame
+#'
+#' Write a data frame to a CSV file using the CSV dialect
+#' adopted by IIDDA.
+#'
+#' @param data to data frame to write
+#' @param filename string giving the filename
+#' @export
+write_data_frame = function(data, filename) {
+  data = sapply(data, as.character)
+  write.table(data,
+    file = filename,
+    # CSV Dialect Translation
+    sep = ',',              # delimiter
+    eol = '\r\n',           # lineTerminator
+    qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
+    na = '""',              # nullSequence=""
+    col.names = TRUE,       # header=true
+    # skipInitialSpace=false
+    # commentChar='#'
+    # caseSensitiveHeader=true
+    row.names = FALSE
+  )
+}
