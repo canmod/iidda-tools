@@ -1,3 +1,15 @@
+#' Get Lookup Table
+#'
+#' @param table_name Name of a lookup table
+#'
+#' @export
+get_lookup_table = function(
+    table_name = c("location_iso"
+    )
+  ) {
+  get(table_name)
+}
+
 col_classes_dict = list(
   string = "character",
   integer = "integer",

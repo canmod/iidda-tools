@@ -2,10 +2,15 @@
 
 ## Development Environment Installation and Setup :computer:
 
+**For Windows:**
+As of now, the development environment cannot be setup regularly on Windows. Instead, the Windows Subsystem for Linux (WSL) could be used. Open command prompt as administrator, then run `wsl --install` and restart your machine. After, download Ubuntu for WSL from https://ubuntu.com/wsl. You should now be able to open the Ubuntu terminal and follow the commands for Mac & Linux users.
+
+**For Mac & Linux:**
 * Make sure that Python 3.8 or higher is installed and being used (see `python --version`)
-* Navigate to the `python` directory
+* Navigate to the `python` directory in `iidda-tools` repository (i.e. navigate to `iidda-tools/python`)
 * Optional: establish a Python virtual environment for this repo -- for example
   * (one-time) make a virtual environment with something like this `/usr/local/anaconda3/bin/python -m venv venv` (here I'm pointing explicitly to the python that I want)
+  * If another version of python was installed and you cannot create a virtual environment with that version, you may have to install the corresponding Python venv (`sudo apt-get install python3.X-dev python3.X-venv` where X represents the Python version).
   * (every-time) then activate the virtual environment with this `source venv/bin/activate`
 * (whenever package dependencies change) Execute `pip install -r requirements.txt`
 * (whenever `iidda_api` package changes) Execute `pip install .` to install the `iidda_api` package (and potentially others)
@@ -14,14 +19,16 @@
 from iidda_api import generate_config
 generate_config(token="TOKEN", repository="canmod/iidda-test-assets")
 ```
-  * You can get your personal access token [here](https://github.com/settings/tokens)
-  * In the future we likely will modify the repository containing the data and so the second argument may also need changing (in the form `{user}/{repository}`)
-  * To find the location of your config file do the following
+* Generate your personal access token [here](https://github.com/settings/tokens).
+  * Note: You may need to enable `repo` in the Scopes when generating the token
+* To find the location of your config file do the following
 ```
 from iidda_api import config_path
 config_path()
 ```
-  * You can update the configuration simply by re-generating the configuration file, or you can edit this config file directly instead of re-generating it
+* You can update the configuration simply by re-generating the configuration file, or you can edit this config file directly instead of re-generating it
+  * Confirm that you included your personal access token in the config file. (Replace "TOKEN" with your access token when running `generate_config` in Python, or edit the config file to have `access_token = (The personal access token you generated)`)
+* Confirm that you are an admin of `iidda-test-assets` repository (if not, it may lead to the app not returning anything when ran)
 
 **Note:**
 If the `uvloop` package is installed on your computer, you may get the error: `ValueError: Can't patch loop of type <class 'uvloop.Loop’>`. Simply uninstall the `uvloop` package to fix this error.

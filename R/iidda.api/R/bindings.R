@@ -14,6 +14,7 @@ local = list(
 # production environment
 production = local
 
+#' @importFrom stats setNames
 #' @importFrom readr cols
 #' @importFrom httr content
 #' @importFrom rapiclient get_api get_operations set_default_args_list
@@ -26,11 +27,11 @@ make_ops_list = function(api_url, base_path) {
       return(httr::content(x))
     }
     else if (content_type == 'text/plain; charset=utf-8') {
-      return(httr::content(
-        x,
-        type = "text/csv",
-        encoding = "UTF-8",
-        col_types = readr::cols(.default = "c") # read all columns in as strings
+      return(httr::content(x
+        , type = "text/csv"
+        , encoding = "UTF-8"
+        , col_types = readr::cols(.default = "c") # read all columns in as strings
+        , na = character() # nothing is missing, only blank
       ))
     }
     else {

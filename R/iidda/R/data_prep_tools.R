@@ -68,18 +68,18 @@ write_tidy_data = function(tidy_data, metadata) {
             %>% unlist
             %>% lookup(col_classes_dict)
             %>% set_types(data = tidy_data)
-            %>% write.table(tidy_file,
-              # CSV Dialect Translation
-              sep = ',',              # delimiter
-              eol = '\r\n',           # lineTerminator
-              qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
-              na = "",                # nullSequence=""
-              col.names = TRUE,       # header=true
-              # skipInitialSpace=false
-              # commentChar='#'
-              # caseSensitiveHeader=true
-              row.names = FALSE
-            )
+            %>% write_data_frame(tidy_file)
+            #   # CSV Dialect Translation
+            #   sep = ',',              # delimiter
+            #   eol = '\r\n',           # lineTerminator
+            #   qmethod = 'escape',     # quoteChar="\"", doubleQuote=false
+            #   na = "",                # nullSequence=""
+            #   col.names = TRUE,       # header=true
+            #   # skipInitialSpace=false
+            #   # commentChar='#'
+            #   # caseSensitiveHeader=true
+            #   row.names = FALSE
+            # )
   )
   return(files)
 }
@@ -212,6 +212,9 @@ iso_8601_dateranges = function(start_date, end_date) {
 #' @importFrom lubridate day year month
 #' @export
 iso_8601_dates = function(dates) {
+  if (any(is_empty(dates))) {
+    stop("dates associated with this tidy dataset are missing from the tracking file.")
+  }
   paste(
     sprintf('%04d', year(dates)),
     sprintf('%02d', month(dates)),
@@ -360,6 +363,25 @@ read_digitized_data = function(metadata) {
   read_func(path)
 }
 
+#' Collapse xlsx Value Columns
+#'
+#' Collapse all value columns into a single \code{\link{character}} column
+#' for data frames that have one row per cell in an xlsx file.
+#'
+#' @param data Data frame representing an xlsx file.
+#'
+#' @export
+collapse_xlsx_value_columns = function(data) {
+  mutate(data, value = case_when(
+    data_type == "error" ~ as.character(error),
+    data_type == "logical" ~ as.character(logical),
+    data_type == "numeric" ~ as.character(numeric),
+    data_type == "date" ~ as.character(date),
+    data_type == "character" ~ character,
+    data_type == "blank" ~ ""
+  ))
+}
+
 #' Combine Weeks
 #'
 #' Combine data from different Excel sheets associated with
@@ -386,17 +408,18 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 
 #' Identify Scales
 #'
+#'Identifies time scales (wk, mt, qrtr, yr) and location types (province or country) within a tidy dataset.
+#'
 #' @param data data frame in IIDDA tidy format to add time scale
 #' and location scale information
 #'
-#' Identifies time scales (wk, mt, qrtr, yr) and location scales (prov or can) within a tidy dataset.
 #' @export
 identify_scales = function(data){
   (data
    %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-   %>% mutate(location_scale = ifelse(location == "Canada" | location == "CANADA", "can", "prov"))
+   %>% mutate(location_type = ifelse(location == "Canada" | location == "CANADA", "country", "province"))
   )
 }
 
@@ -412,6 +435,7 @@ split_data = function(tidy_data){
    %>% split(.$splitting_column)
   )
 }
+
 
 
 column_summary = function(column, tidy_data, dataset_name, metadata) {
@@ -441,7 +465,9 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
   } else if (column_metadata_row[["type"]] == "date") {
     range(tidy_data[[column]], na.rm = TRUE)
   } else {
-    as.list(unique(tidy_data[[column]][!is.na(tidy_data[[column]])]))
+    ## missing values are blank strings
+    tidy_data[[column]][is.na(tidy_data[[column]])] = ""
+    as.list(unique(tidy_data[[column]]))
   }
 }
 
@@ -465,4 +491,40 @@ add_column_summaries = function(tidy_data, dataset_name, metadata) {
     simplify = FALSE
   )
   metadata
+}
+
+
+#' Prepare Mortality Data from Statistics Canada
+#'
+#' @param data Output of \code{\link{read_digitized_data}} that has been
+#' filtered to include only the cell range that contains data.
+#'
+#' @return Data frame complying with the IIDDA requirements for
+#' tidy datasets.
+#' @export
+statcan_mort_prep = function(data) {
+  tidy_data = (data
+    %>% collapse_xlsx_value_columns()
+    #%>% mutate(character = ifelse(data_type == "date", as.character(date), character))
+    #%>% mutate(data_type = ifelse(data_type == "date", "character", data_type))
+    %>% select(row, col, value)
+    %>% behead("N", location, value)
+    %>% behead("W", period, value)
+    %>% behead("W", cause, value)
+    %>% mutate(period = ifelse(is_empty(period), NA, period))
+    %>% mutate(period = na.locf(period, na.rm = FALSE))
+    %>% filter(trimws(value) != "#")
+    %>% rename(deaths = value)
+    %>% select(location, period, cause, deaths)
+    %>% mutate(time_scale = ifelse(grepl("All weeks", period), "yr", "wk"))
+    %>% mutate(period_end_date = ifelse(time_scale == "wk", period, ""))
+    %>% mutate(location_scale = ifelse(location == "Canada", "can", "prov"))
+  )
+  year_end_date = as.character(max(as.Date(filter(tidy_data, time_scale == "wk")$period_end_date)))
+  year_start_date = as.character(min(as.Date(filter(tidy_data, time_scale == "wk")$period_end_date)) - days(6L))
+  (tidy_data
+    %>% mutate(period_end_date = ifelse(time_scale == "yr", year_end_date, period_end_date))
+    %>% mutate(period_start_date = ifelse(time_scale == "yr", year_start_date, as.character(as.Date(period_end_date) - days(6L))))
+    %>% select(location, period_start_date, period_end_date, cause, deaths, time_scale, location_scale)
+  )
 }

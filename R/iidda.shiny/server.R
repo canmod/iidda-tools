@@ -201,6 +201,11 @@ server <- function(input, output) {
       } else{
         named_list[[x$name]] = input[[x$name]]
       }
+      if (length(named_list) != 0L) {
+        if (isTRUE(x$format == "default") & isTRUE(x$type == "string")) {
+          named_list[[x$name]][named_list[[x$name]] == " -- EMPTY -- "] = ""
+        }
+      }
       named_list
     }) %>% unlist(recursive = FALSE)
     return(filter_params)
@@ -231,7 +236,24 @@ server <- function(input, output) {
     sprintf('iidda.api::ops$filter(resource_type = "%s", %s)', input$filter_data_type, df)
   })
 
+  make_default_string_choices = function(columns, name) {
+    choices = columns %>%
+       lapply(function(z) {
+         z[[name]]
+       }) %>%
+       unlist(recursive = FALSE) %>%
+       unname() %>%
+       unique()
 
+    ## the " -- EMPTY -- " token will get mapped to a blank
+    ## string, "",  in data_filters reactive event.
+    ## this mapping will take place before the before
+    ## the API code is generated.
+    ## the blank string is the NULL token in iidda,
+    ## for better or for worse.
+    choices = c(" -- EMPTY -- ", choices)
+    choices
+  }
   output$column_filters = renderUI({
     columns <-
       iidda.api::ops$metadata(
@@ -242,17 +264,12 @@ server <- function(input, output) {
     lapply(filter_data_dictionary(), function(x) {
       if (x$type == "string" && x$format == "default") {
         tags$div(title=x$description,
-                 selectizeInput(
+                 selectInput(
                    inputId = x$name,
                    label = x$title,
                    multiple = TRUE,
-                   choices = columns %>%
-                     lapply(function(z) {
-                       z[[x$name]]
-                     }) %>%
-                     unlist(recursive = FALSE) %>%
-                     unname() %>%
-                     unique()
+                   choices = make_default_string_choices(columns, x$name),
+                   selectize = TRUE
                  )
         )
       } else if (x$type == "date") {

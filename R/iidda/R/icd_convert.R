@@ -19,6 +19,7 @@ icd_finder = function(
     ...
   ) {
   icd_10 = (
+    #"https://raw.githubusercontent.com/canmod/ICD-10-CSV/master/categories.csv"
     "https://github.com/kamillamagna/ICD-10-CSV/raw/master/categories.csv"
     %>% read.csv(header = FALSE)
     %>% setNames(c("code", "description"))
