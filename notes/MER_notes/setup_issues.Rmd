@@ -17,7 +17,7 @@ up to date installation from homebrew (not sure why it wasn't found by which).
 
 1. To create the virtual environment (in R studio terminal) after cloning the
 repo
-    * `cd phython`
+    * `cd python`
     * `/usr/local/Cellar/python\@3.10/3.10.8/bin/python3.10 -m venv venv`
     * `source venv/bin/activate`
     
@@ -43,4 +43,6 @@ repo
     `ModuleNotFoundError: No module named 'appdirs'`
     
 1. needed to install uvicorn. In virtual environment, `pip install uvicorn` 
+1. At a later date, also needed to install `aiofiles` and `aiosqlite`, also 
+  with `pip install`
 
