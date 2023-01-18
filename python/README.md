@@ -3,7 +3,11 @@
 ## Development Environment Installation and Setup :computer:
 
 **For Windows:**
-As of now, the development environment cannot be setup regularly on Windows. Instead, the Windows Subsystem for Linux (WSL) could be used. Open command prompt as administrator, then run `wsl --install` and restart your machine. After, download Ubuntu for WSL from https://ubuntu.com/wsl. You should now be able to open the Ubuntu terminal and follow the commands for Mac & Linux users.
+As of now, the development environment cannot be setup regularly on Windows.
+Instead, the Windows Subsystem for Linux (WSL) could be used. Open command
+prompt as administrator, then run `wsl --install` and restart your machine.
+After, download Ubuntu for WSL from https://ubuntu.com/wsl. You should now be
+able to open the Ubuntu terminal and follow the commands for Mac & Linux users.
 
 **For Mac & Linux:**
 * Make sure that Python 3.8 or higher is installed and being used (see `python --version`)
@@ -31,7 +35,9 @@ config_path()
 * Confirm that you are an admin of `iidda-test-assets` repository (if not, it may lead to the app not returning anything when ran)
 
 **Note:**
-If the `uvloop` package is installed on your computer, you may get the error: `ValueError: Can't patch loop of type <class 'uvloop.Loop’>`. Simply uninstall the `uvloop` package to fix this error.
+If the `uvloop` package is installed on your computer, you may get the error:
+`ValueError: Can't patch loop of type <class 'uvloop.Loop’>`. Simply uninstall
+the `uvloop` package to fix this error.
 
 ## Usage
 
@@ -39,7 +45,8 @@ The API can be used in a few ways.
 
 ### Using the Deployed Version
 
-We are working to get https://davidearn.mcmaster.ca/iidda/ back up as a deployed version of the API in this repository. It is not currently up 😢.
+We are working to get https://davidearn.mcmaster.ca/iidda/ back up as a deployed
+version of the API in this repository. It is not currently up 😢.
 
 ### Using the Development Version
 
@@ -49,18 +56,31 @@ We are working to get https://davidearn.mcmaster.ca/iidda/ back up as a deployed
 
 ### Using the R Bindings
 
-The [iidda.api](../R/iidda.api) package can be used to interact with the API. Currently these bindings depend on having a running development version of the API (see instructions above).
+The [iidda.api](../R/iidda.api) package can be used to interact with the API.
+Currently these bindings depend on having a running development version of the
+API (see instructions above).
 
 ### Using a Shiny App
 
-The [iidda.shiny](../R/iidda.shiny) app is another way to interact with the API. As with the R bindings, this app depends on having a running development version of the API.
+The [iidda.shiny](../R/iidda.shiny) app is another way to interact with the API.
+As with the R bindings, this app depends on having a running development version
+of the API.
 
 
 ## Troubleshooting
 
 ### Clearing the Cache
 
-Making many requests to the GitHub API can be a performance bottleneck. This occurs for example when a filter requires data from many individual tables to be combined. In such a case, the GitHub API must be called for every table. To enhance API performance, we cache the results that come back from the GitHub API. In the deployed version of the IIDDA API we use a GitHub webhook to automatically clear the cache if there has been an update to the archive. This approach is not available for a local development deployment and so if the archive is updated the cache must be manually cleared using these Python commands.
+Making many requests to the GitHub API can be a performance bottleneck. This
+occurs for example when a filter requires data from many individual tables to be
+combined. In such a case, the GitHub API must be called for every table. To
+enhance API performance, we cache the results that come back from the GitHub
+API. In the deployed version of the IIDDA API we use a GitHub webhook to
+automatically clear the cache if there has been an update to the archive. This
+approach is not available for a local development deployment and so if the
+archive is updated the cache must be manually cleared using these Python
+commands. These should be run in the `iidda.tools/python` directory while the
+API is running.
 ```
 from iidda_api import get_dataset_list
 get_dataset_list(clear_cache=True, subset=[])
