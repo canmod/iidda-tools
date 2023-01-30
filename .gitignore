@@ -8,6 +8,7 @@
 *.Rcheck
 *.Rproj
 renv*
+venv*
 *tar.gz
 python/build/
 __pycache__

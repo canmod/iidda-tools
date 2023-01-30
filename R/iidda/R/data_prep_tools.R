@@ -518,13 +518,13 @@ statcan_mort_prep = function(data) {
     %>% select(location, period, cause, deaths)
     %>% mutate(time_scale = ifelse(grepl("All weeks", period), "yr", "wk"))
     %>% mutate(period_end_date = ifelse(time_scale == "wk", period, ""))
-    %>% mutate(location_scale = ifelse(location == "Canada", "can", "prov"))
+    %>% mutate(location_type = ifelse(location == "Canada", "can", "prov"))
   )
   year_end_date = as.character(max(as.Date(filter(tidy_data, time_scale == "wk")$period_end_date)))
   year_start_date = as.character(min(as.Date(filter(tidy_data, time_scale == "wk")$period_end_date)) - days(6L))
   (tidy_data
     %>% mutate(period_end_date = ifelse(time_scale == "yr", year_end_date, period_end_date))
     %>% mutate(period_start_date = ifelse(time_scale == "yr", year_start_date, as.character(as.Date(period_end_date) - days(6L))))
-    %>% select(location, period_start_date, period_end_date, cause, deaths, time_scale, location_scale)
+    %>% select(location, period_start_date, period_end_date, cause, deaths, time_scale, location_type)
   )
 }

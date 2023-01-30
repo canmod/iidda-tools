@@ -1,0 +1,70 @@
+# Plotting Infectious Disease Time-Series
+
+(Disclaimer -- I have not yet read very much about visualization of specifically epidemiological data, so I am likely treating this topic very naively. The point of this document is to start a discussion and make a start on specifications for plotting functions in `iidda.analysis`)
+
+## Example Data
+
+Throughout we will use communicable disease incidence data from Canada in 1956.
+```{r api_call}
+library(iidda.api)
+raw = ops$raw_csv(dataset_ids = "cdi_ca_1956_wk_prov_dbs")
+raw
+```
+
+Our focal example within these data are for weekly measles counts broken down by province.
+```{r measles}
+library(dplyr)
+measles = (raw
+  %>% filter(tolower(disease) == "measles")
+  %>% filter(time_scale == "wk", location_scale == "prov")
+  %>% select(location, period_start_date, cases_this_period)
+  %>% mutate(period_start_date = as.Date(period_start_date))
+  %>% mutate(cases_this_period = as.numeric(cases_this_period))
+)
+measles
+```
+
+To get a sense of these data, here is the plot for the province of Ontario.
+```{r ontario_measles_plot}
+with(
+  filter(measles, location == "ONT."), 
+  plot(period_start_date, cases_this_period, type = "l")
+)
+```
+
+
+## Generalizing Rohani, Earn, and Grenfell
+
+[Rohani, Earn, and Grenfell (1999)](https://ms.mcmaster.ca/earn.old/pdfs/Roha+1999_Science_OppositePatterns.pdf) developed a method for plotting time series of cases of a disease, broken down by geographic location. The geographic locations are ordered along one of the y-axes of the plot by population size. We generalize this plot by allowing geographic location to be any ordinal grouping variable. We additionally generalize by allowing cases to be any positive variable that can be meaningfully summed over the observed times within the levels of the grouping variable.
+
+A data structure that would contain all of the information required to make such a plot consists of two tables; one for the generalized cases variable (call it the series data) and one for the generalized geographical location variable (call it the grouping table). For our measles data we can get the series 
+
+
+
+With this generalization one could construct a function to produce these plots.
+
+```{r, eval = FALSE}
+##' Plot Rohani Diagram
+##'
+##' @param series_col Name of column in \code{data_series} giving the numerical 
+##' variable of interest (e.g. numbers of cases).
+##' @param time_col Name of column in \code{data_series} giving a date-time 
+##' variable to plot on the x-axis.
+##' @param grouping_col Name of column in both \code{data_series} and 
+##' \code{data_groups} giving the labels of the grouping variable. This 
+##' variable will be unique in \code{data_groups}, but will be repeated in
+##' \code{data_series} over the different time periods.
+plot_rohani = function(
+  series_col, 
+  time_col, 
+  grouping_col, 
+  ranking_col, 
+  data_series, 
+  data_groups
+)
+```
+
+Note that we are assuming that the 
+
+
+TODO: these graphs: https://ms.mcmaster.ca/earn.old/pdfs/KrylEarn2020_PLoSBiology_SmallpoxLondon.pdf and these https://ms.mcmaster.ca/earn.old/pdfs/Tien+2011_JRSI_CholeraHeraldWaves.pdf
