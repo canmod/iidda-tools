@@ -78,6 +78,10 @@ tabItem(
       tabPanel(
         "R Code",
         uiOutput("iidda_api_code")
+      ),
+      tabPanel(
+        "Request URL",
+        uiOutput("request_url")
       )
       ),
     box(

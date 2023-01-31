@@ -35,7 +35,7 @@ downloadMenuServer <- function(id, datasets, action_button_id, data) {
   )
 }
 
-server <- function(input, output) {
+server <- function(input, output, session) {
 
   # Dataset Selection Section
   data <- eventReactive(input$select_data, {
@@ -58,7 +58,7 @@ server <- function(input, output) {
       response_type = "data_dictionary",
       metadata_search = input$data_type,
       key = ".types .resourceType"
-      ) %>%   unlist(recursive = FALSE) %>%
+    ) %>%   unlist(recursive = FALSE) %>%
       unname %>%
       unique %>%
       na.omit
@@ -174,7 +174,7 @@ server <- function(input, output) {
       response_type = "data_dictionary",
       metadata_search = input$filter_data_type,
       key = ".types .resourceType"
-      ) %>%   unlist(recursive = FALSE) %>%
+    ) %>%   unlist(recursive = FALSE) %>%
       unname %>%
       unique %>%
       na.omit
@@ -220,7 +220,6 @@ server <- function(input, output) {
     }
   })
 
-
   filtered_data_source_code <- eventReactive(input$filter_data, {
     df <- data_filters()
     df_names <- names(df)
@@ -231,20 +230,34 @@ server <- function(input, output) {
                          } else {
                            sprintf('%s = "%s"', x, df[x])
                          }
-                         })
+                       })
     df <- paste(df_names, collapse=', ')
     sprintf('iidda.api::ops$filter(resource_type = "%s", %s)', input$filter_data_type, df)
   })
 
+  api_request_url <- eventReactive(input$filter_data, {
+    df <- data_filters()
+    df_names <- names(df)
+    df_names <- lapply(df_names,
+                       function(x) {
+                         if(length(df[x][[1]]) > 1) {
+                           paste(lapply(df[[x]], function(y) { sprintf('%s=%s', x, y)}), collapse="&")
+                         } else {
+                           sprintf('%s=%s', x, df[x])
+                         }
+                       })
+    df <- paste(df_names, collapse='&')
+    sprintf('%sfilter?resource_type=%s&%s', substring(iidda.api::docs_url, 1, nchar(iidda.api::docs_url)-4), input$filter_data_type, df)
+  })
+
   make_default_string_choices = function(columns, name) {
     choices = columns %>%
-       lapply(function(z) {
-         z[[name]]
-       }) %>%
-       unlist(recursive = FALSE) %>%
-       unname() %>%
-       unique()
-
+      lapply(function(z) {
+        z[[name]]
+      }) %>%
+      unlist(recursive = FALSE) %>%
+      unname() %>%
+      unique()
     ## the " -- EMPTY -- " token will get mapped to a blank
     ## string, "",  in data_filters reactive event.
     ## this mapping will take place before the before
@@ -254,13 +267,14 @@ server <- function(input, output) {
     choices = c(" -- EMPTY -- ", choices)
     choices
   }
+
   output$column_filters = renderUI({
     columns <-
       iidda.api::ops$metadata(
         response_type = "columns",
         metadata_search = input$filter_data_type,
         key = ".types .resourceType"
-        )
+      )
     lapply(filter_data_dictionary(), function(x) {
       if (x$type == "string" && x$format == "default") {
         tags$div(title=x$description,
@@ -414,7 +428,7 @@ server <- function(input, output) {
           )
         ),
         downloadButton(outputId =  "download_filtered_data_individual",
-                       label = "Download", )
+                       label = "Download")
       )
     } else {
       p(
@@ -466,5 +480,17 @@ server <- function(input, output) {
     }
   })
 
+  output$request_url <- renderUI({
+    if (isTruthy(input$filter_data) && isTruthy(filtered_data())) {
+      tags$pre(tags$code(api_request_url()))
+    } else {
+      p(
+        class = "text-muted",
+        paste(
+          'Please apply a filter before attempting to access the request URL.'
+        )
+      )
+    }
+  })
 
 }
