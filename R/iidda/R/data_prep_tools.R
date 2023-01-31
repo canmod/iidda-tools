@@ -20,8 +20,10 @@ write_tidy_data = function(tidy_data, metadata) {
   dict_file = file.path(tidy_dir, tidy_dataset %_% 'data_dictionary' %.% 'json')
   dial_file = file.path(tidy_dir, tidy_dataset %_% 'csv_dialect' %.% 'json')
   col_file = file.path(tidy_dir, tidy_dataset %_% 'columns' %.% 'json')
+  filter_file = file.path(tidy_dir, tidy_dataset %_% 'filter_group_vals' %.% 'json')
 
-  files = nlist(tidy_file, meta_file, dict_file, dial_file, col_file)
+  files = nlist(tidy_file, meta_file, dict_file, dial_file, col_file, filter_file)
+
 
   make_data_cite_tidy_data(metadata, meta_file)
   # global_dictionary = ('iidda_global_data_dictionary'
@@ -40,6 +42,9 @@ write_tidy_data = function(tidy_data, metadata) {
   #write_json(local_dictionary, dict_file, pretty = TRUE, auto_unbox = TRUE)
   columns_file = getElement(metadata, 'ColumnSummary')
   write_json(columns_file, col_file, pretty = TRUE, auto_unbox = TRUE)
+
+  filter_group_vals_file = getElement(metadata, 'filter_group_values')
+  write_json(filter_group_vals_file, filter_file, pretty = TRUE, auto_unbox = TRUE)
   .trash = list(
     dialect = list(
       csvddfVersion =  "1.2",
@@ -493,6 +498,22 @@ add_column_summaries = function(tidy_data, dataset_name, metadata) {
   metadata
 }
 
+#' Add Filter Group Values
+#'
+#' Add lists of unique sets of values for a given filter group
+#'
+#' @inheritParams write_tidy_data
+#' @param dataset_name Character string giving IIDDA identifier
+#' of the dataset.
+#'
+#' @export
+add_filter_group_values = function(tidy_data, dataset_name, metadata) {
+  col_set <- c("disease_family", "disease", "disease_subclass")
+  df <- tidy_data[col_set[col_set %in% colnames(tidy_data)]] %>% unique()
+  df[is.na(df)] <- ""
+  metadata$filter_group_values = df
+  metadata
+}
 
 #' Prepare Mortality Data from Statistics Canada
 #'
