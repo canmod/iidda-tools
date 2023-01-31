@@ -237,6 +237,15 @@ NULL
 # ------------------------------------------------
 # paste-collapse summaries
 
+#' Summarise Strings
+#' 
+#' Summarise vector of strings separated by commas or semi-colons into a single 
+#' character separated string. Removes empty strings, repeated strings and trims white space.
+#' 
+#' @param x vector
+#' @param sep character separator, defaults to ", "
+#' @return single string of summarised strings.
+#' 
 #' @export
 summarise_strings = function(x, sep = ", ") {
   (x
@@ -249,6 +258,16 @@ summarise_strings = function(x, sep = ", ") {
   )
 }
 
+#' Summarise Integers
+#' 
+#' Consecutive or overlapping integers separated by commas or semi-colons are summarised into a single integer range, 
+#' non-consecutive integer ranges are kept as is.
+#' 
+#' @param x vector of integers
+#' @param range_operator string to go between the starting and ending integer in the range, defaults to "-".
+#' @param collapse boolean to collapse all integer ranges into one comma separated string, defaults to TRUE.
+#' @return vector or single string of summarised integer ranges.
+#' 
 #' @export
 summarise_integers = function(x, range_operator = "-", collapse = TRUE) {
   x = (x
@@ -286,6 +305,19 @@ summarise_integers = function(x, range_operator = "-", collapse = TRUE) {
   y
 }
 
+
+
+#' Summarise Dates
+#' 
+#' Consecutive or overlapping date ranges are summarised into a single date range, non-consecutive date
+#' ranges are kept as is.
+#' 
+#' @param x_start vector of starting dates.
+#' @param x_end vector of ending dates.
+#' @param range_operator string to go between the start and end date, defaults to " to ".
+#' @param collapse boolean to collapse all dates into one comma separated string, defaults to TRUE.
+#' @return vector or single string of summarised date ranges.
+#'
 #' @export
 summarise_dates = function(x_start, x_end, range_operator = " to ", collapse = TRUE) {
   x_start = (x_start
