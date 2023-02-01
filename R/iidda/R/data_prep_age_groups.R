@@ -15,14 +15,20 @@ fill_re_template = function(re_template, which_bound = 'neither') {
     grepl("\\%\\{left\\}s", re_template) |
     grepl("\\%\\{right\\}s", re_template)
   if (is_single_bin) {
-    which_bound = 'single'
+    which_bound = "single"
+  } else {
+    is_no_bin = !grepl("\\%\\{(lower|upper)_(left|right)\\}s", re_template)
+    if (is_no_bin) {
+      which_bound = "none"
+    }
   }
   switch(
     which_bound,
     lower = sprintf_named(re_template, lower_left = '(', lower_right = ')', upper_left = '', upper_right = '', .check = FALSE),
     upper = sprintf_named(re_template, lower_left = '', lower_right = '', upper_left = '(', upper_right = ')', .check = FALSE),
     neither = sprintf_named(re_template, lower_left = '', lower_right = '', upper_left = '', upper_right = '', .check = FALSE),
-    single = sprintf_named(re_template, left = '(', right = ')', .check = FALSE)
+    single = sprintf_named(re_template, left = '(', right = ')', .check = FALSE),
+    none = re_template
   )
 }
 
