@@ -13,6 +13,15 @@ from fastapi.responses import StreamingResponse
 from iidda_api import *
 from fastapi import FastAPI, Request, HTTPException, FastAPI, Query, Header
 import nest_asyncio
+import signal
+
+# Define function to handle timeout error
+def handle_timeout(sig, frame):
+    raise TimeoutError("Timeout Error: Took >3 mins to do previous task in main.py.")
+signal.signal(signal.SIGALRM, handle_timeout)
+
+timeout_dur = 30 # Number of seconds at each stage before a timeout error
+
 nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
 
@@ -20,11 +29,26 @@ app = FastAPI(title="IIDDA API", swagger_ui_parameters={
               "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
 
-global_data_dictionary = requests.get(
-    'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
+print("Retrieving global data dictionary...")
+signal.alarm(timeout_dur)
+
+global_data_dictionary_request = requests.get(
+    'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json')
+
+# Throw error if response is unsuccessful (json may return object even with failed response)
+try:
+    global_data_dictionary_request.raise_for_status()
+except requests.HTTPerror as exception:
+    print('Error requesting global data dictionary')
+    print(exception)
+
+global_data_dictionary = global_data_dictionary_request.json()
 global_data_dictionary = dict((item['name'], item)
                               for item in global_data_dictionary)
+signal.alarm(0)
 
+print("Defining necessary functions...")
+signal.alarm(timeout_dur)
 
 def generate_filters():
     dataset_list = get_dataset_list(clear_cache=False)
@@ -75,7 +99,10 @@ def dataset_list_search(
             else:
                 return jq(
                     f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
+signal.alarm(0)
 
+print("Defining middleware...")
+signal.alarm(timeout_dur)
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
@@ -88,7 +115,10 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
+signal.alarm(0)
 
+print("Defining metadata...")
+signal.alarm(timeout_dur)
 
 @app.get("/metadata")
 async def metadata(
@@ -124,14 +154,20 @@ async def metadata(
         dataset_ids, key, metadata_search, None, string_comparison)
 
     return get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
+signal.alarm(0)
 
+print("Defining data dictionary...")
+signal.alarm(timeout_dur)
 
 @app.get("/data_dictionary")
 async def data_dictionary():
     dictionary = requests.get(
         'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
     return dictionary
+signal.alarm(0)
 
+print("Defining csv function...")
+signal.alarm(timeout_dur)
 
 @app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
@@ -211,7 +247,10 @@ async def raw_csv(
             return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
     return asyncio.run(main())
+signal.alarm(0)
 
+print("Defining download function...")
+signal.alarm(timeout_dur)
 
 @app.get("/download", responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
 async def download(
@@ -317,7 +356,10 @@ async def download(
             )
 
     return asyncio.run(main())
+signal.alarm(0)
 
+print("Defining filter function...")
+signal.alarm(timeout_dur)
 
 @app.get("/filter", responses={200: {"content": {"application/json": {}, "text/plain": {}}}})
 async def filter(
@@ -563,10 +605,12 @@ async def filter(
         return StreamingResponse(iter([merged_csv.to_csv(index=False)]), media_type="text/plain")
 
     return asyncio.run(main())
-
+signal.alarm(0)
 
 # ‘/githubwebhook’ specifies which link will it work on
 
+print("Defining webhook...")
+signal.alarm(timeout_dur)
 
 @app.post('/githubwebhook', status_code=http.HTTPStatus.ACCEPTED, include_in_schema=False)
 async def webhook(req: Request, x_hub_signature: str = Header(None)):
@@ -578,8 +622,10 @@ async def webhook(req: Request, x_hub_signature: str = Header(None)):
     else:
         get_dataset_list(clear_cache=True)
         return "Cache cleared."
+signal.alarm(0)
 
-
+print("Defining open API schema...")
+signal.alarm(timeout_dur)
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
@@ -595,5 +641,5 @@ def custom_openapi():
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
-
 app.openapi = custom_openapi
+signal.alarm(0)
