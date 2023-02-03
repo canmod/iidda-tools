@@ -370,8 +370,8 @@ async def filter(
         default=None, description=f"{global_data_dictionary['population']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cause: List[str] = Query(
         default=None, description=global_data_dictionary['cause']['description']),
-    location_scale: List[str] = Query(
-        default=None, description=global_data_dictionary['location_scale']['description']),
+    location_type: List[str] = Query(
+        default=None, description=global_data_dictionary['location_type']['description']),
     time_scale: List[str] = Query(
         default=None, description=global_data_dictionary['time_scale']['description']),
 ):
