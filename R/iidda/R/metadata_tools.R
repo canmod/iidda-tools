@@ -324,6 +324,30 @@ make_related_identifier = function(
 }
 
 
+make_contributors = function(metadata) {
+  enterers = metadata$Digitization$data_enterer
+  enterers = enterers[nchar(enterers) != 0L]
+    c(
+      list(
+        list(
+          # wish there was a better type than "Other", but this contributor
+          # is intended to provide the organization from whom we obtained
+          # the original source documents
+          contributorType = "Other",
+          name = metadata$Source$organization,
+          nameType = "Organizational"
+        )
+      ),
+    lapply(enterers, function(name) {
+      list(
+        contributorType = "Other",
+        name = name,
+        nameType = "Personal"
+      )
+    })
+  )
+}
+
 
 #' Make DataCite JSON Metadata
 #'
@@ -346,7 +370,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     # TODO: move this identifier down to alternateIdentifiers
     # https://github.com/canmod/iidda-tools/issues/8
     identifiers = list(list(
-      identifier = metadata$TidyDataset$path_tidy_data,
+      identifier = metadata$TidyDataset$tidy_dataset,
       identifierType = 'iidda-id'
     )),
     creators = list(
@@ -367,14 +391,7 @@ make_data_cite_tidy_data = function(metadata, file) {
     publisher = metadata$TidyDataset$publisher,
     publicationYear = metadata$TidyDataset$publicationYear,
     subjects = list(),
-    contributors = list(list(
-      # wish there was a better type than "Other", but this contributor
-      # is intended to provide the organization from whom we obtained
-      # the original source documents
-      contributorType = "Other",
-      name = metadata$Source$organization,
-      nameType = "Organizational"
-    )),
+    contributors = make_contributors(metadata),
     language = 'en',
     types = list(
       resourceTypeGeneral = "Dataset",
@@ -389,7 +406,7 @@ make_data_cite_tidy_data = function(metadata, file) {
       make_related_identifier(metadata, "IsDerivedFrom"),
       make_related_identifier(metadata, "References")
     ),
-    sizes = list(),  # TODO: compute automatically from file.info('~/testing_csv.csv')$size,
+    sizes = list(metadata$size),
     formats = list("csv"),
     version = metadata$TidyDataset$current_version,
     rightsList = list(
@@ -408,7 +425,27 @@ make_data_cite_tidy_data = function(metadata, file) {
       list(
         descriptionType = "Methods",
         lang = "en",
-        description = "This data set is a part of a systematic effort to make Canada's historical record of infectious diseases publicly and conveniently available. We are systematically contacting data stewards across Canada to access the disparate source documents that contain Canada's historical record of infectious diseases. We are making scans of these documents conveniently available for all. We are manually entering the information provided by these source documents into Excel spreadsheets, which we are making publicly available. The layout of these spreadsheets are identical to the originals, making it as easy as possible to compare the reproductions with the sources. We are producing reproducible automated processes for converting the digitized spreadsheets into tidy data structures. These tidy data structures contain all of the information in the original source documents, but are more convenient for analysis and discovery."
+        description = paste(
+          "This data set is a part of a systematic effort to make it more",
+          "convenient to access publicly available historical information",
+          "on infectious diseases. We are systematically and opportunistically",
+          "contacting data stewards (particularly across Canada, but also",
+          "internationally) to access disparate source documents.",
+          "Some of these documents are digital but many others are on paper,",
+          "which we scan and make publicly available. We",
+          "manually enter the information provided by these scans",
+          "into Excel spreadsheets, which we also make publicly",
+          "available. The layout of these spreadsheets are identical to the",
+          "originals, making it as easy as possible to compare the",
+          "reproductions with the sources. A reproducible automated process",
+          "was used to convert a digitized version of the source data into",
+          "tidy CSV files. These tidy data contain all of the information in",
+          "the original source documents, but are more convenient for",
+          "analysis and discovery. All columns in the tidy datasets are",
+          "drawn from a common data dictionary, making it easier to combine",
+          "data that we obtained from different primary sources.",
+          sep = " "
+        )
       )
     ),
     dates = list(list(
@@ -417,9 +454,25 @@ make_data_cite_tidy_data = function(metadata, file) {
         metadata$TidyDataset$period_end_date
       ),
       dateType = "Collected",
-      dateInformation = "Date ranges refer to the start and end dates of the historical period described by these data."
+      dateInformation = paste(
+        "Date ranges refer to the start and end dates of the historical",
+        "period described by these data.",
+        sep = " "
+      )
     )),
-    fundingReferences = list(),
+    fundingReferences = list(
+      ## TODO: add other funders on a per-dataset basis. should be done
+      ## by creating a Funders.csv tracking table and linking it to the
+      ## TidyDatasets.csv table.
+      list(
+        funderName = "Natural Sciences and Engineering Research Council of Canada",
+        awardURI = "https://www.nserc-crsng.gc.ca/NSERC-CRSNG/FundingDecisions-DecisionsFinancement/2021/EIDM-MMIE_eng.asp",
+        awardTitle = "CANMOD: Canadian Network for Modelling Infectious Disease",
+        funderIdentifier = "https://ror.org/01h531d29",
+        funderIdentifierType = "ROR",
+        SchemeURI = "https://ror.org/"
+      )
+    ),
     geoLocations = list(list(
       geoLocationPlace = metadata$Source$location
     )),
