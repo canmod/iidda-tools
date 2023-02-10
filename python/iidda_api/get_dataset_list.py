@@ -99,10 +99,13 @@ def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
 
     async def get_dataset_data(session, title, version):
         # Search for latest version
+        r = re.compile('^v([0-9]+)-(.*)')
         title_version_list = filter(
             lambda release: release['name'] == title, releases)
+        # title_version_list = sorted(
+        #     title_version_list, key=lambda release: int(release['body'][8:]))
         title_version_list = sorted(
-            title_version_list, key=lambda release: int(release['body'][8:]))
+            title_version_list, key=lambda release: int(r.search(release['tag_name']).group(1)))
         if len(title_version_list) == 0:
             return "This dataset does not exist."
         if version == "latest":
