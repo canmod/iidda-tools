@@ -27,7 +27,7 @@ resource_type_dict = list(
   Population = "Population",
   Mortality = "Mortality",
   ACM = "All-Cause Mortality",
-  Birth = "Birth",
+  Births = "Births",
   Plague = "Plague" ## TODO: should this really be a dataset type? too specific to LBoM?
 )
 
