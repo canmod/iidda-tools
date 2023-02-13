@@ -1,3 +1,4 @@
+import re
 import os
 from iidda_api import read_config
 from io import BytesIO
@@ -37,10 +38,13 @@ async def get_dataset(dataset_name, version):
         ACCESS_TOKEN, release_list_cache, clear_cache=False))
 
     # filter through and sort all releases of this name ascending by version
+    r = re.compile('^v([0-9]+)-(.*)')
     release_list = filter(
         lambda release: release['name'] == dataset_name, releases)
+    #release_list = sorted(
+    #    release_list, key=lambda release: int(release['body'][8:]))
     release_list = sorted(
-        release_list, key=lambda release: int(release['body'][8:]))
+        release_list, key=lambda release: int(r.search(release['tag_name']).group(1)))
 
     # check if dataset is contained in repo
     if not release_list:
