@@ -372,6 +372,8 @@ async def filter(
         default=None, description=global_data_dictionary['iso_3166']['description']),
     iso_3166_2: List[str] = Query(
         default=None, description=global_data_dictionary['iso_3166_2']['description']),
+    date: str = Query(
+        default=None, description=f"{global_data_dictionary['date']['description']} Must be in the form \<start date\>/\<end date\>."),
     period_start_date: str = Query(
         default=None, description=f"{global_data_dictionary['period_start_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     period_end_date: str = Query(
