@@ -24,8 +24,6 @@ write_tidy_data = function(tidy_data, metadata) {
 
   files = nlist(tidy_file, meta_file, dict_file, dial_file, col_file, filter_file)
 
-
-  make_data_cite_tidy_data(metadata, meta_file)
   # global_dictionary = ('iidda_global_data_dictionary'
   #  %>% getOption
   #  %>% blob_to_raw
@@ -86,6 +84,11 @@ write_tidy_data = function(tidy_data, metadata) {
             #   row.names = FALSE
             # )
   )
+  metadata$size = paste(
+    as.character(file.info(tidy_file)$size),
+    "bytes", sep = " "
+  )
+  make_data_cite_tidy_data(metadata, meta_file)
   return(files)
 }
 

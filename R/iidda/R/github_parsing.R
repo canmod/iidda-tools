@@ -75,7 +75,7 @@ blob_to_raw = function(urls) {
 #' strip_blob_github("https://github.com/canmod/iidda-tools/blob/main/R/iidda/R/github_parsing.R")
 strip_blob_github = function(urls) {
   ## https://stackoverflow.com/a/64147124/2047693
-  sub("^https://github.com/[A-z0-9\\.-]+/[A-z0-9\\.-]+/blob/(main|master)/", "", urls)
+  sub("^https://github.com/[A-z0-9\\.-]+/[A-z0-9\\.-]+/blob/[A-z0-9\\.\\-]+/", "", urls)
 }
 
 strip_raw_github = function(urls) {

@@ -40,7 +40,7 @@ server <- function(input, output, session) {
   # Dataset Selection Section
   data <- eventReactive(input$select_data, {
     response <- iidda.api::ops$raw_csv(dataset_ids = input$dataset_name)
-    if(is.data.frame(response)) {
+    if (is.data.frame(response)) {
       response
     } else {
       data.frame(response)
