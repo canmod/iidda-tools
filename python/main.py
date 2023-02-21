@@ -575,8 +575,12 @@ async def filter(
 
         csv_list = await asyncio.gather(*tasks)
 
-        merged_csv = pd.concat(
-            map(lambda x: pd.read_csv(x, dtype=str), csv_list), ignore_index=True)
+        pd_map = map(lambda x: pd.read_csv(x, dtype=str), csv_list)
+        pd_list = [p for p in pd_map]
+        for i in range(len(dataset_list)):
+            pd_list[i]["dataset_id"] = dataset_list[i]
+
+        merged_csv = pd.concat(pd_list, ignore_index=True)
 
         # Create temporary columns for any num_missing columns that is being filtered
         if len(num_missing_columns) != 0:
@@ -599,6 +603,7 @@ async def filter(
                 list(map(lambda x: x[1], num_missing_columns)), axis=1)
 
         all_columns_list = list(global_data_dictionary.keys())
+        all_columns_list.append("dataset_id")
 
         cols = merged_csv.columns.tolist()
         cols = sorted(cols, key=all_columns_list.index)
@@ -633,7 +638,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="API for the International Infectious Disease Data Archive (IIDDA)",
-        version="1.0.0",
+        version="0.1.0",
         description="API for searching, combining, filtering, and downloading infectious disease datasets available through IIDDA",
         routes=app.routes,
     )
