@@ -169,8 +169,8 @@ server <- function(input, output, session) {
 
   #Dataset Filtering Section
 
-  filter_data_dictionary <- reactive(
-    iidda.api::ops$metadata(
+  filter_data_dictionary <- reactive({
+    cols = iidda.api::ops$metadata(
       response_type = "data_dictionary",
       metadata_search = input$filter_data_type,
       key = ".types .resourceType"
@@ -178,7 +178,8 @@ server <- function(input, output, session) {
       unname %>%
       unique %>%
       na.omit
-  )
+    cols[order(match(cols, iidda.api::ops$data_dictionary()))]
+  })
 
   data_filters <- eventReactive(input$filter_data, {
     filter_params <- lapply(filter_data_dictionary(), function(x) {
@@ -260,7 +261,7 @@ server <- function(input, output, session) {
       unique()
     ## the " -- EMPTY -- " token will get mapped to a blank
     ## string, "",  in data_filters reactive event.
-    ## this mapping will take place before the before
+    ## this mapping will take place before
     ## the API code is generated.
     ## the blank string is the NULL token in iidda,
     ## for better or for worse.
