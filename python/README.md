@@ -85,3 +85,17 @@ API is running.
 from iidda_api import get_dataset_list
 get_dataset_list(clear_cache=True, subset=[])
 ```
+
+
+### Pulling Dataset CSV Files Locally
+
+Sometimes it is convenient for developers to have the API pull from a local 
+repository of files as opposed a GitHub release. Working in this mode makes
+it easier to make experimental changes to data files. To set up this local
+mode for the API one should set the `local_derived_data` variable in the 
+`config.ini` file under the `[local_info]` section. This variable should give
+a path to a directory within which one can recursively find directories
+named after the datasets and containing the dataset assets (e.g. the dataset
+csv file itself, the json metadata). One also needs to set 
+`use_local_csv_files = true` under the `[local_info]` section, and can use 
+this variable to turn local pulling on and off.
