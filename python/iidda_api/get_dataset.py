@@ -20,8 +20,9 @@ async def get_dataset(dataset_name, version):
     '''
 
     if (read_config("use_local_csv_files", "local_info") == "true"):
-        return get_dataset_local_file(dataset_name)
-    
+        dataset_file = get_dataset_local_file(dataset_name)
+        return dataset_file
+
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
@@ -89,9 +90,16 @@ def get_dataset_local_file(dataset_name, suffix = ".csv"):
     Returns:
         BytesIO Object: contains content of the csv file
     '''
+    if dataset_name is None:
+        raise NameError("Dataset name is missing")
     data_file = dataset_name + suffix
     data_path = read_config("local_derived_data", "local_info")
     for root, subdir, files in os.walk(data_path):
         for file in files:
             if file == data_file:
-                return os.path.join(root, file)
+                file_to_return = os.path.join(root, file)
+                print("FILE_TO_RETURN")
+                print(file_to_return)
+                if os.path.exists(file_to_return):
+                    return file_to_return
+                raise FileNotFoundError(file_to_return)
