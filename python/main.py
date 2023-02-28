@@ -166,6 +166,19 @@ async def data_dictionary():
     return dictionary
 signal.alarm(0)
 
+print("Defining lookup tables...")
+signal.alarm(timeout_dur)
+
+@app.get("/lookup_tables", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
+async def lookup_tables(lookup_type: str = Query("location"
+        , description='Type of lookup table.'
+        , enum=["location", "disease", "sex"]
+    )):
+    template = 'https://raw.githubusercontent.com/canmod/iidda/main/lookup-tables/{}.csv'
+    lookup = requests.get(template.format(lookup_type)).text
+    return StreamingResponse(iter([lookup]), media_type="text/plain")
+signal.alarm(0)
+
 print("Defining csv function...")
 signal.alarm(timeout_dur)
 
@@ -220,7 +233,10 @@ async def raw_csv(
                 dataset_name=dataset, version=version))
             tasks.append(task)
 
+        ## csv_list is a list of BytesIO objects
         csv_list = await asyncio.gather(*tasks)
+        print('here we go:')
+        print(csv_list)
 
         # Error handling
         version_regex = re.compile(
@@ -573,10 +589,14 @@ async def filter(
                 dataset_name=dataset, version="latest"))
             tasks.append(task)
 
+        print("HERE WE GO")
         csv_list = await asyncio.gather(*tasks)
-
+        print(csv_list)
         pd_map = map(lambda x: pd.read_csv(x, dtype=str), csv_list)
+        print(pd_map)
+        print(type(pd_map))
         pd_list = [p for p in pd_map]
+        print(pd_list)
         for i in range(len(dataset_list)):
             pd_list[i]["dataset_id"] = dataset_list[i]
 
