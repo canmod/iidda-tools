@@ -23,7 +23,6 @@ Imports:
     memoise,
     tidyxl,
     ggplot2,
-    magick,
     tidyselect,
     stringr,
     methods,
