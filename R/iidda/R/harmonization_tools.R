@@ -1,31 +1,51 @@
-#' Create user lookup table
+#' Create empty table with column names
 #' 
-#' Creates an empty user lookup table in a specified directory
-#' @param path string indicating path to directory
-#' @param lookup_table dataframe of lookup table with columns to include in the user lookup table
+#' Creates an empty table in a specified directory
+#' using columns names from another data frame
+#' @param dir_path string indicating path to directory
+#' @param lookup_table data frame with column names to include in table
+#' @param csv_name string indicating name of the created .csv file
 #' @return empty lookup table with columns from \code{lookup_table} in the directory if successfully generated
 #' @export
-generate_user_table = function(path, lookup_table){
-  if(!dir.exists(path)){
-    print("Path does not exist")
+generate_empty_df = function(dir_path, lookup_table, csv_name){
+  if(!dir.exists(dir_path)){
+    stop("Path does not exist")
   } else{
     tryCatch({
       # Retrieve lookup table and get its column names (using local directory for now)
       lookup_colnames = colnames(lookup_table)
       
-      # Generate empty csv with column names
+      # Generate empty data frame with column names
       empty_lookup = setNames(data.frame(matrix(ncol = length(lookup_colnames), nrow = 0)),
                               lookup_colnames)
       
-      # Try-catch making empty data frame
-      write_path = paste0(path, "/", lookup_type, "_user.csv")
+      # Try-catch making csv file
+      write_path = paste0(dir_path, "/", csv_name, ".csv")
       write_data_frame(empty_lookup, write_path)
     }, error = function(e){
-      print("Error while generating user lookup table")
+      stop("Error while generating user lookup table")
     }, finally = {
-      print(paste0("User lookup table generated in ", path))
+      print(paste0("User lookup table generated in ", dir_path))
     })
   }
+}
+
+#' Create user-defined lookup table
+#' 
+#' Creates an empty user-defined lookup table in a specified directory
+#' @param path string indicating path to directory
+#' @return .csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
+#' @importFrom iidda.tools ops
+#' @export
+generate_user_table = function(path, lookup_table_type){
+  lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_table_type)
+  if(nrow(lookup_table) == 0){
+    stop("Lookup table cannot be found in the API")
+  } else{
+    table_name = paste0(lookup_table_type, "_user")
+    generate_empty_df(path, lookup_table, table_name)
+  }
+  # Might need another conditional statement for internal server error
 }
 
 #' Add entries to user table
@@ -69,6 +89,10 @@ names_to_join_by = function(lookup_type){
                                       "icd_7","icd_7_subclass","icd_9","icd_9_subclass",
                                       "link_family","link","link_subclass","notes"))
   
+  if(!(lookup_type %in% names(lookup_type_list))){
+    stop("Lookup table type not found")
+  }
+  
   return(lookup_type_list[[lookup_type]])
 }
 
@@ -96,9 +120,9 @@ resolve_join = function(df){
   return(df)
 }
 
-#' Join lookup table
+#' Left join for lookup tables
 #' 
-#' Joins lookup table to data frame of data
+#' Left joins lookup table to data frame of data
 #' @param raw_data data frame of data to be harmonized
 #' @param lookup_table data frame of lookup table
 #' @param lookup_type string indicating lookup table type (disease, location, sex)
@@ -108,19 +132,16 @@ resolve_join = function(df){
 #' @importFrom tidyselect everything
 #' @importFrom tidyr replace_na
 #' @export
-join_lookup_table = function(raw_data, lookup_table, lookup_type, join_by = c()){
+lookup_join = function(raw_data, lookup_table, join_by = c()){
   
   # Determine initially which columns to join by for left_join
   if(length(join_by) == 0){
-    join_cols = names_to_join_by(lookup_type)
-    
-  } else{
-    join_cols = join_by # Use columns defined by user if specified
+    stop("Please specify columns to join by")
   }
   
   # Check which of join_cols are in the raw data and lookup table
-  cols_in_raw = join_cols[join_cols %in% colnames(raw_data)]
-  cols_in_lookup = join_cols[join_cols %in% colnames(lookup_table)]
+  cols_in_raw = join_by[join_by %in% colnames(raw_data)]
+  cols_in_lookup = join_by[join_by %in% colnames(lookup_table)]
   
   # Find shared columns and remove non-shared columns from lookup table (so that other base columns don't interfere with join)
   shared_cols = intersect(cols_in_lookup, cols_in_raw)
@@ -153,4 +174,46 @@ join_lookup_table = function(raw_data, lookup_table, lookup_type, join_by = c())
                      %>% resolve_join())
   
   return(harmonized_data)
+}
+
+#' Join lookup table
+#' 
+#' Joins lookup table in API to data
+#' @param raw_data data frame of table to be harmonized
+#' @param lookup_type string indicating type of lookup table from API to join
+#' @return data frame of harmonized data with keys from API
+#' @importFrom iidda.api ops
+#' @export
+join_lookup_table = function(raw_data, lookup_type){
+  lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_type)
+  if(nrow(lookup_table) == 0){
+    stop("Lookup table cannot be found in the API")
+  }
+  
+  join_by = names_to_join_by(lookup_type)
+  
+  joined_table = lookup_join(raw_data, lookup_table, join_by)
+  return(joined_table)
+}
+
+#' Join user-defined lookup table
+#' 
+#' Joins user-defined lookup table to data
+#' @param raw_data data frame of table to be harmonized
+#' @param user_table_path string indicating path to user-defined lookup table
+#' @param lookup_type string indicating type of lookup table (disease, location, sex). Used to determine columns to join by if \code{join_by} not specified
+#' @param join_by vector of strings indicating columns to join by (optional if \code{lookup_type} is disease, location, or sex)
+#' @return data frame of harmonized data with user-defined keys
+#' @importFrom readr read_csv
+#' @export
+join_user_table = function(raw_data, user_table_path, lookup_type, join_by = c()){
+  if(length(join_by) == 0){
+    cols_to_join = join_by
+  } else{
+    cols_to_join = names_to_join_by(lookup_type)
+  }
+  
+  user_table = read_csv(user_table_path)
+  joined_table = lookup_join(raw_data, user_table, cols_to_join)
+  return(joined_table)
 }
