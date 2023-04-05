@@ -17,6 +17,7 @@ NULL
 #' @param na_replace numeric value to replace `NA`s in series variable, if NULL
 #' no replacement is performed
 #'
+#' @importFrom dplyr all_of
 #' @return a function to remove or replace missing values.
 #'
 #' ## Returned Function
@@ -99,6 +100,7 @@ HandleZeroValues <- function(
 #' @param zero_lead boolean value, if `TRUE` remove leading zeroes in `data`
 #' @param zero_trail boolean value, if `TRUE` remove trailing zeroes in `data`
 #'
+#' @importFrom dplyr arrange pull
 #' @return a function to remove to remove leading and/or trailing zeroes
 #'
 #' ## Returned Function
@@ -153,6 +155,7 @@ TrimSeries <- function(zero_lead=FALSE,
 #' @param time_variable column name of time variable in `data`, default is "period_start_date"
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #'
+#' @importFrom dplyr group_by summarize ungroup
 #' @return function to harmonize disease/cause names
 #'
 #' ## Returned Function
@@ -191,6 +194,7 @@ SeriesHarmonizer = function(
 #' @param week_start numeric value of the first week number to start looking for heaping errors
 #' @param week_end numeric value of the last week number to look for heaping errors
 #'
+#' @importFrom dplyr if_else group_split lag lead
 #' @return function to fix heaping errors
 #'
 #' ## Returned Function
@@ -292,7 +296,6 @@ WaveletDeheaper = function(
 #' be kept and data from `trend_data` is left joined, if `FALSE` dates from `trend_data`
 #' are left joined instead
 #'
-#'
 #' @return function to join data and trend data sets
 #'
 #' ## Returned Function
@@ -335,6 +338,8 @@ WaveletJoiner = function(
 #' @param series_suffix suffix to be appended to series data fields
 #' @param trend_suffix suffix to be appended to trend data fields
 #'
+#' @importFrom stats approx
+#' @importFrom dplyr union
 #' @return function that linearly interpolates series and trend data.
 #'
 #' ## Returned Function
@@ -433,6 +438,7 @@ WaveletInterpolator = function(
 #' @param eps numeric value for normalized data to be perturbed by before
 #' computing the logarithm
 #'
+#' @importFrom EMD emd
 #' @return function that creates normalized trend and de-trended fields
 #'
 #' ## Returned Function
@@ -496,7 +502,7 @@ WaveletNormalizer = function(
 #' @param wavelet_variable name of the field in `data` to be wavelet transformed
 #'
 #'
-#'
+#' @importFrom WaveletComp analyze.wavelet
 #' @return function that computes wavelet transform
 #'
 #' ## Returned Function
@@ -576,6 +582,7 @@ ComputeMovingAverage <- function(ma_window_length=52){
 #' not overlap with `x`. If FALSE, a union between `x` and `y` is returned.
 #' @param time_variable column name of time variable in `x` and `y`, default is "period_start_date"
 #'
+#' @importFrom janitor compare_df_cols_same
 #' @return combined `x` and `y` data frames with optional filtering for overlaps
 #'
 #' @export
@@ -638,6 +645,8 @@ union_series <- function(x,
 #' @param end_day_variable column name of time variable containing the day of the ending period, defaults to "End Day of Year"
 #' @param temp_year_variable temporary variable name when pivoting the data frame
 #'
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr rename
 #' @return all fields in `data` with only records corresponding to year end weeks that have been split
 #' @export
 year_end_fix <- function(data,
@@ -670,6 +679,8 @@ year_end_fix <- function(data,
 #'
 #' @param n number of desired breaks
 #'
+#' @importFrom scales trans_new
+#' @importFrom grDevices axisTicks
 #' @return a \code{scales::trans_new} function
 #' @export
 log1p_modified_trans <- function(n=10){
@@ -689,6 +700,7 @@ log1p_modified_trans <- function(n=10){
 #'
 #' @param x vector to be transformed
 #'
+#' @importFrom scales label_number
 #' @return a \code{scales::trans_new} function
 #'
 #' @export
@@ -728,6 +740,7 @@ quantile_trans <- function(x){
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
 #'
+#' @importFrom dplyr group_by_at
 #' @return all fields in `data` with records prepped for plotting moving average time series
 #'
 #' @family prep_data_for_plotting
@@ -897,6 +910,8 @@ iidda_prep_box <- function(data,
 #' @param normalize boolean flag to normalize `series_variable` data to be between 0 and 1.
 #' @param ... optional arguments to `year_end_fix()`
 #'
+#' @importFrom purrr map reduce map2
+#' @importFrom scales rescale
 #' @return all fields in`data` with records prepped for plotting heatmaps. The name
 #' of the new `time_unit` fields will be named from lubridate_funcs.
 #'
@@ -979,6 +994,7 @@ iidda_prep_heatmap <- function(data,
 #' @param create_nonexistent boolean flag to create \code{NA} records for non-existent `time_unit` and `grouping_variable`.
 #' This creates all combinations of `time_unit` and `grouping_variable` to ensure there are no missing records.
 #'
+#' @importFrom dplyr desc matches
 #' @return all fields in`data` with records prepped for plotting rohani heatmaps. The name
 #' of the new `time_unit` fields will be named from lubridate_funcs.
 #'
@@ -1073,6 +1089,7 @@ iidda_prep_rohani <- function(data,
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
 #'
 #'
+#' @importFrom stats spec.pgram
 #' @return all fields in`data` with records prepped for plotting box plots. The name
 #' of the new `time_unit` field will be named from lubridate_funcs.
 #'
@@ -1166,6 +1183,7 @@ iidda_prep_periodogram <- function(data,
 #' @param transformer function that computes wavelet transform
 #'
 #'
+#' @importFrom lubridate dhours
 #' @return list containing:
 #'        * \code{transforemd_data} - wavelet transformed data
 #'        * \code{tile_data_to_plot} - data set of the wavelet transformed data
@@ -1309,6 +1327,7 @@ iidda_get_metadata <- function(data,
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param time_variable column name of time variable in `data`, default is "period_start_date"
 #'
+#' @importFrom ggplot2 geom_line scale_y_continuous
 #' @return a ggplot2 plot object containing a moving average time series
 #' @family plotting_functions
 #' @export
@@ -1358,6 +1377,8 @@ iidda_plot_series <- function(plot_object,
 #' @param time_unit time unit to display bar graphs on the x-axis. Defaults to "week" or one of plot_vars.R time_units that starts
 #' with "month". Should generalize at some point to be able to take any time_unit argument.
 #'
+#' @importFrom grDevices rainbow
+#' @importFrom ggplot2 geom_col
 #' @return a ggplot2 plot object containing a bar graphs of time series data
 #'
 #' @family plotting_functions
@@ -1394,6 +1415,7 @@ iidda_plot_bar <- function(plot_object,
 #' handle any time_unit from plot_vars.R time_units.
 #' @param ... other arguments to be passed to `scale_x_discrete`
 #'
+#' @importFrom ggplot2 geom_boxplot scale_x_discrete
 #' @return a ggplot2 plot object containing a box plots of time series data
 #'
 #' @family plotting_functions
@@ -1427,6 +1449,8 @@ iidda_plot_box <- function(plot_object,
 #' @param palette_colour colour of heatmap palette, defaults to "RdGy". Should specify what type of palette colours
 #' are accepted by this argument.
 #'
+#' @importFrom ggplot2 ggplot_build geom_rect scale_x_continuous scale_y_continuous scale_fill_distiller xlab ylab
+#' @importFrom lubridate yday
 #' @return a ggplot2 plot object containing a yearly vs. weekly heatmap of time series data
 #'
 #' @family plotting_functions
@@ -1504,6 +1528,7 @@ iidda_plot_heatmap <- function(plot_object,
 #' @param palette_colour colour of heatmap palette, defaults to "RdGy". Should specify what type of palette colours
 #' are accepted by this argument.
 #'
+#' @importFrom ggplot2 geom_raster scale_y_discrete scale_fill_gradientn labs theme_bw theme element_blank
 #' @return a ggplot2 plot object containing a yearly vs. weekly heatmap of time series data
 #'
 #' @family plotting_functions
@@ -1566,6 +1591,7 @@ iidda_plot_rohani_heatmap <- function(plot_object,
 #' @param filter_end value of `filter_variable` for ending range, default is "1800-01-01"
 #' @param ... other arguments to be passed to `ggforce::geom_mark_rect`, for example annotating with text
 #'
+#' @importFrom ggplot2 ggtitle
 #' @return a ggplot2 plot object a rectangular plot highlight
 #'
 #' @family plotting_functions
@@ -1610,6 +1636,7 @@ iidda_plot_periodogram <- function(plot_object,
 #' @param end_hue ending hue colour to pass to \code{scale_fill_gradientn}, default taken from WaveletComp::wt.image.
 #' @param sig_lvl significance level for white contours
 #'
+#' @importFrom ggplot2 geom_tile scale_x_datetime geom_contour geom_polygon
 #' @return a ggplot2 object of a wavelet
 #'
 #' @family plotting_functions
@@ -1699,6 +1726,7 @@ iidda_plot_wavelet <- function(plot_object,
 #' @param filter_end value of `filter_variable` for ending range, default is "1800-01-01"
 #' @param ... other arguments to be passed to `ggforce::geom_mark_rect`, for example annotating with text
 #'
+#' @importFrom ggforce geom_mark_rect
 #' @return a ggplot2 plot object a rectangular plot highlight
 #' @family plotting_functions
 #' @export
@@ -1781,6 +1809,7 @@ iidda_plot_settings <- function(plot_object,
 #' @param data data frame
 #'
 #' @return boolean of validation status
+#' @export
 valid_time_vars = function(var_nm, data) {
   (var_nm %in% names(data)) & is.Date(data[[var_nm]])
 }
@@ -1831,6 +1860,7 @@ lubridate_funcs = c(
 #' @param unit time unit, one of time_units
 #'
 #' @return label of associated time unit
+#' @export
 get_unit_labels = function(unit) {
   lubridate_funcs[index_sep(unit, 1L)]
 }
@@ -1845,6 +1875,7 @@ get_unit_labels = function(unit) {
 #' @param output_name field name of newly created time unit field, by default uses get_unit_labels().
 #'
 #' @return all fields in `data` with additional time unit field
+#' @export
 mutate_time_vars = function(
   data,
   unit = unname(time_units),
@@ -1863,9 +1894,11 @@ mutate_time_vars = function(
 #'
 #' @param unit time unit, one or more of time_units
 #'
+#' @importFrom lubridate wday mday qday yday week epiweek isoweek month quarter year
 #' @return function to compute time unit
+#' @export
 make_time_trans = function(unit = unname(time_units)) {
-  #browser()
+
   unit = match.arg(unit)
   as_func = force
   lubridate_func_nm = index_sep(unit, 1L)
