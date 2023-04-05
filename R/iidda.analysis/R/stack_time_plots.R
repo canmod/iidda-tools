@@ -13,7 +13,7 @@ ref = function(x) {
   x
 }
 
-#' @describeIn ref
+
 #' @export
 is_ref = function(x) {
   isTRUE(attr(x, 'iidda_time_plot_reference'))
@@ -56,7 +56,7 @@ time_extent = function(x, time_id) {
   UseMethod("time_extent")
 }
 
-#' @describeIn time_extent
+
 #' @export
 time_extent_date = function(x) {
   args = c(as.list(rev(range(x))), list(units = 'days'))
@@ -104,7 +104,7 @@ time_harmonize.ggplot = function(..., time_id) {
   plts
 }
 
-#' @describeIn time_harmonize
+
 #' @export
 time_harmonize_list = function(l, time_id) {
   do.call(time_harmonize, c(l, list(time_id = time_id)))
@@ -144,33 +144,29 @@ to_gtable.gtable = function(x) x
 
 #' Grob Utilities
 #'
-#' @param x
+#' @param x TODO
 #' @export
 grob_names = function(x) {
   to_gtable(x)$layout$name
 }
 
 #' @param grob_nms names of grobs
-#' @describeIn grob_names
 #' @export
 which_grobs = function(x, grob_nms) {
   which(grob_names(x) %in% grob_nms)
 }
 
-#' @describeIn grob_names
 #' @export
 which_grobs_not = function(x, grob_nms) {
   which(!grob_names(x) %in% grob_nms)
 }
 
-#' @describeIn grob_names
 #' @export
 get_grobs = function(x, grob_nms) {
   to_gtable(x)$grob[which_grobs(x, grob_nms)]
 }
 
 #' param grob_nm name of grob to get
-#' @describeIn grob_names
 #' @export
 get_grob = function(x, grob_nm) {
   stopifnot(length(grob_nm) == 1L)
@@ -180,7 +176,6 @@ get_grob = function(x, grob_nm) {
   out_grob[[1L]]
 }
 
-#' @describeIn grob_names
 #' @export
 rm_grobs = function(x, grob_nms) {
   grobs_to_keep = which_grobs_not(x, grob_nms)
