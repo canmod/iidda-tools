@@ -4,7 +4,7 @@
 \alias{union_series}
 \title{Union Time Series}
 \usage{
-union_series(x, y, overlap = TRUE, time_variable = "period_start_date")
+union_series(x, y, overlap = TRUE, time_variable = "period_end_date")
 }
 \arguments{
 \item{x}{first data frame containing time series data}
@@ -15,7 +15,7 @@ union_series(x, y, overlap = TRUE, time_variable = "period_start_date")
 If `TRUE` the returned data frame will contain all data from `x`, and the filtered `y` data that does
 not overlap with `x`. If FALSE, a union between `x` and `y` is returned.}
 
-\item{time_variable}{column name of time variable in `x` and `y`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `x` and `y`, default is "period_end_date"}
 }
 \value{
 combined `x` and `y` data frames with optional filtering for overlaps

@@ -7,8 +7,8 @@
 iidda_prep_rohani(
   data,
   series_variable = "deaths",
-  time_variable = "period_start_date",
-  start_time_variable = "period_start_date",
+  time_variable = "period_end_date",
+  start_time_variable = "period_end_date",
   time_unit = c("year"),
   grouping_variable = "cause",
   ranking_variable = NULL,
@@ -23,9 +23,9 @@ iidda_prep_rohani(
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
-\item{start_time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{start_time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{time_unit}{a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
 Defaults to "c("year")". The currently functionality expects that "year" is included, should be

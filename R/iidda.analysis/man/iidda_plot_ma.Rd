@@ -8,7 +8,7 @@ iidda_plot_ma(
   plot_object,
   data = NULL,
   series_variable = "deaths",
-  time_variable = "period_start_date"
+  time_variable = "period_end_date"
 )
 }
 \arguments{
@@ -19,7 +19,7 @@ If `NULL` data is inherited from `plot_object`}
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 }
 \value{
 a ggplot2 plot object containing a moving average time series

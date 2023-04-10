@@ -44,7 +44,7 @@ iidda_prep_wavelet(
 
 \item{trend_data}{data frame containing time series trend data}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths_series"}
 

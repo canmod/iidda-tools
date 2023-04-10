@@ -108,7 +108,7 @@ HandleZeroValues <- function(
 #' - Arguments
 #'    * `data` data frame containing time series data
 #'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#'    * `time_variable` column name of time variable in `data`, default is "period_start_date"
+#'    * `time_variable` column name of time variable in `data`, default is "period_end_date"
 #' - Return - all fields in `data` with filtered records to trim leading and/or trailing zeroes
 #'
 #' @family data_prep_constructors
@@ -117,7 +117,7 @@ TrimSeries <- function(zero_lead=FALSE,
                        zero_trail=FALSE){
   function(data,
            series_variable="deaths",
-           time_variable="period_start_date"){
+           time_variable="period_end_date"){
     # trim leading zeroes
     if (zero_lead){
       first_date <- (data
@@ -152,7 +152,7 @@ TrimSeries <- function(zero_lead=FALSE,
 #' Harmonizes the series variable in `data` so there is one data value for each time
 #' unit in time variable (to account for different variations in disease/cause name)
 #'
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #'
 #' @importFrom dplyr group_by summarize ungroup
@@ -167,7 +167,7 @@ TrimSeries <- function(zero_lead=FALSE,
 #' @family data_prep_constructors
 #' @export
 SeriesHarmonizer = function(
-    time_variable = "period_start_date",
+    time_variable = "period_end_date",
     series_variable = "deaths"
 ) {
   function(data) {
@@ -187,7 +187,7 @@ SeriesHarmonizer = function(
 #' (https://github.com/davidearn/KevinZhao/blob/main/Report/make_SF_RData.R). This needs
 #' to be better documented.
 #'
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param first_date string containing earliest date to look for heaping errors
 #' @param last_date string containing last date to look for heaping errors
@@ -207,7 +207,7 @@ SeriesHarmonizer = function(
 #' @family data_prep_constructors
 #' @export
 WaveletDeheaper = function(
-    time_variable = "period_start_date",
+    time_variable = "period_end_date",
     series_variable = "deaths",
     first_date = "1830-01-01",
     last_date = "1841-12-31",
@@ -289,7 +289,7 @@ WaveletDeheaper = function(
 #' Joins series data and trend datasets and keeps all time units in one of the
 #' datasets.
 #'
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param series_suffix suffix to be appended to series data fields
 #' @param trend_suffix suffix to be appended to trend data fields
 #' @param keep_series_dates boolean flag to indicate if the dates in `series_data` should
@@ -308,7 +308,7 @@ WaveletDeheaper = function(
 #' @family data_prep_constructors
 #' @export
 WaveletJoiner = function(
-    time_variable = "period_start_date",
+    time_variable = "period_end_date",
     series_suffix = "_series",
     trend_suffix = "_trend",
     keep_series_dates = TRUE
@@ -334,7 +334,7 @@ WaveletJoiner = function(
 #'
 #' @param series_variable column name of series variable in `data`, default is "deaths_series"
 #' @param trend_variable column name of series variable in `data`, default is "deaths_trend"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param series_suffix suffix to be appended to series data fields
 #' @param trend_suffix suffix to be appended to trend data fields
 #'
@@ -352,7 +352,7 @@ WaveletJoiner = function(
 #' @family data_prep_constructors
 #' @export
 WaveletInterpolator = function(
-    time_variable = "period_start_date",
+    time_variable = "period_end_date",
     series_variable = "deaths",
     trend_variable = "deaths",
     series_suffix = "_series",
@@ -420,7 +420,7 @@ WaveletInterpolator = function(
 #'
 #' Creates normalizing fields in `data`
 #'
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param series_variable  column name of series variable in `data`, default is "deaths_series"
 #' @param trend_variable column name of series variable in `data`, default is "deaths_trend"
 #' @param series_suffix suffix to be appended to series data fields
@@ -450,7 +450,7 @@ WaveletInterpolator = function(
 #' @family data_prep_constructors
 #' @export
 WaveletNormalizer = function(
-    time_variable = "period_start_date",
+    time_variable = "period_end_date",
     series_variable = "deaths",
     trend_variable = "deaths",
     series_suffix = "_series",
@@ -515,7 +515,7 @@ WaveletNormalizer = function(
 #' @family data_prep_constructors
 #' @export
 WaveletTransformer = function(
-    time_variable = "period_start_date",
+    time_variable = "period_end_date",
     wavelet_variable = "detrend_norm",
     #all arguments to analyze.wavelet
     ...
@@ -544,7 +544,7 @@ WaveletTransformer = function(
 #' - Arguments
 #'    * `data` data frame containing time series data
 #'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#'    * `time_variable` column name of time variable in `data`, default is "period_start_date"
+#'    * `time_variable` column name of time variable in `data`, default is "period_end_date"
 #' - Return - all fields in `data` with the `series_variable` data replaced with the moving
 #' average.
 #'
@@ -554,7 +554,7 @@ ComputeMovingAverage <- function(ma_window_length=52){
 
   function(data,
            series_variable="deaths",
-           time_variable="period_start_date"){
+           time_variable="period_end_date"){
 
     # compute moving average
     ma_filter <- rep(1,ma_window_length)/ma_window_length
@@ -580,7 +580,7 @@ ComputeMovingAverage <- function(ma_window_length=52){
 #' @param overlap boolean to indicate if `x` should get priority with overlapping time periods in `y`.
 #' If `TRUE` the returned data frame will contain all data from `x`, and the filtered `y` data that does
 #' not overlap with `x`. If FALSE, a union between `x` and `y` is returned.
-#' @param time_variable column name of time variable in `x` and `y`, default is "period_start_date"
+#' @param time_variable column name of time variable in `x` and `y`, default is "period_end_date"
 #'
 #' @importFrom janitor compare_df_cols_same
 #' @return combined `x` and `y` data frames with optional filtering for overlaps
@@ -589,7 +589,7 @@ ComputeMovingAverage <- function(ma_window_length=52){
 union_series <- function(x,
                          y,
                          overlap = TRUE,
-                         time_variable="period_start_date"){
+                         time_variable="period_end_date"){
 
   # check that they have the same column names, and number of columns
   # should I be using janitor package? ...(minimize number of packages used?)
@@ -730,7 +730,7 @@ quantile_trans <- function(x){
 #'
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param grouping_variable column name of the grouping variable in `data` to summarize the series variable over,
 #' if `summarize=TRUE`
 #' @param time_unit time unit to sum series data over, must be one of plot_vars.R time_units, defaults to "year".
@@ -747,7 +747,7 @@ quantile_trans <- function(x){
 #' @export
 iidda_prep_series <- function(data,
                          series_variable="deaths",
-                         time_variable="period_start_date",
+                         time_variable="period_end_date",
                          grouping_variable="cause",# not sure if I need this
                          time_unit = "year",
                          summarize_series = TRUE,
@@ -784,7 +784,7 @@ iidda_prep_series <- function(data,
 #'
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param trim_zeroes boolean value to filter data to exclude leading and trailing zeroes
 #' @param trim_series function to trim leading and trailing series zeroes, defaults to TrimSeries
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
@@ -798,7 +798,7 @@ iidda_prep_series <- function(data,
 #' @export
 iidda_prep_ma <- function(data,
                          series_variable="deaths",
-                         time_variable="period_start_date",
+                         time_variable="period_end_date",
                          trim_zeroes=TRUE,
                          trim_series=TrimSeries(zero_lead=FALSE,zero_trail=FALSE),
                          handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
@@ -824,7 +824,7 @@ iidda_prep_ma <- function(data,
 #'
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit time unit to sum series data over, must be one of plot_vars.R time_units, defaults to "week".
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
@@ -837,7 +837,7 @@ iidda_prep_ma <- function(data,
 #' @export
 iidda_prep_bar <- function(data,
                           series_variable="deaths",
-                          time_variable = "period_start_date",
+                          time_variable = "period_end_date",
                           time_unit = "week", #has to be one of plot_vars.R time_units
                           handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
                           handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)){
@@ -862,7 +862,7 @@ iidda_prep_bar <- function(data,
 #'
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit time unit to create field from `time_variable`. Must be one of plot_vars.R time_units, defaults to "week".
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
@@ -875,7 +875,7 @@ iidda_prep_bar <- function(data,
 #' @export
 iidda_prep_box <- function(data,
                           series_variable="deaths",
-                          time_variable = "period_start_date",
+                          time_variable = "period_end_date",
                           time_unit = "week", #has to be one of plot_vars.R time_units
                           handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
                           handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)){
@@ -983,8 +983,8 @@ iidda_prep_heatmap <- function(data,
 #'
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
-#' @param start_time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
+#' @param start_time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
 #' Defaults to "c("year")". The currently functionality expects that "year" is included, should be
 #' made more general to incorporate any of plot_vars.R time_units.
@@ -1002,8 +1002,8 @@ iidda_prep_heatmap <- function(data,
 #' @export
 iidda_prep_rohani <- function(data,
                               series_variable="deaths",
-                              time_variable = "period_start_date",
-                              start_time_variable = "period_start_date",
+                              time_variable = "period_end_date",
+                              start_time_variable = "period_end_date",
                               #end_time_variable = "period_end_date", # might not need this we are plotting a second time unit on the y-axis
                               time_unit = c("year"), #has to be one of plot_vars.R time_units
                               grouping_variable = "cause",
@@ -1083,7 +1083,7 @@ iidda_prep_rohani <- function(data,
 #'
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit time unit to create field from `time_variable`. Must be one of plot_vars.R time_units, defaults to "week".
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
@@ -1097,7 +1097,7 @@ iidda_prep_rohani <- function(data,
 #' @export
 iidda_prep_periodogram <- function(data,
                                   series_variable="deaths",
-                                  time_variable = "period_start_date",
+                                  time_variable = "period_end_date",
                                   transform = FALSE,
                                   transformation = "log10",
                                   spans = NULL,
@@ -1155,7 +1155,7 @@ iidda_prep_periodogram <- function(data,
 #'
 #' @param data data frame containing time series data
 #' @param trend_data data frame containing time series trend data
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param series_variable  column name of series variable in `data`, default is "deaths_series"
 #' @param trend_variable column name of series variable in `data`, default is "deaths_trend"
 #' @param series_suffix suffix to be appended to series data fields
@@ -1290,14 +1290,14 @@ iidda_prep_wavelet = function(
 #' data set for use in axis and main plot titles.
 #'
 #' @param data data frame containing time series data
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param descriptor_variable column name of the descriptor variable in `data`, default is "cause" for
 #' mortality data sets.
 #'
 #' @return a list in order containing minimum time period, maximum time period and cause name.
 #' @export
 iidda_get_metadata <- function(data,
-                              time_variable = "period_start_date",
+                              time_variable = "period_end_date",
                               descriptor_variable = "cause"
                               #time_unit, might want this
                               ){
@@ -1325,7 +1325,7 @@ iidda_get_metadata <- function(data,
 #' @param data data frame containing moving average time series data, typically output from `iidda_prep_ma()`.
 #' If `NULL` data is inherited from `plot_object`
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #'
 #' @importFrom ggplot2 geom_line scale_y_continuous
 #' @return a ggplot2 plot object containing a moving average time series
@@ -1334,7 +1334,7 @@ iidda_get_metadata <- function(data,
 iidda_plot_ma <- function(plot_object,
                          data=NULL,
                          series_variable="deaths",
-                         time_variable="period_start_date"){
+                         time_variable="period_end_date"){
 
   (plot_object
    + geom_line(data=data, aes(x=.data[[time_variable]],y=.data[[series_variable]]))
@@ -1351,7 +1351,7 @@ iidda_plot_ma <- function(plot_object,
 #' @param data data frame containing time series data, typically output from `iidda_prep_series()`.
 #' If `NULL` data is inherited from `plot_object`
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit time unit to display on the x-axis.
 #'
 #' @family plotting_functions
@@ -1359,7 +1359,7 @@ iidda_plot_ma <- function(plot_object,
 iidda_plot_series <- function(plot_object,
                          data=NULL,
                          series_variable="deaths",
-                         time_variable="period_start_date",
+                         time_variable="period_end_date",
                          time_unit="year"){
 
   plot_object + geom_line(data=data, aes(x=.data[[get_unit_labels(time_unit)]],y=.data[[series_variable]]))
@@ -1720,8 +1720,8 @@ iidda_plot_wavelet <- function(plot_object,
 #' @param data data frame containing time series data. If `NULL` data is inherited from `plot_object`. This
 #' has only been tested with data output from `iidda_plot_ma`.
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_start_date"
-#' @param filter_variable column name of variable to filter on in `data`, default is "period_start_date"
+#' @param time_variable column name of time variable in `data`, default is "period_end_date"
+#' @param filter_variable column name of variable to filter on in `data`, default is "period_end_date"
 #' @param filter_start value of `filter_variable` for starting range, default is "1700-01-01"
 #' @param filter_end value of `filter_variable` for ending range, default is "1800-01-01"
 #' @param ... other arguments to be passed to `ggforce::geom_mark_rect`, for example annotating with text
@@ -1734,8 +1734,8 @@ iidda_plot_highlight <- function(
     plot_object,
     data=NULL,
     series_variable="deaths",
-    time_variable="period_start_date",
-    filter_variable="period_start_date", # variable to filter on
+    time_variable="period_end_date",
+    filter_variable="period_end_date", # variable to filter on
     filter_start = "1700-01-01", # how to do NULL
     filter_end = "1800-01-01",
     ...){
@@ -1879,7 +1879,7 @@ get_unit_labels = function(unit) {
 mutate_time_vars = function(
   data,
   unit = unname(time_units),
-  input_nm = "period_start_date",
+  input_nm = "period_end_date",
   output_nm = get_unit_labels(unit)
 ) {
   #browser()

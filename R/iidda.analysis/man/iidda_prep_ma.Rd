@@ -7,7 +7,7 @@
 iidda_prep_ma(
   data,
   series_variable = "deaths",
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   trim_zeroes = TRUE,
   trim_series = TrimSeries(zero_lead = FALSE, zero_trail = FALSE),
   handle_missing_values = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
@@ -20,7 +20,7 @@ iidda_prep_ma(
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{trim_zeroes}{boolean value to filter data to exclude leading and trailing zeroes}
 

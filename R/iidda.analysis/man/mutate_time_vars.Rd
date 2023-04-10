@@ -7,7 +7,7 @@
 mutate_time_vars(
   data,
   unit = unname(time_units),
-  input_nm = "period_start_date",
+  input_nm = "period_end_date",
   output_nm = get_unit_labels(unit)
 )
 }

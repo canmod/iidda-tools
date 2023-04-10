@@ -6,14 +6,14 @@
 \usage{
 iidda_get_metadata(
   data,
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   descriptor_variable = "cause"
 )
 }
 \arguments{
 \item{data}{data frame containing time series data}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{descriptor_variable}{column name of the descriptor variable in `data`, default is "cause" for
 mortality data sets.}

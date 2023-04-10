@@ -7,7 +7,7 @@
 iidda_prep_periodogram(
   data,
   series_variable = "deaths",
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   transform = FALSE,
   transformation = "log10",
   spans = NULL,
@@ -28,7 +28,7 @@ iidda_prep_periodogram(
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{handle_missing_values}{function to handle missing values, defaults to HandleMissingValues}
 

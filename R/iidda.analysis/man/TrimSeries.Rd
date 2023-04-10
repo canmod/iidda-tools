@@ -19,7 +19,7 @@ a function to remove to remove leading and/or trailing zeroes
 - Arguments
    * `data` data frame containing time series data
    * `series_variable` column name of series variable in `data`, default is "deaths"
-   * `time_variable` column name of time variable in `data`, default is "period_start_date"
+   * `time_variable` column name of time variable in `data`, default is "period_end_date"
 - Return - all fields in `data` with filtered records to trim leading and/or trailing zeroes
 }
 \description{

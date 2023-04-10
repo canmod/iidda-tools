@@ -5,14 +5,14 @@
 \title{Wavelet Joiner}
 \usage{
 WaveletJoiner(
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   series_suffix = "_series",
   trend_suffix = "_trend",
   keep_series_dates = TRUE
 )
 }
 \arguments{
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{series_suffix}{suffix to be appended to series data fields}
 

@@ -8,8 +8,8 @@ iidda_plot_highlight(
   plot_object,
   data = NULL,
   series_variable = "deaths",
-  time_variable = "period_start_date",
-  filter_variable = "period_start_date",
+  time_variable = "period_end_date",
+  filter_variable = "period_end_date",
   filter_start = "1700-01-01",
   filter_end = "1800-01-01",
   ...
@@ -23,9 +23,9 @@ has only been tested with data output from `iidda_plot_ma`.}
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
-\item{filter_variable}{column name of variable to filter on in `data`, default is "period_start_date"}
+\item{filter_variable}{column name of variable to filter on in `data`, default is "period_end_date"}
 
 \item{filter_start}{value of `filter_variable` for starting range, default is "1700-01-01"}
 

@@ -18,7 +18,7 @@ a function to remove to compute the moving average of a time series variable
 - Arguments
    * `data` data frame containing time series data
    * `series_variable` column name of series variable in `data`, default is "deaths"
-   * `time_variable` column name of time variable in `data`, default is "period_start_date"
+   * `time_variable` column name of time variable in `data`, default is "period_end_date"
 - Return - all fields in `data` with the `series_variable` data replaced with the moving
 average.
 }

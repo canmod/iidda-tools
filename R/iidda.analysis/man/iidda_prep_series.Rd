@@ -7,7 +7,7 @@
 iidda_prep_series(
   data,
   series_variable = "deaths",
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   grouping_variable = "cause",
   time_unit = "year",
   summarize_series = TRUE,
@@ -22,7 +22,7 @@ iidda_prep_series(
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{grouping_variable}{column name of the grouping variable in `data` to summarize the series variable over,
 if `summarize=TRUE`}

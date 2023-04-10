@@ -5,7 +5,7 @@
 \title{Wavelet Transformer}
 \usage{
 WaveletTransformer(
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   wavelet_variable = "detrend_norm",
   ...
 )

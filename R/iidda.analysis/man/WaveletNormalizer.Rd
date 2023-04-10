@@ -5,7 +5,7 @@
 \title{Wavelet Normalizer}
 \usage{
 WaveletNormalizer(
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   series_variable = "deaths",
   trend_variable = "deaths",
   series_suffix = "_series",
@@ -24,7 +24,7 @@ WaveletNormalizer(
 )
 }
 \arguments{
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths_series"}
 

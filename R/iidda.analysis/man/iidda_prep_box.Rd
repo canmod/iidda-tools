@@ -7,7 +7,7 @@
 iidda_prep_box(
   data,
   series_variable = "deaths",
-  time_variable = "period_start_date",
+  time_variable = "period_end_date",
   time_unit = "week",
   handle_missing_values = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
   handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
@@ -18,7 +18,7 @@ iidda_prep_box(
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
 \item{time_unit}{time unit to create field from `time_variable`. Must be one of plot_vars.R time_units, defaults to "week".}
 
