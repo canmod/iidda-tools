@@ -9,12 +9,12 @@ Description: This package contains tools that depend on \code{iidda} and/or
 Imports: 
   iidda, 
   stringr,
-  magrittr,
-  iidda.api
+  magrittr
 Suggests:
     dplyr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    iidda.api
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

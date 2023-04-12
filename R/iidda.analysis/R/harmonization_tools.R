@@ -36,7 +36,6 @@ generate_empty_df = function(dir_path, lookup_table, csv_name){
 #' Creates an empty user-defined lookup table in a specified directory
 #' @param path string indicating path to directory
 #' @return .csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
-#' @importFrom iidda.api ops
 #' @export
 generate_user_table = function(path, lookup_table_type){
   lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_table_type)
@@ -189,7 +188,6 @@ lookup_join = function(raw_data, lookup_table, join_by = c(), verbose = FALSE){
 #' Joins lookup table in API to data
 #' @param raw_data data frame of table to be harmonized
 #' @param lookup_type string indicating type of lookup table from API to join
-#' @importFrom iidda.api ops
 #' @return data frame of harmonized data with keys from API
 #' @export
 join_lookup_table = function(raw_data, lookup_type){
