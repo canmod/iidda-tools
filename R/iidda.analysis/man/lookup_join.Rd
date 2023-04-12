@@ -4,20 +4,25 @@
 \alias{lookup_join}
 \title{Left join for lookup tables}
 \usage{
-lookup_join(raw_data, lookup_table, join_by = c())
+lookup_join(raw_data, lookup_table, join_by = c(), verbose = FALSE)
 }
 \arguments{
-\item{raw_data}{data frame of data to be harmonized}
+\item{raw_data}{Data frame of data to be harmonized.}
 
-\item{lookup_table}{data frame of lookup table}
+\item{lookup_table}{Data frame of lookup table.}
 
-\item{join_by}{vector of strings indicating columns to left_join by (uses those from names_to_join_by if empty)}
+\item{join_by}{Vector of strings indicating columns to left_join by
+(uses those from names_to_join_by if empty).}
 
-\item{lookup_type}{string indicating lookup table type (disease, location, sex)}
+\item{verbose}{Print information about the lookup.}
+
+\item{lookup_type}{String indicating lookup table type
+(disease, location, sex).}
 }
 \value{
-data frame of newly harmonized and resolved data. Note that all entries in the returned data frame are strings
+Data frame of newly harmonized and resolved data. Note that all
+entries in the returned data frame are strings.
 }
 \description{
-Left joins lookup table to data frame of data
+Left joins lookup table to data frame of data.
 }

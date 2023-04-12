@@ -124,18 +124,22 @@ resolve_join = function(df){
 
 #' Left join for lookup tables
 #'
-#' Left joins lookup table to data frame of data
+#' Left joins lookup table to data frame of data.
 #'
-#' @param raw_data data frame of data to be harmonized
-#' @param lookup_table data frame of lookup table
-#' @param lookup_type string indicating lookup table type (disease, location, sex)
-#' @param join_by vector of strings indicating columns to left_join by (uses those from names_to_join_by if empty)
-#' @return data frame of newly harmonized and resolved data. Note that all entries in the returned data frame are strings
+#' @param raw_data Data frame of data to be harmonized.
+#' @param lookup_table Data frame of lookup table.
+#' @param lookup_type String indicating lookup table type
+#' (disease, location, sex).
+#' @param join_by Vector of strings indicating columns to left_join by
+#' (uses those from names_to_join_by if empty).
+#' @param verbose Print information about the lookup.
+#' @return Data frame of newly harmonized and resolved data. Note that all
+#' entries in the returned data frame are strings.
 #' @importFrom dplyr select left_join across
 #' @importFrom tidyselect everything
 #' @importFrom tidyr replace_na
 #' @export
-lookup_join = function(raw_data, lookup_table, join_by = c()){
+lookup_join = function(raw_data, lookup_table, join_by = c(), verbose = FALSE){
 
   # Determine initially which columns to join by for left_join
   if(length(join_by) == 0){
@@ -157,8 +161,10 @@ lookup_join = function(raw_data, lookup_table, join_by = c()){
   nonshared_join_cols = setdiff(cols_in_lookup, shared_cols)
   update_lookup_table = select(lookup_table, !nonshared_join_cols)
 
-  print("Columns from lookup table that were used: ")
-  print(colnames(update_lookup_table))
+  if (verbose) {
+    print("Columns from lookup table that were used: ")
+    print(colnames(update_lookup_table))
+  }
 
   update_lookup_table = update_lookup_table[!duplicated(update_lookup_table), ] # Remove any duplicate rows in lookup table after these steps
 
@@ -170,7 +176,6 @@ lookup_join = function(raw_data, lookup_table, join_by = c()){
   }
 
   # left_join and resolve any duplicate columns with resolve_join
-  print(update_lookup_table)
   harmonized_data = (left_join(raw_data, update_lookup_table, by = shared_cols)
                      %>% mutate(across(everything(), as.character))
                      %>% mutate(across(everything(), ~replace_na(., "")))
