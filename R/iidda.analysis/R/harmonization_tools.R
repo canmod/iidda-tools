@@ -15,11 +15,11 @@ generate_empty_df = function(dir_path, lookup_table, csv_name){
     tryCatch({
       # Retrieve lookup table and get its column names (using local directory for now)
       lookup_colnames = colnames(lookup_table)
-      
+
       # Generate empty data frame with column names
       empty_lookup = setNames(data.frame(matrix(ncol = length(lookup_colnames), nrow = 0)),
                               lookup_colnames)
-      
+
       # Try-catch making csv file
       write_path = paste0(dir_path, "/", csv_name, ".csv")
       write_data_frame(empty_lookup, write_path)
@@ -66,7 +66,7 @@ add_user_entries = function(entries, user_table_path){
   entries_df = as.data.frame(entries) %>%
     mutate(across(everything(), as.character))
   user_table = read_csv(user_table_path)
-  
+
   if(all(colnames(entries_df) %in% colnames(user_table))){
     updated_df = bind_rows(user_table, entries_df) %>%
       filter(!if_all(.fns = is.na))
@@ -90,11 +90,11 @@ names_to_join_by = function(lookup_type){
                                       "exact_family","exact","exact_subclass",
                                       "icd_7","icd_7_subclass","icd_9","icd_9_subclass",
                                       "link_family","link","link_subclass","notes"))
-  
+
   if(!(lookup_type %in% names(lookup_type_list))){
     stop("Lookup table type not found")
   }
-  
+
   return(lookup_type_list[[lookup_type]])
 }
 
@@ -118,13 +118,14 @@ resolve_join = function(df){
           %>% select(-ends_with(".x")) # Keep only one column for duplicate columns
           %>% rename_with(~ str_remove(., "\\.y"), ends_with(".y")))
   }
-  
+
   return(df)
 }
 
 #' Left join for lookup tables
 #'
 #' Left joins lookup table to data frame of data
+#'
 #' @param raw_data data frame of data to be harmonized
 #' @param lookup_table data frame of lookup table
 #' @param lookup_type string indicating lookup table type (disease, location, sex)
@@ -135,46 +136,46 @@ resolve_join = function(df){
 #' @importFrom tidyr replace_na
 #' @export
 lookup_join = function(raw_data, lookup_table, join_by = c()){
-  
+
   # Determine initially which columns to join by for left_join
   if(length(join_by) == 0){
     stop("Please specify columns to join by")
   }
-  
+
   # Check which of join_cols are in the raw data and lookup table
   cols_in_raw = join_by[join_by %in% colnames(raw_data)]
   cols_in_lookup = join_by[join_by %in% colnames(lookup_table)]
-  
+
   # Find shared columns and remove non-shared columns from lookup table (so that other base columns don't interfere with join)
   shared_cols = intersect(cols_in_lookup, cols_in_raw)
-  
+
   if(length(shared_cols) == 0){ # return error if dataframes don't share columns of interest
     stop("Could not find shared columns of interest to join by. \n
          Please check the data and lookup table, and/or manually specifiy columns to join by through join_by argument.")
   }
-  
+
   nonshared_join_cols = setdiff(cols_in_lookup, shared_cols)
   update_lookup_table = select(lookup_table, !nonshared_join_cols)
-  
+
   print("Columns from lookup table that were used: ")
   print(colnames(update_lookup_table))
-  
+
   update_lookup_table = update_lookup_table[!duplicated(update_lookup_table), ] # Remove any duplicate rows in lookup table after these steps
-  
+
   # Check if there are any duplicate normalizations defined in lookup table after these steps
   # Specifically, get lookup table without normalizations and check for duplicates in that table
   lookup_table_keys = select(update_lookup_table, shared_cols)
   if(any(duplicated(lookup_table_keys))){
     stop("Multiple normalizations found for some entries in final lookup table.")
   }
-  
+
   # left_join and resolve any duplicate columns with resolve_join
   print(update_lookup_table)
   harmonized_data = (left_join(raw_data, update_lookup_table, by = shared_cols)
                      %>% mutate(across(everything(), as.character))
                      %>% mutate(across(everything(), ~replace_na(., "")))
                      %>% resolve_join())
-  
+
   return(harmonized_data)
 }
 
@@ -191,9 +192,9 @@ join_lookup_table = function(raw_data, lookup_type){
   if(nrow(lookup_table) == 0){
     stop("Lookup table cannot be found in the API")
   }
-  
+
   join_by = names_to_join_by(lookup_type)
-  
+
   joined_table = lookup_join(raw_data, lookup_table, join_by)
   return(joined_table)
 }
@@ -214,7 +215,7 @@ join_user_table = function(raw_data, user_table_path, lookup_type, join_by = c()
   } else{
     cols_to_join = names_to_join_by(lookup_type)
   }
-  
+
   user_table = read_csv(user_table_path)
   joined_table = lookup_join(raw_data, user_table, cols_to_join)
   return(joined_table)
