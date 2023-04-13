@@ -5,7 +5,7 @@
 #' @param dir_path string indicating path to directory
 #' @param lookup_table data frame with column names to include in table
 #' @param csv_name string indicating name of the created .csv file
-#' @return empty lookup table with columns from \code{lookup_table} in the directory if successfully generated
+#' @return empty csv file with columns from \code{lookup_table} in the directory if successfully generated
 #' @importFrom iidda write_data_frame
 #' @export
 generate_empty_df = function(dir_path, lookup_table, csv_name){
@@ -35,7 +35,8 @@ generate_empty_df = function(dir_path, lookup_table, csv_name){
 #'
 #' Creates an empty user-defined lookup table in a specified directory
 #' @param path string indicating path to directory
-#' @return .csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
+#' @param lookup_table_type string indicating type of lookup table
+#' @return csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
 #' @export
 generate_user_table = function(path, lookup_table_type){
   lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_table_type)
@@ -51,11 +52,11 @@ generate_user_table = function(path, lookup_table_type){
 #' Add entries to user table
 #'
 #' Adds entries to user-defined lookup table
-#' Entries should have list names or columns in the user lookup table
-#' \code{standards} can be used within entries
+#' Entries should have names or columns from the user lookup table
+#' \code{standards} can be used for entries
 #' @param entries dataframe or named list of entries to add
 #' @param user_table_path string indicating path to user lookup table
-#' @return new user lookup table with added entries at the path
+#' @return user lookup table with added entries in the path
 #' @importFrom dplyr mutate filter across bind_rows if_all
 #' @importFrom tidyselect everything
 #' @importFrom readr read_csv
@@ -78,7 +79,7 @@ add_user_entries = function(entries, user_table_path){
 #' Column names to join by
 #'
 #' Defines column names to join by for a type of lookup table
-#' @param lookup_type string indicating type of lookup table (disease, location, sex)
+#' @param lookup_type string indicating type of lookup table (disease, location, sex, age group)
 #' @return vector of column names to join by for the type of lookup table
 #' @export
 names_to_join_by = function(lookup_type){
@@ -88,7 +89,8 @@ names_to_join_by = function(lookup_type){
                                       "pattern_family","pattern","pattern_subclass",
                                       "exact_family","exact","exact_subclass",
                                       "icd_7","icd_7_subclass","icd_9","icd_9_subclass",
-                                      "link_family","link","link_subclass","notes"))
+                                      "link_family","link","link_subclass","notes"),
+                          age_group = c("age_group", "bin_desc"))
 
   if(!(lookup_type %in% names(lookup_type_list))){
     stop("Lookup table type not found")
@@ -127,10 +129,7 @@ resolve_join = function(df){
 #'
 #' @param raw_data Data frame of data to be harmonized.
 #' @param lookup_table Data frame of lookup table.
-#' @param lookup_type String indicating lookup table type
-#' (disease, location, sex).
-#' @param join_by Vector of strings indicating columns to left_join by
-#' (uses those from names_to_join_by if empty).
+#' @param join_by Vector of strings indicating columns to left_join by (can use \code{\link{names_to_join_by}} or specify manually).
 #' @param verbose Print information about the lookup.
 #' @return Data frame of newly harmonized and resolved data. Note that all
 #' entries in the returned data frame are strings.
@@ -183,6 +182,58 @@ lookup_join = function(raw_data, lookup_table, join_by = c(), verbose = FALSE){
   return(harmonized_data)
 }
 
+rep_delimiter = function(x, base_delimiter, escape = FALSE, max_repeats = 5, ...) {
+  stopifnot(length(base_delimiter) == 1L)
+  regex = base_delimiter
+  if (escape) regex = paste("\\", regex, sep = "")
+  for(n in 1:max_repeats) {
+    regex = sprintf("(%s){%s}", regex, n)
+    if (!any(grepl(regex, x, ...))) {
+      delimiter = sprintf(" %s ", strrep(base_delimiter, n))
+      return(delimiter)
+    }
+  }
+  stop("\n"
+       , "The base delimiter ", base_delimiter
+       , " requires more than ", max_repeats, " repeats\n"
+       , "to avoid clashes with the data.\n"
+       , "Please either choose another base delimiter\n"
+       , "or increase the max_repeats argument."
+  )
+}
+
+#' Create age bin descriptions
+#' 
+#' Create age bin descriptions for joining age_group lookup table
+#' @param age_df data frame of data with age_group column
+#' @importFrom dplyr group_by across summarise n ungroup left_join
+#' @importFrom tidyselect all_of
+#' @return data frame of data with bin_desc column
+#' @export
+create_bin_desc <- fuction(age_df){
+  if(!("age_group" %in% colnames)){
+    stop("Age group not included in data")
+  }
+  
+  id_identifiers = c("date", "location", "sex", "dataset_id")
+  
+  bin_delimiter = rep_delimiter(unique(age_df$age_group), "|", escape = TRUE)
+  
+  (age_df_ids = age_df
+    %>% group_by(across(all_of(id_identifiers)))
+    %>%
+      summarise(
+        n_bins = n(),
+        bin_desc = paste0(sort(age_group), collapse = bin_delimiter)
+      )
+    %>% ungroup()
+  )
+  
+  age_df = left_join(age_df, age_df_ids, by = id_identifiers)
+  
+  return(age_df)
+}
+
 #' Join lookup table
 #'
 #' Joins lookup table in API to data
@@ -197,6 +248,11 @@ join_lookup_table = function(raw_data, lookup_type){
   }
 
   join_by = names_to_join_by(lookup_type)
+  
+  # Create bin_desc if age data
+  if(lookup_type == "age_group"){
+    raw_data = create_bin_desc(raw_data)
+  }
 
   joined_table = lookup_join(raw_data, lookup_table, join_by)
   return(joined_table)
@@ -217,6 +273,11 @@ join_user_table = function(raw_data, user_table_path, lookup_type, join_by = c()
     cols_to_join = join_by
   } else{
     cols_to_join = names_to_join_by(lookup_type)
+  }
+  
+  # Create bin_desc if age data
+  if(lookup_type == "age_group"){
+    raw_data = create_bin_desc(raw_data)
   }
 
   user_table = read_csv(user_table_path)
