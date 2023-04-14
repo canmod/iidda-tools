@@ -203,22 +203,22 @@ rep_delimiter = function(x, base_delimiter, escape = FALSE, max_repeats = 5, ...
 }
 
 #' Create age bin descriptions
-#' 
+#'
 #' Create age bin descriptions for joining age_group lookup table
 #' @param age_df data frame of data with age_group column
 #' @importFrom dplyr group_by across summarise n ungroup left_join
 #' @importFrom tidyselect all_of
 #' @return data frame of data with bin_desc column
 #' @export
-create_bin_desc <- fuction(age_df){
+create_bin_desc <- function(age_df){
   if(!("age_group" %in% colnames)){
     stop("Age group not included in data")
   }
-  
+
   id_identifiers = c("date", "location", "sex", "dataset_id")
-  
+
   bin_delimiter = rep_delimiter(unique(age_df$age_group), "|", escape = TRUE)
-  
+
   (age_df_ids = age_df
     %>% group_by(across(all_of(id_identifiers)))
     %>%
@@ -228,9 +228,9 @@ create_bin_desc <- fuction(age_df){
       )
     %>% ungroup()
   )
-  
+
   age_df = left_join(age_df, age_df_ids, by = id_identifiers)
-  
+
   return(age_df)
 }
 
@@ -248,7 +248,7 @@ join_lookup_table = function(raw_data, lookup_type){
   }
 
   join_by = names_to_join_by(lookup_type)
-  
+
   # Create bin_desc if age data
   if(lookup_type == "age_group"){
     raw_data = create_bin_desc(raw_data)
@@ -274,7 +274,7 @@ join_user_table = function(raw_data, user_table_path, lookup_type, join_by = c()
   } else{
     cols_to_join = names_to_join_by(lookup_type)
   }
-  
+
   # Create bin_desc if age data
   if(lookup_type == "age_group"){
     raw_data = create_bin_desc(raw_data)
