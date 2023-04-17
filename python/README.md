@@ -71,17 +71,9 @@ of the API.
 
 ### Clearing the Cache
 
-Making many requests to the GitHub API can be a performance bottleneck. This
-occurs for example when a filter requires data from many individual tables to be
-combined. In such a case, the GitHub API must be called for every table. To
-enhance API performance, we cache the results that come back from the GitHub
-API. In the deployed version of the IIDDA API we use a GitHub webhook to
-automatically clear the cache if there has been an update to the archive. This
-approach is not available for a local development deployment and so if the
-archive is updated the cache must be manually cleared using these Python
-commands. These should be run in the `iidda.tools/python` directory while the
-API is running.
-```
+Making many requests to the GitHub API can be a performance bottleneck. This occurs for example when a filter requires data from many individual tables to be combined. In such a case, the GitHub API must be called for every table. To enhance API performance, we cache the results that come back from the GitHub API. In the deployed version of the IIDDA API we use a GitHub webhook to automatically clear the cache if there has been an update to the archive. This approach is not available for a local development deployment and so if the archive is updated the cache must be manually cleared using these Python commands.
+
+```{python}
 from iidda_api import get_dataset_list
 get_dataset_list(clear_cache=True, subset=[])
 ```
