@@ -18,6 +18,11 @@ async def get_dataset(dataset_name, version):
     Returns:
         BytesIO Object: contains content of the csv file
     '''
+
+    if (read_config("use_local_csv_files", "local_info") == "true"):
+        dataset_file = get_dataset_local_file(dataset_name)
+        return dataset_file
+
     # Get access token
     ACCESS_TOKEN = read_config('access_token')
 
@@ -68,4 +73,33 @@ async def get_dataset(dataset_name, version):
             async with CachedSession(cache=assets_cache) as session:
                 async with session.get(asset['url'], headers=headers) as response:
                     file_content = await response.read()
-                    return BytesIO(file_content)
+                    #print('here we go: ')
+                    #print(file_content)
+                    file_bytes_io = BytesIO(file_content)
+                    #print(file_bytes_io)
+                    return file_bytes_io
+
+
+def get_dataset_local_file(dataset_name, suffix = ".csv"):
+    '''Gets the file path of a locally stored dataset by name
+
+    Args:
+        dataset_name (str): name of the dataset
+        suffix (str): type of dataset file. can be ".csv", ".json", "_columns.json", "_data_dictionary.json", "_csv_dialect.json", "_filter_group_vals.json"
+
+    Returns:
+        BytesIO Object: contains content of the csv file
+    '''
+    if dataset_name is None:
+        raise NameError("Dataset name is missing")
+    data_file = dataset_name + suffix
+    data_path = read_config("local_derived_data", "local_info")
+    for root, subdir, files in os.walk(data_path):
+        for file in files:
+            if file == data_file:
+                file_to_return = os.path.join(root, file)
+                print("FILE_TO_RETURN")
+                print(file_to_return)
+                if os.path.exists(file_to_return):
+                    return file_to_return
+                raise FileNotFoundError(file_to_return)
