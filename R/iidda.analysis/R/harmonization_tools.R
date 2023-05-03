@@ -295,11 +295,11 @@ join_user_table = function(raw_data, user_table_path, lookup_type, join_by = c()
 #' @export
 #'
 #' @examples
-d1 <- check_date("1920-01-01")
-d1
-class(d1)
-# returns an error if x can't be coerced to Date easily
-# check_date("may 29th")
+#' d1 <- check_date("1920-01-01")
+#' d1
+#' class(d1)
+#' # returns an error if x can't be coerced to Date easily
+#' # check_date("may 29th")
 
 check_date <- function(x){
   if(!inherits(x, "Date")) {x <- as.Date(x)} 
@@ -312,14 +312,13 @@ check_date <- function(x){
 #' 
 #' Wrapper of `seq.Date()` and `lubridate::floor_date`
 #'
-#' @inherit_param seq.Date 
-#' @inherit_param lubridate::floor_date
+#' @inheritParams base::seq.Date 
+#' @inheritParams lubridate::floor_date
 #' @param start_date starting date
 #' @param end_date end date
 #' @param lookback Logical, should the first value start before `start_date`
 #'
 #' @return vector of Dates at the first of each week, month, year
-#' @details
 #' 
 #' @export
 #'

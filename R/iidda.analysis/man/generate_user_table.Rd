@@ -8,9 +8,11 @@ generate_user_table(path, lookup_table_type)
 }
 \arguments{
 \item{path}{string indicating path to directory}
+
+\item{lookup_table_type}{string indicating type of lookup table}
 }
 \value{
-.csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
+csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
 }
 \description{
 Creates an empty user-defined lookup table in a specified directory

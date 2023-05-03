@@ -1,3 +1,18 @@
+---
+title: "plot_rohani"
+output: 
+  rmarkdown::html_vignette: default
+  rmarkdown::pdf_document: 
+    latex_engine: xelatex
+  rmarkdown::html_document:
+    fig.retina: NULL
+  word_document: default
+vignette: >
+  %\VignetteIndexEntry{plot_rohani}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
 # Plotting Infectious Disease Time-Series
 
 (Disclaimer -- I have not yet read very much about visualization of specifically epidemiological data, so I am likely treating this topic very naively. The point of this document is to start a discussion and make a start on specifications for plotting functions in `iidda.analysis`)
@@ -7,7 +22,7 @@
 Throughout we will use communicable disease incidence data from Canada in 1956.
 ```{r api_call}
 library(iidda.api)
-raw = ops$raw_csv(dataset_ids = "cdi_ca_1956_wk_prov_dbs")
+raw = iidda.api::ops$raw_csv(dataset_ids = "cdi_ca_1956_wk_prov_dbs")
 raw
 ```
 
