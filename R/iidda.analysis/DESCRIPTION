@@ -9,7 +9,19 @@ Description: This package contains tools that depend on \code{iidda} and/or
 Imports: 
   iidda, 
   stringr,
-  magrittr
+  magrittr,
+  EMD, 
+  WaveletComp, 
+  dplyr, 
+  ggforce, 
+  ggplot2, 
+  janitor,
+  lubridate, 
+  purrr, 
+  readr, 
+  scales, 
+  tidyr, 
+  tidyselect
 Suggests:
     dplyr,
     knitr,

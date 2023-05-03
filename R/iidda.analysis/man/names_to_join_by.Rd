@@ -7,7 +7,7 @@
 names_to_join_by(lookup_type)
 }
 \arguments{
-\item{lookup_type}{string indicating type of lookup table (disease, location, sex)}
+\item{lookup_type}{string indicating type of lookup table (disease, location, sex, age group)}
 }
 \value{
 vector of column names to join by for the type of lookup table
