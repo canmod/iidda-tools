@@ -12,10 +12,10 @@ add_user_entries(entries, user_table_path)
 \item{user_table_path}{string indicating path to user lookup table}
 }
 \value{
-new user lookup table with added entries at the path
+user lookup table with added entries in the path
 }
 \description{
 Adds entries to user-defined lookup table
-Entries should have list names or columns in the user lookup table
-\code{standards} can be used within entries
+Entries should have names or columns from the user lookup table
+\code{standards} can be used for entries
 }

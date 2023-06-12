@@ -14,7 +14,7 @@ generate_empty_df(dir_path, lookup_table, csv_name)
 \item{csv_name}{string indicating name of the created .csv file}
 }
 \value{
-empty lookup table with columns from \code{lookup_table} in the directory if successfully generated
+empty csv file with columns from \code{lookup_table} in the directory if successfully generated
 }
 \description{
 Creates an empty table in a specified directory

@@ -129,7 +129,8 @@ resolve_join = function(df){
 #'
 #' @param raw_data Data frame of data to be harmonized.
 #' @param lookup_table Data frame of lookup table.
-#' @param join_by Vector of strings indicating columns to left_join by (can use \code{\link{names_to_join_by}} or specify manually).
+#' @param join_by Vector of strings indicating columns to left_join by
+#' (can use \code{\link{names_to_join_by}} or specify manually).
 #' @param verbose Print information about the lookup.
 #' @return Data frame of newly harmonized and resolved data. Note that all
 #' entries in the returned data frame are strings.
@@ -140,7 +141,7 @@ resolve_join = function(df){
 lookup_join = function(raw_data, lookup_table, join_by = c(), verbose = FALSE){
 
   # Determine initially which columns to join by for left_join
-  if(length(join_by) == 0){
+  if (length(join_by) == 0){
     stop("Please specify columns to join by")
   }
 
@@ -148,12 +149,18 @@ lookup_join = function(raw_data, lookup_table, join_by = c(), verbose = FALSE){
   cols_in_raw = join_by[join_by %in% colnames(raw_data)]
   cols_in_lookup = join_by[join_by %in% colnames(lookup_table)]
 
-  # Find shared columns and remove non-shared columns from lookup table (so that other base columns don't interfere with join)
+  # Find shared columns and remove non-shared columns from lookup table
+  # (so that other base columns don't interfere with join)
   shared_cols = intersect(cols_in_lookup, cols_in_raw)
 
-  if(length(shared_cols) == 0){ # return error if dataframes don't share columns of interest
-    stop("Could not find shared columns of interest to join by. \n
-         Please check the data and lookup table, and/or manually specifiy columns to join by through join_by argument.")
+  if (length(shared_cols) == 0){ # return error if dataframes don't share columns of interest
+    stop(
+"
+  Could not find shared columns of interest to join by.
+  Please check the data and lookup table, and/or manually specifiy columns
+  to join by through join_by argument.
+"
+    )
   }
 
   nonshared_join_cols = setdiff(cols_in_lookup, shared_cols)
@@ -268,19 +275,14 @@ join_lookup_table = function(raw_data, lookup_type){
 #' @return data frame of harmonized data with user-defined keys
 #' @importFrom readr read_csv
 #' @export
-join_user_table = function(raw_data, user_table_path, lookup_type, join_by = c()){
-  if(length(join_by) == 0){
-    cols_to_join = join_by
-  } else{
-    cols_to_join = names_to_join_by(lookup_type)
-  }
+join_user_table = function(raw_data, user_table_path, lookup_type, join_by) {
+  if (missing(join_by)) join_by = names_to_join_by(lookup_type)
 
   # Create bin_desc if age data
-  if(lookup_type == "age_group"){
-    raw_data = create_bin_desc(raw_data)
-  }
+  if (lookup_type == "age_group") raw_data = create_bin_desc(raw_data)
 
   user_table = read_csv(user_table_path)
-  joined_table = lookup_join(raw_data, user_table, cols_to_join)
+  joined_table = lookup_join(raw_data, user_table, join_by)
+
   return(joined_table)
 }
