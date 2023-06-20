@@ -1302,8 +1302,8 @@ iidda_get_metadata <- function(data,
                               #time_unit, might want this
                               ){
 
-  min_time <- min(data[,time_variable],na.rm=TRUE)
-  max_time <- max(data[,time_variable],na.rm=TRUE)
+  min_time <- min(data[[time_variable]],na.rm=TRUE)
+  max_time <- max(data[[time_variable]],na.rm=TRUE)
   descriptor_name <- data %>% select(all_of(descriptor_variable)) %>% unique()
 
   return(list(min_time=min_time,max_time=max_time,descriptor_name=descriptor_name))
