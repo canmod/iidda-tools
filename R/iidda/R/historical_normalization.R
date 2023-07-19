@@ -21,3 +21,16 @@ normalize_diseases = function(diseases) {
    %>% gsub(pattern = "[*]", replacement = "")
   )
 }
+
+#' @export
+two_field_format = function(dataset) {
+  (dataset
+   %>% mutate(nesting_disease = "")
+   %>% mutate(nesting_disease = ifelse(disease_subclass != "", disease, nesting_disease))
+   %>% mutate(disease = ifelse(disease_subclass != "", disease_subclass, disease))
+   %>% mutate(nesting_disease = ifelse(disease_subclass == "" & disease_family != "", disease_family, nesting_disease))
+   %>% relocate(nesting_disease, .after = period_end_date)
+   %>% select(-disease_subclass)
+   %>% select(-disease_family)
+  )
+}
