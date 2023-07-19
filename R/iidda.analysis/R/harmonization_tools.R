@@ -138,12 +138,10 @@ resolve_join = function(df){
 #' @importFrom tidyselect everything
 #' @importFrom tidyr replace_na
 #' @export
-lookup_join = function(raw_data, lookup_table, join_by = c(), verbose = FALSE){
+lookup_join = function(raw_data, lookup_table, join_by, verbose = FALSE){
 
   # Determine initially which columns to join by for left_join
-  if (length(join_by) == 0){
-    stop("Please specify columns to join by")
-  }
+  if (missing(join_by)) stop("Please specify columns to join by")
 
   # Check which of join_cols are in the raw data and lookup table
   cols_in_raw = join_by[join_by %in% colnames(raw_data)]
@@ -286,3 +284,77 @@ join_user_table = function(raw_data, user_table_path, lookup_type, join_by) {
 
   return(joined_table)
 }
+
+# because there is no `is.Date()`
+
+#' Test if x is a Date, coerce if not
+#'
+#' @param x vector of putative dates
+#'
+#' @return vector with class Date, or error
+#' @export
+#'
+#' @examples
+#' d1 <- check_date("1920-01-01")
+#' d1
+#' class(d1)
+#' # returns an error if x can't be coerced to Date easily
+#' # check_date("may 29th")
+
+check_date <- function(x){
+  if(!inherits(x, "Date")) {x <- as.Date(x)}
+  return(x)
+}
+
+# Function to create the grid
+
+#' Create a grid of dates starting at the first day in grid unit
+#'
+#' Wrapper of `seq.Date()` and `lubridate::floor_date`
+#'
+#' @inheritParams base::seq.Date
+#' @inheritParams lubridate::floor_date
+#' @param start_date starting date
+#' @param end_date end date
+#' @param lookback Logical, should the first value start before `start_date`
+#'
+#' @return vector of Dates at the first of each week, month, year
+#'
+#' @export
+#'
+#' @examples
+#' grid_dates(start_date = "2023-04-01"
+#' , end_date = "2023-05-16")
+#'
+#' grid_dates(start_date = "2023-04-01"
+#' , end_date = "2023-05-16"
+#' , lookback = FALSE)
+#'
+#'
+#' grid_dates(start_date = "2020-04-01"
+#' , end_date = "2023-05-16"
+#' , by = "2 months"
+#' , unit = "month")
+#' grid_dates(start_date = "2020-04-01"
+#' , end_date = "2023-05-16"
+#' , by = "2 months")
+grid_dates <- function(start_date = "1920-01-01"
+                       , end_date = "2020-01-01"
+                       , by = "1 week"
+                       , unit = "week"
+                       , lookback = TRUE
+                       , week_start = 7){
+  if(!grepl(unit, by)){
+    message("there may be a mismatch between your grid units in `by` and `unit`")
+  }
+  start_date <- check_date(start_date)
+  end_date <- check_date(end_date)
+  dvec <- lubridate::floor_date(seq(start_date, end_date, by = by), unit = unit)
+  if(!lookback){
+    dvec <- dvec[dvec > start_date]
+
+  }
+  return(dvec)
+
+}
+

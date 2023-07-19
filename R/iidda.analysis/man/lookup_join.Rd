@@ -4,14 +4,15 @@
 \alias{lookup_join}
 \title{Left join for lookup tables}
 \usage{
-lookup_join(raw_data, lookup_table, join_by = c(), verbose = FALSE)
+lookup_join(raw_data, lookup_table, join_by, verbose = FALSE)
 }
 \arguments{
 \item{raw_data}{Data frame of data to be harmonized.}
 
 \item{lookup_table}{Data frame of lookup table.}
 
-\item{join_by}{Vector of strings indicating columns to left_join by (can use \code{\link{names_to_join_by}} or specify manually).}
+\item{join_by}{Vector of strings indicating columns to left_join by
+(can use \code{\link{names_to_join_by}} or specify manually).}
 
 \item{verbose}{Print information about the lookup.}
 }

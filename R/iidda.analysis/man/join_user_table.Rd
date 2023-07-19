@@ -4,7 +4,7 @@
 \alias{join_user_table}
 \title{Join user-defined lookup table}
 \usage{
-join_user_table(raw_data, user_table_path, lookup_type, join_by = c())
+join_user_table(raw_data, user_table_path, lookup_type, join_by)
 }
 \arguments{
 \item{raw_data}{data frame of table to be harmonized}

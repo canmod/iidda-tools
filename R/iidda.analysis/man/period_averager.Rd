@@ -15,7 +15,8 @@ period_averager(
 )
 }
 \arguments{
-\item{data}{Data frame with rows at minimum containing period start and end dates and a count variable.}
+\item{data}{Data frame with rows at minimum containing period start and end
+dates and a count variable.}
 
 \item{count_col}{Character, name of count data column.}
 
@@ -41,12 +42,18 @@ Obtain period midpoints and average daily rates for count data
 \examples{
 set.seed(666)
 data <- data.frame(disease = "senioritis"
-                   , period_start_date = seq(as.Date("2023-04-03"), as.Date("2023-06-05"), by = 7)
-                   , period_end_date = seq(as.Date("2023-04-09"), as.Date("2023-06-11"), by = 7)
-                   , cases_this_period = sample(0:100, 10, replace = TRUE)
-                   , location = "college"
+ , period_start_date = seq(as.Date("2023-04-03"), as.Date("2023-06-05"), by = 7)
+ , period_end_date = seq(as.Date("2023-04-09"), as.Date("2023-06-11"), by = 7)
+ , cases_this_period = sample(0:100, 10, replace = TRUE)
+ , location = "college"
 )
 
 period_averager(data, keep_raw = TRUE, keep_cols = c("disease", "location"))
 
 }
+\seealso{
+Other time_periods: 
+\code{\link{mid_dates_times}},
+\code{\link{num_days_util}()}
+}
+\concept{time_periods}
