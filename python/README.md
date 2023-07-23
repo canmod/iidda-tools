@@ -30,8 +30,19 @@ generate_config(token="TOKEN", repository="canmod/iidda-test-assets")
 from iidda_api import config_path
 config_path()
 ```
-* You can update the configuration simply by re-generating the configuration file, or you can edit this config file directly instead of re-generating it
-  * Confirm that you included your personal access token in the config file. (Replace "TOKEN" with your access token when running `generate_config` in Python, or edit the config file to have `access_token = (The personal access token you generated)`)
+* You can update the configuration simply by re-generating the configuration file, or you can edit this config file (in `config_path()`) directly instead of re-generating it
+  * Confirm that you included your personal access token in the config file. (Replace "TOKEN" with your access token when running `generate_config` in Python, or edit the config file to have `access_token = (The personal access token you generated)`). The config file has the structure below:
+  ```
+	[github_info]
+	access_token = TOKEN 
+	repository = canmod/iidda-test-assets
+	webhook_secret =
+
+	[local_info]
+	use_local_csv_files = false
+	local_derived_data =
+  ```
+
 * Confirm that you are an admin of `iidda-test-assets` repository (if not, it may lead to the app not returning anything when ran)
 
 **Note:**
@@ -59,6 +70,7 @@ version of the API in this repository. It is not currently up 😢.
 The [iidda.api](../R/iidda.api) package can be used to interact with the API.
 Currently these bindings depend on having a running development version of the
 API (see instructions above).
+- Note: Fresh installation might require (re)installation of [iidda.api](../R/iidda.api). Run `remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda.api')` while the deployment version is running.
 
 ### Using a Shiny App
 
