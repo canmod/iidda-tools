@@ -7,5 +7,8 @@ check-update:
 start-api:
 	@cd python && make runapp
 
+stop-api:
+	@cd python && make stopapp
+
 update-start-api:
 	make check-update && make start-api
