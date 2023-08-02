@@ -14,7 +14,7 @@ mutate_time_vars(
 \arguments{
 \item{data}{data set containing an input time field}
 
-\item{unit}{time unit, one of time_units}
+\item{unit}{time unit, one of iidda.analysis:::time_units}
 
 \item{input_name}{field name in `data` containing input time field}
 

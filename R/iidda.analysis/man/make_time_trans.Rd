@@ -7,7 +7,7 @@
 make_time_trans(unit = unname(time_units))
 }
 \arguments{
-\item{unit}{time unit, one or more of time_units}
+\item{unit}{time unit, one or more of iidda.analysis:::time_units}
 }
 \value{
 function to compute time unit

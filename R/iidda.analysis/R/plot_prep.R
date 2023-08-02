@@ -733,7 +733,7 @@ quantile_trans <- function(x){
 #' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param grouping_variable column name of the grouping variable in `data` to summarize the series variable over,
 #' if `summarize=TRUE`
-#' @param time_unit time unit to sum series data over, must be one of plot_vars.R time_units, defaults to "year".
+#' @param time_unit time unit to sum series data over, must be one of iidda.analysis:::time_units, defaults to "year".
 #' @param summarize_series boolean value to indicate summarizing by `time_unit` over the series variable
 #' @param trim_zeroes boolean value to filter data to exclude leading and trailing zeroes
 #' @param trim_series function to trim leading and trailing series zeroes, defaults to TrimSeries
@@ -825,7 +825,7 @@ iidda_prep_ma <- function(data,
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param time_variable column name of time variable in `data`, default is "period_end_date"
-#' @param time_unit time unit to sum series data over, must be one of plot_vars.R time_units, defaults to "week".
+#' @param time_unit time unit to sum series data over, must be one of iidda.analysis:::time_units, defaults to "week".
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
 #'
@@ -838,7 +838,7 @@ iidda_prep_ma <- function(data,
 iidda_prep_bar <- function(data,
                           series_variable="deaths",
                           time_variable = "period_end_date",
-                          time_unit = "week", #has to be one of plot_vars.R time_units
+                          time_unit = "week", #has to be one of iidda.analysis:::time_units
                           handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
                           handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)){
 
@@ -863,7 +863,7 @@ iidda_prep_bar <- function(data,
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param time_variable column name of time variable in `data`, default is "period_end_date"
-#' @param time_unit time unit to create field from `time_variable`. Must be one of plot_vars.R time_units, defaults to "week".
+#' @param time_unit time unit to create field from `time_variable`. Must be one of iidda.analysis:::time_units, defaults to "week".
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
 #'
@@ -876,7 +876,7 @@ iidda_prep_bar <- function(data,
 iidda_prep_box <- function(data,
                           series_variable="deaths",
                           time_variable = "period_end_date",
-                          time_unit = "week", #has to be one of plot_vars.R time_units
+                          time_unit = "week", #has to be one of iidda.analysis:::time_units
                           handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
                           handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)){
 
@@ -903,7 +903,7 @@ iidda_prep_box <- function(data,
 #' @param end_time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
 #' Defaults to "c("yday","year")". The currently functionality expects that both "yday" and "year" are included, should be
-#' made more general to incorporate any of plot_vars.R time_units.
+#' made more general to incorporate any of iidda.analysis:::time_units.
 #' @param prepend_string string to prepend to newly created time_unit fields to distinguish between time_unit
 #' fields corresponding to starting versus ending time periods. Defaults to "End ". For example, a `time_unit` of "year"
 #' will create a field name "Year" from `start_time_variable` and a field called "End Year" created from `end_time_variable`.
@@ -921,7 +921,7 @@ iidda_prep_heatmap <- function(data,
                           series_variable="deaths",
                           start_time_variable = "period_start_date",
                           end_time_variable = "period_end_date",
-                          time_unit = c("yday","year"), #has to be one of plot_vars.R time_units
+                          time_unit = c("yday","year"), #has to be one of iidda.analysis:::time_units
                           prepend_string = "End ",
                           normalize = FALSE,
                           ...){
@@ -987,7 +987,7 @@ iidda_prep_heatmap <- function(data,
 #' @param start_time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
 #' Defaults to "c("year")". The currently functionality expects that "year" is included, should be
-#' made more general to incorporate any of plot_vars.R time_units.
+#' made more general to incorporate any of iidda.analysis:::time_units.
 #' @param normalize boolean flag to normalize `series_variable` data to be between 0 and 1.
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
@@ -1005,7 +1005,7 @@ iidda_prep_rohani <- function(data,
                               time_variable = "period_end_date",
                               start_time_variable = "period_end_date",
                               #end_time_variable = "period_end_date", # might not need this we are plotting a second time unit on the y-axis
-                              time_unit = c("year"), #has to be one of plot_vars.R time_units
+                              time_unit = c("year"), #has to be one of iidda.analysis:::time_units 
                               grouping_variable = "cause",
                               ranking_variable = NULL , #optionally specify the ranking variable to order by?
                               #prepend_string = "End ", # might not need this
@@ -1084,7 +1084,7 @@ iidda_prep_rohani <- function(data,
 #' @param data data frame containing time series data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param time_variable column name of time variable in `data`, default is "period_end_date"
-#' @param time_unit time unit to create field from `time_variable`. Must be one of plot_vars.R time_units, defaults to "week".
+#' @param time_unit time unit to create field from `time_variable`. Must be one of iidda.analysis:::time_units, defaults to "week".
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
 #'
@@ -1374,7 +1374,7 @@ iidda_plot_series <- function(plot_object,
 #' @param data data frame containing data prepped for bar plotting, typically output from `iidda_prep_bar()`.
 #' If `NULL` data is inherited from `plot_object`
 #' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_unit time unit to display bar graphs on the x-axis. Defaults to "week" or one of plot_vars.R time_units that starts
+#' @param time_unit time unit to display bar graphs on the x-axis. Defaults to "week" or one of iidda.analysis:::time_units that starts
 #' with "month". Should generalize at some point to be able to take any time_unit argument.
 #'
 #' @importFrom grDevices rainbow
@@ -1412,7 +1412,7 @@ iidda_plot_bar <- function(plot_object,
 #' If `NULL` data is inherited from `plot_object`
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param time_unit time unit to display box plots on the x-axis. Defaults to "week", should be able to
-#' handle any time_unit from plot_vars.R time_units.
+#' handle any time_unit from iidda.analysis:::time_units.
 #' @param ... other arguments to be passed to `scale_x_discrete`
 #'
 #' @importFrom ggplot2 geom_boxplot scale_x_discrete
@@ -1857,12 +1857,12 @@ lubridate_funcs = c(
 #'
 #' Get label of associated time unit
 #'
-#' @param unit time unit, one of time_units
+#' @param unit time unit, one of iidda.analysis:::time_units
 #'
 #' @return label of associated time unit
 #' @export
 get_unit_labels = function(unit) {
-  lubridate_funcs[index_sep(unit, 1L)]
+  lubridate_funcs[sub("^([a-z]+)_[a-z0-9_]+$", "\\1", unit, perl=TRUE)]
 }
 
 #' Mutate time variables
@@ -1870,7 +1870,7 @@ get_unit_labels = function(unit) {
 #' Create new time unit fields
 #'
 #' @param data data set containing an input time field
-#' @param unit time unit, one of time_units
+#' @param unit time unit, one of iidda.analysis:::time_units
 #' @param input_name field name in `data` containing input time field
 #' @param output_name field name of newly created time unit field, by default uses get_unit_labels().
 #'
@@ -1892,7 +1892,7 @@ mutate_time_vars = function(
 #'
 #' Get associated lubridate function to compute time unit.
 #'
-#' @param unit time unit, one or more of time_units
+#' @param unit time unit, one or more of iidda.analysis:::time_units
 #'
 #' @importFrom lubridate wday mday qday yday week epiweek isoweek month quarter year
 #' @return function to compute time unit
@@ -1901,16 +1901,16 @@ make_time_trans = function(unit = unname(time_units)) {
 
   unit = match.arg(unit)
   as_func = force
-  lubridate_func_nm = index_sep(unit, 1L)
+  lubridate_func_nm = sub("^([a-z]+)_[a-z0-9_]+$", "\\1", unit, perl=TRUE)
   lubridate_func = getFromNamespace(lubridate_func_nm, "lubridate")
   if (lubridate_func_nm %in% c("month", "wday")) {
-    type = index_sep(unit, 2L)
-    abbr = index_sep(unit, 3L) == "abbr"
+    type = sub("^[a-z]+_([a-z0-9]*)[_a-z]*$", "\\1", unit, perl=TRUE)
+    abbr = sub("^[a-z]+_[a-z0-9]+_([a-z]*)$", "\\1", unit, perl=TRUE) == "abbr"
     label = type != "num"
     if (type == "factor") as_func = getFromNamespace("factor", "base")
     unit_func = function(x) lubridate_func(x, label = label, abbr = abbr)
   } else if (lubridate_func_nm == "quarter") {
-    fiscal_start = as.integer(index_sep(unit, 2L))
+    fiscal_start = as.integer(sub("^[a-z]+_([0-9]+)$", "\\1", unit, perl=TRUE))
     unit_func = function(x) {
       lubridate_func(x, type = "quarter", fiscal_start = fiscal_start)
     }

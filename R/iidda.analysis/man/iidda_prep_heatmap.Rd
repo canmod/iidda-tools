@@ -26,7 +26,7 @@ iidda_prep_heatmap(
 
 \item{time_unit}{a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
 Defaults to "c("yday","year")". The currently functionality expects that both "yday" and "year" are included, should be
-made more general to incorporate any of plot_vars.R time_units.}
+made more general to incorporate any of iidda.analysis:::time_units.}
 
 \item{prepend_string}{string to prepend to newly created time_unit fields to distinguish between time_unit
 fields corresponding to starting versus ending time periods. Defaults to "End ". For example, a `time_unit` of "year"

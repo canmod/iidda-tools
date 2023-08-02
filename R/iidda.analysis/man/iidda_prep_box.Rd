@@ -20,7 +20,7 @@ iidda_prep_box(
 
 \item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
-\item{time_unit}{time unit to create field from `time_variable`. Must be one of plot_vars.R time_units, defaults to "week".}
+\item{time_unit}{time unit to create field from `time_variable`. Must be one of iidda.analysis:::time_units, defaults to "week".}
 
 \item{handle_missing_values}{function to handle missing values, defaults to HandleMissingValues}
 

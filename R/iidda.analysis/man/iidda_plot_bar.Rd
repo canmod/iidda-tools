@@ -19,7 +19,7 @@ If `NULL` data is inherited from `plot_object`}
 
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
-\item{time_unit}{time unit to display bar graphs on the x-axis. Defaults to "week" or one of plot_vars.R time_units that starts
+\item{time_unit}{time unit to display bar graphs on the x-axis. Defaults to "week" or one of iidda.analysis:::time_units that starts
 with "month". Should generalize at some point to be able to take any time_unit argument.}
 }
 \value{

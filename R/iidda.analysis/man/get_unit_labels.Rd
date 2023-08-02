@@ -7,7 +7,7 @@
 get_unit_labels(unit)
 }
 \arguments{
-\item{unit}{time unit, one of time_units}
+\item{unit}{time unit, one of iidda.analysis:::time_units}
 }
 \value{
 label of associated time unit

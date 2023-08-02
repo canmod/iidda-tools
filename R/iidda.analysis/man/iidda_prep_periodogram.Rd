@@ -32,7 +32,7 @@ iidda_prep_periodogram(
 
 \item{handle_missing_values}{function to handle missing values, defaults to HandleMissingValues}
 
-\item{time_unit}{time unit to create field from `time_variable`. Must be one of plot_vars.R time_units, defaults to "week".}
+\item{time_unit}{time unit to create field from `time_variable`. Must be one of iidda.analysis:::time_units, defaults to "week".}
 
 \item{handle_zero_values}{function to handle zero values, defaults to HandleZeroValues}
 }

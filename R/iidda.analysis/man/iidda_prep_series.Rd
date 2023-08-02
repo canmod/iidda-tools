@@ -27,7 +27,7 @@ iidda_prep_series(
 \item{grouping_variable}{column name of the grouping variable in `data` to summarize the series variable over,
 if `summarize=TRUE`}
 
-\item{time_unit}{time unit to sum series data over, must be one of plot_vars.R time_units, defaults to "year".}
+\item{time_unit}{time unit to sum series data over, must be one of iidda.analysis:::time_units, defaults to "year".}
 
 \item{summarize_series}{boolean value to indicate summarizing by `time_unit` over the series variable}
 

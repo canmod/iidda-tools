@@ -29,7 +29,7 @@ iidda_prep_rohani(
 
 \item{time_unit}{a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
 Defaults to "c("year")". The currently functionality expects that "year" is included, should be
-made more general to incorporate any of plot_vars.R time_units.}
+made more general to incorporate any of iidda.analysis:::time_units.}
 
 \item{normalize}{boolean flag to normalize `series_variable` data to be between 0 and 1.}
 

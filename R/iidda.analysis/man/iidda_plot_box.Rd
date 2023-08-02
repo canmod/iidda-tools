@@ -21,7 +21,7 @@ If `NULL` data is inherited from `plot_object`}
 \item{series_variable}{column name of series variable in `data`, default is "deaths"}
 
 \item{time_unit}{time unit to display box plots on the x-axis. Defaults to "week", should be able to
-handle any time_unit from plot_vars.R time_units.}
+handle any time_unit from iidda.analysis:::time_units.}
 
 \item{...}{other arguments to be passed to `scale_x_discrete`}
 }
