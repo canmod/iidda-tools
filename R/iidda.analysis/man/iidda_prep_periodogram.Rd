@@ -20,6 +20,7 @@ iidda_prep_periodogram(
   na.action = na.fail,
   normalize = TRUE,
   periods_per_year = 52,
+  max_period = 10,
   handle_missing_values = HandleMissingValues(na_remove = TRUE, na_replace = NULL)
 )
 }
@@ -30,11 +31,15 @@ iidda_prep_periodogram(
 
 \item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
 
+\item{normalize}{boolean flag to normalize `series_variable` data to be between 0 and 1.}
+
+\item{periods_per_year}{number of time periods per year, default is 52 for weekly data.}
+
+\item{max_period}{maximum period to appear in plot, default is 10 years.}
+
 \item{handle_missing_values}{function to handle missing values, defaults to HandleMissingValues}
 
 \item{time_unit}{time unit to create field from `time_variable`. Must be one of iidda.analysis:::time_units, defaults to "week".}
-
-\item{handle_zero_values}{function to handle zero values, defaults to HandleZeroValues}
 }
 \value{
 all fields in`data` with records prepped for plotting box plots. The name

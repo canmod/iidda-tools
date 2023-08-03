@@ -1085,8 +1085,10 @@ iidda_prep_rohani <- function(data,
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit time unit to create field from `time_variable`. Must be one of iidda.analysis:::time_units, defaults to "week".
+#' @param normalize boolean flag to normalize `series_variable` data to be between 0 and 1.
+#' @param periods_per_year number of time periods per year, default is 52 for weekly data.
+#' @param max_period maximum period to appear in plot, default is 10 years.
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
-#' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
 #'
 #'
 #' @importFrom stats spec.pgram
@@ -1112,6 +1114,7 @@ iidda_prep_periodogram <- function(data,
                                   normalize = TRUE,
                                   # time periods in a year (52 weeks in a year), do we need to account for other time units
                                   periods_per_year = 52,
+                                  max_period = 10, 
                                   handle_missing_values  = HandleMissingValues(na_remove = TRUE, na_replace = NULL)){
 
   harmonized_data <- handle_missing_values(data,series_variable=series_variable)
