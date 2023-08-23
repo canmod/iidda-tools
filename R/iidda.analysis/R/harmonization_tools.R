@@ -248,7 +248,8 @@ create_bin_desc <- function(age_df){
 #' @export
 join_lookup_table = function(raw_data, lookup_type){
   lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_type)
-  if(nrow(lookup_table) == 0){
+  n_row_lookup_table = nrow(lookup_table)
+  if((n_row_lookup_table == 0) | is.null(n_row_lookup_table)) {
     stop("Lookup table cannot be found in the API")
   }
 

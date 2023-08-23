@@ -45,7 +45,7 @@ period_averager <- function(data
   }
   data %>%
   mutate(year = lubridate::year(.data[[start_col]])
-     , num_days = num_days(.data[[start_col]], .data[[end_col]]),
+     , num_days = num_days(.data[[start_col]], .data[[end_col]])
      , period_mid_date = mid_dates(data[[start_col]], period_length = num_days)
      , period_mid_time = mid_times(data[[start_col]], period_length = num_days)
      , daily_rate = as.numeric(.data[[count_col]])/as.numeric(num_days)
@@ -55,6 +55,7 @@ period_averager <- function(data
            , year
            , num_days
            , period_mid_date
+           , period_mid_time
            , daily_rate )
 }
 
@@ -70,9 +71,11 @@ period_averager <- function(data
 #' @family time_periods
 #'
 #' @export
+num_days = function(start_date, end_date) num_days_util(start_date, end_date)
 
+#' @export
 num_days_util = function(start_date, end_date) {
-  as.integer(round(difftime(end_date, start_date, units = "days"))) + 1L
+  as.integer(round(difftime(as.Date(end_date), as.Date(start_date), units = "days"))) + 1L
 }
 
 #' Period Mid-Dates and Mid-Times

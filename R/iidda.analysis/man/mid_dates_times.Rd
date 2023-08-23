@@ -30,7 +30,7 @@ and so can account for uneven
 }
 \seealso{
 Other time_periods: 
-\code{\link{num_days_util}()},
+\code{\link{num_days}()},
 \code{\link{period_averager}()}
 }
 \concept{time_periods}
