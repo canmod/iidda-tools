@@ -359,7 +359,7 @@ schema_check = function(table, metadata) {
 #'
 #' @inheritParams write_tidy_data
 #' @importFrom tidyxl xlsx_cells
-#' @improtFrom readr read_delim
+#' @importFrom readr read_delim
 #' @export
 read_digitized_data = function(metadata) {
   path = strip_blob_github(metadata$Digitization$path_digitized_data)
