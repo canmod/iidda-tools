@@ -359,6 +359,7 @@ schema_check = function(table, metadata) {
 #'
 #' @inheritParams write_tidy_data
 #' @importFrom tidyxl xlsx_cells
+#' @improtFrom readr read_delim
 #' @export
 read_digitized_data = function(metadata) {
   path = strip_blob_github(metadata$Digitization$path_digitized_data)
@@ -366,7 +367,8 @@ read_digitized_data = function(metadata) {
     tools::file_ext(path),
     xlsx = xlsx_cells,
     csv = read.csv,
-    rds = readRDS
+    rds = readRDS,
+    txt = read_delim
   )
   read_func(path)
 }
