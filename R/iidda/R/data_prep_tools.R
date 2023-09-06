@@ -263,7 +263,9 @@ check_tidy_data_cols = function(table, column_metadata) {
   tidy_data_cols = colnames(table)
   metadata_diff = setdiff(metadata_cols, tidy_data_cols)
 
-  if(identical(metadata_diff, character(0)) == FALSE) stop(paste("Tidydata does not contain columns", metadata_diff, "from metadata", collapse = ' '))
+  if(identical(metadata_diff, character(0)) == FALSE) {
+    stop(paste("Tidydata does not contain columns", metadata_diff, "from metadata", collapse = ' '))
+  }
 }
 
 #' Creates a heatmap that shows disease coverage over the years
