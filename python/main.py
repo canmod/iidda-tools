@@ -175,7 +175,10 @@ async def lookup_tables(lookup_type: str = Query("location"
         , enum=["location", "disease", "sex"]
     )):
     template = 'https://raw.githubusercontent.com/canmod/iidda/main/lookup-tables/{}.csv'
-    lookup = requests.get(template.format(lookup_type)).text
+    filled_template = template.format(lookup_type)
+    print("TEMPLATE")
+    print(filled_template)
+    lookup = requests.get(filled_template).text
     return StreamingResponse(iter([lookup]), media_type="text/plain")
 signal.alarm(0)
 
@@ -394,16 +397,16 @@ async def filter(
         default=None, description=f"{global_data_dictionary['period_start_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     period_end_date: str = Query(
         default=None, description=f"{global_data_dictionary['period_end_date']['description']} Must be in the form \<start date\>/\<end date\>."),
-    disease_family: List[str] = Query(
-        default=None, description=global_data_dictionary['disease_family']['description']),
-    disease: List[str] = Query(
-        default=None, description=global_data_dictionary['disease']['description']),
+    historical_disease_family: List[str] = Query(
+        default=None, description=global_data_dictionary['historical_disease_family']['description']),
+    historical_disease: List[str] = Query(
+        default=None, description=global_data_dictionary['historical_disease']['description']),
     icd_9: List[str] = Query(
         default=None, description=global_data_dictionary['icd_9']['description']),
     icd_7: List[str] = Query(
         default=None, description=global_data_dictionary['icd_7']['description']),
-    disease_subclass: List[str] = Query(
-        default=None, description=global_data_dictionary['disease_subclass']['description']),
+    historical_disease_subclass: List[str] = Query(
+        default=None, description=global_data_dictionary['historical_disease_subclass']['description']),
     icd_9_subclass: List[str] = Query(
         default=None, description=global_data_dictionary['icd_9_subclass']['description']),
     icd_7_subclass: List[str] = Query(
@@ -574,6 +577,8 @@ async def filter(
     # Apply filter_string to dataset_list
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
+    #print ("HHHHHHHHHHHHH")
+    #print(f'map_values(select(. != {{}}) | select({filter_string})) | keys')
     # Check if no datasets satisfy the filter
     if len(dataset_list) == 0:
         return "No datasets match the provided criteria."
