@@ -116,10 +116,10 @@ mid_util = function(start_date, end_date, period_length) {
   }
   if (missing(period_length)) period_length = num_days(start_date, end_date)
   dates = function() {
-    as.Date(start_date) + days(period_length %% 2)
+    as.Date(start_date) + days(floor(period_length / 2))
   }
   times = function() {
-    as_datetime(start_date) + days(period_length %/% 2) + hours(12 * period_length %% 2)
+    as_datetime(start_date) + days(floor(period_length / 2)) + hours(12)
   }
   environment()
   #as.Date(.data[[start_col]]) + lubridate::seconds(period_length * as.numeric(lubridate::days(1))/2)
