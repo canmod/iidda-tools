@@ -14,6 +14,9 @@ from iidda_api import *
 from fastapi import FastAPI, Request, HTTPException, FastAPI, Query, Header
 import nest_asyncio
 import signal
+import os
+
+root = "/iidda/app"
 
 # Define function to handle timeout error
 def handle_timeout(sig, frame):
@@ -120,7 +123,7 @@ signal.alarm(0)
 print("Defining metadata...")
 signal.alarm(timeout_dur)
 
-@app.get("/metadata")
+@app.get(os.path.join(root, "metadata"))
 async def metadata(
     metadata_search: str = Query(None),
     key: str = Query(
@@ -159,7 +162,7 @@ signal.alarm(0)
 print("Defining data dictionary...")
 signal.alarm(timeout_dur)
 
-@app.get("/data_dictionary")
+@app.get(os.path.join(root, "data_dictionary"))
 async def data_dictionary():
     dictionary = requests.get(
         'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
@@ -169,7 +172,7 @@ signal.alarm(0)
 print("Defining lookup tables...")
 signal.alarm(timeout_dur)
 
-@app.get("/lookup_tables", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
+@app.get(os.path.join(root, "lookup_tables"), responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def lookup_tables(lookup_type: str = Query("location"
         , description='Type of lookup table.'
         , enum=["location", "disease", "sex"]
@@ -185,7 +188,7 @@ signal.alarm(0)
 print("Defining csv function...")
 signal.alarm(timeout_dur)
 
-@app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
+@app.get(os.path.join(root, "/raw_csv"), responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
     metadata_search: str = Query(None),
     key: str = Query(
@@ -271,7 +274,7 @@ signal.alarm(0)
 print("Defining download function...")
 signal.alarm(timeout_dur)
 
-@app.get("/download", responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
+@app.get(os.path.join(root, "/download"), responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
 async def download(
     resource: List[str] = Query(
         description="Options include: csv, pipeline_dependencies, metadata. Due to large file sizes, including 'pipeline_dependencies' will significantly increase download time."),
@@ -380,7 +383,7 @@ signal.alarm(0)
 print("Defining filter function...")
 signal.alarm(timeout_dur)
 
-@app.get("/filter", responses={200: {"content": {"application/json": {}, "text/plain": {}}}})
+@app.get(os.path.join(root, "/filter"), responses={200: {"content": {"application/json": {}, "text/plain": {}}}})
 async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
@@ -644,17 +647,17 @@ signal.alarm(0)
 print("Defining webhook...")
 signal.alarm(timeout_dur)
 
-@app.post('/githubwebhook', status_code=http.HTTPStatus.ACCEPTED, include_in_schema=False)
-async def webhook(req: Request, x_hub_signature: str = Header(None)):
-    payload = await req.body()
-    secret = read_config("webhook_secret").encode("utf-8")
-    signature = generate_hash_signature(secret, payload)
-    if x_hub_signature != f"sha1={signature}":
-        raise HTTPException(status_code=401, detail="Authentication error.")
-    else:
-        get_dataset_list(clear_cache=True)
-        return "Cache cleared."
-signal.alarm(0)
+##@app.post('/githubwebhook', status_code=http.HTTPStatus.ACCEPTED, include_in_schema=False)
+##async def webhook(req: Request, x_hub_signature: str = Header(None)):
+##    payload = await req.body()
+##    secret = read_config("webhook_secret").encode("utf-8")
+##    signature = generate_hash_signature(secret, payload)
+##    if x_hub_signature != f"sha1={signature}":
+##        raise HTTPException(status_code=401, detail="Authentication error.")
+##    else:
+##        get_dataset_list(clear_cache=True)
+##        return "Cache cleared."
+##signal.alarm(0)
 
 print("Defining open API schema...")
 signal.alarm(timeout_dur)
