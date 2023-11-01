@@ -14,9 +14,9 @@ from iidda_api import *
 from fastapi import FastAPI, Request, HTTPException, FastAPI, Query, Header
 import nest_asyncio
 import signal
-import os
+# import os
 
-root = "/iidda/app"
+# root = "/iidda/app"
 
 # Define function to handle timeout error
 def handle_timeout(sig, frame):
@@ -123,7 +123,7 @@ signal.alarm(0)
 print("Defining metadata...")
 signal.alarm(timeout_dur)
 
-@app.get(os.path.join(root, "metadata"))
+@app.get("/metadata")
 async def metadata(
     metadata_search: str = Query(None),
     key: str = Query(
@@ -162,7 +162,7 @@ signal.alarm(0)
 print("Defining data dictionary...")
 signal.alarm(timeout_dur)
 
-@app.get(os.path.join(root, "data_dictionary"))
+@app.get("/data_dictionary")
 async def data_dictionary():
     dictionary = requests.get(
         'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
@@ -172,7 +172,7 @@ signal.alarm(0)
 print("Defining lookup tables...")
 signal.alarm(timeout_dur)
 
-@app.get(os.path.join(root, "lookup_tables"), responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
+@app.get("/lookup_tables", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def lookup_tables(lookup_type: str = Query("location"
         , description='Type of lookup table.'
         , enum=["location", "disease", "sex"]
@@ -188,7 +188,7 @@ signal.alarm(0)
 print("Defining csv function...")
 signal.alarm(timeout_dur)
 
-@app.get(os.path.join(root, "/raw_csv"), responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
+@app.get("/raw_csv", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def raw_csv(
     metadata_search: str = Query(None),
     key: str = Query(
@@ -274,7 +274,7 @@ signal.alarm(0)
 print("Defining download function...")
 signal.alarm(timeout_dur)
 
-@app.get(os.path.join(root, "/download"), responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
+@app.get("/download", responses={200: {"content": {"application/x-zip-compressed": {}}}}, response_class=StreamingResponse)
 async def download(
     resource: List[str] = Query(
         description="Options include: csv, pipeline_dependencies, metadata. Due to large file sizes, including 'pipeline_dependencies' will significantly increase download time."),
@@ -383,7 +383,7 @@ signal.alarm(0)
 print("Defining filter function...")
 signal.alarm(timeout_dur)
 
-@app.get(os.path.join(root, "/filter"), responses={200: {"content": {"application/json": {}, "text/plain": {}}}})
+@app.get("/filter", responses={200: {"content": {"application/json": {}, "text/plain": {}}}})
 async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
