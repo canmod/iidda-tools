@@ -16,8 +16,6 @@ import nest_asyncio
 import signal
 # import os
 
-# root = "/iidda/app"
-
 # Define function to handle timeout error
 def handle_timeout(sig, frame):
     raise TimeoutError("Timeout Error: Took >3 mins to do previous task in main.py.")
@@ -28,8 +26,10 @@ timeout_dur = 30 # Number of seconds at each stage before a timeout error
 nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
 
-app = FastAPI(title="IIDDA API", swagger_ui_parameters={
-              "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
+app = FastAPI(
+	title="IIDDA API",
+	swagger_ui_parameters={"defaultModelsExpandDepth": -1, "syntaxHighlight": False}
+)
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
 
 print("Retrieving global data dictionary...")
