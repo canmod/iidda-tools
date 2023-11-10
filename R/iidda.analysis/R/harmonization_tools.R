@@ -85,14 +85,28 @@ add_user_entries = function(entries, user_table_path){
 names_to_join_by = function(lookup_type){
   lookup_type_list = list(location = c("location", "location_type"),
                           sex = c("sex"),
-                          disease = c("disease_family","disease","disease_subclass",
-                                      "pattern_family","pattern","pattern_subclass",
-                                      "exact_family","exact","exact_subclass",
-                                      "icd_7","icd_7_subclass","icd_9","icd_9_subclass",
-                                      "link_family","link","link_subclass","notes"),
+                          disease = c(
+                             "historical_disease_family"
+                            ,"historical_disease"
+                            ,"historical_disease_subclass"
+                            #,"pattern_family"
+                            #,"pattern"
+                            #,"pattern_subclass"
+                            #,"exact_family"
+                            #,"exact"
+                            #,"exact_subclass"
+                            ,"icd_7"
+                            ,"icd_7_subclass"
+                            ,"icd_9"
+                            ,"icd_9_subclass"
+                            #,"link_family"
+                            #,"link"
+                            #,"link_subclass"
+                            #,"notes"
+                          ),
                           age_group = c("age_group", "bin_desc"))
 
-  if(!(lookup_type %in% names(lookup_type_list))){
+  if (!(lookup_type %in% names(lookup_type_list))){
     stop("Lookup table type not found")
   }
 
