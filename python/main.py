@@ -400,6 +400,8 @@ async def filter(
         default=None, description=f"{global_data_dictionary['period_start_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     period_end_date: str = Query(
         default=None, description=f"{global_data_dictionary['period_end_date']['description']} Must be in the form \<start date\>/\<end date\>."),
+    period_mid_date: str = Query(
+        default=None, description=f"{global_data_dictionary['period_mid_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     disease: List[str] = Query(
         default=None, description=global_data_dictionary['disease']['description']),
     nesting_disease: List[str] = Query(
@@ -436,8 +438,12 @@ async def filter(
         default=None, description=f"{global_data_dictionary['cases_median_prev_5_years']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cases_cum_median_prev_5_years: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_cum_median_prev_5_years']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    days_this_period: List[str] = Query(
+        default=None, description=f"{global_data_dictionary['days_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     population: List[str] = Query(
         default=None, description=f"{global_data_dictionary['population']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    population_reporting: List[str] = Query(
+        default=None, description=f"{global_data_dictionary['population_reporting']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cause: List[str] = Query(
         default=None, description=global_data_dictionary['cause']['description']),
     location_type: List[str] = Query(
