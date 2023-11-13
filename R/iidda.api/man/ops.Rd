@@ -5,22 +5,13 @@
 \alias{ops}
 \alias{ops_local}
 \alias{ops_staging}
-\alias{docs_url}
-\alias{docs_url_local}
-\alias{docs_url_staging}
 \title{IIDDA API Operations}
 \format{
-An object of class \code{list} of length 6.
-
-An object of class \code{list} of length 6.
+An object of class \code{try-error} of length 1.
 
 An object of class \code{try-error} of length 1.
 
-An object of class \code{character} of length 1.
-
-An object of class \code{character} of length 1.
-
-An object of class \code{character} of length 1.
+An object of class \code{list} of length 6.
 }
 \usage{
 ops
@@ -28,12 +19,6 @@ ops
 ops_local
 
 ops_staging
-
-docs_url
-
-docs_url_local
-
-docs_url_staging
 }
 \description{
 IIDDA API Operations
@@ -47,12 +32,6 @@ as \code{R} functions
 if it exists
 
 \item \code{ops_staging}: Operations list for a staging environment, if it exists
-
-\item \code{docs_url}: Print link to interactive documentation for the IIDDA API (not currently up)
-
-\item \code{docs_url_local}: Print link to interactive documentation for a development environment
-
-\item \code{docs_url_staging}: Print link to interactive documentation for a staging environment, if it exists
 
 }}
 \keyword{datasets}
