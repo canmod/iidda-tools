@@ -4,11 +4,14 @@
 \alias{read_tidy_data}
 \title{Read Tidy Data and Metadata files}
 \usage{
-read_tidy_data(tidy_data_path)
+read_tidy_data(tidy_data_path, just_csv = FALSE)
 }
 \arguments{
 \item{tidy_data_path}{path to folder containing 4 files: tidy data
 and resulting metadata for each prep script}
+
+\item{just_csv}{return only the tidy csv file or a list with the csv and
+its metadata}
 }
 \description{
 Read Tidy Data and Metadata files

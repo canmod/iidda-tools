@@ -325,7 +325,7 @@ make_related_identifier = function(
 
 
 make_contributors = function(metadata) {
-  enterers = metadata$Digitization$data_enterer
+  enterers = metadata$Digitization$data_enterer |> unique()
   enterers = enterers[nchar(enterers) != 0L]
     c(
       list(
@@ -553,4 +553,40 @@ iidda_data_dictionary = function() {
   # )
   # api_template = "%{api_url}s/datasets/%{dataset_id}s?response_type=raw_csv"
 
+}
+
+
+#' @export
+convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_source) {
+  prep_scripts = tidy_metadata$PrepScripts$prep_script[tidy_metadata$PrepScripts$source == tidy_source] |> unique()
+  dataset_ids = tidy_metadata$PrepDependencies$tidy_dataset[tidy_metadata$PrepDependencies$prep_script %in% prep_scripts] |> unique()
+  digitization_ids = tidy_metadata$DigitizationDependencies$digitization[tidy_metadata$DigitizationDependencies$tidy_dataset %in% dataset_ids] |> unique()
+  prep_ids = tidy_metadata$PrepDependencies$prep_script[tidy_metadata$PrepDependencies$tidy_dataset %in% dataset_ids] |> unique()
+  access_ids = tidy_metadata$AccessDependencies$access_script[tidy_metadata$AccessDependencies$tidy_dataset %in% dataset_ids] |> unique()
+
+  get_tidy_metadata = function(tidy_dataset) {
+    digitization = tidy_metadata$DigitizationDependencies$digitization[tidy_metadata$DigitizationDependencies$tidy_dataset %in% tidy_dataset]
+    iidda::get_tracking_metadata(tidy_dataset, digitization, tidy_source_metadata_path, original_format = FALSE)
+  }
+  tidy_metadata_list = lapply(dataset_ids, get_tidy_metadata)
+  columns = harmonized_metadata$Columns[harmonized_metadata$Columns$column %in% harmonized_metadata$Schema$column[harmonized_metadata$Schema$tidy_dataset == harmonized_dataset_id], , drop = FALSE]
+  columns$tidy_dataset = harmonized_dataset_id
+  rownames(columns) = columns$column
+  list(
+    TidyDataset = harmonized_metadata$TidyDatasets[harmonized_metadata$TidyDatasets$tidy_dataset == harmonized_dataset_id, , drop = FALSE],
+    Source = harmonized_metadata$Sources[harmonized_metadata$Sources$source == harmonized_source, , drop = FALSE],
+    Digitization = harmonized_metadata$Digitizations[harmonized_metadata$Digitizations$digitization %in% digitization_ids, , drop = FALSE],
+    PrepScript = harmonized_metadata$PrepScripts[harmonized_metadata$PrepScripts$prep_script %in% prep_ids, , drop = FALSE],
+    AccessScript = harmonized_metadata$AccessScripts[harmonized_metadata$AccessScripts$access_script %in% access_ids, , drop = FALSE],
+    Originals = lapply(tidy_metadata_list, getElement, "Originals") |> unlist(FALSE),
+    Columns = setNames(list(columns), harmonized_dataset_id),
+    dataset_ids = dataset_ids
+  )
+}
+
+#' @export
+convert_metadata_path = function(metadata_path, harmonized_source, tidy_source) {
+  tidy_source_metadata_path = gsub(harmonized_source, tidy_source, metadata_path, fixed = TRUE)
+  if (!file.exists(tidy_source_metadata_path)) tidy_source_metadata_path
+  tidy_source_metadata_path
 }

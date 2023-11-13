@@ -4,13 +4,15 @@
 \alias{write_tidy_data}
 \title{Write Tidy Digitized Data and Metadata}
 \usage{
-write_tidy_data(tidy_data, metadata)
+write_tidy_data(tidy_data, metadata, tidy_dir = NULL)
 }
 \arguments{
 \item{tidy_data}{Data frame of prepared data that
 are ready to be packaged as an IIDDA tidy data set.}
 
 \item{metadata}{Output of \code{\link{get_tracking_metadata}}.}
+
+\item{tidy_dir}{If \code{NULL} taken from the \code{metadata}.}
 }
 \value{
 file names where data were written

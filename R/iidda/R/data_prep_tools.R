@@ -3,16 +3,21 @@
 #' @param tidy_data Data frame of prepared data that
 #' are ready to be packaged as an IIDDA tidy data set.
 #' @param metadata Output of \code{\link{get_tracking_metadata}}.
+#' @param tidy_dir If \code{NULL} taken from the \code{metadata}.
 #'
 #' @importFrom jsonlite write_json read_json
 #' @importFrom dplyr `%>%`
 #' @return file names where data were written
 #' @importFrom utils write.table
 #' @export
-write_tidy_data = function(tidy_data, metadata) {
+write_tidy_data = function(tidy_data, metadata, tidy_dir = NULL) {
   tidy_dataset = metadata$TidyDataset$tidy_dataset
 
-  tidy_dir = strip_blob_github(metadata$TidyDataset$path_tidy_data)
+  if (is.null(tidy_dir)) {
+    tidy_dir = metadata$TidyDataset$path_tidy_data
+  }
+  tidy_dir = strip_blob_github(tidy_dir)
+  if (nchar(tidy_dir) == 0L) stop("probably need to put a path to the tidy dataset in your metadata.")
   if (!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
 
   tidy_file = file.path(tidy_dir, tidy_dataset %.% 'csv')
@@ -96,26 +101,30 @@ write_tidy_data = function(tidy_data, metadata) {
 #'
 #' @param tidy_data_path path to folder containing 4 files: tidy data
 #' and resulting metadata for each prep script
+#' @param just_csv return only the tidy csv file or a list with the csv and
+#' its metadata
 #' @importFrom utils read.table
 #' @export
-read_tidy_data = function(tidy_data_path) {
+read_tidy_data = function(tidy_data_path, just_csv = FALSE) {
 
   path_tidy_file = list.files(tidy_data_path, pattern = "\\.csv.*", full.names = TRUE)
   valid_metadata_types = c(
     "data_dictionary",
     "csv_dialect",
-    "columns"
+    "columns",
+    "filter_group_vals"
   )
 
   path_meta_file = grep(
     list.files(tidy_data_path, pattern = "\\.json.*", full.names = TRUE),
-    pattern = "\\_csv_dialect.json|\\_data_dictionary.json|\\_columns.json",
+    pattern = "\\_csv_dialect.json|\\_data_dictionary.json|\\_columns|\\_filter_group_vals.json",
     invert = TRUE,
     value = TRUE
   )
   path_dict_file = list.files(tidy_data_path, pattern = "\\_data_dictionary.json.*", full.names = TRUE)
   path_dial_file = list.files(tidy_data_path, pattern = "\\_csv_dialect.json.*", full.names = TRUE)
   path_col_file = list.files(tidy_data_path, pattern = "\\_columns.json.*", full.names = TRUE)
+  path_grp_file = list.files(tidy_data_path, pattern = "\\_filter_group_vals.json.*", full.names = TRUE)
   data_dictionary = (path_dict_file
                      %>% read_json()
   )
@@ -147,6 +156,7 @@ read_tidy_data = function(tidy_data_path) {
                             na.strings = "",         # nullSequence=""
                             colClasses = col_classes
   )
+  if (just_csv) return(tidy_dataset)
 
   return(nlist(tidy_dataset, data_dictionary, csv_dialect, meta_data))
 }
@@ -459,6 +469,9 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
   }
   column_metadata <- metadata[["Columns"]][[dataset_name]]
   column_metadata_row <- subset(column_metadata, rownames(column_metadata) %in% column)
+  if (nrow(column_metadata_row) != 1L) {
+    column_metadata_row <- column_metadata[rownames(column_metadata) %in% column, , drop = FALSE]
+  }
   if (column_metadata_row[["format"]] == "num_missing") {
     range <- suppressWarnings(
       list(

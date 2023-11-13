@@ -23,12 +23,13 @@ col_classes_dict = list(
 resource_type_dict = list(
   # TODO: populate/harmonize from/with:
   # https://github.com/davidearn/data_work/blob/main/tracking/DataTypes.csv
-  CDI = "Communicable Disease Incidence",
-  Population = "Population",
-  Mortality = "Mortality",
-  ACM = "All-Cause Mortality",
-  Births = "Births",
-  Plague = "Plague" ## TODO: should this really be a dataset type? too specific to LBoM?
+    CDI = "Communicable Disease Incidence"
+  , Population = "Population"
+  , Mortality = "Mortality"
+  , ACM = "All-Cause Mortality"
+  , Births = "Births"
+  , Plague = "Plague" ## TODO: should this really be a dataset type? too specific to LBoM?
+  , CDI_CANMOD = "CANMOD CDI"
 )
 
 #' Frequency to By
