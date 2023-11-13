@@ -388,8 +388,6 @@ async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
     response_type: str = Query("csv", enum=["csv", "dataset list"]),
-    location: List[str] = Query(
-        default=None, description=global_data_dictionary['location']['description']),
     iso_3166: List[str] = Query(
         default=None, description=global_data_dictionary['iso_3166']['description']),
     iso_3166_2: List[str] = Query(
@@ -400,8 +398,6 @@ async def filter(
         default=None, description=f"{global_data_dictionary['period_start_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     period_end_date: str = Query(
         default=None, description=f"{global_data_dictionary['period_end_date']['description']} Must be in the form \<start date\>/\<end date\>."),
-    period_mid_date: str = Query(
-        default=None, description=f"{global_data_dictionary['period_mid_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     disease: List[str] = Query(
         default=None, description=global_data_dictionary['disease']['description']),
     nesting_disease: List[str] = Query(
@@ -420,6 +416,8 @@ async def filter(
         default=None, description=global_data_dictionary['icd_9_subclass']['description']),
     icd_7_subclass: List[str] = Query(
         default=None, description=global_data_dictionary['icd_7_subclass']['description']),
+    location: List[str] = Query(
+        default=None, description=global_data_dictionary['location']['description']),
     lower_age: List[str] = Query(
         default=None, description=f"{global_data_dictionary['lower_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     upper_age: List[str] = Query(
@@ -428,6 +426,8 @@ async def filter(
         default=None, description=global_data_dictionary['sex']['description']),
     cases_this_period: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    period_mid_date: str = Query(
+        default=None, description=f"{global_data_dictionary['period_mid_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     cases_prev_period: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_prev_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cases_cum_report_year: List[str] = Query(
