@@ -402,22 +402,12 @@ async def filter(
         default=None, description=global_data_dictionary['disease']['description']),
     nesting_disease: List[str] = Query(
         default=None, description=global_data_dictionary['nesting_disease']['description']),
-    historical_disease_family: List[str] = Query(
-        default=None, description=global_data_dictionary['historical_disease_family']['description']),
-    historical_disease: List[str] = Query(
-        default=None, description=global_data_dictionary['historical_disease']['description']),
-    icd_9: List[str] = Query(
-        default=None, description=global_data_dictionary['icd_9']['description']),
-    icd_7: List[str] = Query(
-        default=None, description=global_data_dictionary['icd_7']['description']),
-    historical_disease_subclass: List[str] = Query(
-        default=None, description=global_data_dictionary['historical_disease_subclass']['description']),
-    icd_9_subclass: List[str] = Query(
-        default=None, description=global_data_dictionary['icd_9_subclass']['description']),
-    icd_7_subclass: List[str] = Query(
-        default=None, description=global_data_dictionary['icd_7_subclass']['description']),
-    location: List[str] = Query(
-        default=None, description=global_data_dictionary['location']['description']),
+    cause: List[str] = Query(
+        default=None, description=global_data_dictionary['cause']['description']),
+    age_group: List[str] = Query(
+        default=None, description=global_data_dictionary['age_group']['description']),
+    nesting_age_group: List[str] = Query(
+        default=None, description=global_data_dictionary['nesting_age_group']['description']),
     lower_age: List[str] = Query(
         default=None, description=f"{global_data_dictionary['lower_age']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     upper_age: List[str] = Query(
@@ -426,8 +416,6 @@ async def filter(
         default=None, description=global_data_dictionary['sex']['description']),
     cases_this_period: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
-    period_mid_date: str = Query(
-        default=None, description=f"{global_data_dictionary['period_mid_date']['description']} Must be in the form \<start date\>/\<end date\>."),
     cases_prev_period: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_prev_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cases_cum_report_year: List[str] = Query(
@@ -438,18 +426,36 @@ async def filter(
         default=None, description=f"{global_data_dictionary['cases_median_prev_5_years']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     cases_cum_median_prev_5_years: List[str] = Query(
         default=None, description=f"{global_data_dictionary['cases_cum_median_prev_5_years']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
-    days_this_period: List[str] = Query(
-        default=None, description=f"{global_data_dictionary['days_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
+    deaths: List[str] = Query(
+        default=None, description=f"{global_data_dictionary['deaths']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     population: List[str] = Query(
         default=None, description=f"{global_data_dictionary['population']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
-    population_reporting: List[str] = Query(
-        default=None, description=f"{global_data_dictionary['population_reporting']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
-    cause: List[str] = Query(
-        default=None, description=global_data_dictionary['cause']['description']),
-    location_type: List[str] = Query(
-        default=None, description=global_data_dictionary['location_type']['description']),
+    period_mid_date: str = Query(
+        default=None, description=f"{global_data_dictionary['period_mid_date']['description']} Must be in the form \<start date\>/\<end date\>."),
+    days_this_period: List[str] = Query(
+        default=None, description=f"{global_data_dictionary['days_this_period']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
     time_scale: List[str] = Query(
         default=None, description=global_data_dictionary['time_scale']['description']),
+    location: List[str] = Query(
+        default=None, description=global_data_dictionary['location']['description']),
+    location_type: List[str] = Query(
+        default=None, description=global_data_dictionary['location_type']['description']),
+    historical_disease_family: List[str] = Query(
+        default=None, description=global_data_dictionary['historical_disease_family']['description']),
+    historical_disease: List[str] = Query(
+        default=None, description=global_data_dictionary['historical_disease']['description']),
+    historical_disease_subclass: List[str] = Query(
+        default=None, description=global_data_dictionary['historical_disease_subclass']['description']),
+    icd_9: List[str] = Query(
+        default=None, description=global_data_dictionary['icd_9']['description']),
+    icd_7: List[str] = Query(
+        default=None, description=global_data_dictionary['icd_7']['description']),
+    icd_9_subclass: List[str] = Query(
+        default=None, description=global_data_dictionary['icd_9_subclass']['description']),
+    icd_7_subclass: List[str] = Query(
+        default=None, description=global_data_dictionary['icd_7_subclass']['description']),
+    population_reporting: List[str] = Query(
+        default=None, description=f"{global_data_dictionary['population_reporting']['description']} The first item must either be a number interval of the form \<min\>-\<max\> or 'none' (meaning no filter is applied to the case numbers). Additional items are meant to be any 'unavailable values' like 'Not available', 'Not reportable', or 'null'."),
 ):
     """
     Get a csv containing data satisfying filters provided by the user.
