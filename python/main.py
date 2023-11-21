@@ -12,12 +12,15 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import StreamingResponse
 from iidda_api import *
 from fastapi import FastAPI, Request, HTTPException, FastAPI, Query, Header
+from uvicorn.config import LOGGING_CONFIG
 import nest_asyncio
 import signal
 # import os
 
+LOGGING_CONFIG["formatters"]["default"]["fmt"] = "%(asctime)s [%(name)s] %(levelprefix)s %(message)s"
+
 # root = "/iidda/app"
-app = FastAPI(openapi_url="/api/v1/openapi.json")
+# app = FastAPI(openapi_url="/api/v1/openapi.json")
 
 # Define function to handle timeout error
 def handle_timeout(sig, frame):
