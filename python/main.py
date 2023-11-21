@@ -181,6 +181,11 @@ async def lookup_tables(lookup_type: str = Query("location"
         , description='Type of lookup table.'
         , enum=["location", "disease", "sex"]
     )):
+    print("LOOKUP TYPE")
+    print(lookup_type)
+    #if lookup_type not in xxxxx:
+    #    raise HTTPException(
+    #        status_code=400, detail=f"'{resource_type}' is not a valid resource_type. Available values are {get_resource_types()}")
     template = 'https://raw.githubusercontent.com/canmod/iidda/main/lookup-tables/{}.csv'
     filled_template = template.format(lookup_type)
     # print("TEMPLATE")
