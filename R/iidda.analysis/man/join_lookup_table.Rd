@@ -4,12 +4,14 @@
 \alias{join_lookup_table}
 \title{Join lookup table}
 \usage{
-join_lookup_table(raw_data, lookup_type)
+join_lookup_table(raw_data, lookup_type, api_hook = iidda.api::ops)
 }
 \arguments{
 \item{raw_data}{data frame of table to be harmonized}
 
 \item{lookup_type}{string indicating type of lookup table from API to join}
+
+\item{api_hook}{API operations list}
 }
 \value{
 data frame of harmonized data with keys from API

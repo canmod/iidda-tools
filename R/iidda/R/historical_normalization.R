@@ -1,8 +1,3 @@
-#
-# ll = lookup_to_synonym_list(
-#   read.csv(system.file('locations_ISO.csv', package = "iidda")),
-#   "iso_3166", "location", "iso_3166_2"
-# )
 
 #' Normalize Diseases
 #'
@@ -34,3 +29,22 @@ two_field_format = function(dataset) {
    %>% select(-disease_family)
   )
 }
+
+
+find_overlap = function(lower, upper) {
+  UseMethod("find_overlap")
+}
+
+no_overlaps = function(lower, upper) {
+  i = order(lower)
+  n = length(lower)
+
+  for (j in 2:n) {
+    consistent_bin_bounds = lower[i][j] <= upper[i][j]
+    consistent_bin_neighbours = lower[i][j] > upper[i][j - 1L]
+    if (!consistent_bin_neighbours | !consistent_bin_bounds) return(FALSE)
+  }
+  TRUE
+}
+
+

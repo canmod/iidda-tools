@@ -12,7 +12,7 @@ parse_columns = function(data) {
     )
   }
   dict = get_dict()
-  if (!all(names(data) %in% names(dict))) return (data)
+  if (!all(names(data) %in% names(dict))) return(data)
   for (cc in names(data)) {
     if (dict[[cc]]$type == "string" & dict[[cc]]$format == "num_missing") {
       data[[cc]] = readr::parse_number(data[[cc]])
@@ -29,7 +29,7 @@ arrange_rows = function(data) {
   if (getOption("iidda_api_msgs")) {
     message(
       "Now sorting by date. ",
-      "You can turn this off with\noptions(iidda_api_date_sort = FALSE).",
+      "You can turn this off with\noptions(iidda_api_date_sort = FALSE). ",
       "Turn these messages off with\noptions(iidda_api_msgs = FALSE). ",
       "\n"
     )

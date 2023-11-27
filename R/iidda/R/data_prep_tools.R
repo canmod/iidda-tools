@@ -472,6 +472,7 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
   if (nrow(column_metadata_row) != 1L) {
     column_metadata_row <- column_metadata[rownames(column_metadata) %in% column, , drop = FALSE]
   }
+  if (!column %in% rownames(column_metadata)) stop("column ", column, " does not seem to be in the dataset metadata")
   if (column_metadata_row[["format"]] == "num_missing") {
     range <- suppressWarnings(
       list(

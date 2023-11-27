@@ -106,7 +106,7 @@ names_to_join_by = function(lookup_type){
                           ),
                           age_group = c("age_group", "bin_desc"))
 
-  if (!(lookup_type %in% names(lookup_type_list))){
+  if (!(lookup_type %in% names(lookup_type_list))) {
     stop("Lookup table type not found")
   }
 
@@ -161,11 +161,15 @@ lookup_join = function(raw_data, lookup_table, join_by, verbose = FALSE){
   cols_in_raw = join_by[join_by %in% colnames(raw_data)]
   cols_in_lookup = join_by[join_by %in% colnames(lookup_table)]
 
+  missing_cols_expected_by_lookup = join_by[!join_by %in% cols_in_raw]
+  for (cc in missing_cols_expected_by_lookup) raw_data[[cc]] = ""
+  cols_in_raw = c(cols_in_raw, missing_cols_expected_by_lookup)
+
   # Find shared columns and remove non-shared columns from lookup table
   # (so that other base columns don't interfere with join)
   shared_cols = intersect(cols_in_lookup, cols_in_raw)
 
-  if (length(shared_cols) == 0){ # return error if dataframes don't share columns of interest
+  if (length(shared_cols) == 0) { # return error if dataframes don't share columns of interest
     stop(
 "
   Could not find shared columns of interest to join by.
@@ -258,10 +262,11 @@ create_bin_desc <- function(age_df){
 #' Joins lookup table in API to data
 #' @param raw_data data frame of table to be harmonized
 #' @param lookup_type string indicating type of lookup table from API to join
+#' @param api_hook API operations list
 #' @return data frame of harmonized data with keys from API
 #' @export
-join_lookup_table = function(raw_data, lookup_type){
-  lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_type)
+join_lookup_table = function(raw_data, lookup_type, api_hook = iidda.api::ops){
+  lookup_table = api_hook$lookup_tables(lookup_type = lookup_type)
   n_row_lookup_table = nrow(lookup_table)
   if((n_row_lookup_table == 0) | is.null(n_row_lookup_table)) {
     stop("Lookup table cannot be found in the API")
