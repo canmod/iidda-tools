@@ -20,8 +20,7 @@ production = NULL
 #' @importFrom rapiclient get_api get_operations set_default_args_list
 #' @importFrom iidda list_xpath rm_trailing_slash
 
-make_ops_list = function(api_url, base_path) {
-  handle_iidda_response <- function(x) {
+handle_iidda_response <- function(x) {
     content_type <- x$headers$`content-type`
     if (content_type == 'application/json') {
       return(httr::content(x))
@@ -35,10 +34,17 @@ make_ops_list = function(api_url, base_path) {
       ) |> arrange_rows() |> parse_columns() # only if options set
       return(data)
     }
+    else if (content_type == 'application/x-zip-compressed') {
+      message("retrieving zip archive with your system's default browser ...")
+      browseURL(x$url)
+      invisible(x)
+    }
     else {
       return(httr::content(x))
     }
   }
+
+make_ops_list = function(api_url, base_path) {
 
   summary_to_function_name = function(x) {
     gsub(pattern = " ", replacement = "_", tolower(x))
