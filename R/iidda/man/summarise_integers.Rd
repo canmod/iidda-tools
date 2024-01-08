@@ -17,6 +17,6 @@ summarise_integers(x, range_operator = "-", collapse = TRUE)
 vector or single string of summarised integer ranges.
 }
 \description{
-Consecutive or overlapping integers separated by commas or semi-colons are summarised into a single integer range, 
+Consecutive or overlapping integers separated by commas or semi-colons are summarised into a single integer range,
 non-consecutive integer ranges are kept as is.
 }

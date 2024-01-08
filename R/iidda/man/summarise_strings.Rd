@@ -15,6 +15,6 @@ summarise_strings(x, sep = ", ")
 single string of summarised strings.
 }
 \description{
-Summarise vector of strings separated by commas or semi-colons into a single 
+Summarise vector of strings separated by commas or semi-colons into a single
 character separated string. Removes empty strings, repeated strings and trims white space.
 }
