@@ -382,7 +382,19 @@ read_digitized_data = function(metadata) {
     rds = readRDS,
     txt = read_delim
   )
-  read_func(path)
+  data = read_func(path)
+  
+  if(tools::file_ext(path) == 'xlsx'){
+    (data
+     %>% mutate(has_unclear_comment = grepl("unclear|uncelar", comment, ignore.case = TRUE),
+         character = case_when(
+           has_unclear_comment & data_type %in% c("character", "blank") ~ 
+             ifelse(data_type == "character", sprintf("%s (unclear)", character), "(unclear)"),
+                  TRUE ~ character
+                )) 
+     %>% select(-has_unclear_comment))
+  }
+  data
 }
 
 #' Collapse xlsx Value Columns
