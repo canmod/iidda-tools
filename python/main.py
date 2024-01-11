@@ -414,6 +414,10 @@ async def filter(
         default=None, description=global_data_dictionary['historical_disease_family']['description']),
     historical_disease: List[str] = Query(
         default=None, description=global_data_dictionary['historical_disease']['description']),
+    disease: List[str] = Query(
+        default=None, description=global_data_dictionary['disease']['description']),
+    nesting_disease: List[str] = Query(
+        default=None, description=global_data_dictionary['nesting_disease']['description']),
     icd_9: List[str] = Query(
         default=None, description=global_data_dictionary['icd_9']['description']),
     icd_7: List[str] = Query(
