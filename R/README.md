@@ -1,6 +1,8 @@
 # IIDDA R Packages and App
 
+Quick install:
 ```
+remotes::install_github('canmod/rapiclient')
 pkgs = c("iidda", "iidda.api", "iidda.analysis")
 Vectorize(remotes::install_github, "subdir")("canmod/iidda-tools", subdir = file.path("R", pkgs))
 ```
