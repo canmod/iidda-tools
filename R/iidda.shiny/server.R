@@ -21,7 +21,7 @@ downloadMenuServer <- function(id, datasets, action_button_id, data) {
         {
           withProgress(message = 'Preparing files for download...', {
             writeBin(
-              iidda.api::ops$download(
+              api_hook$download(
                 dataset_ids = datasets,
                 resource = input$files_to_include
               ),
@@ -39,7 +39,7 @@ server <- function(input, output, session) {
 
   # Dataset Selection Section
   data <- eventReactive(input$select_data, {
-    response <- iidda.api::ops$raw_csv(dataset_ids = input$dataset_name)
+    response <- api_hook$raw_csv(dataset_ids = input$dataset_name)
     if (is.data.frame(response)) {
       response
     } else {
@@ -47,14 +47,14 @@ server <- function(input, output, session) {
     }
   })
 
-  datasets <- reactive(names(iidda.api::ops$metadata(
+  datasets <- reactive(names(api_hook$metadata(
     response_type = "metadata",
     metadata_search = input$data_type,
     key = ".types .resourceType"
   )))
 
   data_dictionary <- reactive(
-    iidda.api::ops$metadata(
+    api_hook$metadata(
       response_type = "data_dictionary",
       metadata_search = input$data_type,
       key = ".types .resourceType"
@@ -75,7 +75,7 @@ server <- function(input, output, session) {
 
   output$data_table = renderDT({
     data_dictionary <-
-      iidda.api::ops$metadata(
+      api_hook$metadata(
         response_type = "data_dictionary",
         jq_query = '[.[] | select(. != "No metadata.") | .[] | {(.name) : [(.title), (.description)]} ] | unique | add'
       )
@@ -156,7 +156,7 @@ server <- function(input, output, session) {
     {
       withProgress(message = 'Preparing files for download...', {
         writeBin(
-          iidda.api::ops$download(
+          api_hook$download(
             dataset_ids = input$dataset_name,
             resource = input$files_to_include
           ),
@@ -170,7 +170,7 @@ server <- function(input, output, session) {
   #Dataset Filtering Section
 
   filter_data_dictionary <- reactive({
-    cols = iidda.api::ops$metadata(
+    cols = api_hook$metadata(
       response_type = "data_dictionary",
       metadata_search = input$filter_data_type,
       key = ".types .resourceType"
@@ -178,7 +178,7 @@ server <- function(input, output, session) {
       unname %>%
       unique %>%
       na.omit
-    cols[order(match(cols, iidda.api::ops$data_dictionary()))]
+    cols[order(match(cols, api_hook$data_dictionary()))]
   })
 
   data_filters <- eventReactive(input$filter_data, {
@@ -213,7 +213,7 @@ server <- function(input, output, session) {
   })
 
   filtered_data <- eventReactive(input$filter_data, {
-    response <- do.call(iidda.api::ops$filter, c(list(resource_type = input$filter_data_type), data_filters()))
+    response <- do.call(api_hook$filter, c(list(resource_type = input$filter_data_type), data_filters()))
     if(is.data.frame(response)) {
       response
     } else {
@@ -224,31 +224,29 @@ server <- function(input, output, session) {
   filtered_data_source_code <- eventReactive(input$filter_data, {
     df <- data_filters()
     df_names <- names(df)
-    df_names <- lapply(df_names,
-                       function(x) {
-                         if(length(df[x][[1]]) > 1) {
-                           sprintf('%s = %s', x, df[x])
-                         } else {
-                           sprintf('%s = "%s"', x, df[x])
-                         }
-                       })
+    df_names <- lapply(df_names, \(x) {
+       if(length(df[x][[1]]) > 1) {
+         sprintf('%s = %s', x, df[x])
+       } else {
+         sprintf('%s = "%s"', x, df[x])
+       }
+    })
     df <- paste(df_names, collapse=', ')
-    sprintf('iidda.api::ops$filter(resource_type = "%s", %s)', input$filter_data_type, df)
+    sprintf('iidda.api::%s$filter(resource_type = "%s", %s)', op_type, input$filter_data_type, df)
   })
 
   api_request_url <- eventReactive(input$filter_data, {
     df <- data_filters()
     df_names <- names(df)
-    df_names <- lapply(df_names,
-                       function(x) {
-                         if(length(df[x][[1]]) > 1) {
-                           paste(lapply(df[[x]], function(y) { sprintf('%s=%s', x, y)}), collapse="&")
-                         } else {
-                           sprintf('%s=%s', x, df[x])
-                         }
-                       })
+    df_names <- lapply(df_names, \(x) {
+       if (length(df[x][[1]]) > 1) {
+         paste(lapply(df[[x]], function(y) { sprintf('%s=%s', x, y)}), collapse = "&")
+       } else {
+         sprintf('%s=%s', x, df[x])
+       }
+     })
     df <- paste(df_names, collapse='&')
-    sprintf('%sfilter?resource_type=%s&%s', substring(iidda.api::docs_url, 1, nchar(iidda.api::docs_url)-4), input$filter_data_type, df)
+    sprintf('%s/filter?resource_type=%s&%s', api_url, input$filter_data_type, df)
   })
 
   make_default_string_choices = function(columns, name) {
@@ -271,7 +269,7 @@ server <- function(input, output, session) {
 
   output$column_filters = renderUI({
     columns <-
-      iidda.api::ops$metadata(
+      api_hook$metadata(
         response_type = "columns",
         metadata_search = input$filter_data_type,
         key = ".types .resourceType"
@@ -457,8 +455,8 @@ server <- function(input, output, session) {
     {
       withProgress(message = 'Preparing files for download...', {
         writeBin(
-          iidda.api::ops$download(
-            dataset_ids = do.call(iidda.api::ops$filter, c(list(resource_type = input$filter_data_type, response_type="dataset list"), data_filters())),
+          api_hook$download(
+            dataset_ids = do.call(api_hook$filter, c(list(resource_type = input$filter_data_type, response_type="dataset list"), data_filters())),
             resource = input$filtered_data_files_to_include
           ),
           file
