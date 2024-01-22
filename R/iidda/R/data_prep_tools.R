@@ -13,9 +13,7 @@
 write_tidy_data = function(tidy_data, metadata, tidy_dir = NULL) {
   tidy_dataset = metadata$TidyDataset$tidy_dataset
 
-  if (is.null(tidy_dir)) {
-    tidy_dir = metadata$TidyDataset$path_tidy_data
-  }
+  if (is.null(tidy_dir)) tidy_dir = metadata$TidyDataset$path_tidy_data
   tidy_dir = strip_blob_github(tidy_dir)
   if (nchar(tidy_dir) == 0L) stop("probably need to put a path to the tidy dataset in your metadata.")
   if (!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
@@ -383,15 +381,15 @@ read_digitized_data = function(metadata) {
     txt = read_delim
   )
   data = read_func(path)
-  
+
   if(tools::file_ext(path) == 'xlsx'){
     (data
      %>% mutate(has_unclear_comment = grepl("unclear|uncelar", comment, ignore.case = TRUE),
          character = case_when(
-           has_unclear_comment & data_type %in% c("character", "blank") ~ 
+           has_unclear_comment & data_type %in% c("character", "blank") ~
              ifelse(data_type == "character", sprintf("%s (unclear)", character), "(unclear)"),
                   TRUE ~ character
-                )) 
+                ))
      %>% select(-has_unclear_comment))
   }
   data
