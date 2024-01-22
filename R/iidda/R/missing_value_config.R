@@ -2,7 +2,8 @@
 MissingHandlers = function(
       unclear = c("Unclear", "unclear", "uncleaar", "uncelar", "r")
     , not_reported = c("", "Not available", "*", "Not reportable")
-    , zeros = c("—", "⎻", "-", "‾", "_")
+    , zeros  = c("\u2014", "\u23BB", "\u002D", "\u203E", "\u005F")
+    #, zeros = c("—"     , "⎻"     , "-"     , "‾"     , "_"     )
 ) {
   unclear_pattern = function(template = "\\s*\\((%s)\\)\\s*") {
     sprintf(template, paste0(unclear, collapse = "|"))
