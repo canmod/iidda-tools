@@ -24,10 +24,8 @@ Imports:
     tidyxl,
     ggplot2,
     tidyselect,
-    stringr,
     methods,
     utils,
-    stats,
     readr
 Encoding: UTF-8
 LazyData: true
