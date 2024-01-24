@@ -1,5 +1,10 @@
 # IIDDA R Packages and App
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.yaml/badge.svg)](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.yaml)
+[![R-CMD-check](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.api.yaml/badge.svg)](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.api.yaml)
+<!-- badges: end -->
+
 Quick install:
 ```
 remotes::install_github('canmod/rapiclient')
