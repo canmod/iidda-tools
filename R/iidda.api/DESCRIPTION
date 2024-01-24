@@ -3,7 +3,7 @@ Title: IIDDA API
 Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "swalk@mcmaster.ca", role = c("aut", "cre"))
-Description: R Bindings for the IIDDA API.
+Description: R Bindings for the IIDDA API. Testing
 License: GPL (>= 3)
 Imports: readr, httr, iidda, rapiclient
 Encoding: UTF-8
