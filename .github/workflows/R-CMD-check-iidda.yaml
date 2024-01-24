@@ -49,4 +49,4 @@ jobs:
         with:
           upload-snapshots: true
           working-directory: ./R/iidda
-          error-on: '"error"'
+          error-on: '"warning"'
