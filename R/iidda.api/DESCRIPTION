@@ -20,13 +20,5 @@ Depends:
     httr,
     iidda,
     rapiclient
-RemoteType: github
-RemoteHost: api.github.com
-RemoteRepo: iidda-tools
-RemoteUsername: canmod
-RemoteSubdir: R
-GithubRepo: iidda-tools
-GithubUsername: canmod
-GithubSubdir: R
 Remotes:
-    iidda
+    iidda=github::canmod/iidda-tools/R/iidda
