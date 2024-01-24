@@ -1,7 +1,7 @@
 Type: Package
 Package: iidda
-Title: Processing Infectious Disease Datasets in IIDDA. Testing
-Version: 0.1.0
+Title: Processing Infectious Disease Datasets in IIDDA.
+Version: 0.2.0
 Maintainer: Steve Walker <swalk@mcmaster.ca>
 Authors@R: 
   c(person("Steve Walker", rol = c("aut", "cre"), email = "swalk@mcmaster.ca"),
