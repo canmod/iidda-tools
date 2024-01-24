@@ -1,3 +1,4 @@
+#' @importFrom utils assignInNamespace
 .onLoad <- function(lib, pkg) {
   options(
       iidda_api_all_char = FALSE
