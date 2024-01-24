@@ -1,6 +1,6 @@
 Type: Package
 Package: iidda
-Title: Processing Infectious Disease Datasets in IIDDA
+Title: Processing Infectious Disease Datasets in IIDDA. Testing
 Version: 0.1.0
 Maintainer: Steve Walker <swalk@mcmaster.ca>
 Authors@R: 
