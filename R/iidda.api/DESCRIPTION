@@ -20,6 +20,8 @@ Depends:
     httr,
     iidda,
     rapiclient
+Remotes:
+    iidda
 RemoteType: github
 RemoteHost: api.github.com
 RemoteRepo: iidda-tools
