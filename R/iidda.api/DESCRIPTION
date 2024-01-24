@@ -6,8 +6,9 @@ Authors@R:
 Description: R Bindings for the IIDDA API.
 License: GPL (>= 3)
 Imports: readr, httr, iidda, rapiclient
-Remotes:
-    canmod/iidda-tools/tree/main/R/iidda
+RemoteRepo: iidda-tools
+RemoteUsername: canmod
+RemoteSubdir: R/iidda
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
