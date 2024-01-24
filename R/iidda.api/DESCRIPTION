@@ -21,4 +21,4 @@ Depends:
     iidda,
     rapiclient
 Remotes:
-    github::canmod/iidda-tools/R/iidda
+    iidda=github::canmod/iidda-tools/R/iidda
