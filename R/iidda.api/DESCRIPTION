@@ -19,8 +19,6 @@ Depends:
     readr,
     httr,
     iidda,
-    rapiclient,
-    glmmTMB
+    rapiclient
 Remotes:
-    iidda=github::canmod/iidda-tools/R/iidda,
-    glmmTMB=github::glmmTMB/glmmTMB/glmmTMB@ci_tweaks
+    iidda=github::canmod/iidda-tools/R/iidda
