@@ -21,4 +21,5 @@ Depends:
     iidda,
     rapiclient
 Remotes:
-    iidda=github::canmod/iidda-tools/R/iidda
+    iidda=github::canmod/iidda-tools/R/iidda,
+    glmmTMB=github::glmmTMB/glmmTMB/glmmTMB@ci_tweaks
