@@ -11,9 +11,11 @@ list_resource_ids(
 )
 }
 \arguments{
-\item{source}{Source ID}
+\item{source}{Source ID.}
 
-\item{...}{Path components to the root of the repository.}
+\item{type}{Type of resouce.}
+
+\item{root}{Path to the root of the repository.}
 }
 \description{
 List Resources IDs
