@@ -6,7 +6,6 @@ Authors@R:
 Description: R Bindings for the IIDDA API.
 License: GPL (>= 3)
 Imports: readr, httr, iidda, rapiclient
-Remotes: local::/../iidda
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

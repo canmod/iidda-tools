@@ -44,6 +44,13 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
           working-directory: ./R/iidda.api
+      - name: Install remotes
+        run: |
+          Rscript -e "install.packages('remotes', repos='https://ftp.belnet.be/mirror/CRAN')"
+
+      - name: Install iidda
+        run: |
+          Rscript -e "remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda')"
 
       - uses: r-lib/actions/check-r-package@v2
         with:
