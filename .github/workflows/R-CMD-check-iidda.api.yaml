@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: 20 14 * * *
+    - cron: '25 14 * * *'
 
 name: R-CMD-check-iidda.api
 
