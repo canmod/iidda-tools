@@ -34,7 +34,7 @@ jobs:
           working-directory: ./R/iidda.api
 
       - name: Build site
-        run: pkgdown::build_site_github_pages(pkg = "R/iidda.api", new_process = FALSE, install = FALSE, dest_dir = "R/iidda.api/docs")
+        run: pkgdown::build_site_github_pages(pkg = "R/iidda.api", new_process = FALSE, install = FALSE, dest_dir = "docs")
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
