@@ -49,16 +49,16 @@ Prep data for rohani plots. Prep steps include creating additional time unit fie
 variable by time unit and grouping variable (the x and y axis variables) ,and optionally normalizing series
 data to be in the range (0,1). By default, the grouping variable is ranked in order of the summarized series
 variable. Needs to be generalized more, might
-need to handle the case where the desired y-axis is a second time unit, as in the heatmap plot and therefore
+need to handle the case where the desired y-axis is a second time unit, as in the seasonal heatmap plot and therefore
 making use of the year_end_fix function.
 }
 \seealso{
 Other prep_data_for_plotting: 
 \code{\link{iidda_prep_bar}()},
 \code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_heatmap}()},
 \code{\link{iidda_prep_ma}()},
 \code{\link{iidda_prep_periodogram}()},
+\code{\link{iidda_prep_seasonal_heatmap}()},
 \code{\link{iidda_prep_series}()},
 \code{\link{iidda_prep_wavelet}()}
 }

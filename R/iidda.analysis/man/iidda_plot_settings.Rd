@@ -10,7 +10,7 @@ iidda_plot_settings(
   min_time = "min_time",
   max_time = "max_time",
   descriptor_name = "descriptor_name",
-  theme = theme_bw()
+  theme = iidda_theme
 )
 }
 \arguments{

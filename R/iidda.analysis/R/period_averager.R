@@ -1,18 +1,42 @@
 #' Obtain period midpoints and average daily rates for count data
 #'
+#' @md
 #' @param data Data frame with rows at minimum containing period start and end
 #' dates and a count variable.
 #' @param count_col Character, name of count data column.
 #' @param start_col Character, name of start date column.
 #' @param end_col Character, name of end date column.
-#' @param count_name Character, name of column specifying counted variable.
-#' @param keep_raw Logical, retain *_col columns in output.
-#' @param keep_cols Character vector, names of coluimns to retain in output.
-#' To get all columns set \code{keep_cols} to \code{NULL}.
+#' @param norm_col Character, name of column giving data for normalization.
+#' A good option is often `population_reporting`, which is a column in many
+#' datasets containing the total size of the reference population for the count
+#' data. To avoid normalization set \code{norm_col} to \code{NULL}, which is
+#' the default.
+#' @param norm_const Numeric value for multiplying the `daily_rate` column
+#' if a `norm_col` is supplied. By default this is `1e5`, which corresponds to
+#' `daily_rate` having units of `count per day per 100,000 individuals` if the
+#' `norm_col` represents the reference population size.
+#' @param keep_raw Logical value indicating whether to force all `*_col`
+#' columns in the output, even if they are not specified in `keep_cols`, and
+#' to place them at the beginning of the columns list. The default is `TRUE`.
+#' @param keep_cols Character vector containing the names of columns in the
+#' input `data` to retain in the output. All columns are retained by default.
 #'
-#' @return Data frame containing period length (\code{num_days}),
-#' period mid-date (\code{period_mid_date}),
-#' average daily count (\code{daily_rate}), and any additional data from `data`.
+#' @returns Data frame containing the following fields.
+#' * Columns from the original dataset specified using `keep_raw` and
+#' `keep_cols`.
+#' * `year` : Year of the `period_start_date`.
+#' * `num_days` : Length of the period in days from the beginning of the
+#'                `period_start_date` to the end of the `period_end_date`.
+#' * `period_mid_time` : Timestamp of the middle of the period.
+#' * `period_mid_date` : Date containing the `period_mid_time`.
+#' * `daily_rate` : Daily count rate, which by default is given by
+#'                  `daily_rate = count_col / num_days`. If the name of
+#'                  `norm_col` is specified then
+#'                  `daily_rate = norm_const * count_col / num_days / norm_col`.
+#'                  When interpreting these formulas, please keep in mind that
+#'                  `norm_const` is a numeric constant, `num_days` is a derived
+#'                  numeric column, and `count_col` and `norm_col` are columns
+#'                  supplied within the input `data` object.
 #'
 #' @examples
 #' set.seed(666)
@@ -27,36 +51,43 @@
 #'
 #' @family time_periods
 #'
+#' @importFrom dplyr any_of mutate select
+#' @importFrom lubridate year
 #' @export
 period_averager <- function(data
     , count_col = "cases_this_period"
     , start_col = "period_start_date"
     , end_col = "period_end_date"
-    , count_name = NULL
+    , norm_col = NULL
+    , norm_const = 1e5
     , keep_raw = TRUE
-    , keep_cols = c(count_name)
+    , keep_cols = names(data)
   ){
-  if (is.null(keep_cols)) keep_cols = names(data)
-  if (keep_raw){keep_cols <- c(keep_cols
-      , start_col
-      , end_col
-      , count_col
-    )
+  if (keep_raw) {
+    keep_cols = union(c(start_col, end_col, norm_col, count_col), keep_cols)
   }
-  data %>%
-  mutate(year = lubridate::year(.data[[start_col]])
-     , num_days = num_days(.data[[start_col]], .data[[end_col]])
-     , period_mid_date = mid_dates(data[[start_col]], period_length = num_days)
-     , period_mid_time = mid_times(data[[start_col]], period_length = num_days)
-     , daily_rate = as.numeric(.data[[count_col]])/as.numeric(num_days)
-  ) %>%
-    select(any_of({{keep_cols}})
 
-           , year
-           , num_days
-           , period_mid_date
-           , period_mid_time
-           , daily_rate )
+  normalize = length(norm_col) == 1L
+
+  data = mutate(data
+    , year = lubridate::year(.data[[start_col]])
+    , num_days = num_days(.data[[start_col]], .data[[end_col]])
+    , period_mid_date = mid_dates(.data[[start_col]], period_length = num_days)
+    , period_mid_time = mid_times(.data[[start_col]], period_length = num_days)
+    , daily_rate = as.numeric(.data[[count_col]]) / as.numeric(num_days)
+  )
+  if (normalize) {
+    data = mutate(data, daily_rate = daily_rate / .data[[norm_col]])
+    data$daily_rate = norm_const * data$daily_rate
+  }
+  select(data
+     , any_of({{keep_cols}})
+     , year
+     , num_days
+     , period_mid_time
+     , period_mid_date
+     , daily_rate
+  )
 }
 
 #' Numbers of Days
@@ -119,9 +150,7 @@ mid_util = function(start_date, end_date, period_length) {
     as.Date(start_date) + days(floor(period_length / 2))
   }
   times = function() {
-    as_datetime(start_date) + days(floor(period_length / 2)) + hours(12)
+    as_datetime(start_date) + days(floor(period_length / 2)) + hours((period_length %% 2) * 12)
   }
   environment()
-  #as.Date(.data[[start_col]]) + lubridate::seconds(period_length * as.numeric(lubridate::days(1))/2)
-  #as.Date(start_date) + lubridate::days(period_length)
 }

@@ -54,6 +54,6 @@ each week to have half of the values.
 Weeks covering the year end are split into two records. The first week is adjusted to end on day 365 (or 366 in leap years),
 and the second week starts on the first day of the year. This was adapted from `LBoM::edge_fix` which keeps the same
 series variable value for both of the newly created weeks. This doesn't seem to make much difference when viewing the
-heatmap, however it might make sense to do something sensible like dividing the series variable value in half and allocating
+seasonal heatmap, however it might make sense to do something sensible like dividing the series variable value in half and allocating
 each week to have half of the values.
 }
