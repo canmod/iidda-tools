@@ -44,3 +44,4 @@ jobs:
           clean: false
           branch: gh-pages
           folder: R/iidda.api/docs
+          target-folder: iidda.api
