@@ -110,10 +110,10 @@ Prep data for wavelet plot. Prep steps were taken from code provided by Steven L
 Other prep_data_for_plotting: 
 \code{\link{iidda_prep_bar}()},
 \code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_heatmap}()},
 \code{\link{iidda_prep_ma}()},
 \code{\link{iidda_prep_periodogram}()},
 \code{\link{iidda_prep_rohani}()},
+\code{\link{iidda_prep_seasonal_heatmap}()},
 \code{\link{iidda_prep_series}()}
 }
 \concept{prep_data_for_plotting}

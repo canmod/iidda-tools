@@ -76,8 +76,9 @@ list_file_id = function(..., ext, root) {
 
 #' List Resources IDs
 #'
-#' @param ... Path components to the root of the repository.
-#' @param source Source ID
+#' @param source Source ID.
+#' @param type Type of resouce.
+#' @param root Path to the root of the repository.
 #'
 #' @export
 list_resource_ids = function(source

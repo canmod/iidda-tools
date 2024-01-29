@@ -1,6 +1,10 @@
 IIDDA R Package
 ---------------
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.yaml/badge.svg)](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.yaml)
+<!-- badges: end -->
+
 ## Installation 
 ```
 remotes::install_github('canmod-eidm/iidda-tools', subdir = 'R/iidda')

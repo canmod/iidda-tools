@@ -47,7 +47,7 @@ body <- dashboardBody(tabItems(tabItem(
       selectInput(
         inputId = "data_type",
         label = "Dataset Type",
-        choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .types .resourceType] | unique'),
+        choices = api_hook$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .types .resourceType] | unique'),
         selected = "Communicable Disease Incidence"
       ),
       uiOutput("dataset_name"),
@@ -95,7 +95,7 @@ tabItem(
       selectInput(
         inputId = "filter_data_type",
         label = "Dataset Type",
-        choices = iidda.api::ops$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .types .resourceType] | unique'),
+        choices = api_hook$metadata(response_type = "metadata", jq_query = '[.[] | select(. != "No metadata.") | .types .resourceType] | unique'),
         selected = "Communicable Disease Incidence"
       ),
       uiOutput("column_filters"),

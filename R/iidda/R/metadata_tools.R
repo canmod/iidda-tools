@@ -555,7 +555,19 @@ iidda_data_dictionary = function() {
 
 }
 
-
+#' Convert Harmonized Metadata
+#'
+#' Get metadata for a harmonized data source, given metadata for the
+#' corresponding tidy data source metadata and initial harmonized data
+#' source metadata.
+#'
+#' @param tidy_metadata Metadata from \code{\link{read_tracking_tables}} for
+#' a tidy data source.
+#' @param harmonized_metadata Initial metadata from
+#' \code{\link{read_tracking_tables}} for a harmonized data source.
+#' @param tidy_source IIDDA data source ID for a data source that is being
+#' harmonized.
+#'
 #' @export
 convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_source) {
   prep_scripts = tidy_metadata$PrepScripts$prep_script[tidy_metadata$PrepScripts$source == tidy_source] |> unique()
@@ -584,6 +596,15 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
   )
 }
 
+#' Convert Metadata Path
+#'
+#' Convert a metadata path to one corresponding to tidy data being harmonized.
+#'
+#' @param metadata_path Path to a collection of tracking tables.
+#' @param harmonized_source IIDDA data source ID for a harmonized source.
+#' @param tidy_source IIDDA data source ID for a data source that is being
+#' harmonized.
+#'
 #' @export
 convert_metadata_path = function(metadata_path, harmonized_source, tidy_source) {
   tidy_source_metadata_path = gsub(harmonized_source, tidy_source, metadata_path, fixed = TRUE)

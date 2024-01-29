@@ -1,8 +1,8 @@
 Package: iidda.api
 Title: IIDDA API
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
-    person("First", "Last", , "swalk@mcmaster.ca", role = c("aut", "cre"))
+    person("Steve", "Walker", , "swalk@mcmaster.ca", role = c("aut", "cre"))
 Description: R Bindings for the IIDDA API.
 License: GPL (>= 3)
 Imports: readr, httr, iidda, rapiclient
@@ -12,5 +12,16 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3.9000
 Additional_repositories: https://canmod.github.io/drat
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10),
+    readr,
+    httr,
+    iidda,
+    rapiclient
+Remotes:
+    iidda=canmod/iidda-tools/R/iidda
+VignetteBuilder: knitr
