@@ -450,10 +450,13 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 #' @export
 identify_scales = function(data){
   (data
-   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
-   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", time_scale))
+   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) + 6, "wk", "two-wks"))
+   %>% mutate(time_scale = ifelse(s.Date(period_end_date)-as.Date(period_start_date) > 14, "mt", time_scale))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-   %>% mutate(location_type = ifelse(location == "Canada" | location == "CANADA", "country", "province"))
+   
+   # Check if "location" is a column before adding "location_type"
+   %>% mutate(location_type = ifelse(exists("location") && (location == "Canada" | location == "CANADA"), "country", "province"))
   )
 }
 
