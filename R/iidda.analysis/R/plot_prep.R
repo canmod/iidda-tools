@@ -2033,7 +2033,7 @@ iidda_title.patchwork = function(plot_object, min_time, max_time, descriptor_nam
 #' @return boolean of validation status
 #' @export
 valid_time_vars = function(var_nm, data) {
-  (var_nm %in% names(data)) & is.Date(data[[var_nm]])
+  (var_nm %in% names(data)) & inherits(data[[var_nm]], "Date")
 }
 
 #' Time units
