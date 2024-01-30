@@ -452,10 +452,11 @@ identify_scales = function(data){
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 14, "mt", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-   
-   # Check if "location" is a column before adding "location_type"
-   %>% mutate(location_type = ifelse(exists("location") && (location == "Canada" | location == "CANADA"), "country", "province"))
   )
+  
+  if ("location" %in% names(tidy_data)) {
+    tidy_data$location_type = ifelse(tidy_data$location %in% c("Canada", "CANADA"), "country", "province")
+  }
 }
 
 
