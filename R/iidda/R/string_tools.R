@@ -343,3 +343,91 @@ summarise_dates = function(x_start, x_end, range_operator = " to ", collapse = T
   y
 }
 
+MultipleStringColumnSummarizer = function(data) {
+  update = function(char, column) {
+    if (column %in% names(data)) {
+      char = ifelse(
+          is_empty(char)
+        , empty_is_blank(data[[column]])
+        , char
+      )
+    }
+    char
+  }
+  init = function(column) {
+    char = rep("", nrow(data))
+    if (column %in% names(data)) {
+      char = empty_is_blank(data[[column]])
+    }
+    char
+  }
+  apply = function(cols) {
+    char = init(cols[1L])
+    for (i in 2:length(cols)) {
+      char = update(char, cols[i])
+    }
+    char
+  }
+  environment()
+}
+
+#' Summarise Locations
+#'
+#' Summarise several columns in an IIDDA dataset that specify the geographic
+#' location of each row.
+#'
+#' @param data Data frame hopefully containing at least one of  `iso_3166`,
+#' `iso_3166_2`, or `location`. If all are missing then the output summary is
+#' a blank string.
+#'
+#' @returns A string summarizing the data in the columns.
+#'
+#' @export
+summarise_locations = function(data) {
+  string_summary = MultipleStringColumnSummarizer(data)
+  columns = c("iso_3166_2", "iso_3166", "location") ## order of precedence
+  location = string_summary$apply(columns)
+  summarise_strings(location)# |> iso_3166_to_words()
+}
+
+#' Summarise Diseases
+#'
+#' Summarise disease name columns in an IIDDA dataset.
+#'
+#' @param data Data frame hopefully containing at least one of `disease` or
+#' `historical_disease`. If all are missing then the output summary is
+#' a blank string.
+#'
+#' @returns A string summarizing the data in the columns.
+#'
+#' @export
+summarise_diseases = function(data) {
+  string_summary = MultipleStringColumnSummarizer(data)
+  columns = c("disease", "historical_disease")
+  disease = string_summary$apply(columns)
+  summarise_strings(disease)
+}
+
+summarise_diseases_by_locations = function(data) {
+  sprintf("%s (%s)"
+    , summarise_diseases(data)
+    , summarise_locations(data)
+  )
+}
+
+#' Summarise Periods
+#'
+#' Summarise time periods in an IIDDA dataset.
+#'
+#' @param data Data frame hopefully containing both `period_start_date` and
+#' `period_end_date`. If either are missing an error results.
+#'
+#' @returns A string summarizing the data in the columns
+#'
+#' @export
+summarise_periods = function(data) {
+  # ord = order(data$period_start_date, data$period_end_date)
+  # start = data$period_start_date[ord]
+  # end = data$period_end_date[ord]
+  with(data, summarise_dates(period_start_date, period_end_date))
+}

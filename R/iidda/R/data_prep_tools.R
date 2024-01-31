@@ -169,6 +169,30 @@ empty_to_na = function(data) {
   )
 }
 
+
+iso_3166_to_words = function(x) {
+  lookup = c(
+      CA = "Canada"
+    ,`CA-AB` = "Alberta (Canada)"
+    ,`CA-BC` = "British Columbia (Canada)"
+    ,`CA-MB` = "Manitoba (Canada)"
+    ,`CA-NB` = "New Brunswick (Canada)"
+    ,`CA-NL` = "Newfoundland and Labrador (Canada)"
+    ,`CA-NT` = "Northwest Territories (Canada)"
+    ,`CA-NS` = "Nova Scotia (Canada)"
+    ,`CA-NU` = "Nunavut (Canada)"
+    ,`CA-ON` = "Ontario (Canada)"
+    ,`CA-PE` = "Prince Edward Island (Canada)"
+    ,`CA-QC` = "Quebec (Canada)"
+    ,`CA-SK` = "Saskatchewan (Canada)"
+    ,`CA-YK` = "Yukon (Canada)"
+  )
+
+  x[x %in% names(lookup)] = lookup[x]
+  x
+}
+
+
 #' ISO-3166 and ISO-3166-2 Codes
 #'
 #' Converts geographical location information, as it was described in a
@@ -452,7 +476,7 @@ identify_scales = function(data){
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 14, "mt", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-   
+
    # Check if "location" is a column before adding "location_type"
    %>% mutate(location_type = ifelse(exists("location") && (location == "Canada" | location == "CANADA"), "country", "province"))
   )
@@ -495,8 +519,8 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
         )
       )
     )
-    if (identical(is.infinite(range[['range']]),c(TRUE,TRUE))) {
-      range[['range']] = c(NA,NA)
+    if (identical(is.infinite(range[['range']]),c(TRUE, TRUE))) {
+      range[['range']] = c(NA, NA)
       return(range)
     } else {
       return(range)
