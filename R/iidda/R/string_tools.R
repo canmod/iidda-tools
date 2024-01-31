@@ -421,13 +421,22 @@ summarise_diseases_by_locations = function(data) {
 #'
 #' @param data Data frame hopefully containing both `period_start_date` and
 #' `period_end_date`. If either are missing an error results.
+#' @param cutoff Number of characters, above which the output string
+#' takes the form `{max-date} to {min-date} (with gaps)`.
 #'
 #' @returns A string summarizing the data in the columns
 #'
 #' @export
-summarise_periods = function(data) {
+summarise_periods = function(data, cutoff = 50) {
   # ord = order(data$period_start_date, data$period_end_date)
   # start = data$period_start_date[ord]
   # end = data$period_end_date[ord]
-  with(data, summarise_dates(period_start_date, period_end_date))
+  string = with(data, summarise_dates(period_start_date, period_end_date))
+  if (isTRUE(nchar(string) > cutoff)) {
+    string = sprintf("%s to %s (with gaps)"
+      , as.character(min(data$period_start_date))
+      , as.character(max(data$period_end_date))
+    )
+  }
+  string
 }
