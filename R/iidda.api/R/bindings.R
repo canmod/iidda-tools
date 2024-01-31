@@ -25,7 +25,17 @@ production = NULL
 handle_iidda_response <- function(x) {
     content_type <- x$headers$`content-type`
     if (content_type == 'application/json') {
-      return(httr::content(x))
+      data = httr::content(x)
+
+      ## data dictionary has names in the first element of each inner list
+      if (is.null(names(data))) {
+        try_names = try(
+          vapply(data, getElement, character(1L), "name"),
+          silent = TRUE
+        )
+        if (!inherits(try_names, "try-error")) names(data) = try_names
+      }
+      return(data)
     }
     else if (content_type == 'text/plain; charset=utf-8') {
       data = httr::content(x

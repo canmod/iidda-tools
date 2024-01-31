@@ -163,6 +163,6 @@ the CANMOD digitization project can be accessed using
 }
 }
 \author{
-\strong{Maintainer}: First Last \email{swalk@mcmaster.ca}
+\strong{Maintainer}: Steve Walker \email{swalk@mcmaster.ca}
 
 }
