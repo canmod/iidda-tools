@@ -1373,7 +1373,7 @@ iidda_prep_wavelet = function(
 
 
 
-#' Get LBoM metadata
+#' Get IIDDA metadata
 #'
 #' Get starting time period, ending time period and mortality cause name from the
 #' data set for use in axis and main plot titles.
@@ -1998,6 +1998,7 @@ iidda_plot_settings <- function(plot_object,
 }
 
 
+
 #' @export
 iidda_title = function(plot_object, min_time, max_time, descriptor_name, theme) {
   UseMethod("iidda_title")
@@ -2007,14 +2008,19 @@ iidda_title = function(plot_object, min_time, max_time, descriptor_name, theme) 
 iidda_title.gg = function(plot_object, min_time, max_time, descriptor_name, theme) {
   plot_object +
     ggtitle(
-      label = descriptor_name,
-      subtitle=paste0(min_time, " to ", max_time)
+      title = descriptor_name,
+      subtitle = paste0(min_time, " to ", max_time)
     ) +
     theme()
 }
 
 #' @export
-iidda_title.patchwork = function(plot_object, min_time, max_time, descriptor_name, theme) {
+iidda_title.patchwork = function(plot_object
+    , min_time
+    , max_time
+    , descriptor_name
+    , theme
+  ) {
   plot_object +
     plot_annotation(
       title = descriptor_name,
@@ -2022,6 +2028,7 @@ iidda_title.patchwork = function(plot_object, min_time, max_time, descriptor_nam
     ) +
     theme()
 }
+
 
 #' Validate time variables
 #'

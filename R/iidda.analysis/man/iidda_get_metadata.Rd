@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_prep.R
 \name{iidda_get_metadata}
 \alias{iidda_get_metadata}
-\title{Get LBoM metadata}
+\title{Get IIDDA metadata}
 \usage{
 iidda_get_metadata(
   data,
