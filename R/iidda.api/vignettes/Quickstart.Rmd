@@ -1,0 +1,56 @@
+---
+title: "Quickstart"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quickstart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r installation, message=FALSE}
+if (!require(iidda.api)) {
+  if (!require(remotes)) install.packages("remotes")
+  remotes::install_github(
+      "canmod/iidda-tools"
+    , subdir = "R/iidda.api"
+  )
+}
+```
+
+```{r api_hook}
+api_hook = iidda.api::ops_staging
+```
+
+```{r other_packages, message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Scarlet Fever Data in Ontario
+
+```{r scarlet_fever_ontario}
+scarlet_fever_ontario = api_hook$filter(resource_type = "CANMOD CDI"
+  , iso_3166 = "CA"
+  , iso_3166_2 = "CA-ON"
+  , time_scale = "wk"
+  , disease = "scarlet-fever"
+  , period_end_date = "1929-08-01/1930-10-01"
+)
+print(scarlet_fever_ontario)
+```
+
+```{r scarlet_fever_ontario_plot, fig.width=7}
+(scarlet_fever_ontario
+  |> ggplot(aes(period_mid_date, cases_this_period))
+  + geom_line() + geom_point()
+  + ggtitle("Scarlet Fever Incidence in Ontario, Canada")
+  + theme_bw()
+)
+```
