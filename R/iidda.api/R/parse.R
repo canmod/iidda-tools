@@ -5,11 +5,11 @@ get_dict = function() suppressWarnings({iidda.api::ops_staging$data_dictionary()
 messages = list(
   conversion = list(
     "Now converting some fields from character to numeric or date. ",
-    "You can turn this off with\noptions(iidda_api_all_char = TRUE). "
+    "\nYou can turn this off with\noptions(iidda_api_all_char = TRUE). "
   ),
   sort = list(
     "Now converting some fields from character to numeric or date. ",
-    "You can turn this off with\noptions(iidda_api_all_char = TRUE). "
+    "\nYou can turn this off with\noptions(iidda_api_all_char = TRUE). "
   )
 )
 MakeMessage = function(msg) {
