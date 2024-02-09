@@ -35,7 +35,11 @@ app = FastAPI(title="IIDDA API",
     swagger_ui_parameters={
         "defaultModelsExpandDepth": -1, 
         "syntaxHighlight": False
-    } 
+    },
+    servers=[
+        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "staging"},
+        {"url" : "http://localhost:8000", "description" : "local"}
+    ]
     #root_path="/iidda/api"
 )
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
