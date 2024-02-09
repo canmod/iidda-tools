@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='iidda_api',
-    version='0.0.1',
+    version='0.0.2',
     author='Steve Walker',
     author_email='swalk@mcmaster.ca',
     license='GPL-3',

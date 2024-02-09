@@ -27,7 +27,7 @@ def handle_timeout(sig, frame):
     raise TimeoutError("Timeout Error: Took >3 mins to do previous task in main.py.")
 signal.signal(signal.SIGALRM, handle_timeout)
 
-timeout_dur = 30 # Number of seconds at each stage before a timeout error
+timeout_dur = 300 # Number of seconds at each stage before a timeout error
 
 nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
@@ -84,6 +84,10 @@ def generate_hash_signature(
     digest_method=hashlib.sha1,
 ):
     return hmac.new(secret, payload, digest_method).hexdigest()
+
+
+def read_the_csv_files(x):
+    return pd.read_csv(x, dtype=str)
 
 
 def dataset_list_search(
@@ -241,7 +245,9 @@ async def raw_csv(
             status_code=400, detail="In order to use the 'raw_csv' response type, all datasets in question must be of the same resource type.")
 
     async def main():
+        print("LDJKSFLKJDF")
         tasks = []
+        print(len(tasks))
         for dataset in dataset_list:
             r = re.compile('^v([0-9]+)-(.*)')
             if r.match(dataset):
@@ -249,10 +255,21 @@ async def raw_csv(
                 dataset = r.search(dataset).group(2)
             else:
                 version = "latest"
-            task = asyncio.ensure_future(get_dataset(
-                dataset_name=dataset, version=version))
-            tasks.append(task)
+            
+            if csv_exists(dataset_name=dataset, version=version):
+                github_csv_as_future = get_dataset(dataset_name=dataset, version=version)
+                print("lkjsdflkjdsfl")
+                task = asyncio.ensure_future(github_csv_as_future)
+                tasks.append(task)
+                print("-------")
+                print(version)
 
+        print("OKOKOK")
+        print(len(tasks))
+        if len(tasks) == 0:
+            raise HTTPException(
+                status_code=400, detail="No CSV files could be found to meet the request."
+            )
         ## csv_list is a list of BytesIO objects
         csv_list = await asyncio.gather(*tasks)
         # print('here we go:')
@@ -273,8 +290,10 @@ async def raw_csv(
         if len(error_list) != 0:
             raise HTTPException(status_code=400, detail=error_list)
         else:
-            merged_csv = pd.concat(
-                map(lambda x: pd.read_csv(x, dtype=str), csv_list), ignore_index=True)
+            csv_frames = map(read_the_csv_files, csv_list)
+            merged_csv = pd.concat(csv_frames, ignore_index=True)
+            #map(lambda x: pd.read_csv(x, dtype=str), csv_list), ignore_index=True)
+            
             all_columns_list = list(global_data_dictionary.keys())
             cols = merged_csv.columns.tolist()
             cols = sorted(cols, key=all_columns_list.index)
@@ -614,22 +633,27 @@ async def filter(
 
     async def main():
         tasks = []
+        ids = []
         for dataset in dataset_list:
             r = re.compile('^v([0-9]+)-(.*)')
-            task = asyncio.ensure_future(get_dataset(
-                dataset_name=dataset, version="latest"))
-            tasks.append(task)
+            if csv_exists(dataset_name=dataset, version="latest"):
+                task = asyncio.ensure_future(get_dataset(
+                    dataset_name=dataset, version="latest"))
+                tasks.append(task)
+                ids.append(dataset)
 
-        #print("HERE WE GO")
+        if len(tasks) == 0:
+            raise HTTPException(
+                status_code=400, detail="No CSV files could be found to meet the request."
+            )
         csv_list = await asyncio.gather(*tasks)
-        #print(csv_list)
-        pd_map = map(lambda x: pd.read_csv(x, dtype=str), csv_list)
-        #print(pd_map)
-        #print(type(pd_map))
+
+        #pd_map = map(lambda x: pd.read_csv(x, dtype=str), csv_list)
+        pd_map = map(read_the_csv_files, csv_list)
         pd_list = [p for p in pd_map]
-        #print(pd_list)
-        for i in range(len(dataset_list)):
-            pd_list[i]["dataset_id"] = dataset_list[i]
+        
+        for i in range(len(ids)):
+            pd_list[i]["dataset_id"] = ids[i]
 
         merged_csv = pd.concat(pd_list, ignore_index=True)
 

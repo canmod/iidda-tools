@@ -7,6 +7,57 @@ from iidda_api import get_release_list
 from aiohttp_client_cache import CachedSession, FileBackend
 from appdirs import *
 
+def csv_exists(dataset_name, version):
+
+    # Get access token
+    ACCESS_TOKEN = read_config('access_token')
+
+    # make cache directory
+    cache_path = user_cache_dir("iidda-api-cache", "")
+    if not os.path.isdir(cache_path):
+        os.makedirs(cache_path)
+    # Cache configurations
+
+    release_list_cache = FileBackend(
+        cache_name=cache_path + "/release_list"
+    )
+
+    releases = asyncio.run(get_release_list(
+        ACCESS_TOKEN, release_list_cache, clear_cache=False))
+
+    # filter through and sort all releases of this name ascending by version
+    r = re.compile('^v([0-9]+)-(.*)')
+    release_list = filter(
+        lambda release: release['name'] == dataset_name, releases)
+    #release_list = sorted(
+    #    release_list, key=lambda release: int(release['body'][8:]))
+    release_list = sorted(
+        release_list, key=lambda release: int(r.search(release['tag_name']).group(1)))
+
+    # check if dataset is contained in repo
+    if not release_list:
+        print(f"{dataset_name} does not exist in the releases")
+        return False
+
+    if version == "latest":
+        version = len(release_list)
+
+    if int(version) > len(release_list):
+        print(f"The supplied version of {dataset_name} is greater than the latest version of {len(release_list)}")
+        return False
+
+    release = release_list[int(version) - 1]
+
+    for asset in release['assets']:
+        if asset['name'] == dataset_name + '.csv':
+            return True
+    
+
+    print("---------------------------------------------")
+    print("Could not find a csv file for existing dataset: " + dataset_name)
+    print("---------------------------------------------")
+    return False
+
 
 async def get_dataset(dataset_name, version):
     '''Gets the csv file of a dataset by name
@@ -78,6 +129,8 @@ async def get_dataset(dataset_name, version):
                     file_bytes_io = BytesIO(file_content)
                     #print(file_bytes_io)
                     return file_bytes_io
+    
+
 
 
 def get_dataset_local_file(dataset_name, suffix = ".csv"):
