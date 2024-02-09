@@ -219,7 +219,7 @@ async def raw_csv(
     print("++++++++++")
     print(dataset_list)
     print("++++++++++")
-    
+
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
 
@@ -583,6 +583,9 @@ async def filter(
 
     # Get list of datasets of the specific resource type
     dataset_list = get_dataset_list(clear_cache=False)
+    print("++++")
+    print(dataset_list)
+    print("++++")
 
     # Filter to include only the datasets of the correct resource type
     dataset_list = jq(
