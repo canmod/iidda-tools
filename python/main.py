@@ -685,6 +685,10 @@ signal.alarm(timeout_dur)
 print("Defining open API schema...")
 signal.alarm(timeout_dur)
 def custom_openapi():
+    print("+++++")
+    print(os.getcwd())
+    with open("servers.json", "r") as file:
+        servers = json.load(file)
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
@@ -696,11 +700,7 @@ def custom_openapi():
     openapi_schema["info"]["x-logo"] = {
         "url": "https://brand.mcmaster.ca/app/uploads/2019/04/mcm-bw-rev.png"
     }
-    openapi_schema["servers"] = [
-        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "staging"},
-        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "production"},
-        {"url" : "http://localhost:8000", "description" : "local"},
-    ]
+    openapi_schema["servers"] = servers
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
