@@ -8,8 +8,8 @@ messages = list(
     "\nYou can turn this off with\noptions(iidda_api_all_char = TRUE). "
   ),
   sort = list(
-    "Now converting some fields from character to numeric or date. ",
-    "\nYou can turn this off with\noptions(iidda_api_all_char = TRUE). "
+    "Now sorting by date. ",
+    "\nYou can turn this off with\noptions(iidda_api_date_sort = FALSE). "
   )
 )
 MakeMessage = function(msg) {
