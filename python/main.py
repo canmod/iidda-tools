@@ -245,9 +245,9 @@ async def raw_csv(
             status_code=400, detail="In order to use the 'raw_csv' response type, all datasets in question must be of the same resource type.")
 
     async def main():
-        print("LDJKSFLKJDF")
+        ##print("LDJKSFLKJDF")
         tasks = []
-        print(len(tasks))
+        ##print(len(tasks))
         for dataset in dataset_list:
             r = re.compile('^v([0-9]+)-(.*)')
             if r.match(dataset):
@@ -258,14 +258,14 @@ async def raw_csv(
             
             if csv_exists(dataset_name=dataset, version=version):
                 github_csv_as_future = get_dataset(dataset_name=dataset, version=version)
-                print("lkjsdflkjdsfl")
+                ##print("lkjsdflkjdsfl")
                 task = asyncio.ensure_future(github_csv_as_future)
                 tasks.append(task)
-                print("-------")
-                print(version)
+                ##print("-------")
+                ##print(version)
 
-        print("OKOKOK")
-        print(len(tasks))
+        ##print("OKOKOK")
+        ##print(len(tasks))
         if len(tasks) == 0:
             raise HTTPException(
                 status_code=400, detail="No CSV files could be found to meet the request."
