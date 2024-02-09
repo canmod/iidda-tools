@@ -33,7 +33,7 @@ nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
 
 app = FastAPI(title="IIDDA API", swagger_ui_parameters={
-              "defaultModelsExpandDepth": -1, "syntaxHighlight": False})
+              "defaultModelsExpandDepth": -1, "syntaxHighlight": False}, root_path="/iidda/api")
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
 
 print("Retrieving global data dictionary...")
