@@ -35,13 +35,8 @@ app = FastAPI(title="IIDDA API",
     swagger_ui_parameters={
         "defaultModelsExpandDepth": -1, 
         "syntaxHighlight": False
-    },
-    servers=[
-        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "staging"},
-        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "production"},
-        {"url" : "http://localhost:8000", "description" : "local"},
-    ],
-    root_path_in_servers=True
+    }
+    #root_path_in_servers=True
     #root_path="/iidda/api"
 )
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
@@ -701,6 +696,11 @@ def custom_openapi():
     openapi_schema["info"]["x-logo"] = {
         "url": "https://brand.mcmaster.ca/app/uploads/2019/04/mcm-bw-rev.png"
     }
+    openapi_schema["servers"] = [
+        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "staging"},
+        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "production"},
+        {"url" : "http://localhost:8000", "description" : "local"},
+    ]
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
