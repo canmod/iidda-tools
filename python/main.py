@@ -38,6 +38,7 @@ app = FastAPI(title="IIDDA API",
     },
     servers=[
         {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "staging"},
+        {"url" : "https://math.mcmaster.ca/iidda/api", "description" : "production"},
         {"url" : "http://localhost:8000", "description" : "local"}
     ]
     #root_path="/iidda/api"
