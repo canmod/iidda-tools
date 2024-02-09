@@ -31,9 +31,13 @@ timeout_dur = 30 # Number of seconds at each stage before a timeout error
 
 nest_asyncio.apply()
 # from fastapi_cprofile.profiler import CProfileMiddleware
-
-app = FastAPI(title="IIDDA API", swagger_ui_parameters={
-              "defaultModelsExpandDepth": -1, "syntaxHighlight": False}, root_path="/iidda/api")
+app = FastAPI(title="IIDDA API", 
+    swagger_ui_parameters={
+        "defaultModelsExpandDepth": -1, 
+        "syntaxHighlight": False
+    } 
+    #root_path="/iidda/api"
+)
 # app.add_middleware(CProfileMiddleware, enable=True, print_each_request = True, strip_dirs = False, sort_by='tottime')
 
 print("Retrieving global data dictionary...")
@@ -216,9 +220,9 @@ async def raw_csv(
     data = get_dataset_list(clear_cache=False)
     dataset_list = dataset_list_search(
         dataset_ids, key, metadata_search, jq_query, string_comparison)
-    print("++++++++++")
-    print(dataset_list)
-    print("++++++++++")
+    #print("++++++++++")
+    #print(dataset_list)
+    #print("++++++++++")
 
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
@@ -583,9 +587,9 @@ async def filter(
 
     # Get list of datasets of the specific resource type
     dataset_list = get_dataset_list(clear_cache=False)
-    print("++++")
-    print(dataset_list)
-    print("++++")
+    #print("++++")
+    #print(dataset_list)
+    #print("++++")
 
     # Filter to include only the datasets of the correct resource type
     dataset_list = jq(
