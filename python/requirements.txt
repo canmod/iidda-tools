@@ -12,3 +12,4 @@ requests==2.27.1
 requests_cache==0.9.6
 setuptools==61.2.0
 uvicorn==0.18.3
+typing-extensions==4.8.0
