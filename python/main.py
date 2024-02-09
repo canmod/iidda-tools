@@ -687,8 +687,7 @@ signal.alarm(timeout_dur)
 def custom_openapi():
     print("+++++")
     print(os.getcwd())
-    with open("servers.json", "r") as file:
-        servers = json.load(file)
+    print("+++++")
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
@@ -700,7 +699,16 @@ def custom_openapi():
     openapi_schema["info"]["x-logo"] = {
         "url": "https://brand.mcmaster.ca/app/uploads/2019/04/mcm-bw-rev.png"
     }
-    openapi_schema["servers"] = servers
+
+    ## look for servers.json to define servers objects to pass
+    ## to the openapi schema for rendering the docs
+    try:
+        with open("servers.json", "r") as file:
+            servers = json.load(file)
+        openapi_schema["servers"] = servers
+    except FileNotFoundError:
+        servers = None
+    
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
