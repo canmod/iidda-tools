@@ -182,15 +182,11 @@ async def lookup_tables(lookup_type: str = Query("location"
         , enum=["location", "disease", "sex"]
     )):
     available_lookup_types = ["location", "disease", "sex"]
-    #print("LOOKUP TYPE")
-    #print(lookup_type)
     if lookup_type not in available_lookup_types:
         raise HTTPException(
             status_code=400, detail=f"'{lookup_type}' is not a valid resource_type. Available values are {available_lookup_types}")
     template = 'https://raw.githubusercontent.com/canmod/iidda/main/lookup-tables/{}.csv'
     filled_template = template.format(lookup_type)
-    # print("TEMPLATE")
-    # print(filled_template)
     lookup = requests.get(filled_template).text
     return StreamingResponse(iter([lookup]), media_type="text/plain")
 signal.alarm(0)
@@ -220,7 +216,10 @@ async def raw_csv(
     data = get_dataset_list(clear_cache=False)
     dataset_list = dataset_list_search(
         dataset_ids, key, metadata_search, jq_query, string_comparison)
-
+    print("++++++++++")
+    print(dataset_list)
+    print("++++++++++")
+    
     # Ensure list has no duplicates
     dataset_list = list(set(dataset_list))
 
