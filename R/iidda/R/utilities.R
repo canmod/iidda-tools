@@ -22,18 +22,23 @@ empty_is_blank = function(x) {
    ifelse(is_empty(x), '', as.character(x))
 }
 
-#' Open a Path on Mac OS
+#' Open a Path on Mac OS or Windows
 #'
 #' @inheritParams strip_blob_github
-#' @param command Command-line function to use to open the file.
-#' @param args Additional options to pass to \code{command}.
+#' @param command Command-line function to use to open the file (not
+#' applicable on Windows systems.
+#' @param args Additional options to pass to \code{command} (ignored on
+#' Windows systems).
 #'
 #' @export
 open_locally = function(urls, command = 'open', args = character()) {
-  (urls
-   %>% strip_blob_github
-   %>% c(args)
-   %>% system2(command = command, stdout = FALSE)
-  )
+  paths = strip_blob_github(urls)
+  sys_name = Sys.info()["sysname"]
+  if (sys_name == "Windows") {
+    for (path in paths) shell.exec(path)
+  } else if (sys_name == "Darwin") {
+    system2(command = c(command, paths, args), stdout = FALSE)
+  } else {
+    stop("Currently only works on Windows and MacOS.")
+  }
 }
-

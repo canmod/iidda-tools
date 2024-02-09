@@ -566,6 +566,57 @@ ComputeMovingAverage <- function(ma_window_length=52){
   }
 }
 
+
+#' @export
+PeriodAggregator = function(
+    time_variable = "period_mid_time"
+  , period_width_variable = "num_days"
+  , count_variable = "cases_this_period"
+  , norm_variable = "population_reporting"
+  , rate_variable = "daily_rate"
+  , norm_exponent = 5
+) {
+  function(data) {
+    (data
+      |> group_by(.data[[time_variable]], .data[[period_width_variable]])
+      |> summarise(
+          !!norm_variable := sum(.data[[norm_variable]])
+        , !!count_variable := sum(.data[[count_variable]])
+      )
+      |> ungroup()
+      |> mutate(!!rate_variable := (
+            10^norm_exponent
+          * .data[[count_variable]]
+          / .data[[period_width_variable]]
+          / .data[[norm_variable]]
+      ))
+    )
+  }
+}
+
+#' @export
+TimeScalePicker = function(
+    time_scale_variable = "time_scale"
+  , time_group_variable = "year"
+) {
+  function(data) {
+    if (time_group_variable %in% names(data)) {
+      data = group_by(data, .data[[time_group_variable]])
+    }
+    (data
+      #|> group_by(.data[[time_group_variable]])
+      |> filter(.data[[time_scale_variable]] == pick_fine_time_scale(.data[[time_scale_variable]]))
+      |> ungroup()
+    )
+  }
+}
+pick_fine_time_scale = function(scales) {
+  ordering = c("wk", "mt", "qrtr", "yr")
+  f = factor(as.character(scales), levels = ordering)
+  f[which.min(as.numeric(f))] |> as.character()
+}
+
+
 # ------------------------------------
 # prep functions TODO: better name?
 
@@ -634,7 +685,7 @@ union_series <- function(x,
 #' Weeks covering the year end are split into two records. The first week is adjusted to end on day 365 (or 366 in leap years),
 #' and the second week starts on the first day of the year. This was adapted from `LBoM::edge_fix` which keeps the same
 #' series variable value for both of the newly created weeks. This doesn't seem to make much difference when viewing the
-#' heatmap, however it might make sense to do something sensible like dividing the series variable value in half and allocating
+#' seasonal heatmap, however it might make sense to do something sensible like dividing the series variable value in half and allocating
 #' each week to have half of the values.
 #'
 #' @param data data frame containing time series data
@@ -891,9 +942,9 @@ iidda_prep_box <- function(data,
   return(box_data)
 }
 
-#' Prep Data for Heatmap
+#' Prep Data for seasonal heatmap
 #'
-#' Prep data for heatmap plots. Prep steps were taken from `LBoM::seasonal_heat_map`
+#' Prep data for seasonal heatmap plots. Prep steps were taken from `LBoM::seasonal_heat_map`
 #' and they include creating additional time unit fields, splitting weeks that cover the
 #' year end,  and optionally normalizing series data to be in the range (0,1).
 #'
@@ -912,12 +963,12 @@ iidda_prep_box <- function(data,
 #'
 #' @importFrom purrr map reduce map2
 #' @importFrom scales rescale
-#' @return all fields in`data` with records prepped for plotting heatmaps. The name
+#' @return all fields in`data` with records prepped for plotting seasonal heatmaps. The name
 #' of the new `time_unit` fields will be named from lubridate_funcs.
 #'
 #' @family prep_data_for_plotting
 #' @export
-iidda_prep_heatmap <- function(data,
+iidda_prep_seasonal_heatmap <- function(data,
                           series_variable="deaths",
                           start_time_variable = "period_start_date",
                           end_time_variable = "period_end_date",
@@ -971,6 +1022,34 @@ iidda_prep_heatmap <- function(data,
   return(heat_data)
 }
 
+#' @export
+iidda_prep_heatmap_decomp = function(data
+  , grouping_variable
+  , series_variable
+  , time_scale_picker = TimeScalePicker()
+) {
+  heatmap_data = time_scale_picker(data)
+  ordering = (heatmap_data
+    |> group_by(.data[[grouping_variable]])
+    |> summarize(.total = mean(.data[[series_variable]]))
+    |> ungroup()
+    |> arrange(.total)
+    |> pull(!!grouping_variable)
+  )
+  heatmap_data[[grouping_variable]] = factor(
+      heatmap_data[[grouping_variable]]
+    , levels = ordering
+  )
+  heatmap_data
+}
+
+#' @export
+iidda_prep_line_agg = function(data
+  , period_aggregator = PeriodAggregator()
+) {
+  period_aggregator(data)
+}
+
 
 #' Prep Data for Rohani Plot
 #'
@@ -978,7 +1057,7 @@ iidda_prep_heatmap <- function(data,
 #' variable by time unit and grouping variable (the x and y axis variables) ,and optionally normalizing series
 #' data to be in the range (0,1). By default, the grouping variable is ranked in order of the summarized series
 #' variable. Needs to be generalized more, might
-#' need to handle the case where the desired y-axis is a second time unit, as in the heatmap plot and therefore
+#' need to handle the case where the desired y-axis is a second time unit, as in the seasonal heatmap plot and therefore
 #' making use of the year_end_fix function.
 #'
 #' @param data data frame containing time series data
@@ -1005,7 +1084,7 @@ iidda_prep_rohani <- function(data,
                               time_variable = "period_end_date",
                               start_time_variable = "period_end_date",
                               #end_time_variable = "period_end_date", # might not need this we are plotting a second time unit on the y-axis
-                              time_unit = c("year"), #has to be one of iidda.analysis:::time_units 
+                              time_unit = c("year"), #has to be one of iidda.analysis:::time_units
                               grouping_variable = "cause",
                               ranking_variable = NULL , #optionally specify the ranking variable to order by?
                               #prepend_string = "End ", # might not need this
@@ -1114,7 +1193,7 @@ iidda_prep_periodogram <- function(data,
                                   normalize = TRUE,
                                   # time periods in a year (52 weeks in a year), do we need to account for other time units
                                   periods_per_year = 52,
-                                  max_period = 10, 
+                                  max_period = 10,
                                   handle_missing_values  = HandleMissingValues(na_remove = TRUE, na_replace = NULL)){
 
   harmonized_data <- handle_missing_values(data,series_variable=series_variable)
@@ -1287,7 +1366,14 @@ iidda_prep_wavelet = function(
 }
 
 
-#' Get LBoM metadata
+
+
+
+
+
+
+
+#' Get IIDDA metadata
 #'
 #' Get starting time period, ending time period and mortality cause name from the
 #' data set for use in axis and main plot titles.
@@ -1346,6 +1432,94 @@ iidda_plot_ma <- function(plot_object,
   )
 }
 
+#' @export
+iidda_plot_line_agg = function(plot_object
+  , data = NULL
+  , series_variable = "daily_rate"
+  , time_variable = "period_mid_time"
+  , contiguous_variable = NULL
+  , trans = scales::sqrt_trans()
+) {
+  spec = aes(
+      x = .data[[time_variable]]
+    , y = .data[[series_variable]]
+  )
+  # if (!is.null(contiguous_variable)) {
+  #   spec = aes(
+  #       x = .data[[time_variable]]
+  #     , y = .data[[series_variable]]
+  #     #, group = .data[[contiguous_variable]]
+  #   )
+  # }
+  (plot_object
+    + geom_line(spec, data)
+    + scale_y_continuous(trans = trans)
+    + scale_x_datetime(expand = c(0, 0))
+    + iidda_theme_above()
+  )
+}
+
+
+#' @param data Named list of two data frames: `heatmap` for the heatmap
+#' component and `line` for the line-graph component. This list can be
+#' computed using \code{\link{iidda_prep_heatmap_decomp}}
+#' @importFrom patchwork plot_layout
+#' @importFrom ggplot2 dup_axis
+#' @export
+iidda_plot_heatmap_decomp = function(plot_object
+  , data = NULL
+  , grouping_variable
+  , series_variable
+  , time_variable = "period_mid_time"
+  , num_days_variable = "num_days"  ## TODO: should be able to get this from period_aggregator
+  , contiguous_variable = NULL
+  , trans = scales::sqrt_trans()
+  , n_colours = scales::brewer_pal(palette = "YlOrRd")(9)
+  , NA_colour = "black"
+  , period_aggregator = PeriodAggregator()
+  , layout_proportions = c(1, 3)
+  , rate_title = "" ## default is no title
+  , grouping_title = "" ## default is no title
+) {
+  spec = aes(
+      x = .data[[time_variable]]
+    , y = .data[[grouping_variable]]
+    , width = 86400 * .data[[num_days_variable]]
+    , fill = .data[[series_variable]]
+  )
+  ## TODO: units and titles should be an argument or automatically determined
+  #rate_title = expression(atop('Incidence rate', '(' ~ days^-1 ~ 10^-5 ~ ')'))
+  #rate_heat_title = ""
+  #prov_title = "Province / Territory"
+  heatmap = (plot_object
+    + geom_tile(spec, data)
+    + scale_fill_gradientn(
+      colours = n_colours,
+      trans = trans,
+      na.value = NA_colour
+    )
+    + scale_x_datetime(expand = c(0,0), sec.axis = dup_axis())
+    + labs(fill = "")
+    + ylab(grouping_title)
+    + iidda_theme_heat()
+  )
+  if (is.null(data)) data = plot_object$data
+  lineplot = (data
+    |> iidda_prep_line_agg(period_aggregator)
+    |> ggplot()
+    |> iidda_plot_line_agg(
+        time_variable = time_variable
+      , series_variable = series_variable
+      , contiguous_variable = contiguous_variable
+    )
+    + ylab(rate_title)
+  )
+
+  ## TODO: this should happen outside of the package in a user script.
+  ##       patchwork is just too easy and useful to bury like this.
+  lineplot / heatmap + plot_layout(heights = layout_proportions)
+}
+
 #' Plot  Time Series
 #'
 #' Add a time series line to an exiting ggplot plot object.
@@ -1365,7 +1539,15 @@ iidda_plot_series <- function(plot_object,
                          time_variable="period_end_date",
                          time_unit="year"){
 
-  plot_object + geom_line(data=data, aes(x=.data[[get_unit_labels(time_unit)]],y=.data[[series_variable]]))
+  (plot_object
+   + geom_line(
+       data=data
+     , aes(
+        x=.data[[get_unit_labels(time_unit)]]
+      , y=.data[[series_variable]]
+      )
+    )
+  )
 }
 
 #' Plot Bar Graph
@@ -1510,6 +1692,12 @@ iidda_plot_heatmap <- function(plot_object,
   )
 
 }
+
+#' @export
+plot_line_over_heat = function() {
+
+}
+
 
 
 #' Plot Rohani Heatmap
@@ -1788,7 +1976,7 @@ iidda_plot_settings <- function(plot_object,
                                min_time = "min_time",
                                max_time = "max_time",
                                descriptor_name ="descriptor_name",
-                               theme = theme_bw()){
+                               theme = iidda_theme) {
 
   # if there are too many descriptors or the descriptor name doesn't exist in data,
   # use the provided descriptor string to label the plot
@@ -1799,9 +1987,47 @@ iidda_plot_settings <- function(plot_object,
       descriptor_name <- colnames(data[[descriptor_name]])
     }
   }
-  plot_object+ggtitle(label=descriptor_name,subtitle=paste0(data[[min_time]]," to ",data[[max_time]])) + theme
+
+  iidda_title(plot_object
+    , data[[min_time]]
+    , data[[max_time]]
+    , descriptor_name
+    , theme
+  )
+
 }
 
+
+
+#' @export
+iidda_title = function(plot_object, min_time, max_time, descriptor_name, theme) {
+  UseMethod("iidda_title")
+}
+
+#' @export
+iidda_title.gg = function(plot_object, min_time, max_time, descriptor_name, theme) {
+  plot_object +
+    ggtitle(
+      title = descriptor_name,
+      subtitle = paste0(min_time, " to ", max_time)
+    ) +
+    theme()
+}
+
+#' @export
+iidda_title.patchwork = function(plot_object
+    , min_time
+    , max_time
+    , descriptor_name
+    , theme
+  ) {
+  plot_object +
+    plot_annotation(
+      title = descriptor_name,
+      subtitle = paste0(min_time," to ", max_time)
+    ) +
+    theme()
+}
 
 
 #' Validate time variables
@@ -1814,7 +2040,7 @@ iidda_plot_settings <- function(plot_object,
 #' @return boolean of validation status
 #' @export
 valid_time_vars = function(var_nm, data) {
-  (var_nm %in% names(data)) & is.Date(data[[var_nm]])
+  (var_nm %in% names(data)) & inherits(data[[var_nm]], "Date")
 }
 
 #' Time units

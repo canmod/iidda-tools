@@ -50,10 +50,10 @@ handling missing values and zeroes, and optionally trimming time series.
 Other prep_data_for_plotting: 
 \code{\link{iidda_prep_bar}()},
 \code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_heatmap}()},
 \code{\link{iidda_prep_ma}()},
 \code{\link{iidda_prep_periodogram}()},
 \code{\link{iidda_prep_rohani}()},
+\code{\link{iidda_prep_seasonal_heatmap}()},
 \code{\link{iidda_prep_wavelet}()}
 }
 \concept{prep_data_for_plotting}

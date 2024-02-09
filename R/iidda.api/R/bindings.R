@@ -2,13 +2,15 @@
 # staging
 staging = list(
   api_url = "https://math.mcmaster.ca",
-  base_path = "iidda/api"
+  base_path = "iidda/api",
+  type = "staging"
 )
 
 # local development
 local = list(
   api_url = "http://127.0.0.1:8000",
-  base_path = ""
+  base_path = "",
+  type = "local"
 )
 
 # production environment
@@ -23,7 +25,17 @@ production = NULL
 handle_iidda_response <- function(x) {
     content_type <- x$headers$`content-type`
     if (content_type == 'application/json') {
-      return(httr::content(x))
+      data = httr::content(x)
+
+      ## data dictionary has names in the first element of each inner list
+      if (is.null(names(data))) {
+        try_names = try(
+          vapply(data, getElement, character(1L), "name"),
+          silent = TRUE
+        )
+        if (!inherits(try_names, "try-error")) names(data) = try_names
+      }
+      return(data)
     }
     else if (content_type == 'text/plain; charset=utf-8') {
       data = httr::content(x
@@ -44,13 +56,8 @@ handle_iidda_response <- function(x) {
     }
   }
 
-make_ops_list = function(api_url, base_path) {
-
-  summary_to_function_name = function(x) {
-    gsub(pattern = " ", replacement = "_", tolower(x))
-  }
-
-  iidda_api = try(
+make_api_obj = function(api_url, base_path, type) {
+  try(
     rapiclient::get_api(
       url = file.path(
         iidda::rm_trailing_slash(file.path(api_url, base_path)),
@@ -59,8 +66,23 @@ make_ops_list = function(api_url, base_path) {
     ),
     silent = TRUE
   )
+}
 
-  if (class(iidda_api)[1] == 'try-error') return(iidda_api)
+make_ops_list = function(api_url, base_path, type) {
+
+  summary_to_function_name = function(x) {
+    gsub(pattern = " ", replacement = "_", tolower(x))
+  }
+
+  iidda_api = make_api_obj(api_url, base_path, type)
+  if (class(iidda_api)[1] == 'try-error') {
+    backup = iidda.api:::cached_api_list[[type]]
+    if (inherits(backup, "rapi_api")) {
+      iidda_api = backup
+    } else {
+      return(iidda_api)
+    }
+  }
 
   iidda_api$basePath = file.path('',  base_path)
 
@@ -175,16 +197,16 @@ NULL
 #' @describeIn ops List containing available operations from the IIDDA API
 #' as \code{R} functions
 #' @export
-ops = suppressWarnings({try(do.call(make_ops_list, production), silent = TRUE)})
+ops = NULL
 
 #' @describeIn ops Operations list for a local development environment,
 #' if it exists
 #' @export
-ops_local = suppressWarnings({try(do.call(make_ops_list, local), silent = TRUE)})
+ops_local = NULL
 
 #' @describeIn ops Operations list for a staging environment, if it exists
 #' @export
-ops_staging = suppressWarnings({try(do.call(make_ops_list, staging), silent = TRUE)})
+ops_staging = NULL
 
 docs_url = try(file.path(production$api_url, "docs"), silent = TRUE)
 

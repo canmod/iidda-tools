@@ -17,98 +17,98 @@ the datasets are returned as data frames.
 \subsection{Listing the Datasets}{
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{iidda.api::ops_staging$metadata() |> names()
-#>  [1] "cdi_ca_1924-55_wk_prov_dbs_statcan_harmonized"
+#>  [1] "cdi_wc_ca_1924_wk_prov"                       
 #>  [2] "cdi_chanc_ca_1924-55_wk_prov"                 
-#>  [3] "cdi_ca_1990-2001_quart_prov_harmonized"       
-#>  [4] "cdi_ca_1979-89_4wk_prov_harmonized"           
-#>  [5] "cdi_ca_1975-78_wk_prov_harmonized"            
-#>  [6] "cdi_ca_1968-72_wk_prov_harmonized"            
-#>  [7] "cdi_ca_1964-67_wk_prov_harmonized"            
-#>  [8] "cdi_ca_1956-59_1961_wk_prov_harmonized"       
-#>  [9] "cdi_bot_ca_1933-55_wk_prov"                   
-#> [10] "cdi_yf_ca_1945-1955_wk_prov"                  
-#> [11] "cdi_wc_ca_1924_wk_prov"                       
-#> [12] "cdi_uf_ca_1928-55_wk_prov"                    
-#> [13] "cdi_typhpara_ca_1952-55_wk_prov"              
-#> [14] "cdi_typh_ca_1924-52_wk_prov"                  
-#> [15] "cdi_tbunspec_ca_1933-55_wk_prov"              
-#> [16] "cdi_tbpulm_ca_1933-55_wk_prov"                
-#> [17] "cdi_tbnpulm_ca_1935-55_wk_prov"               
-#> [18] "cdi_tbmisc_ca_1933-55_wk_prov"                
-#> [19] "cdi_tball_ca_1924-55_wk_prov"                 
-#> [20] "cdi_syphunspec_ca_1944-55_wk_prov"            
-#> [21] "cdi_syphtertother_ca_1944-55_wk_prov"         
-#> [22] "cdi_syphtertneuro_ca_1944-55_wk_prov"         
-#> [23] "cdi_syphtertcard_ca_1944-55_wk_prov"          
-#> [24] "cdi_syphsec_ca_1944-55_wk_prov"               
-#> [25] "cdi_syphprim_ca_1944-55_wk_prov"              
-#> [26] "cdi_syphother_ca_1944-51_wk_prov"             
-#> [27] "cdi_syphlatent_ca_1944-55_wk_prov"            
-#> [28] "cdi_syphcong_ca_1944-55_wk_prov"              
-#> [29] "cdi_syphall_ca_1924-55_wk_prov"               
-#> [30] "cdi_sst_ca_1924-55_wk_prov"                   
-#> [31] "cdi_smallpox_ca_1924-55_wk_prov"              
-#> [32] "cdi_sf_ca_1924-55_wk_prov"                    
-#> [33] "cdi_salm_ca_1944-55_wk_prov"                  
-#> [34] "cdi_rub_ca_1924-55_wk_prov"                   
-#> [35] "cdi_poliounspec_ca_1949-55_wk_prov"           
-#> [36] "cdi_poliopar_ca_1949-55_wk_prov"              
-#> [37] "cdi_polionpar_ca_1949-55_wk_prov"             
-#> [38] "cdi_polio_ca_1924-55_wk_prov"                 
-#> [39] "cdi_pneu_ca_1924-55_wk_prov"                  
-#> [40] "cdi_paratyph_ca_1924-55_wk_prov"              
-#> [41] "cdi_otherVD_ca_1944-55_wk_prov"               
-#> [42] "cdi_optneo_ca_1944-55_wk_prov"                
-#> [43] "cdi_nspecurethritis_ca_1949-55_wk_prov"       
-#> [44] "cdi_mumps_ca_1924-55_wk_prov"                 
-#> [45] "cdi_meningosep_ca_1952-54_wk_prov"            
-#> [46] "cdi_meningivar_ca_1925-55_wk_prov"            
-#> [47] "cdi_meningisep_ca_1935-55_wk_prov"            
-#> [48] "cdi_malar_ca_1929-55_wk_prov"                 
-#> [49] "cdi_lymphgran_ca_1946-55_wk_prov"             
-#> [50] "cdi_jauncat_ca_1948-55_wk_prov"               
-#> [51] "cdi_jaun_ca_1927-55_wk_prov"                  
-#> [52] "cdi_impet_ca_1924-55_wk_prov"                 
-#> [53] "cdi_hep_ca_1945-55_wk_prov"                   
-#> [54] "cdi_granuing_ca_1946-55_wk_prov"              
-#> [55] "cdi_gonall_ca_1924-55_wk_prov"                
-#> [56] "cdi_erys_ca_1924-55_wk_prov"                  
-#> [57] "cdi_enceph_ca_1924-34_wk_prov"                
-#> [58] "cdi_dysunspec_ca_1927-55_wk_prov"             
-#> [59] "cdi_dysbac_ca_1924-55_wk_prov"                
-#> [60] "cdi_dysam_ca_1927-55_wk_prov"                 
-#> [61] "cdi_dysall_ca_1929-55_wk_prov"                
-#> [62] "cdi_diphth_ca_1924-55_wk_prov"                
-#> [63] "cdi_diarent_ca_1945-55_wk_prov"               
-#> [64] "cdi_diar_ca_1937-44_wk_prov"                  
-#> [65] "cdi_cp_ca_1924-55_wk_prov"                    
-#> [66] "pop_ca_1971-2021_an_age_prov_sex"             
-#> [67] "pop_ca_1921-71_an_age_prov_sex"               
-#> [68] "pop_ca_1871-1921_10-yearly_prov_age_sex"      
-#> [69] "mort_ca_2000-2020_wk_prov_causes"             
-#> [70] "mort_ca_1990-1999_wk_prov_causes"             
-#> [71] "mort_ca_1980-1989_wk_prov_causes"             
-#> [72] "mort_ca_1970-1979_wk_prov_causes"             
-#> [73] "mort_ca_1960-1969_wk_prov_causes"             
-#> [74] "mort_ca_1950-1959_wk_prov_causes"             
-#> [75] "cdi_ca_1993-2001_quart_prov_hc"               
-#> [76] "cdi_ca_1990-1992_mn_prov_hc"                  
-#> [77] "cdi_ca_1984-89_4wk_prov_statcan"              
-#> [78] "cdi_ca_1979-83_4wk_prov_statcan"              
-#> [79] "cdi_ca_1978_wk_prov_statcan"                  
-#> [80] "cdi_ca_1977_wk_prov_statcan"                  
-#> [81] "cdi_ca_1976_wk_prov_statcan"                  
-#> [82] "cdi_ca_1975_wk_prov_statcan"                  
-#> [83] "cdi_ca_1972_wk_prov"                          
-#> [84] "cdi_ca_1971_wk_prov"                          
-#> [85] "cdi_ca_1970_wk_prov"                          
-#> [86] "cdi_ca_1969_wk_prov"                          
-#> [87] "cdi_ca_1968_wk_prov"                          
-#> [88] "cdi_ca_1958_wk_prov_dbs"                      
-#> [89] "cdi_ca_1967_wk_prov_mcgill"                   
-#> [90] "cdi_ca_1966_wk_prov_mcgill"                   
-#> [91] "cdi_ca_1965_wk_prov_mcgill"                   
-#> [92] "cdi_ca_1964_wk_prov_mcgill"                   
+#>  [3] "cdi_bot_ca_1933-55_wk_prov"                   
+#>  [4] "cdi_uf_ca_1928-55_wk_prov"                    
+#>  [5] "cdi_typhpara_ca_1952-55_wk_prov"              
+#>  [6] "cdi_typh_ca_1924-52_wk_prov"                  
+#>  [7] "cdi_tbunspec_ca_1933-55_wk_prov"              
+#>  [8] "cdi_tbpulm_ca_1933-55_wk_prov"                
+#>  [9] "cdi_tbnpulm_ca_1935-55_wk_prov"               
+#> [10] "cdi_tbmisc_ca_1933-55_wk_prov"                
+#> [11] "cdi_tball_ca_1924-55_wk_prov"                 
+#> [12] "cdi_syphunspec_ca_1944-55_wk_prov"            
+#> [13] "cdi_syphtertother_ca_1944-55_wk_prov"         
+#> [14] "cdi_syphtertneuro_ca_1944-55_wk_prov"         
+#> [15] "cdi_syphtertcard_ca_1944-55_wk_prov"          
+#> [16] "cdi_syphsec_ca_1944-55_wk_prov"               
+#> [17] "cdi_syphprim_ca_1944-55_wk_prov"              
+#> [18] "cdi_syphother_ca_1944-51_wk_prov"             
+#> [19] "cdi_syphlatent_ca_1944-55_wk_prov"            
+#> [20] "cdi_syphcong_ca_1944-55_wk_prov"              
+#> [21] "cdi_syphall_ca_1924-55_wk_prov"               
+#> [22] "cdi_sst_ca_1924-55_wk_prov"                   
+#> [23] "cdi_smallpox_ca_1924-55_wk_prov"              
+#> [24] "cdi_sf_ca_1924-55_wk_prov"                    
+#> [25] "cdi_salm_ca_1944-55_wk_prov"                  
+#> [26] "cdi_rub_ca_1924-55_wk_prov"                   
+#> [27] "cdi_poliopar_ca_1949-55_wk_prov"              
+#> [28] "cdi_polionpar_ca_1949-55_wk_prov"             
+#> [29] "cdi_polio_ca_1924-55_wk_prov"                 
+#> [30] "cdi_pneu_ca_1924-55_wk_prov"                  
+#> [31] "cdi_paratyph_ca_1924-55_wk_prov"              
+#> [32] "cdi_optneo_ca_1944-55_wk_prov"                
+#> [33] "cdi_nspecurethritis_ca_1949-55_wk_prov"       
+#> [34] "cdi_mumps_ca_1924-55_wk_prov"                 
+#> [35] "cdi_meningosep_ca_1952-54_wk_prov"            
+#> [36] "cdi_meningivar_ca_1925-55_wk_prov"            
+#> [37] "cdi_meningisep_ca_1935-55_wk_prov"            
+#> [38] "cdi_malar_ca_1929-55_wk_prov"                 
+#> [39] "cdi_lymphgran_ca_1946-55_wk_prov"             
+#> [40] "cdi_jauncat_ca_1948-55_wk_prov"               
+#> [41] "cdi_jaun_ca_1927-55_wk_prov"                  
+#> [42] "cdi_impet_ca_1924-55_wk_prov"                 
+#> [43] "cdi_hep_ca_1945-55_wk_prov"                   
+#> [44] "cdi_erys_ca_1924-55_wk_prov"                  
+#> [45] "cdi_enceph_ca_1924-34_wk_prov"                
+#> [46] "cdi_dysunspec_ca_1927-55_wk_prov"             
+#> [47] "cdi_dysbac_ca_1924-55_wk_prov"                
+#> [48] "cdi_dysam_ca_1927-55_wk_prov"                 
+#> [49] "cdi_dysall_ca_1929-55_wk_prov"                
+#> [50] "cdi_diphth_ca_1924-55_wk_prov"                
+#> [51] "cdi_diarent_ca_1945-55_wk_prov"               
+#> [52] "cdi_diar_ca_1937-44_wk_prov"                  
+#> [53] "cdi_cp_ca_1924-55_wk_prov"                    
+#> [54] "cdi_yf_ca_1945-1955_wk_prov"                  
+#> [55] "cdi_poliounspec_ca_1949-55_wk_prov"           
+#> [56] "cdi_otherVD_ca_1944-55_wk_prov"               
+#> [57] "cdi_granuing_ca_1946-55_wk_prov"              
+#> [58] "cdi_gonall_ca_1924-55_wk_prov"                
+#> [59] "cdi_ca_1990-2001_quart_prov_harmonized"       
+#> [60] "cdi_ca_1993-2001_quart_prov_hc"               
+#> [61] "cdi_ca_1990-1992_mn_prov_hc"                  
+#> [62] "cdi_ca_1984-89_4wk_prov_statcan"              
+#> [63] "cdi_ca_1979-83_4wk_prov_statcan"              
+#> [64] "cdi_ca_1978_wk_prov_statcan"                  
+#> [65] "cdi_ca_1977_wk_prov_statcan"                  
+#> [66] "cdi_ca_1976_wk_prov_statcan"                  
+#> [67] "cdi_ca_1975_wk_prov_statcan"                  
+#> [68] "cdi_ca_1972_wk_prov"                          
+#> [69] "cdi_ca_1971_wk_prov"                          
+#> [70] "cdi_ca_1970_wk_prov"                          
+#> [71] "cdi_ca_1969_wk_prov"                          
+#> [72] "cdi_ca_1968_wk_prov"                          
+#> [73] "cdi_ca_1967_wk_prov_mcgill"                   
+#> [74] "cdi_ca_1966_wk_prov_mcgill"                   
+#> [75] "cdi_ca_1965_wk_prov_mcgill"                   
+#> [76] "cdi_ca_1964_wk_prov_mcgill"                   
+#> [77] "cdi_ca_1924-55_wk_prov_dbs_statcan_harmonized"
+#> [78] "pop_ca_1971-2021_an_age_prov_sex"             
+#> [79] "pop_ca_1921-71_an_age_prov_sex"               
+#> [80] "pop_ca_1871-1921_10-yearly_prov_age_sex"      
+#> [81] "mort_ca_2000-2020_wk_prov_causes"             
+#> [82] "mort_ca_1990-1999_wk_prov_causes"             
+#> [83] "mort_ca_1980-1989_wk_prov_causes"             
+#> [84] "mort_ca_1970-1979_wk_prov_causes"             
+#> [85] "mort_ca_1960-1969_wk_prov_causes"             
+#> [86] "mort_ca_1950-1959_wk_prov_causes"             
+#> [87] "cdi_ca_1979-89_4wk_prov_harmonized"           
+#> [88] "cdi_ca_1975-78_wk_prov_harmonized"            
+#> [89] "cdi_ca_1968-72_wk_prov_harmonized"            
+#> [90] "cdi_ca_1964-67_wk_prov_harmonized"            
+#> [91] "cdi_ca_1958_wk_prov_dbs"                      
+#> [92] "cdi_ca_1956-59_1961_wk_prov_harmonized"       
 #> [93] "cdi_ca_1959_wk_prov_dbs_w4_52"                
 #> [94] "cdi_ca_1959_wk_prov_dbs_w1_3"                 
 #> [95] "cdi_ca_1957_wk_prov_dbs"                      
@@ -117,12 +117,33 @@ the datasets are returned as data frames.
 }\if{html}{\out{</div>}}
 }
 
+\subsection{Getting Datasets}{
+
+Just choose one of the identifiers above, and pass it to the
+\code{raw_csv} function in the API.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{cdi_1975 = iidda.api::ops_staging$raw_csv(
+   dataset_ids = c(
+     "cdi_ca_1975_wk_prov_statcan",
+     "cdi_ca_1976_wk_prov_statcan"
+   )
+)
+}\if{html}{\out{</div>}}
+
+You can pass more than one dataset.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{cdi_1975 = iidda.api::ops_staging$raw_csv(
+   dataset_ids = "cdi_ca_1975_wk_prov_statcan"
+)
+}\if{html}{\out{</div>}}
+}
+
 \subsection{All Metadata by Dataset}{
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{iidda.api::ops_staging$metadata()
 }\if{html}{\out{</div>}}
 
-On my browser it is easier to look at in JSON form rather than
+On my browser at least, it is easier to look at in JSON form rather than
 R list form. The JSON metadata can be directly accessed using
 the URL form of the API:
 \url{https://math.mcmaster.ca/iidda/api/metadata}.
@@ -130,14 +151,18 @@ the URL form of the API:
 
 \subsection{CANMOD Digitization Project}{
 
+The communicable disease incidence (CDI) data collected as part of
+the CANMOD digitization project can be accessed using
+\code{resource_type = "CANMOD CDI"} with the \code{filter} function.
+
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{canmod_cdi = iidda.api::ops_staging$filter(
      resource_type = "CANMOD CDI"
-   , iso_3166 = "CA"
+   , iso_3166 = "CA" ## country code for canada
 )
 }\if{html}{\out{</div>}}
 }
 }
 \author{
-\strong{Maintainer}: First Last \email{swalk@mcmaster.ca}
+\strong{Maintainer}: Steve Walker \email{swalk@mcmaster.ca}
 
 }

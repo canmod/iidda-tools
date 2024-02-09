@@ -1,7 +1,7 @@
 Package: iidda.analysis
 Type: Package
 Title: Tools for Analyzing IIDDA Datasets
-Version: 0.1.0
+Version: 0.1.1
 Author: Steven Walker
 Maintainer: Steven Walker <swalk@mcmaster.ca>
 Description: This package contains tools that depend on \code{iidda} and/or 
@@ -34,3 +34,6 @@ LazyData: true
 RoxygenNote: 7.2.3.9000
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Remotes:
+    iidda=canmod/iidda-tools/R/iidda,
+    iidda.api=canmod/iidda-tools/R/iidda.api

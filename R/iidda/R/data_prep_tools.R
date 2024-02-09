@@ -13,9 +13,7 @@
 write_tidy_data = function(tidy_data, metadata, tidy_dir = NULL) {
   tidy_dataset = metadata$TidyDataset$tidy_dataset
 
-  if (is.null(tidy_dir)) {
-    tidy_dir = metadata$TidyDataset$path_tidy_data
-  }
+  if (is.null(tidy_dir)) tidy_dir = metadata$TidyDataset$path_tidy_data
   tidy_dir = strip_blob_github(tidy_dir)
   if (nchar(tidy_dir) == 0L) stop("probably need to put a path to the tidy dataset in your metadata.")
   if (!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
@@ -170,6 +168,30 @@ empty_to_na = function(data) {
    %>% replace(apply(data, 2, is_empty) == TRUE, NA)
   )
 }
+
+
+iso_3166_to_words = function(x) {
+  lookup = c(
+      CA = "Canada"
+    ,`CA-AB` = "Alberta (Canada)"
+    ,`CA-BC` = "British Columbia (Canada)"
+    ,`CA-MB` = "Manitoba (Canada)"
+    ,`CA-NB` = "New Brunswick (Canada)"
+    ,`CA-NL` = "Newfoundland and Labrador (Canada)"
+    ,`CA-NT` = "Northwest Territories (Canada)"
+    ,`CA-NS` = "Nova Scotia (Canada)"
+    ,`CA-NU` = "Nunavut (Canada)"
+    ,`CA-ON` = "Ontario (Canada)"
+    ,`CA-PE` = "Prince Edward Island (Canada)"
+    ,`CA-QC` = "Quebec (Canada)"
+    ,`CA-SK` = "Saskatchewan (Canada)"
+    ,`CA-YK` = "Yukon (Canada)"
+  )
+
+  x[x %in% names(lookup)] = lookup[x]
+  x
+}
+
 
 #' ISO-3166 and ISO-3166-2 Codes
 #'
@@ -383,15 +405,15 @@ read_digitized_data = function(metadata) {
     txt = read_delim
   )
   data = read_func(path)
-  
+
   if(tools::file_ext(path) == 'xlsx'){
     (data
      %>% mutate(has_unclear_comment = grepl("unclear|uncelar", comment, ignore.case = TRUE),
          character = case_when(
-           has_unclear_comment & data_type %in% c("character", "blank") ~ 
+           has_unclear_comment & data_type %in% c("character", "blank") ~
              ifelse(data_type == "character", sprintf("%s (unclear)", character), "(unclear)"),
                   TRUE ~ character
-                )) 
+                ))
      %>% select(-has_unclear_comment))
   }
   data
@@ -449,12 +471,21 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 #'
 #' @export
 identify_scales = function(data){
-  (data
-   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) +6, "wk", "mt"))
-   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) >40, "qrtr", time_scale))
+  data = (data
+   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) + 6, "wk", "two-wks"))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 14, "mt", time_scale))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-   %>% mutate(location_type = ifelse(location == "Canada" | location == "CANADA", "country", "province"))
+
+
+   # Check if "location" is a column before adding "location_type"
+   # %>% mutate(location_type = ifelse(exists("location") && (location == "Canada" | location == "CANADA"), "country", "province"))
   )
+
+  if ("location" %in% names(data)) {
+    data$location_type = ifelse(data$location %in% c("Canada", "CANADA"), "country", "province")
+  }
+  data
 }
 
 
@@ -494,8 +525,8 @@ column_summary = function(column, tidy_data, dataset_name, metadata) {
         )
       )
     )
-    if (identical(is.infinite(range[['range']]),c(TRUE,TRUE))) {
-      range[['range']] = c(NA,NA)
+    if (identical(is.infinite(range[['range']]),c(TRUE, TRUE))) {
+      range[['range']] = c(NA, NA)
       return(range)
     } else {
       return(range)
