@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">iidda.api</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,24 +108,25 @@
 <span><span class="co">#&gt; Messages displayed at most once per R session.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">scarlet_fever_ontario</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 61 × 19</span></span></span>
-<span><span class="co">#&gt;    iso_3166 iso_3166_2 period_start_date period_end_date disease nesting_disease</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> CA       CA-ON      1929-07-28        1929-08-03      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> CA       CA-ON      1929-08-04        1929-08-10      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> CA       CA-ON      1929-08-11        1929-08-17      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> CA       CA-ON      1929-08-18        1929-08-24      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> CA       CA-ON      1929-08-25        1929-08-31      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> CA       CA-ON      1929-09-01        1929-09-07      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> CA       CA-ON      1929-09-08        1929-09-14      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> CA       CA-ON      1929-09-15        1929-09-21      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> CA       CA-ON      1929-09-22        1929-09-28      scarle… <span style="color: #949494;">""</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> CA       CA-ON      1929-09-29        1929-10-05      scarle… <span style="color: #949494;">""</span>             </span></span>
+<span><span class="co">#&gt;    iso_3166 iso_3166_2 location location_type period_start_date period_end_date</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> CA       CA-ON      ONT.     province      1929-07-28        1929-08-03     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> CA       CA-ON      ONT.     province      1929-08-04        1929-08-10     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> CA       CA-ON      ONT.     province      1929-08-11        1929-08-17     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> CA       CA-ON      ONT.     province      1929-08-18        1929-08-24     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> CA       CA-ON      ONT.     province      1929-08-25        1929-08-31     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> CA       CA-ON      ONT.     province      1929-09-01        1929-09-07     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> CA       CA-ON      ONT.     province      1929-09-08        1929-09-14     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> CA       CA-ON      ONT.     province      1929-09-15        1929-09-21     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> CA       CA-ON      ONT.     province      1929-09-22        1929-09-28     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> CA       CA-ON      ONT.     province      1929-09-29        1929-10-05     </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 51 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: cases_this_period &lt;dbl&gt;, population &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   period_mid_date &lt;date&gt;, days_this_period &lt;dbl&gt;, time_scale &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   location &lt;chr&gt;, location_type &lt;chr&gt;, historical_disease_family &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   historical_disease &lt;chr&gt;, historical_disease_subclass &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   population_reporting &lt;dbl&gt;, dataset_id &lt;chr&gt;, original_dataset_id &lt;chr&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: period_mid_date &lt;date&gt;, days_this_period &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   time_scale &lt;chr&gt;, disease &lt;chr&gt;, nesting_disease &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   historical_disease_family &lt;chr&gt;, historical_disease &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   historical_disease_subclass &lt;chr&gt;, dataset_id &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   original_dataset_id &lt;chr&gt;, cases_this_period &lt;dbl&gt;, population &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   population_reporting &lt;dbl&gt;</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">scarlet_fever_ontario</span></span>
 <span>  <span class="op">|&gt;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">period_mid_date</span>, <span class="va">cases_this_period</span><span class="op">)</span><span class="op">)</span></span>
