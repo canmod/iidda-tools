@@ -107,12 +107,12 @@ the datasets are returned as data frames.
 #> [88] "cdi_ca_1975-78_wk_prov_harmonized"            
 #> [89] "cdi_ca_1968-72_wk_prov_harmonized"            
 #> [90] "cdi_ca_1964-67_wk_prov_harmonized"            
-#> [91] "cdi_ca_1958_wk_prov_dbs"                      
-#> [92] "cdi_ca_1956-59_1961_wk_prov_harmonized"       
-#> [93] "cdi_ca_1959_wk_prov_dbs_w4_52"                
-#> [94] "cdi_ca_1959_wk_prov_dbs_w1_3"                 
-#> [95] "cdi_ca_1957_wk_prov_dbs"                      
-#> [96] "cdi_ca_1956_wk_prov_dbs"                      
+#> [91] "cdi_ca_1956-59_1961_wk_prov_harmonized"       
+#> [92] "cdi_ca_1959_wk_prov_dbs_w4_52"                
+#> [93] "cdi_ca_1959_wk_prov_dbs_w1_3"                 
+#> [94] "cdi_ca_1957_wk_prov_dbs"                      
+#> [95] "cdi_ca_1956_wk_prov_dbs"                      
+#> [96] "cdi_ca_1958_wk_prov_dbs"                      
 #> [97] "cdi_ca_1961_wk_prov_dbs"
 }\if{html}{\out{</div>}}
 }

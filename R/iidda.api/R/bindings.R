@@ -208,8 +208,21 @@ ops_local = NULL
 #' @export
 ops_staging = NULL
 
-docs_url = try(file.path(production$api_url, "docs"), silent = TRUE)
+#' Links to IIDDA API Interactive Documentation
+#' @name interactive
+NULL
 
-docs_url_local = try(file.path(local$api_url, "docs"), silent = TRUE)
+#' @describeIn interactive Link to interactive documentation.
+#' @export
+docs_url = try(file.path(production$api_url, production$base_path, "docs"), silent = TRUE)
 
-docs_url_staging = try(file.path(staging$api_url, "docs"), silent = TRUE)
+#' @describeIn interactive Link to interactive documentation for a staging
+#' environment.
+#' @export
+docs_url_staging = try(file.path(staging$api_url, staging$base_path, "docs"), silent = TRUE)
+
+#' @describeIn interactive Localhost link to interactive documentation for
+#' a development environment, if it exists.
+#' @export
+docs_url_local = try(file.path(local$api_url, local$base_path, "docs"), silent = TRUE)
+
