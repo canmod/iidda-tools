@@ -110,11 +110,18 @@ drop_empty_rows = function(table) {
 #' Write a data frame to a CSV file using the CSV dialect
 #' adopted by IIDDA.
 #'
-#' @param data to data frame to write
+#' @param data A data frame to write
 #' @param filename string giving the filename
 #' @export
 write_data_frame = function(data, filename) {
-  data = sapply(data, as.character)
+
+  ## convert the data frame to a character matrix without line feeds or
+  ## unnecessary whitespace
+  data = (data
+    |> sapply(as.character)
+    |> gsub(pattern = "\\s+", replacement = " ")
+    |> trimws()
+  )
   write.table(data,
     file = filename,
     # CSV Dialect Translation

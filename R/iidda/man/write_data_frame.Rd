@@ -7,7 +7,7 @@
 write_data_frame(data, filename)
 }
 \arguments{
-\item{data}{to data frame to write}
+\item{data}{A data frame to write}
 
 \item{filename}{string giving the filename}
 }

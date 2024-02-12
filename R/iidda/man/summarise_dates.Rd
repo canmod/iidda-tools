@@ -7,9 +7,9 @@
 summarise_dates(x_start, x_end, range_operator = " to ", collapse = TRUE)
 }
 \arguments{
-\item{x_start}{vector of starting dates.}
+\item{x_start}{vector of period starting dates.}
 
-\item{x_end}{vector of ending dates.}
+\item{x_end}{vector of period ending dates.}
 
 \item{range_operator}{string to go between the start and end date, defaults to " to ".}
 

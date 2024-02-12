@@ -312,8 +312,8 @@ summarise_integers = function(x, range_operator = "-", collapse = TRUE) {
 #' Consecutive or overlapping date ranges are summarised into a single date range, non-consecutive date
 #' ranges are kept as is.
 #'
-#' @param x_start vector of starting dates.
-#' @param x_end vector of ending dates.
+#' @param x_start vector of period starting dates.
+#' @param x_end vector of period ending dates.
 #' @param range_operator string to go between the start and end date, defaults to " to ".
 #' @param collapse boolean to collapse all dates into one comma separated string, defaults to TRUE.
 #' @return vector or single string of summarised date ranges.
