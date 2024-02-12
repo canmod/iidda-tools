@@ -145,15 +145,16 @@ read_tidy_data = function(tidy_data_path, just_csv = FALSE) {
                %>% read_json
   )
 
-  tidy_dataset = read.table(path_tidy_file,
-                            # CSV Dialect Translation
-                            header = TRUE,           # header=true
-                            sep = ',',               # delimiter
-                            quote = "\"",            # quoteChar="\""
-                            comment.char='#',        # commentChar='#'
-                            na.strings = "",         # nullSequence=""
-                            colClasses = col_classes
-  )
+  tidy_dataset = read_data_frame(path_tidy_file, col_classes)
+  #   read.table(path_tidy_file,
+  #                           # CSV Dialect Translation
+  #                           header = TRUE,           # header=true
+  #                           sep = ',',               # delimiter
+  #                           quote = "\"",            # quoteChar="\""
+  #                           comment.char='#',        # commentChar='#'
+  #                           na.strings = "",         # nullSequence=""
+  #                           colClasses = col_classes
+  # )
   if (just_csv) return(tidy_dataset)
 
   return(nlist(tidy_dataset, data_dictionary, csv_dialect, meta_data))
