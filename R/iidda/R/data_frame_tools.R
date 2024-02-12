@@ -117,11 +117,17 @@ write_data_frame = function(data, filename) {
 
   ## convert the data frame to a character matrix without line feeds or
   ## unnecessary whitespace
-  data = (data
-    |> sapply(as.character)
-    |> gsub(pattern = "\\s+", replacement = " ")
-    |> trimws()
-  )
+  if (nrow(data) > 0) {
+    data = (data
+      |> sapply(as.character)
+      |> gsub(pattern = "\\s+", replacement = " ")
+      |> trimws()
+    )
+  } else {
+    for (cc in names(data)) {
+      data[[cc]] = as.character(data[[cc]])
+    }
+  }
   write.table(data,
     file = filename,
     # CSV Dialect Translation
@@ -134,5 +140,26 @@ write_data_frame = function(data, filename) {
     # commentChar='#'
     # caseSensitiveHeader=true
     row.names = FALSE
+  )
+}
+
+
+#' Read Data Frame
+#'
+#' Read in a data frame from a CSV file using the CSV dialect
+#' adopted by IIDDA.
+#'
+#' @param filename String giving the filename.
+#' @param col_classes See \code{colClasses} from \code{\link{read.table}}.
+#' @export
+read_data_frame = function(filename, col_classes = "character") {
+  read.table(filename
+        # CSV Dialect Translation
+      , header = TRUE           # header=true
+      , sep = ','               # delimiter
+      , quote = "\""            # quoteChar="\""
+      , comment.char='#'        # commentChar='#'
+      , na.strings = '""'         # nullSequence=""
+      , colClasses = col_classes
   )
 }
