@@ -17,6 +17,3 @@ Date vector of the end-dates of each specified epiweek.
 \description{
 End-Dates of Epiweeks
 }
-\examples{
-epiweek_end_date(2010, 1:11)
-}
