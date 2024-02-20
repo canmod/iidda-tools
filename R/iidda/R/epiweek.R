@@ -4,8 +4,6 @@
 #' @param week Integer vector of weeks.
 #'
 #' @return Date vector of the end-dates of each specified epiweek.
-#' @examples
-#' epiweek_end_date(2010, 1:11)
 #' @importFrom lubridate weeks
 #' @export
 epiweek_end_date = function(year, week) {
