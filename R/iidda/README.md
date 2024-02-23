@@ -8,7 +8,7 @@ IIDDA R Package
 
 ## Installation 
 ```
-remotes::install_github('canmod-eidm/iidda-tools', subdir = 'R/iidda')
+install.packages("iidda", repos = c("https://canmod.r-universe.dev", "https://cran.r-project.org"))
 ```
 
 ## Configuring Data Harmonization
