@@ -471,24 +471,26 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 #' and location scale information
 #'
 #' @export
-identify_scales = function(data){
-  data = (data
+identify_scales = function(data, location_type_fixer = canada_province_scale_finder) {
+  (data
+    |> identify_time_scales()
+    |> location_type_fixer()
+  )
+}
+
+identify_time_scales = function(data){
+  (data
    %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) + 6, "wk", "two-wks"))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 14, "mt", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qrtr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
-
-
-   # Check if "location" is a column before adding "location_type"
-   # %>% mutate(location_type = ifelse(exists("location") && (location == "Canada" | location == "CANADA"), "country", "province"))
   )
-
+}
+canada_province_scale_finder = function(data) {
   if ("location" %in% names(data)) {
     data$location_type = ifelse(data$location %in% c("Canada", "CANADA"), "country", "province")
   }
-  data
 }
-
 
 split_data = function(tidy_data){
   (tidy_data
