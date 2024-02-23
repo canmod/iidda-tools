@@ -8,5 +8,5 @@ IIDDA R Package
 
 ## Installation 
 ```
-install.packages("iidda", repos = c("https://canmod.r-universe.dev", "https://cran.r-project.org"))
+install.packages('iidda', repos = c('https://canmod.r-universe.dev', 'https://cran.r-project.org'))
 ```
