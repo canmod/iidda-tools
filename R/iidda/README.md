@@ -7,6 +7,15 @@ IIDDA R Package
 <!-- badges: end -->
 
 ## Installation 
+
+### Stable Version
+
 ```
 install.packages('iidda', repos = c('https://canmod.r-universe.dev', 'https://cran.r-project.org'))
+```
+
+### Development Version
+
+```
+remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda')
 ```
