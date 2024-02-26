@@ -11,7 +11,7 @@ query_options(
 )
 }
 \arguments{
-\item{response_type}{Character, one of `metadata`, `columns`, or 
+\item{response_type}{Character, one of `metadata`, `columns`, or
 `data_dictionary`}
 
 \item{data_type}{Character, one of `cdi`, `CDI`, or `Communicable Disease
@@ -19,7 +19,7 @@ Incidence` for disease incidence time series datasets, or `pop`, `Pop`,  or
 `Population` for historical demographic census datasets"}
 }
 \value{
-A Vector of field names, or if `response_type = "data_dictionary"`, a 
+A Vector of field names, or if `response_type = "data_dictionary"`, a
    named list
 }
 \description{

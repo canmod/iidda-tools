@@ -7,7 +7,7 @@
 browse_pipeline_dependencies(
   dataset_ids,
   dependency_types = c("IsCompiledBy", "IsDerivedFrom", "References"),
-  metadata = iidda.api::ops$metadata(dataset_ids = dataset_ids)
+  metadata = iidda.api::ops_staging$metadata(dataset_ids = dataset_ids)
 )
 }
 \arguments{

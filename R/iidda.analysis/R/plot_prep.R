@@ -566,7 +566,24 @@ ComputeMovingAverage <- function(ma_window_length=52){
   }
 }
 
-
+#' Period Aggregator
+#'
+#' Create function that aggregates information over time periods, normalizes
+#' a count variable, and creates new fields to summarize this information.
+#'
+#' @param time_variable Name of the variable to characterize the temporal
+#' location of the time period.
+#' @param period_width_variable Name of variable to characterize the width
+#' of the time period.
+#' @param count_variable Name of variable to characterize the count variable
+#' being normalized.
+#' @param norm_variable Name of variable to be used to normalize the count
+#' variable.
+#' @param rate_variable Name of variable to be used to store the normalized
+#' count variable.
+#' @param norm_exponent Exponent to use in normalization. The default is `5`,
+#' which means `per 100,000`.
+#'
 #' @export
 PeriodAggregator = function(
     time_variable = "period_mid_time"
@@ -594,6 +611,12 @@ PeriodAggregator = function(
   }
 }
 
+#' Time Scale Picker
+#'
+#' @param time_scale_variable Variable identifying the time scale of records.
+#' The values of such a variable should be things like `"wk"`, `"mn"`, `"yr"`.
+#' @param time_group_variable Variable identifying a grouping variable for
+#' the time scales (e.g. a column identifying the year.).
 #' @export
 TimeScalePicker = function(
     time_scale_variable = "time_scale"

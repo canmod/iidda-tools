@@ -17,7 +17,7 @@ flexi_filter(
 
 \item{fields}{Character vector, names of field(s) to match}
 
-\item{response_type}{Character, one of `metadata`, `columns`, or 
+\item{response_type}{Character, one of `metadata`, `columns`, or
 `data_dictionary`}
 
 \item{data_type}{Character, one of `cdi`, `CDI`, or `Communicable Disease
