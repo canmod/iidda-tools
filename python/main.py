@@ -434,13 +434,13 @@ async def filter(
     iso_3166_2: List[str] = Query(
         default=None, description=global_data_dictionary['iso_3166_2']['description']),
     date: str = Query(
-        default=None, description=f"{global_data_dictionary['date']['description']} Must be in the form \<start date\>/\<end date\>."),
+        default=None, description=f"{global_data_dictionary['date']['description']} Must be in the form \<start date\>..<end date\>."),
     period_start_date: str = Query(
-        default=None, description=f"{global_data_dictionary['period_start_date']['description']} Must be in the form \<start date\>/\<end date\>."),
+        default=None, description=f"{global_data_dictionary['period_start_date']['description']} Must be in the form \<start date\>..<end date\>."),
     period_end_date: str = Query(
-        default=None, description=f"{global_data_dictionary['period_end_date']['description']} Must be in the form \<start date\>/\<end date\>."),
+        default=None, description=f"{global_data_dictionary['period_end_date']['description']} Must be in the form \<start date\>..<end date\>."),
     period_mid_date: str = Query(
-        default=None, description=f"{global_data_dictionary['period_mid_date']['description']} Must be in the form \<start date\>/\<end date\>."),
+        default=None, description=f"{global_data_dictionary['period_mid_date']['description']} Must be in the form \<start date\>..<end date\>."),
     historical_disease_family: List[str] = Query(
         default=None, description=global_data_dictionary['historical_disease_family']['description']),
     historical_disease: List[str] = Query(
