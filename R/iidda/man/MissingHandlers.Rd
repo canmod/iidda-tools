@@ -7,7 +7,7 @@
 MissingHandlers(
   unclear = c("Unclear", "unclear", "uncleaar", "uncelar", "r"),
   not_reported = c("", "Not available", "*", "Not reportable"),
-  zeros = c("—", "⎻", "-", "‾", "_", "–")
+  zeros = "-"
 )
 }
 \arguments{
