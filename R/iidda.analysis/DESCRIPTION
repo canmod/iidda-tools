@@ -1,13 +1,15 @@
 Package: iidda.analysis
 Type: Package
 Title: Tools for Analyzing IIDDA Datasets
-Version: 0.1.1
+Version: 0.1.2
 Author: Steven Walker
 Maintainer: Steven Walker <swalk@mcmaster.ca>
 Description: This package contains tools that depend on \code{iidda} and/or 
     \code{iidda.api}.
-Imports: 
+Depends:
   iidda, 
+  iidda.api
+Imports: 
   stringr,
   magrittr,
   EMD, 
@@ -24,11 +26,9 @@ Imports:
   tidyselect,
   patchwork
 Suggests:
-    dplyr,
-    knitr,
-    rmarkdown,
-    iidda.api,
-    testthat (>= 3.0.0)
+  knitr,
+  rmarkdown,
+  testthat (>= 3.0.0)
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
