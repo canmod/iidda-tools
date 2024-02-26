@@ -22,7 +22,7 @@ vignette: >
 Throughout we will use communicable disease incidence data from Canada in 1956.
 ```{r api_call}
 library(iidda.api)
-raw = iidda.api::ops$raw_csv(dataset_ids = "cdi_ca_1956_wk_prov_dbs")
+raw = iidda.api::ops_staging$raw_csv(dataset_ids = "cdi_ca_1956_wk_prov_dbs")
 raw
 ```
 
@@ -30,8 +30,8 @@ Our focal example within these data are for weekly measles counts broken down by
 ```{r measles}
 library(dplyr)
 measles = (raw
-  %>% filter(tolower(disease) == "measles")
-  %>% filter(time_scale == "wk", location_scale == "prov")
+  %>% filter(tolower(historical_disease) == "measles")
+  %>% filter(time_scale == "wk", location_type == "province")
   %>% select(location, period_start_date, cases_this_period)
   %>% mutate(period_start_date = as.Date(period_start_date))
   %>% mutate(cases_this_period = as.numeric(cases_this_period))
