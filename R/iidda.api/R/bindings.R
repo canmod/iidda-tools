@@ -140,10 +140,11 @@ make_ops_list = function(api_url, base_path, type) {
 
 #' \pkg{iidda.api}
 #'
-#' R binding to the IIDDA API.
+#' IIDDA API.
 #'
 #' IIDDA is the International Infectious Disease Data Archive.
-#' This archive has an API (Application Programming Interface)
+#' This archive has an [API](https://math.mcmaster.ca/iidda/api/docs)
+#' (Application Programming Interface)
 #' for accessing data and potentially for building applications.
 #' This R package provides a simple wrapper to this API so that
 #' the datasets are returned as data frames.

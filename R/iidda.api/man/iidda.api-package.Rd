@@ -6,11 +6,12 @@
 \alias{iidda.api-package}
 \title{\pkg{iidda.api}}
 \description{
-R binding to the IIDDA API.
+IIDDA API.
 }
 \details{
 IIDDA is the International Infectious Disease Data Archive.
-This archive has an API (Application Programming Interface)
+This archive has an \href{https://math.mcmaster.ca/iidda/api/docs}{API}
+(Application Programming Interface)
 for accessing data and potentially for building applications.
 This R package provides a simple wrapper to this API so that
 the datasets are returned as data frames.
