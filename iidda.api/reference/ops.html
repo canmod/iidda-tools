@@ -122,6 +122,21 @@ if it exists</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   original_dataset_id &lt;chr&gt;, cases_this_period &lt;dbl&gt;, population &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   population_reporting &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Operations objects that are not available are error objects. As of the</span></span></span>
+<span class="r-in"><span><span class="co">## time of writing only ops_staging is live.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ops</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Error in do.call(make_ops_list, production) : \n  second argument must be a list\n"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "try-error"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"condition")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;simpleError in do.call(make_ops_list, production): second argument must be a list&gt;</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ops_local</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Error in rapiclient::get_api(url = file.path(iidda::rm_trailing_slash(file.path(api_url,  : \n  'url' does not appear to be JSON or YAML\n"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "try-error"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"condition")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;simpleError in rapiclient::get_api(url = file.path(iidda::rm_trailing_slash(file.path(api_url,     base_path)), "openapi.json")): 'url' does not appear to be JSON or YAML&gt;</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
