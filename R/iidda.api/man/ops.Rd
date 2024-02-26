@@ -48,5 +48,10 @@ ops_staging$filter(
    , time_scale = "wk"
 )
 
+## Operations objects that are not available are error objects. As of the
+## time of writing only ops_staging is live.
+print(ops)
+print(ops_local)
+
 }
 \keyword{datasets}
