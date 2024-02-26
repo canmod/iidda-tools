@@ -89,6 +89,17 @@ def generate_hash_signature(
 def read_the_csv_files(x):
     return pd.read_csv(x, dtype=str)
 
+def split_date_range_strings(string, delimiters):
+    for delimiter in delimiters:
+        parts = string.split(delimiter)
+        if len(parts) == 2:
+            return parts
+    # If none of the delimiters worked, raise an exception
+    raise HTTPException(
+        status_code=400, 
+        detail="This query parameter should have an argument of the form <start date>..<end date> with dates in ISO 8601 format. For back-compatibility, the delimiter `..` may be replaced by `/`."
+    )
+
 
 def dataset_list_search(
     dataset_ids, key, metadata_search, jq_query, string_comparison, response_type="metadata"
@@ -245,9 +256,7 @@ async def raw_csv(
             status_code=400, detail="In order to use the 'raw_csv' response type, all datasets in question must be of the same resource type.")
 
     async def main():
-        ##print("LDJKSFLKJDF")
         tasks = []
-        ##print(len(tasks))
         for dataset in dataset_list:
             r = re.compile('^v([0-9]+)-(.*)')
             if r.match(dataset):
@@ -258,13 +267,11 @@ async def raw_csv(
             
             if csv_exists(dataset_name=dataset, version=version):
                 github_csv_as_future = get_dataset(dataset_name=dataset, version=version)
-                ##print("lkjsdflkjdsfl")
                 task = asyncio.ensure_future(github_csv_as_future)
                 tasks.append(task)
                 ##print("-------")
                 ##print(version)
 
-        ##print("OKOKOK")
         ##print(len(tasks))
         if len(tasks) == 0:
             raise HTTPException(
@@ -272,7 +279,6 @@ async def raw_csv(
             )
         ## csv_list is a list of BytesIO objects
         csv_list = await asyncio.gather(*tasks)
-        # print('here we go:')
         # print(csv_list)
 
         # Error handling
@@ -495,6 +501,7 @@ async def filter(
         'del(.resource_type, .response_type) | map_values(select(. != null))').transform(filter_arguments)
 
     # Check if no column filters were applied
+    # (TODO: what happens if we just let empty queries through?? it would be more convenient if it works)
     if filter_arguments == {}:
         raise HTTPException(
             status_code=400, detail="Please provide at least one column filter.")
@@ -509,13 +516,11 @@ async def filter(
     # loop over the filter_arguments to generate a filter
     for key in filter_arguments:
         if global_data_dictionary[key]["type"] == "date":
-            date_range = filter_arguments[key].split("/")
-            if len(date_range) != 2:
-                raise HTTPException(
-                    status_code=400, detail="This query parameter should have an argument of the form <start date>/<end date> with dates in ISO 8601 format")
+            #date_range = filter_arguments[key].split("/")
+            date_range = split_date_range_strings(filter_arguments[key], ["/", ".."])
             if date_range[1] < date_range[0]:
                 raise HTTPException(
-                    status_code=400, detail="The input should be in the form <start date>/<end date> with dates in ISO 8601 format. The first date is larger than the second.")
+                    status_code=400, detail="The input should be in the form <start date>..<end date> with dates in ISO 8601 format. The first date is larger than the second.")
             # containment_filter is a jq filter that will be used to filter the columns metadata
             containment_filter = f'select((.[0] <= "{date_range[1]}") and (.[1] >= "{date_range[0]}"))'
 
@@ -622,7 +627,6 @@ async def filter(
     # Apply filter_string to dataset_list
     dataset_list = jq(
         f'map_values(select(. != {{}}) | select({filter_string})) | keys').transform(dataset_list)
-    #print ("HHHHHHHHHHHHH")
     #print(f'map_values(select(. != {{}}) | select({filter_string})) | keys')
     # Check if no datasets satisfy the filter
     if len(dataset_list) == 0:
@@ -716,7 +720,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="API for the International Infectious Disease Data Archive (IIDDA)",
-        version="0.2.0",
+        version="0.2.1",
         description="API for searching, combining, filtering, and downloading infectious disease datasets available through IIDDA",
         routes=app.routes,
     )
