@@ -23,6 +23,18 @@ production = NULL
 #' @importFrom iidda list_xpath rm_trailing_slash
 
 handle_iidda_response <- function(x) {
+    if (x$status_code == 400L) {
+      api_err_msg = (httr::content(x)$detail
+        |> unlist(use.names = FALSE, recursive = TRUE)
+      )
+      err_tmplt = "The IIDDA API returned the following error:\n    %s\nThis documentation might be of interest:\n    %s"
+      err_msg = sprintf(err_tmplt, api_err_msg, iidda.api::docs_url_staging)
+      stop(err_msg)
+    } else if (x$status_code != 200L) {
+      err_tmplt = "Something went wrong with the IIDDA API.\nThis documentation might be of interest:\n    %s"
+      err_msg = sprintf(err_tmplt, iidda.api::docs_url_staging)
+      stop(err_msg)
+    }
     content_type <- x$headers$`content-type`
     if (content_type == 'application/json') {
       data = httr::content(x)
@@ -138,7 +150,7 @@ make_ops_list = function(api_url, base_path, type) {
 #'
 #' ## Listing the Datasets
 #'
-#' ```{r}
+#' ```{r "dataset-names"}
 #' iidda.api::ops_staging$metadata() |> names()
 #' ```
 #'

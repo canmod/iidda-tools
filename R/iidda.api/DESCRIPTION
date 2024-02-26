@@ -1,6 +1,6 @@
 Package: iidda.api
 Title: IIDDA API
-Version: 0.0.4
+Version: 0.1.0
 Authors@R: 
     person("Steve", "Walker", , "swalk@mcmaster.ca", role = c("aut", "cre"))
 Description: R Bindings for the IIDDA API.

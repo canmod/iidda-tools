@@ -53,10 +53,8 @@ arrange_rows = function(data) {
   if (!all(names(data) %in% names(dict))) return(data)
   if (any(names(data) == "period_end_date")) {
     data = data[order(data$period_end_date), , drop = FALSE]
-    #data = dplyr::arrange(data, period_end_date)
   } else if (any(names(data) == "date")) {
     data = data[order(data$date), , drop = FALSE]
-    #data = dplyr::arrange(data, date)
   }
   data
 }
