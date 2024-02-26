@@ -190,8 +190,9 @@ make_ops_list = function(api_url, base_path, type) {
 #' ## CANMOD Digitization Project
 #'
 #' The communicable disease incidence (CDI) data collected as part of
-#' the CANMOD digitization project can be accessed using
-#' `resource_type = "CANMOD CDI"` with the `filter` function.
+#' the [CANMOD digitization project](https://canmod.net/digitization)
+#' can be accessed using `resource_type = "CANMOD CDI"` with the `filter`
+#' function.
 #'
 #' ```{r, eval = FALSE}
 #' canmod_cdi = iidda.api::ops_staging$filter(

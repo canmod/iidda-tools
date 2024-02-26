@@ -155,8 +155,9 @@ the URL form of the API:
 \subsection{CANMOD Digitization Project}{
 
 The communicable disease incidence (CDI) data collected as part of
-the CANMOD digitization project can be accessed using
-\code{resource_type = "CANMOD CDI"} with the \code{filter} function.
+the \href{https://canmod.net/digitization}{CANMOD digitization project}
+can be accessed using \code{resource_type = "CANMOD CDI"} with the \code{filter}
+function.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{canmod_cdi = iidda.api::ops_staging$filter(
      resource_type = "CANMOD CDI"
