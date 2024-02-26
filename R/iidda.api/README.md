@@ -1,6 +1,7 @@
 # IIDDA API R Package
 
 <!-- badges: start -->
+[![iidda.api status badge](https://canmod.r-universe.dev/badges/iidda.api)](https://canmod.r-universe.dev/iidda.api)
 [![R-CMD-check](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.api.yaml/badge.svg)](https://github.com/stevencarlislewalker/iidda-tools/actions/workflows/R-CMD-check-iidda.api.yaml)
 <!-- badges: end -->
 
