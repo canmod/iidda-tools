@@ -467,8 +467,10 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 #'
 #'Identifies time scales (wk, mt, qrtr, yr) and location types (province or country) within a tidy dataset.
 #'
-#' @param data data frame in IIDDA tidy format to add time scale
-#' and location scale information
+#' @param data Data frame in IIDDA tidy format to add time scale
+#' and location scale information.
+#' @param location_type_fixer Function that takes a data frame in IIDDA
+#' tidy format and adds or fixes the `location_type` field.
 #'
 #' @export
 identify_scales = function(data, location_type_fixer = canada_province_scale_finder) {
