@@ -490,6 +490,7 @@ canada_province_scale_finder = function(data) {
   if ("location" %in% names(data)) {
     data$location_type = ifelse(data$location %in% c("Canada", "CANADA"), "country", "province")
   }
+  data
 }
 
 split_data = function(tidy_data){
