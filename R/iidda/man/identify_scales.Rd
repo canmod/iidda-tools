@@ -4,7 +4,7 @@
 \alias{identify_scales}
 \title{Identify Scales}
 \usage{
-identify_scales(data)
+identify_scales(data, location_type_fixer = canada_province_scale_finder)
 }
 \arguments{
 \item{data}{data frame in IIDDA tidy format to add time scale

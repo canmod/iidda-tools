@@ -73,6 +73,12 @@ cp_git_version = function(file, version_hash) {
   temp
 }
 
+#' Excel to CSV
+#'
+#' Convert an Excel file to a CSV file.
+#'
+#' @param xlsx_path Path to an Excel file.
+#' @param csv_path Path to a new CSV file.
 #' @importFrom tidyxl xlsx_cells
 #' @importFrom readr write_csv
 #' @export

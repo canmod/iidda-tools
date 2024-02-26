@@ -77,7 +77,7 @@ list_file_id = function(..., ext, root) {
 #' List Resources IDs
 #'
 #' @param source Source ID.
-#' @param type Type of resouce.
+#' @param type Type of resource.
 #' @param root Path to the root of the repository.
 #'
 #' @export
@@ -90,6 +90,13 @@ list_resource_ids = function(source
   read.csv(file.path(pipeline_dir, source, "tracking", file))[[1L]]
 }
 
+#' List Dependency IDs
+#'
+#' @param source Source ID.
+#' @param dataset Dataset ID.
+#' @param type Type of resource.
+#' @param root Path to the root of the repository.
+#'
 #' @export
 list_dependency_ids = function(source, dataset
     , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
@@ -107,6 +114,13 @@ list_dependency_ids = function(source, dataset
   tracking[[1L]][tracking[[2L]] == dataset]
 }
 
+#' List Dependency Paths
+#'
+#' @param source Source ID.
+#' @param dataset dataset ID.
+#' @param type Type of resource.
+#' @param root Path to the root of the repository.
+#'
 #' @export
 list_dependency_paths = function(source, dataset
     , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
@@ -120,9 +134,15 @@ list_dependency_paths = function(source, dataset
   vapply(strip_blob_github(urls), add_root_and_check, character(1L), USE.NAMES = FALSE)
 }
 
+#' List Source IDs
+#'
+#' @param root Path to the root of the repository.
 #' @export
 list_source_ids = function(root) list.files(add_root_and_check("pipelines", root))
 
+#' List Dataset IDs by Source
+#'
+#' @param root Path to the root of the repository.
 #' @export
 list_dataset_ids_by_source = function(root) {
   sources = list_source_ids(root)
@@ -133,16 +153,33 @@ list_dataset_ids_by_source = function(root) {
   )
 }
 
+#' List Dataset IDs
+#'
+#' @param source Source ID.
+#' @param root Path to the root of the repository.
+#'
 #' @export
 list_dataset_ids = function(source, root) {
   list_resource_ids(source, "TidyDatasets", root)
 }
 
+#' List Prep Script IDs
+#'
+#' @param source Source ID.
+#' @param root Path to the root of the repository.
+#'
 #' @export
 list_prep_script_ids = function(source, root) {
   list_resource_ids(source, "PrepScripts", root)
 }
 
+
+#' Get Main Script
+#'
+#' @param source Source ID.
+#' @param dataset dataset ID.
+#' @param root Path to the root of the repository.
+#'
 #' @export
 get_main_script = function(source, dataset, root) {
   assert_string(
@@ -151,6 +188,12 @@ get_main_script = function(source, dataset, root) {
   )
 }
 
+#' Get all Dependencies
+#'
+#' @param source Source ID.
+#' @param dataset dataset ID.
+#' @param root Path to the root of the repository.
+#'
 #' @export
 get_all_dependencies = function(source, dataset, root) {
   unlist(lapply(c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
@@ -161,6 +204,13 @@ get_all_dependencies = function(source, dataset, root) {
   ))
 }
 
+#' Get Dataset path
+#'
+#' @param source Source ID.
+#' @param dataset dataset ID.
+#' @param root Path to the root of the repository.
+#' @param ext Dataset file extension.
+#'
 #' @export
 get_dataset_path = function(source, dataset, root, ext = "csv") {
   path = file.path(
@@ -175,6 +225,11 @@ get_dataset_path = function(source, dataset, root, ext = "csv") {
   add_root(path, root)
 }
 
+#' Get Source Path
+#'
+#' @param source Source ID.
+#' @param root Path to the root of the repository.
+#'
 #' @export
 get_source_path = function(source, root) {
   add_root(

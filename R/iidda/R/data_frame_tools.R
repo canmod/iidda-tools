@@ -1,3 +1,9 @@
+#' Set IIDDA Column Types
+#'
+#' Deprecated -- iidda.api package is not more robust.
+#'
+#' @param data Dataset from IIDDA Api
+#'
 #' @export
 set_iidda_col_types = function(data) {
   if (names(data)[1] == 'Internal Server Error') {
