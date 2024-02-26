@@ -21,7 +21,8 @@ Imports:
   readr, 
   scales, 
   tidyr, 
-  tidyselect
+  tidyselect,
+  patchwork
 Suggests:
     dplyr,
     knitr,
