@@ -30,6 +30,9 @@ handle_iidda_response <- function(x) {
       err_tmplt = "The IIDDA API returned the following error:\n    %s\nThis documentation might be of interest:\n    %s"
       err_msg = sprintf(err_tmplt, api_err_msg, iidda.api::docs_url_staging)
       stop(err_msg)
+    } else if (x$status_code == 404L) {
+      msg = sprintf("404 Not Found. The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. This documentation might be of interest:\n    %s", iidda.api::docs_url_staging)
+      stop(msg)
     } else if (x$status_code != 200L) {
       err_tmplt = "Something went wrong with the IIDDA API.\nThis documentation might be of interest:\n    %s"
       err_msg = sprintf(err_tmplt, iidda.api::docs_url_staging)
