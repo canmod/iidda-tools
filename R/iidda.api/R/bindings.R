@@ -204,8 +204,26 @@ make_ops_list = function(api_url, base_path, type) {
 "_PACKAGE"
 
 #' IIDDA API Operations
+#'
+#' Objects containing the functions associated with API functions
+#' documented [here](https://math.mcmaster.ca/iidda/api/docs).
+#'
+#' @examples
+#' ## Print out the available functions.
+#' names(ops_staging)
+#'
+#' ## Access functions with a dollar sign. For example, this command
+#' ## will give weekly incidence data in PEI in January of 1940.
+#' ops_staging$filter(
+#'      resource_type = "CANMOD CDI"
+#'    , iso_3166_2 = "CA-PE"
+#'    , period_end_date = "1940-01-01..1940-02-01"
+#'    , time_scale = "wk"
+#' )
+#'
 #' @name ops
 NULL
+
 
 #' @importFrom iidda list_xpath
 #' @describeIn ops List containing available operations from the IIDDA API
