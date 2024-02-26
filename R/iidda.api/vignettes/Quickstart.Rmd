@@ -14,23 +14,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r installation, message=FALSE}
-if (!require(iidda.api)) {
-  if (!require(remotes)) install.packages("remotes")
-  remotes::install_github(
-      "canmod/iidda-tools"
-    , subdir = "R/iidda.api"
-  )
-}
+```{r other_packages, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(iidda.api)
 ```
 
 ```{r api_hook}
 api_hook = iidda.api::ops_staging
-```
-
-```{r other_packages, message=FALSE}
-library(dplyr)
-library(ggplot2)
 ```
 
 ## Scarlet Fever Data in Ontario
