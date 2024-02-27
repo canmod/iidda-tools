@@ -169,3 +169,27 @@ read_data_frame = function(filename, col_classes = "character") {
       , colClasses = col_classes
   )
 }
+
+#' Fix CSV
+#'
+#' Fix the format of a CSV file that is not in IIDDA format.
+#' @param filename Path to the CSV file
+#'
+#' @returns Logical value that is `TRUE` if the CSV needed fixing
+#' and `FALSE` otherwise.
+#' @importFrom readr read_csv
+#' @export
+fix_csv = function(filename) {
+  tmp_file = tempfile(fileext = ".csv")
+  initial_guess = readr::read_csv(filename, col_types = "c")
+  write_data_frame(initial_guess, tmp_file)
+  best_guess = read_data_frame(tmp_file)
+  current_read = read_data_frame(filename)
+  need_to_fix = !identical(best_guess, current_read)
+  if (need_to_fix) {
+    message("CSV is fixed! Please check to make sure that your expectations are met.")
+  } else {
+    message("CSV file did not need fixing")
+  }
+  return(need_to_fix)
+}
