@@ -15,7 +15,8 @@ read_tracking_tables = function(path) {
     "notes", "source", "years", "start_date", "end_date", "frequency",
     "breakdown", "urls", "date_of_url_access", "tidy_dataset", "path_prep_script",
     "path_tidy_data", "publisher", "publicationYear", "current_version",
-    "staging_url_prefix", "scan", "access_script", "prep_script"
+    "staging_url_prefix", "scan", "access_script", "prep_script", "digitization_priority",
+    "data_type", "name", "description", "web_resource"
   )
   paths = file.path(path, list.files(path, pattern = '.csv'))
   output = (paths
@@ -32,6 +33,7 @@ read_tracking_tables = function(path) {
       warning(warn_msg)
     }
   }
+  return(output)
 }
 
 #' Read Tracking Metadata

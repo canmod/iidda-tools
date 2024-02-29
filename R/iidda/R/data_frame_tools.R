@@ -184,9 +184,10 @@ fix_csv = function(filename) {
   initial_guess = readr::read_csv(filename, col_types = "c")
   write_data_frame(initial_guess, tmp_file)
   best_guess = read_data_frame(tmp_file)
-  current_read = read_data_frame(filename)
+  current_read = try(read_data_frame(filename), silent = TRUE)
   need_to_fix = !identical(best_guess, current_read)
   if (need_to_fix) {
+    file.copy(tmp_file, filename, overwrite = TRUE)
     message("CSV is fixed! Please check to make sure that your expectations are met.")
   } else {
     message("CSV file did not need fixing")
