@@ -12,7 +12,7 @@ unique_entries(entries, metadata_search)
 \item{metadata_search}{Character, field from which unique tokens are desired}
 }
 \value{
-Character vector of unique tokens for a given field from all iidda 
+Character vector of unique tokens for a given field from all iidda
    datasets
 }
 \description{

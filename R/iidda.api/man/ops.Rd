@@ -9,7 +9,7 @@
 \format{
 An object of class \code{try-error} of length 1.
 
-An object of class \code{list} of length 6.
+An object of class \code{try-error} of length 1.
 
 An object of class \code{list} of length 6.
 }
@@ -21,7 +21,8 @@ ops_local
 ops_staging
 }
 \description{
-IIDDA API Operations
+Objects containing the functions associated with API functions
+documented \href{https://math.mcmaster.ca/iidda/api/docs}{here}.
 }
 \section{Functions}{
 \itemize{
@@ -34,4 +35,23 @@ if it exists
 \item \code{ops_staging}: Operations list for a staging environment, if it exists
 
 }}
+\examples{
+## Print out the available functions.
+names(ops_staging)
+
+## Access functions with a dollar sign. For example, this command
+## will give weekly incidence data in PEI in January of 1940.
+ops_staging$filter(
+     resource_type = "CANMOD CDI"
+   , iso_3166_2 = "CA-PE"
+   , period_end_date = "1940-01-01..1940-02-01"
+   , time_scale = "wk"
+)
+
+## Operations objects that are not available are error objects. As of the
+## time of writing only ops_staging is live.
+print(ops)
+print(ops_local)
+
+}
 \keyword{datasets}

@@ -30,6 +30,9 @@ handle_iidda_response <- function(x) {
       err_tmplt = "The IIDDA API returned the following error:\n    %s\nThis documentation might be of interest:\n    %s"
       err_msg = sprintf(err_tmplt, api_err_msg, iidda.api::docs_url_staging)
       stop(err_msg)
+    } else if (x$status_code == 404L) {
+      msg = sprintf("404 Not Found. The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. This documentation might be of interest:\n    %s", iidda.api::docs_url_staging)
+      stop(msg)
     } else if (x$status_code != 200L) {
       err_tmplt = "Something went wrong with the IIDDA API.\nThis documentation might be of interest:\n    %s"
       err_msg = sprintf(err_tmplt, iidda.api::docs_url_staging)
@@ -140,10 +143,11 @@ make_ops_list = function(api_url, base_path, type) {
 
 #' \pkg{iidda.api}
 #'
-#' R binding to the IIDDA API.
+#' IIDDA API.
 #'
 #' IIDDA is the International Infectious Disease Data Archive.
-#' This archive has an API (Application Programming Interface)
+#' This archive has an [API](https://math.mcmaster.ca/iidda/api/docs)
+#' (Application Programming Interface)
 #' for accessing data and potentially for building applications.
 #' This R package provides a simple wrapper to this API so that
 #' the datasets are returned as data frames.
@@ -189,8 +193,9 @@ make_ops_list = function(api_url, base_path, type) {
 #' ## CANMOD Digitization Project
 #'
 #' The communicable disease incidence (CDI) data collected as part of
-#' the CANMOD digitization project can be accessed using
-#' `resource_type = "CANMOD CDI"` with the `filter` function.
+#' the [CANMOD digitization project](https://canmod.net/digitization)
+#' can be accessed using `resource_type = "CANMOD CDI"` with the `filter`
+#' function.
 #'
 #' ```{r, eval = FALSE}
 #' canmod_cdi = iidda.api::ops_staging$filter(
@@ -202,8 +207,31 @@ make_ops_list = function(api_url, base_path, type) {
 "_PACKAGE"
 
 #' IIDDA API Operations
+#'
+#' Objects containing the functions associated with API functions
+#' documented [here](https://math.mcmaster.ca/iidda/api/docs).
+#'
+#' @examples
+#' ## Print out the available functions.
+#' names(ops_staging)
+#'
+#' ## Access functions with a dollar sign. For example, this command
+#' ## will give weekly incidence data in PEI in January of 1940.
+#' ops_staging$filter(
+#'      resource_type = "CANMOD CDI"
+#'    , iso_3166_2 = "CA-PE"
+#'    , period_end_date = "1940-01-01..1940-02-01"
+#'    , time_scale = "wk"
+#' )
+#'
+#' ## Operations objects that are not available are error objects. As of the
+#' ## time of writing only ops_staging is live.
+#' print(ops)
+#' print(ops_local)
+#'
 #' @name ops
 NULL
+
 
 #' @importFrom iidda list_xpath
 #' @describeIn ops List containing available operations from the IIDDA API

@@ -1,3 +1,9 @@
+#' Read Tracking Tables
+#'
+#' Read metadata tracking tables for an IIDDA project.
+#'
+#' @param path Path containing tracking tables.
+#'
 #' @export
 read_tracking_tables = function(path) {
   valid_colnames = c("access_script", "disease_family", "disease", "disease_subclass", "icd_7", "icd_9",
@@ -9,16 +15,25 @@ read_tracking_tables = function(path) {
     "notes", "source", "years", "start_date", "end_date", "frequency",
     "breakdown", "urls", "date_of_url_access", "tidy_dataset", "path_prep_script",
     "path_tidy_data", "publisher", "publicationYear", "current_version",
-    "staging_url_prefix", "scan", "access_script", "prep_script"
+    "staging_url_prefix", "scan", "access_script", "prep_script", "digitization_priority",
+    "data_type", "name", "description", "web_resource"
   )
   paths = file.path(path, list.files(path, pattern = '.csv'))
-  (paths
+  output = (paths
     %>% lapply(read.csv, check.names = FALSE)
     %>% setNames(tools::file_path_sans_ext(basename(paths)))
-    %>% lapply(function(x) select(x, any_of(valid_colnames)))
+    #%>% lapply(function(x) select(x, any_of(valid_colnames)))
     #%>% lapply(drop_empty_cols)
     %>% lapply(drop_empty_rows)
   )
+  valid_tabs = vapply(output, \(tab) all(names(tab) %in% valid_colnames), logical(1L))
+  if (any(!valid_tabs)) {
+    for (tnm in names(output)[!valid_tabs]) {
+      warn_msg = sprintf("Tracking table %s has invalid column names. Valid column names include:\n   %s", tnm, paste0(valid_colnames, collapse = ", "))
+      warning(warn_msg)
+    }
+  }
+  return(output)
 }
 
 #' Read Tracking Metadata
@@ -189,6 +204,10 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
   metadata
 }
 
+#' Which Tracking Tables have a Particular Column
+#'
+#' @param metadata Output of \code{\link{read_tracking_tables}}.
+#' @param col_nm Name of a column.
 #' @export
 tracking_tables_with_column = function(metadata, col_nm) {
   (metadata
@@ -200,6 +219,8 @@ tracking_tables_with_column = function(metadata, col_nm) {
   )
 }
 
+#' Tracking Table Keys
+#'
 #' @export
 tracking_table_keys = list(
   organization = list(
@@ -225,6 +246,11 @@ tracking_table_keys = list(
 )
 
 
+#' Melt Tracking Table Keys (Deprecated)
+#'
+#' To be used in conjunction with \code{\link{tracking_table_keys}}.
+#'
+#' @param keys Character vector of
 #' @export
 melt_tracking_table_keys = function(keys) {
   (keys
@@ -233,15 +259,10 @@ melt_tracking_table_keys = function(keys) {
   )
 }
 
-#' Check Tracking Table Consistency
+#' Write Local Data Dictionaries
 #'
-#' @param path path to tracking tables
-check_tracking_tables = function(path) {
-  d = read_tracking_tables(path)
-
-}
-
-
+#' @param metadata Output of \code{\link{read_tracking_tables}}.
+#' @param path Path to a new JSON file.
 #' @importFrom tibble rownames_to_column
 #' @importFrom jsonlite write_json
 #' @export

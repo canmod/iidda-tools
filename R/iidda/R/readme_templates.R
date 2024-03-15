@@ -1,3 +1,7 @@
+#' README File Template
+#'
+#' (Deprecated)
+#'
 #' @export
 readme_classic_iidda = "# %{new_data_name}s
 

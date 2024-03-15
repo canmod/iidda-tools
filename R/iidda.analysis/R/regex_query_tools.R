@@ -1,12 +1,12 @@
 #' Get field names for iidda queries
 #'
-#' @param response_type Character, one of `metadata`, `columns`, or 
+#' @param response_type Character, one of `metadata`, `columns`, or
 #'     `data_dictionary`
 #' @param data_type Character, one of `cdi`, `CDI`, or `Communicable Disease
 #'   Incidence` for disease incidence time series datasets, or `pop`, `Pop`,  or
 #'   `Population` for historical demographic census datasets"
 #'
-#' @return A Vector of field names, or if `response_type = "data_dictionary"`, a 
+#' @return A Vector of field names, or if `response_type = "data_dictionary"`, a
 #'    named list
 #'
 #' @importFrom stats na.omit
@@ -52,7 +52,7 @@ query_options <- function(response_type = c("metadata"
   if(!(data_type %in% c("Communicable Disease Incidence", "Population"))){
     stop(message = "`datatype` must be one of `cdi`, `CDI`, or `Communicable Disease Incidence` for disease incidence time series datasets, or `pop`, `Pop`,  or `Population` for historical demographic census datasets")}
   # query metadata
-  met <- iidda.api::ops$metadata(
+  met <- iidda.api::ops_staging$metadata(
     response_type = response_type
     , metadata_search = data_type
     , key = ".types .resourceType"
@@ -78,7 +78,7 @@ query_options <- function(response_type = c("metadata"
 #' @param entries List returned by \code{iidda.api::ops$metadata}
 #' @param metadata_search Character, field from which unique tokens are desired
 #'
-#' @return Character vector of unique tokens for a given field from all iidda 
+#' @return Character vector of unique tokens for a given field from all iidda
 #'    datasets
 
 unique_entries <- function(entries, metadata_search){
@@ -120,7 +120,7 @@ unique_field_entries <- function(response_type = c("metadata"
                                  , string_comparison = "contains"
                                  , sort = TRUE
 ){
-  entries <- iidda.api::ops$metadata(response_type = response_type
+  entries <- iidda.api::ops_staging$metadata(response_type = response_type
                                      , metadata_search = metadata_search
                                      , string_comparison = string_comparison)
   ue <- unique_entries(entries, metadata_search = metadata_search)

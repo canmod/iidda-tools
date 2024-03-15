@@ -2,16 +2,19 @@
 % Please edit documentation in R/string_tools.R
 \name{rm_trailing_slash}
 \alias{rm_trailing_slash}
-\title{Remove Trailing Slash}
+\alias{rm_leading_slash}
+\title{Remove Trailing / Leading Slash}
 \usage{
 rm_trailing_slash(x)
+
+rm_leading_slash(x)
 }
 \arguments{
-\item{x}{Character vector with paths}
+\item{x}{Character vector with paths.}
 }
 \value{
-Character vector without trailing slash
+Character vector without trailing/leading slash.
 }
 \description{
-Remove Trailing Slash
+Remove Trailing / Leading Slash
 }

@@ -159,16 +159,25 @@ vsub = function(pattern, replacement, x, ...) {
   x
 }
 
-#' Remove Trailing Slash
+#' Remove Trailing / Leading Slash
 #'
-#' @param x Character vector with paths
-#' @return Character vector without trailing slash
+#' @param x Character vector with paths.
+#' @return Character vector without trailing/leading slash.
 #' @export
 rm_trailing_slash = function(x) sub('/$', '', x)
 
+#' @rdname rm_trailing_slash
 #' @export
 rm_leading_slash = function(x) sub('^/', '', x)
 
+#' Or Pattern
+#'
+#' Construct regex for Boolean-or.
+#'
+#' @param x Character vector of alternative patterns.
+#' @param at_start Match only at the start of strings.
+#' @param at_end Match only at the end of strings.
+#'
 #' @export
 or_pattern = function(x, at_start = TRUE, at_end = TRUE) {
   x = "(" %+% paste0(x, collapse = "|") %+% ")"

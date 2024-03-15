@@ -17,6 +17,12 @@ normalize_diseases = function(diseases) {
   )
 }
 
+#' Two Field Format
+#'
+#' Attempt to automatically convert a dataset from `disease{|_subclass|_family}`
+#' format of disease ID to the `{|nesting_}disease` format.
+#'
+#' @param dataset A tidy data set with `disease{|_subclass|_family}` columns.
 #' @export
 two_field_format = function(dataset) {
   (dataset
