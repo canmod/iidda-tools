@@ -617,3 +617,104 @@ statcan_mort_prep = function(data) {
     %>% select(location, period_start_date, period_end_date, cause, deaths, time_scale, location_type)
   )
 }
+
+#' Basal Disease
+#'
+#' @param disease_lookup table with two columns -- disease and nesting_disease
+#' @param disease disease for which to determine basal disease
+#' 
+#' @return The root disease that input disease maps to in disease_lookup.
+#' 
+#' @export
+basal_disease = function(disease, disease_lookup, encountered_diseases = character()) {
+  good_names = c("disease", "nesting_disease")
+  is_bad_names = !identical(names(disease_lookup), good_names)
+  if (is_bad_names) stop("disease_lookup needs to have columns disease and nesting_disease")
+  nesting_disease = disease_lookup[disease_lookup$disease == disease, "nesting_disease"]
+  is_tree_missing_nodes = length(nesting_disease) == 0L
+  if (is_tree_missing_nodes) stop(paste(disease, "missing tree nodes. check that it is included in 'disease' column"))
+  is_duplicate_nodes = length(nesting_disease) > 1L
+  if (is_duplicate_nodes) {
+    disease_lookup = unique(disease_lookup)
+    nesting_disease = unique(nesting_disease)
+  }
+  if (disease %in% encountered_diseases) stop("not hierarchical")
+  is_basal = nesting_disease == ""
+  if (is_basal) return(disease)
+  encountered_diseases = append(encountered_diseases, disease)
+  Recall(nesting_disease, disease_lookup, encountered_diseases)
+}
+
+#' Is Leaf Disease
+#'
+#' @param disease disease name
+#' @param nesting_disease nesting diseases 
+#' 
+#' @return True if disease is never a nesting disease (it is a leaf disease),
+#' False if disease is a nesting disease.
+#' 
+#' @export
+is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nesting_disease)
+
+
+
+#' Get Unclear
+#'
+#' @param x 
+#'
+#' @return unclear case count guesses
+#' @export
+get_unclear = function(x) {
+  unclear = c("Unclear", "unclear", "uncleaar", "uncelar", "r")
+  r = sprintf("\\s*\\((%s)\\)\\s*", paste0(unclear, collapse = "|"))
+  sub(r, "", x) |> sub(pattern = "^([0-9]+)", replacement = "\\1")
+}
+
+#' Get Zeros
+#'
+#' @param x 
+#'
+#' @return converted dashes into zeros
+#' @export
+get_zeros = function(x) {
+  zeros = c("—", "⎻", "-", "‾", "_")
+  r = sprintf("^(\\s*%s\\s*)$", paste0(zeros, collapse = "|"))
+  sub(r, "0", x)
+}
+
+#' Get If Starts With Number
+#'
+#' @param x 
+#'
+#' @return number with no following letters
+#' @export
+get_if_starts_with_number = function(x) {
+  sub("^([0-9]+)([^0-9]+)$", "\\1", x)
+}
+
+#' Get Hidden Numbers
+#'
+#' @param x dataframe
+#'
+#' @return cleaned dataframe with zeros, unclear cases, and characters properly handled
+#' @export
+get_hidden_numbers = function(x) {
+  (x
+   |> get_zeros()
+   |> get_unclear()
+   |> get_if_starts_with_number()
+  )
+}
+
+#' Is Reported
+#'
+#' @param x 
+#'
+#' @return filtered data with no not available/reportable case reports
+#' @export
+is_reported = function(x) {
+  not_reported = c("", "Not available", "*", "Not reportable")
+  !(x %in% not_reported)
+}
+
+
