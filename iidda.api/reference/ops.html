@@ -95,10 +95,32 @@ if it exists</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Do not display any iidda.api messages with</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_msgs = FALSE).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Messages displayed at most once per R session.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in handle_response(result):</span> Something went wrong with the IIDDA API.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Status code: 502</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> This documentation might be of interest:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>     https://math.mcmaster.ca/iidda/api/docs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Now sorting by date. </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> You can turn this off with</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_date_sort = FALSE). </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Do not display any iidda.api messages with</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_msgs = FALSE).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Messages displayed at most once per R session.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 29 × 19</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    iso_3166 iso_3166_2 location location_type period_start_date period_end_date</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> CA       CA-PE      P.E.I    province      1939-12-31        1940-01-06     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> CA       CA-PE      P.E.I    province      1940-01-07        1940-01-13     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> CA       CA-PE      P.E.I    province      1940-01-07        1940-01-13     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 19 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 13 more variables: period_mid_date &lt;date&gt;, days_this_period &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   time_scale &lt;chr&gt;, disease &lt;chr&gt;, nesting_disease &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease_family &lt;chr&gt;, historical_disease &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease_subclass &lt;chr&gt;, dataset_id &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   original_dataset_id &lt;chr&gt;, cases_this_period &lt;dbl&gt;, population &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   population_reporting &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Operations objects that are not available are error objects. As of the</span></span></span>
 <span class="r-in"><span><span class="co">## time of writing only ops_staging is live.</span></span></span>

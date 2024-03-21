@@ -75,7 +75,8 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">iidda.api</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">api_hook</span> <span class="op">=</span> <span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="../reference/ops.html">ops_staging</a></span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">api_hook</span> <span class="op">=</span> <span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="../reference/ops.html">ops_staging</a></span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>iidda_api_msgs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="scarlet-fever-data-in-ontario">Scarlet Fever Data in Ontario<a class="anchor" aria-label="anchor" href="#scarlet-fever-data-in-ontario"></a>
 </h2>
@@ -87,18 +88,6 @@
 <span>  , disease <span class="op">=</span> <span class="st">"scarlet-fever"</span></span>
 <span>  , period_end_date <span class="op">=</span> <span class="st">"1929-08-01..1930-10-01"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Now converting some fields from character to numeric or date. </span></span>
-<span><span class="co">#&gt; You can turn this off with</span></span>
-<span><span class="co">#&gt; options(iidda_api_all_char = TRUE). </span></span>
-<span><span class="co">#&gt; Do not display any iidda.api messages with</span></span>
-<span><span class="co">#&gt; options(iidda_api_msgs = FALSE).</span></span>
-<span><span class="co">#&gt; Messages displayed at most once per R session.</span></span>
-<span><span class="co">#&gt; Now sorting by date. </span></span>
-<span><span class="co">#&gt; You can turn this off with</span></span>
-<span><span class="co">#&gt; options(iidda_api_date_sort = FALSE). </span></span>
-<span><span class="co">#&gt; Do not display any iidda.api messages with</span></span>
-<span><span class="co">#&gt; options(iidda_api_msgs = FALSE).</span></span>
-<span><span class="co">#&gt; Messages displayed at most once per R session.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">scarlet_fever_ontario</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 61 × 19</span></span></span>
 <span><span class="co">#&gt;    iso_3166 iso_3166_2 location location_type period_start_date period_end_date</span></span>
