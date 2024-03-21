@@ -30,6 +30,8 @@ MakeMessage = function(msg) {
   self
 }
 
+## thinking this should be in the iidda package. could be useful
+## for users
 parse_columns = function(data) {
   if (getOption("iidda_api_all_char")) return(data)
   messages$conversion$display()
