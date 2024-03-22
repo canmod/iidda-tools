@@ -7,9 +7,12 @@
 basal_disease(disease, disease_lookup, encountered_diseases = character())
 }
 \arguments{
-\item{disease}{disease for which to determine basal disease}
+\item{disease}{Disease for which to determine basal disease}
 
-\item{disease_lookup}{table with two columns -- disease and nesting_disease}
+\item{disease_lookup}{Table with two columns -- disease and nesting_disease}
+
+\item{encountered_diseases}{Character vector of diseases already found.
+Typically this left at the default value of an empty character vector.}
 }
 \value{
 The root disease that input disease maps to in disease_lookup.
