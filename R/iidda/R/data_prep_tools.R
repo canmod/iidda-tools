@@ -622,8 +622,10 @@ statcan_mort_prep = function(data) {
 
 #' Basal Disease
 #'
-#' @param disease_lookup table with two columns -- disease and nesting_disease
-#' @param disease disease for which to determine basal disease
+#' @param disease_lookup Table with two columns -- disease and nesting_disease
+#' @param disease Disease for which to determine basal disease
+#' @param encountered_diseases Character vector of diseases already found.
+#' Typically this left at the default value of an empty character vector.
 #'
 #' @return The root disease that input disease maps to in disease_lookup.
 #'
