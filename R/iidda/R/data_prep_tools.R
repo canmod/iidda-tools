@@ -482,9 +482,9 @@ identify_scales = function(data, location_type_fixer = canada_province_scale_fin
 
 identify_time_scales = function(data){
   (data
-   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) + 6, "wk", "two-wks"))
-   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 14, "mt", time_scale))
-   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qrtr", time_scale))
+   %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) + 6, "wk", "2wk"))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 14, "mo", time_scale))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 100, "yr", time_scale))
   )
 }
