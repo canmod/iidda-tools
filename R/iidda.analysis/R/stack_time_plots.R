@@ -150,6 +150,8 @@ grob_names = function(x) {
   to_gtable(x)$layout$name
 }
 
+#' Which Grobs
+#'
 #' @param grob_nms names of grobs
 #' @export
 which_grobs = function(x, grob_nms) {

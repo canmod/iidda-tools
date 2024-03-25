@@ -1483,6 +1483,8 @@ iidda_plot_line_agg = function(plot_object
 }
 
 
+#' IIDDA Heatmap Decomposition
+#'
 #' @param data Named list of two data frames: `heatmap` for the heatmap
 #' component and `line` for the line-graph component. This list can be
 #' computed using \code{\link{iidda_prep_heatmap_decomp}}
