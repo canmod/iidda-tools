@@ -22,6 +22,7 @@ library(iidda.api)
 
 ```{r api_hook}
 api_hook = iidda.api::ops_staging
+options(iidda_api_msgs = FALSE)
 ```
 
 ## Scarlet Fever Data in Ontario

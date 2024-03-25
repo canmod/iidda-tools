@@ -622,17 +622,21 @@ statcan_mort_prep = function(data) {
 
 #' Basal Disease
 #'
-#' @param disease_lookup table with two columns -- disease and nesting_disease
-#' @param disease disease for which to determine basal disease
-#' 
+#' @param disease_lookup Table with two columns -- disease and nesting_disease
+#' @param disease Disease for which to determine basal disease
+#' @param encountered_diseases Character vector of diseases already found.
+#' Typically this left at the default value of an empty character vector.
+#'
 #' @return The root disease that input disease maps to in disease_lookup.
-#' 
+#'
 #' @export
 basal_disease = function(disease, disease_lookup, encountered_diseases = character()) {
   good_names = c("disease", "nesting_disease")
   is_bad_names = !identical(names(disease_lookup), good_names)
   if (is_bad_names) stop("disease_lookup needs to have columns disease and nesting_disease")
-  nesting_disease = disease_lookup[disease_lookup$disease == disease, "nesting_disease"]
+  focal_rows = disease_lookup$disease == disease
+  if (!any(focal_rows)) stop(sprintf("disease, %s%, not found", disease))
+  nesting_disease = disease_lookup$nesting_disease[focal_rows]
   is_tree_missing_nodes = length(nesting_disease) == 0L
   if (is_tree_missing_nodes) stop(paste(disease, "missing tree nodes. check that it is included in 'disease' column"))
   is_duplicate_nodes = length(nesting_disease) > 1L
@@ -649,74 +653,54 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
 
 #' Is Leaf Disease
 #'
-#' @param disease disease name
-#' @param nesting_disease nesting diseases 
-#' 
+#' Given a set of `disease`-`nesting_disease` pairs that all share the same
+#' \code{\link{basal_disease}},
+#'
+#' @param disease Disease name vector.
+#' @param nesting_disease Vector of the same length as \code{disease} giving
+#' the nesting diseases of element in \code{disease}.
+#'
 #' @return True if disease is never a nesting disease (it is a leaf disease),
 #' False if disease is a nesting disease.
-#' 
+#'
 #' @export
 is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nesting_disease)
 
-
-
-#' Get Unclear
+#' Flatten Disease Hierarchy
 #'
-#' @param x 
+#' Take a tidy data set with a potentially complex disease hierarchy
+#' and flatten this hierarchy so that, at any particular time and location,
+#' all diseases in the `disease` column have the same `nesting_disease`.
 #'
-#' @return unclear case count guesses
+#' @param data A tidy data set with the following minimal set of columns:
+#' `disease`, `nesting_disease`, `period_start_date`, `period_end_date`,
+#' and `location` (TODO: generalized so that the last three are
+#' configurable).
+#' @param disease_lookup A lookup table with `disease` and `nesting_disease`
+#' columns that describe a global disease hierarchy that will be applied
+#' locally to flatten disease hierarchy at each point in time and space
+#' in the tidy data set in the `data` argument.
+#'
 #' @export
-get_unclear = function(x) {
-  unclear = c("Unclear", "unclear", "uncleaar", "uncelar", "r")
-  r = sprintf("\\s*\\((%s)\\)\\s*", paste0(unclear, collapse = "|"))
-  sub(r, "", x) |> sub(pattern = "^([0-9]+)", replacement = "\\1")
-}
+flatten_disease_hierarchy = function(data, disease_lookup) {
+  disease_lookup =
+    (disease_lookup
+     |> select(disease, nesting_disease)
+     |> distinct())
+  (data
+    # getting basal disease for all diseases
+    |> rowwise()
+    |> mutate(basal_disease = basal_disease(disease, disease_lookup))
+    |> ungroup()
 
-#' Get Zeros
-#'
-#' @param x 
-#'
-#' @return converted dashes into zeros
-#' @export
-get_zeros = function(x) {
-  zeros = c("—", "⎻", "-", "‾", "_")
-  r = sprintf("^(\\s*%s\\s*)$", paste0(zeros, collapse = "|"))
-  sub(r, "0", x)
-}
+    # keeping only leaf diseases
+    |> group_by(period_start_date, period_end_date, location, basal_disease)
+    |> filter(is_leaf_disease(disease, nesting_disease))
+    |> ungroup()
 
-#' Get If Starts With Number
-#'
-#' @param x 
-#'
-#' @return number with no following letters
-#' @export
-get_if_starts_with_number = function(x) {
-  sub("^([0-9]+)([^0-9]+)$", "\\1", x)
-}
-
-#' Get Hidden Numbers
-#'
-#' @param x dataframe
-#'
-#' @return cleaned dataframe with zeros, unclear cases, and characters properly handled
-#' @export
-get_hidden_numbers = function(x) {
-  (x
-   |> get_zeros()
-   |> get_unclear()
-   |> get_if_starts_with_number()
+    # if there is only the basal disease (no sub-diseases), differentiate by adding '-only'
+    |> mutate(disease = ifelse(disease == basal_disease, sprintf("%s-only", disease), disease))
+    |> mutate(nesting_disease = basal_disease)
+    |> select(-basal_disease)
   )
 }
-
-#' Is Reported
-#'
-#' @param x 
-#'
-#' @return filtered data with no not available/reportable case reports
-#' @export
-is_reported = function(x) {
-  not_reported = c("", "Not available", "*", "Not reportable")
-  !(x %in% not_reported)
-}
-
-
