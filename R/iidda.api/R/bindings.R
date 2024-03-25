@@ -111,8 +111,7 @@ make_ops_list = function(api_url, base_path, type) {
     default_values <- list()
     for (parameter in parameters) {
       if (parameter[["required"]] == FALSE) {
-        default_values[[parameter[["name"]]]] =
-          parameter[["schema"]][["default"]]
+        default_values[[parameter[["name"]]]] = parameter[["schema"]][["default"]]
       } else {
         next
       }
