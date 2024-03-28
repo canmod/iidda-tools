@@ -7,7 +7,8 @@
 pipeline_exploration_starter(
   script_filename,
   exploration_project_path,
-  pipeline_repo_root = getwd()
+  pipeline_repo_root = getwd(),
+  ...
 )
 }
 \arguments{
@@ -19,6 +20,10 @@ exists in \code{exploration_project_path}, an error is returned.}
 
 \item{pipeline_repo_root}{Path to the folder of a cloned IIDDA pipeline
 repository.}
+
+\item{...}{Additional arguments to pass to \code{\link{file.copy}}. A
+useful argument here is `overwrite`, which indicates whether an existing
+exploration script should be overwritten.}
 }
 \description{
 Create an R script providing a place to start when exploring an IIDDA

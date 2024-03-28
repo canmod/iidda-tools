@@ -669,32 +669,39 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 #' Flatten Disease Hierarchy
 #'
 #' Take a tidy data set with a potentially complex disease hierarchy
-#' and flatten this hierarchy so that, at any particular time and location,
-#' all diseases in the `disease` column have the same `nesting_disease`.
+#' and flatten this hierarchy so that, at any particular time and location
+#' (or some other context), all diseases in the `disease` column have the
+#' same `nesting_disease`.
 #'
 #' @param data A tidy data set with the following minimal set of columns:
 #' `disease`, `nesting_disease`, `period_start_date`, `period_end_date`,
-#' and `location` (TODO: generalized so that the last three are
-#' configurable).
+#' and `location`. Note that the latter three can be modified with
+#' `grouping_columns`.
 #' @param disease_lookup A lookup table with `disease` and `nesting_disease`
 #' columns that describe a global disease hierarchy that will be applied
 #' locally to flatten disease hierarchy at each point in time and space
 #' in the tidy data set in the `data` argument.
+#' @param grouping_columns Character vector of column names to use when
+#' grouping to determine the context.
 #'
 #' @export
-flatten_disease_hierarchy = function(data, disease_lookup) {
+flatten_disease_hierarchy = function(data
+      , disease_lookup
+      , grouping_columns = c("period_start_date", "period_end_date", "location")
+    ) {
   disease_lookup =
     (disease_lookup
      |> select(disease, nesting_disease)
      |> distinct())
   (data
+
     # getting basal disease for all diseases
     |> rowwise()
     |> mutate(basal_disease = basal_disease(disease, disease_lookup))
     |> ungroup()
 
     # keeping only leaf diseases
-    |> group_by(period_start_date, period_end_date, location, basal_disease)
+    |> group_by(across(c("basal_disease", all_of(grouping_columns)))) # period_start_date, period_end_date, location, basal_disease)
     |> filter(is_leaf_disease(disease, nesting_disease))
     |> ungroup()
 
@@ -704,3 +711,58 @@ flatten_disease_hierarchy = function(data, disease_lookup) {
     |> select(-basal_disease)
   )
 }
+
+
+time_scale_chooser = function(time_scale, which_fun) {
+  time_scale_order = c("wk", "2wk", "mo", "qr", "yr")
+  time_scale_factor = factor(
+      as.character(time_scale)
+    , levels = time_scale_order
+  )
+  rr = time_scale[which_fun(as.numeric(time_scale_factor))]
+  if (length(rr) == 0) browser()
+  rr
+}
+
+#' Filter out Time Scales
+#'
+#' Choose a single best `time_scale` for each year in a dataset, grouped by
+#' nesting disease. This best `time_scale` is defined as the longest
+#' of the shortest time scales in each location and sub-disease.
+#'
+#' @param data A tidy data set with a `time_scale` column.
+#' @param initial_group Character vector naming columns for defining
+#' the initial grouping used to compute the shortest time scales.
+#' @param final_group Character vector naming columns for defining the final
+#' grouping used to compute the longest of the shortest time scales.
+#' @param cleanup Should intermediate columns be cleaned up?
+#'
+#' @importFrom lubridate year
+#' @export
+filter_out_time_scales = function(data
+      , initial_group = c("iso_3166", "iso_3166_2", "disease", "nesting_disease")
+      , final_group = c("nesting_disease")
+      , cleanup = TRUE
+    ) {
+  time_scale_map = c(wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo", `two-wks` = "2wk", qrtr = "qr")
+  data$time_scale = time_scale_map[as.character(data$time_scale)]
+  if (length(unique(data$time_scale)) == 1L) return(data)
+  # mutate(longest_time_scale = time_scale_chooser(time_scale, which.max))
+  new_data = (data
+    |> mutate(year = year(period_end_date))
+    |> group_by(across(all_of(c("year", initial_group))))
+    |> mutate(shortest_time_scale = time_scale_chooser(time_scale, which.min))
+    |> ungroup()
+    |> group_by(across(all_of(c("year", final_group))))
+    |> mutate(best_time_scale = time_scale_chooser(shortest_time_scale, which.max))
+    |> ungroup()
+    |> filter(time_scale == best_time_scale)
+  )
+  if (isTRUE(cleanup)) {
+    new_data = select(new_data
+      , -year, -shortest_time_scale, -best_time_scale
+    )
+  }
+  new_data
+}
+

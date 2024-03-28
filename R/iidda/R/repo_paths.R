@@ -21,12 +21,16 @@
 #' exists in \code{exploration_project_path}, an error is returned.
 #' @param pipeline_repo_root Path to the folder of a cloned IIDDA pipeline
 #' repository.
+#' @param ... Additional arguments to pass to \code{\link{file.copy}}. A
+#' useful argument here is `overwrite`, which indicates whether an existing
+#' exploration script should be overwritten.
 #'
 #' @export
 pipeline_exploration_starter = function(
     script_filename,
     exploration_project_path,
-    pipeline_repo_root = getwd()
+    pipeline_repo_root = getwd(),
+    ...
 ) {
   if (!dir.exists(exploration_project_path)) {
     dir.create(exploration_project_path, recursive = TRUE)
@@ -37,7 +41,7 @@ pipeline_exploration_starter = function(
   )
   path = assert_path_does_not_exist(add_root(script_path, pipeline_repo_root))
   template = system.file("pipeline_exploration_starter.R", package = "iidda")
-  file.copy(template, path)
+  file.copy(template, path, ...)
 }
 
 #' Set Extension

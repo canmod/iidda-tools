@@ -4,21 +4,29 @@
 \alias{flatten_disease_hierarchy}
 \title{Flatten Disease Hierarchy}
 \usage{
-flatten_disease_hierarchy(data, disease_lookup)
+flatten_disease_hierarchy(
+  data,
+  disease_lookup,
+  grouping_columns = c("period_start_date", "period_end_date", "location")
+)
 }
 \arguments{
 \item{data}{A tidy data set with the following minimal set of columns:
 `disease`, `nesting_disease`, `period_start_date`, `period_end_date`,
-and `location` (TODO: generalized so that the last three are
-configurable).}
+and `location`. Note that the latter three can be modified with
+`grouping_columns`.}
 
 \item{disease_lookup}{A lookup table with `disease` and `nesting_disease`
 columns that describe a global disease hierarchy that will be applied
 locally to flatten disease hierarchy at each point in time and space
 in the tidy data set in the `data` argument.}
+
+\item{grouping_columns}{Character vector of column names to use when
+grouping to determine the context.}
 }
 \description{
 Take a tidy data set with a potentially complex disease hierarchy
-and flatten this hierarchy so that, at any particular time and location,
-all diseases in the `disease` column have the same `nesting_disease`.
+and flatten this hierarchy so that, at any particular time and location
+(or some other context), all diseases in the `disease` column have the
+same `nesting_disease`.
 }
