@@ -706,22 +706,39 @@ flatten_disease_hierarchy = function(data
     |> ungroup()
 
     # if there is only the basal disease (no sub-diseases), differentiate by adding '-only'
-    |> mutate(disease = ifelse(disease == basal_disease, sprintf("%s-only", disease), disease))
+    # mutate(disease = ifelse(disease == basal_disease, sprintf("%s-only", disease), disease))
     |> mutate(nesting_disease = basal_disease)
     |> select(-basal_disease)
   )
 }
 
+## TODO: user-facing function to flatten the disease hierarchy. should probably
+## be in iidda.analysis because it will make use of the api to get a
+## disease lookup table.
+aggregate_disease_hierarchy = function(data, ...) {
+  (data
+   |> flatten_disease_hierarchy(...)
+   # group by nesting_disease etc ...
+  )
+}
 
 time_scale_chooser = function(time_scale, which_fun) {
   time_scale_order = c("wk", "2wk", "mo", "qr", "yr")
-  time_scale_factor = factor(
-      as.character(time_scale)
-    , levels = time_scale_order
-  )
-  rr = time_scale[which_fun(as.numeric(time_scale_factor))]
-  if (length(rr) == 0) browser()
-  rr
+  time_scale = as.character(time_scale)
+  bad_scale = time_scale %in% time_scale_order
+  if (any(bad_scale)) {
+    these_bad_scales = paste0(time_scale[bad_scale], collapse = ", ")
+    stop(
+        "\nThese scales where found in the data but are not on the valid list:\n"
+      , these_bad_scales,
+      , "\nValid scales include these:\n"
+      , paste0(time_scale_order, collapse = ", ")
+    )
+  }
+  time_scale_factor = factor(time_scale, levels = time_scale_order)
+  r = time_scale[which_fun(as.numeric(time_scale_factor))]
+  if (length(r) != 1L) stop("Unable to choose a single time scale.")
+  r
 }
 
 #' Filter out Time Scales
@@ -756,7 +773,7 @@ filter_out_time_scales = function(data
     |> group_by(across(all_of(c("year", final_group))))
     |> mutate(best_time_scale = time_scale_chooser(shortest_time_scale, which.max))
     |> ungroup()
-    |> filter(time_scale == best_time_scale)
+    |> filter(as.character(time_scale) == best_time_scale)
   )
   if (isTRUE(cleanup)) {
     new_data = select(new_data
