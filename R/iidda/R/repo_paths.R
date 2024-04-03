@@ -327,3 +327,46 @@ add_root = function(path, root) {
   }
   path
 }
+
+#' Prep Script Outcomes
+#'
+#' @param root Root path of the source project (e.g. `iidda-staging`). If
+#' `root` is missing then the current working directory is assumed.
+#' @return Data frame with all prep script outcomes in the project.
+#' @export
+all_prep_script_outcomes = function(root) {
+  pipeline_dir = add_root_and_check("pipelines", root)
+  all_outcomes = list.files(pipeline_dir, recursive = TRUE, pattern = "PrepScriptOutcomes.csv", full.names = TRUE)
+  lapply(all_outcomes, iidda::read_data_frame) |> dplyr::bind_rows()
+}
+
+#' @describeIn all_prep_script_outcomes Data frame with all successful prep
+#' script outcomes
+#' @export
+successful_prep_script_outcomes = function(root) {
+  dplyr::filter(all_prep_script_outcomes(root), execution_status == "succeeded")
+}
+
+#' @describeIn all_prep_script_outcomes Data frame with all failed prep
+#' script outcomes
+#' @export
+failed_prep_script_outcomes = function(root) {
+  dplyr::filter(all_prep_script_outcomes(root), execution_status == "failed")
+}
+
+#' @param tar_name Name of a tar archive to be created with log files of failed
+#' prep script outcomes.
+#' @describeIn all_prep_script_outcomes Tar archive with log files of failed
+#' prep script outcomes.
+#' @export
+error_tar = function(tar_name, root) {
+  d = tempdir()
+  file.copy(failed_prep_script_outcomes(root)$log_file_path, d)
+  file.copy(failed_prep_script_outcomes(root)$err_file_path, d)
+  cwd = getwd()
+  on.exit({setwd(cwd)})
+  tar_path = file.path(path.expand(cwd), tar_name)
+  f = list.files(d, pattern = "*.log", full.names = FALSE)
+  setwd(d)
+  tar(tarfile = tar_path, files = f)
+}
