@@ -4,7 +4,13 @@
 \alias{convert_harmonized_metadata}
 \title{Convert Harmonized Metadata}
 \usage{
-convert_harmonized_metadata(tidy_metadata, harmonized_metadata, tidy_source)
+convert_harmonized_metadata(
+  tidy_metadata,
+  harmonized_metadata,
+  tidy_source,
+  harmonized_dataset_id,
+  tidy_source_metadata_path
+)
 }
 \arguments{
 \item{tidy_metadata}{Metadata from \code{\link{read_tracking_tables}} for
@@ -15,6 +21,10 @@ a tidy data source.}
 
 \item{tidy_source}{IIDDA data source ID for a data source that is being
 harmonized.}
+
+\item{harmonized_dataset_id}{ID of dataset being harmonized.}
+
+\item{tidy_source_metadata_path}{Output of \code{\link{convert_metadata_path}}.}
 }
 \description{
 Get metadata for a harmonized data source, given metadata for the

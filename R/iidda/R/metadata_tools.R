@@ -16,7 +16,7 @@ read_tracking_tables = function(path) {
     "breakdown", "urls", "date_of_url_access", "tidy_dataset", "path_prep_script",
     "path_tidy_data", "publisher", "publicationYear", "current_version",
     "staging_url_prefix", "scan", "access_script", "prep_script", "digitization_priority",
-    "data_type", "name", "description", "web_resource"
+    "data_type", "name", "description", "web_resource", "source_tag"
   )
   paths = file.path(path, list.files(path, pattern = '.csv'))
   output = (paths
@@ -588,17 +588,25 @@ iidda_data_dictionary = function() {
 #' \code{\link{read_tracking_tables}} for a harmonized data source.
 #' @param tidy_source IIDDA data source ID for a data source that is being
 #' harmonized.
+#' @param harmonized_dataset_id ID of dataset being harmonized.
+#' @param tidy_source_metadata_path Output of \code{\link{convert_metadata_path}}.
 #'
 #' @export
-convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_source) {
+convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_source, harmonized_dataset_id, tidy_source_metadata_path) {
   prep_scripts = tidy_metadata$PrepScripts$prep_script[tidy_metadata$PrepScripts$source == tidy_source] |> unique()
-  dataset_ids = tidy_metadata$PrepDependencies$tidy_dataset[tidy_metadata$PrepDependencies$prep_script %in% prep_scripts] |> unique()
-  digitization_ids = tidy_metadata$DigitizationDependencies$digitization[tidy_metadata$DigitizationDependencies$tidy_dataset %in% dataset_ids] |> unique()
-  prep_ids = tidy_metadata$PrepDependencies$prep_script[tidy_metadata$PrepDependencies$tidy_dataset %in% dataset_ids] |> unique()
-  access_ids = tidy_metadata$AccessDependencies$access_script[tidy_metadata$AccessDependencies$tidy_dataset %in% dataset_ids] |> unique()
+
+  get_ids = function(tracking_table, column_name, lookup_column_name, id_vector) {
+    tracking_column = as.character(tracking_table[[column_name]])
+    lookup_column = as.character(tracking_table[[lookup_column_name]])
+    unique(tracking_column[lookup_column %in% prep_scripts])
+  }
+  dataset_ids = get_ids(tidy_metadata$PrepDependencies, "tidy_dataset", "prep_script", prep_scripts)
+  digitization_ids = get_ids(tidy_metadata$DigitizationDependencies, "digitization", "tidy_dataset", dataset_ids)
+  prep_ids = get_ids(tidy_metadata$PrepDependencies, "prep_script", "tidy_dataset", dataset_ids)
+  access_ids = get_ids(tidy_metadata$AccessDependencies, "access_script", "tidy_dataset", dataset_ids)
 
   get_tidy_metadata = function(tidy_dataset) {
-    digitization = tidy_metadata$DigitizationDependencies$digitization[tidy_metadata$DigitizationDependencies$tidy_dataset %in% tidy_dataset]
+    digitization = get_ids(tidy_metadata$DigitizationDependencies, "digitization", "tidy_dataset", tidy_dataset)
     iidda::get_tracking_metadata(tidy_dataset, digitization, tidy_source_metadata_path, original_format = FALSE)
   }
   tidy_metadata_list = lapply(dataset_ids, get_tidy_metadata)
