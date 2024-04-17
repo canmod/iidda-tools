@@ -688,17 +688,32 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 flatten_disease_hierarchy = function(data
       , disease_lookup
       , grouping_columns = c("period_start_date", "period_end_date", "location")
+      #, basal_diseases_to_prune = character()
     ) {
   disease_lookup =
     (disease_lookup
      |> select(disease, nesting_disease)
      |> distinct())
+  #pruned_lookup = (disease_lookup
+  #  |> filter(!disease %in% basal_diseases_to_prune)
+  #)
   (data
 
     # getting basal disease for all diseases
     |> rowwise()
     |> mutate(basal_disease = basal_disease(disease, disease_lookup))
     |> ungroup()
+
+    # prune basal_diseases
+    #|> mutate(x = disease %in% basal_diseases_to_prune)
+    #|> mutate(y = nesting_disease %in% basal_diseases_to_prune)
+    #|> mutate(z = basal_disease %in% basal_diseases_to_prune)
+
+    #|> mutate(nesting_disease = ifelse(y, "", nesting_disease))
+    #|> rowwise()
+    #|> mutate(basal_disease = ifelse(z, basal_disease(disease, pruned_lookup), basal_disease))
+    #|> ungroup()
+    #|> filter(x)
 
     # keeping only leaf diseases
     |> group_by(across(c("basal_disease", all_of(grouping_columns)))) # period_start_date, period_end_date, location, basal_disease)
@@ -725,7 +740,7 @@ aggregate_disease_hierarchy = function(data, ...) {
 time_scale_chooser = function(time_scale, which_fun) {
   time_scale_order = c("wk", "2wk", "mo", "qr", "yr")
   time_scale = as.character(time_scale)
-  bad_scale = time_scale %in% time_scale_order
+  bad_scale = !time_scale %in% time_scale_order
   if (any(bad_scale)) {
     these_bad_scales = paste0(time_scale[bad_scale], collapse = ", ")
     stop(
@@ -761,7 +776,7 @@ filter_out_time_scales = function(data
       , final_group = c("nesting_disease")
       , cleanup = TRUE
     ) {
-  time_scale_map = c(wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo", `two-wks` = "2wk", qrtr = "qr")
+  time_scale_map = c(wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo", `two-wks` = "2wk", qrtr = "qr", qr = "qr")
   data$time_scale = time_scale_map[as.character(data$time_scale)]
   if (length(unique(data$time_scale)) == 1L) return(data)
   # mutate(longest_time_scale = time_scale_chooser(time_scale, which.max))
