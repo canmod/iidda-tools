@@ -688,15 +688,19 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 flatten_disease_hierarchy = function(data
       , disease_lookup
       , grouping_columns = c("period_start_date", "period_end_date", "location")
-      #, basal_diseases_to_prune = character()
+      , basal_diseases_to_prune = character()
     ) {
   disease_lookup =
     (disease_lookup
      |> select(disease, nesting_disease)
      |> distinct())
-  #pruned_lookup = (disease_lookup
-  #  |> filter(!disease %in% basal_diseases_to_prune)
-  #)
+  pruned_lookup = 
+    (disease_lookup
+     |> filter(!disease %in% basal_diseases_to_prune)
+     |> mutate(nesting_disease = ifelse(nesting_disease %in% basal_diseases_to_prune,
+                                        '',
+                                        nesting_disease))
+  )
   (data
 
     # getting basal disease for all diseases
@@ -705,15 +709,15 @@ flatten_disease_hierarchy = function(data
     |> ungroup()
 
     # prune basal_diseases
-    #|> mutate(x = disease %in% basal_diseases_to_prune)
-    #|> mutate(y = nesting_disease %in% basal_diseases_to_prune)
-    #|> mutate(z = basal_disease %in% basal_diseases_to_prune)
+    |> mutate(x = disease %in% basal_diseases_to_prune)
+    |> mutate(y = nesting_disease %in% basal_diseases_to_prune)
+    |> mutate(z = basal_disease %in% basal_diseases_to_prune)
 
-    #|> mutate(nesting_disease = ifelse(y, "", nesting_disease))
-    #|> rowwise()
-    #|> mutate(basal_disease = ifelse(z, basal_disease(disease, pruned_lookup), basal_disease))
-    #|> ungroup()
-    #|> filter(x)
+    |> mutate(nesting_disease = ifelse(y, "", nesting_disease))
+    |> rowwise()
+    |> mutate(basal_disease = ifelse(z, basal_disease(disease, pruned_lookup), basal_disease))
+    |> ungroup()
+    |> filter(!x)
 
     # keeping only leaf diseases
     |> group_by(across(c("basal_disease", all_of(grouping_columns)))) # period_start_date, period_end_date, location, basal_disease)
