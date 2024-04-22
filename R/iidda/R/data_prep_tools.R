@@ -635,7 +635,7 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
   is_bad_names = !identical(names(disease_lookup), good_names)
   if (is_bad_names) stop("disease_lookup needs to have columns disease and nesting_disease")
   focal_rows = disease_lookup$disease == disease
-  if (!any(focal_rows)) stop(sprintf("disease, %s%, not found", disease))
+  if (!any(focal_rows)) stop(sprintf("disease, %s, not found", disease))
   nesting_disease = disease_lookup$nesting_disease[focal_rows]
   is_tree_missing_nodes = length(nesting_disease) == 0L
   if (is_tree_missing_nodes) stop(paste(disease, "missing tree nodes. check that it is included in 'disease' column"))
