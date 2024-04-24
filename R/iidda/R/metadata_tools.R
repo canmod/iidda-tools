@@ -613,13 +613,14 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
   columns = harmonized_metadata$Columns[harmonized_metadata$Columns$column %in% harmonized_metadata$Schema$column[harmonized_metadata$Schema$tidy_dataset == harmonized_dataset_id], , drop = FALSE]
   columns$tidy_dataset = harmonized_dataset_id
   rownames(columns) = columns$column
+  originals = lapply(tidy_metadata_list, getElement, "Originals") |> unlist(FALSE)
   list(
     TidyDataset = harmonized_metadata$TidyDatasets[harmonized_metadata$TidyDatasets$tidy_dataset == harmonized_dataset_id, , drop = FALSE],
     Source = harmonized_metadata$Sources[harmonized_metadata$Sources$source == harmonized_source, , drop = FALSE],
     Digitization = harmonized_metadata$Digitizations[harmonized_metadata$Digitizations$digitization %in% digitization_ids, , drop = FALSE],
     PrepScript = harmonized_metadata$PrepScripts[harmonized_metadata$PrepScripts$prep_script %in% prep_ids, , drop = FALSE],
     AccessScript = harmonized_metadata$AccessScripts[harmonized_metadata$AccessScripts$access_script %in% access_ids, , drop = FALSE],
-    Originals = lapply(tidy_metadata_list, getElement, "Originals") |> unlist(FALSE),
+    Originals = originals[!duplicated(originals)],
     Columns = setNames(list(columns), harmonized_dataset_id),
     dataset_ids = dataset_ids
   )

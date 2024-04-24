@@ -7,7 +7,8 @@
 flatten_disease_hierarchy(
   data,
   disease_lookup,
-  grouping_columns = c("period_start_date", "period_end_date", "location")
+  grouping_columns = c("period_start_date", "period_end_date", "location"),
+  basal_diseases_to_prune = character()
 )
 }
 \arguments{
