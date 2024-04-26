@@ -614,11 +614,13 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
   columns$tidy_dataset = harmonized_dataset_id
   rownames(columns) = columns$column
   originals = lapply(tidy_metadata_list, getElement, "Originals") |> unlist(FALSE)
+  TidyDataset = harmonized_metadata$TidyDatasets[harmonized_metadata$TidyDatasets$tidy_dataset == harmonized_dataset_id, , drop = FALSE]
+  harmonized_prep_script = get_ids(harmonized_metadata$PrepDependencies, 'prep_script', 'tidy_dataset', TidyDataset$tidy_dataset)
   list(
-    TidyDataset = harmonized_metadata$TidyDatasets[harmonized_metadata$TidyDatasets$tidy_dataset == harmonized_dataset_id, , drop = FALSE],
+    TidyDataset = TidyDataset,
     Source = harmonized_metadata$Sources[harmonized_metadata$Sources$source == harmonized_source, , drop = FALSE],
     Digitization = harmonized_metadata$Digitizations[harmonized_metadata$Digitizations$digitization %in% digitization_ids, , drop = FALSE],
-    PrepScript = harmonized_metadata$PrepScripts[harmonized_metadata$PrepScripts$prep_script %in% prep_ids, , drop = FALSE],
+    PrepScript = harmonized_metadata$PrepScripts[harmonized_metadata$PrepScripts$prep_script %in% c(prep_ids, harmonized_prep_script), , drop = FALSE],
     AccessScript = harmonized_metadata$AccessScripts[harmonized_metadata$AccessScripts$access_script %in% access_ids, , drop = FALSE],
     Originals = originals[!duplicated(originals)],
     Columns = setNames(list(columns), harmonized_dataset_id),
