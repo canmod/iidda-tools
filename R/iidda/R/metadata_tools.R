@@ -598,7 +598,7 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
   get_ids = function(tracking_table, column_name, lookup_column_name, id_vector) {
     tracking_column = as.character(tracking_table[[column_name]])
     lookup_column = as.character(tracking_table[[lookup_column_name]])
-    unique(tracking_column[lookup_column %in% prep_scripts])
+    unique(tracking_column[lookup_column %in% id_vector])
   }
   dataset_ids = get_ids(tidy_metadata$PrepDependencies, "tidy_dataset", "prep_script", prep_scripts)
   digitization_ids = get_ids(tidy_metadata$DigitizationDependencies, "digitization", "tidy_dataset", dataset_ids)
