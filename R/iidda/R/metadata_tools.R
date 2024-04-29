@@ -594,7 +594,7 @@ iidda_data_dictionary = function() {
 #' @export
 convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_source, harmonized_dataset_id, tidy_source_metadata_path) {
   prep_scripts = tidy_metadata$PrepScripts$prep_script[tidy_metadata$PrepScripts$source == tidy_source] |> unique()
-
+  
   get_ids = function(tracking_table, column_name, lookup_column_name, id_vector) {
     tracking_column = as.character(tracking_table[[column_name]])
     lookup_column = as.character(tracking_table[[lookup_column_name]])
@@ -604,7 +604,7 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
   digitization_ids = get_ids(tidy_metadata$DigitizationDependencies, "digitization", "tidy_dataset", dataset_ids)
   prep_ids = get_ids(tidy_metadata$PrepDependencies, "prep_script", "tidy_dataset", dataset_ids)
   access_ids = get_ids(tidy_metadata$AccessDependencies, "access_script", "tidy_dataset", dataset_ids)
-
+  
   get_tidy_metadata = function(tidy_dataset) {
     digitization = get_ids(tidy_metadata$DigitizationDependencies, "digitization", "tidy_dataset", tidy_dataset)
     iidda::get_tracking_metadata(tidy_dataset, digitization, tidy_source_metadata_path, original_format = FALSE)
@@ -614,14 +614,19 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
   columns$tidy_dataset = harmonized_dataset_id
   rownames(columns) = columns$column
   originals = lapply(tidy_metadata_list, getElement, "Originals") |> unlist(FALSE)
+  digitizations = lapply(tidy_metadata_list, getElement, "Digitization")
   TidyDataset = harmonized_metadata$TidyDatasets[harmonized_metadata$TidyDatasets$tidy_dataset == harmonized_dataset_id, , drop = FALSE]
   harmonized_prep_script = get_ids(harmonized_metadata$PrepDependencies, 'prep_script', 'tidy_dataset', TidyDataset$tidy_dataset)
+  allprepscripts = rbind(harmonized_metadata$PrepScripts[harmonized_metadata$PrepScripts$prep_script %in% c(prep_ids, harmonized_prep_script), , drop = FALSE],
+                         tidy_metadata$PrepScripts[tidy_metadata$PrepScripts$prep_script %in% c(prep_ids, harmonized_prep_script), , drop = FALSE])
+  allaccessscripts = rbind(harmonized_metadata$AccessScripts[harmonized_metadata$AccessScripts$access_script %in% access_ids, , drop = FALSE],
+                           tidy_metadata$AccessScripts[tidy_metadata$AccessScripts$prep_script %in% access_ids, , drop = FALSE])
   list(
     TidyDataset = TidyDataset,
     Source = harmonized_metadata$Sources[harmonized_metadata$Sources$source == harmonized_source, , drop = FALSE],
-    Digitization = harmonized_metadata$Digitizations[harmonized_metadata$Digitizations$digitization %in% digitization_ids, , drop = FALSE],
-    PrepScript = harmonized_metadata$PrepScripts[harmonized_metadata$PrepScripts$prep_script %in% c(prep_ids, harmonized_prep_script), , drop = FALSE],
-    AccessScript = harmonized_metadata$AccessScripts[harmonized_metadata$AccessScripts$access_script %in% access_ids, , drop = FALSE],
+    Digitization = do.call(rbind, digitizations)[!duplicated(do.call(rbind, digitizations)), ],
+    PrepScript = unique(allprepscripts),
+    AccessScript = unique(allaccessscripts),
     Originals = originals[!duplicated(originals)],
     Columns = setNames(list(columns), harmonized_dataset_id),
     dataset_ids = dataset_ids
