@@ -11,20 +11,18 @@ Open toolchain for processing infectious disease datasets available through [IID
 
 ## For Users
 
-To install the required [IIDDA](https://github.com/canmod/iidda) [R packages](R/README.md), run:
-```
-make iidda-r-pkg
-```
+The API can be found [here](math.mcmaster.ca/iidda/api/docs)
 
-The current implementation first check if there are any changes or updates in the [Python packages and code](python/README.md) from [IIDDA tools](https://github.com/canmod/iidda-tools/tree/main) and pulls the updates and then starting the API. To start the `API` (assuming you've already set up [Python packages and code](python/README.md)), run:
+To install the [IIDDA](https://github.com/canmod/iidda) [R packages](R/README.md), run:
 ```
-make update-start-api
+install.packages(c("iidda", "iidda.api", "iidda.analysis")
+  , repos = c(
+      "https://canmod.r-universe.dev"
+    , "https://cran.r-project.org"
+  )
+)
 ```
-
-To start the `API` without checking for the updates, run `make start-api`
-
-TODO
 
 ## For Developers
 
-
+TODO
