@@ -15,11 +15,11 @@ library(readr)
 # List Available Data
 # -------------------
 # possible values for variable `source` in "User Input" section
-list_sources()
+list_source_ids()
 
 # possible values for variable `dataset` in "User Input" section,
 # organized by `source`
-list_datasets_by_source()
+list_dataset_ids_by_source()
 # ==============================================
 
 # ==============================================

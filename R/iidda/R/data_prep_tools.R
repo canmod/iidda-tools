@@ -683,6 +683,8 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 #' in the tidy data set in the `data` argument.
 #' @param grouping_columns Character vector of column names to use when
 #' grouping to determine the context.
+#' @param basal_diseases_to_prune Character vector of `disease`s to
+#' remove from `data`.
 #'
 #' @export
 flatten_disease_hierarchy = function(data
@@ -694,7 +696,7 @@ flatten_disease_hierarchy = function(data
     (disease_lookup
      |> select(disease, nesting_disease)
      |> distinct())
-  pruned_lookup = 
+  pruned_lookup =
     (disease_lookup
      |> filter(!disease %in% basal_diseases_to_prune)
      |> mutate(nesting_disease = ifelse(nesting_disease %in% basal_diseases_to_prune,
@@ -702,33 +704,33 @@ flatten_disease_hierarchy = function(data
                                         nesting_disease))
     )
   (data
-    
+
     # getting basal disease for all diseases
     |> rowwise()
     |> mutate(basal_disease = basal_disease(disease, disease_lookup))
     |> ungroup()
-    
+
     # prune basal_diseases
     |> mutate(x = disease %in% basal_diseases_to_prune)
     |> mutate(y = nesting_disease %in% basal_diseases_to_prune)
     |> mutate(z = basal_disease %in% basal_diseases_to_prune)
-    
+
     |> filter(!x)
     |> mutate(nesting_disease = ifelse(y, "", nesting_disease))
     |> rowwise()
     |> mutate(basal_disease = ifelse(z, basal_disease(disease, pruned_lookup), basal_disease))
     |> ungroup()
-    
+
     # keeping only leaf diseases
     |> group_by(across(c("basal_disease", all_of(grouping_columns)))) # period_start_date, period_end_date, location, basal_disease)
     |> filter(is_leaf_disease(disease, nesting_disease))
     |> ungroup()
-    
+
     # if there is only the basal disease (no sub-diseases), differentiate by adding '-only'
     # mutate(disease = ifelse(disease == basal_disease, sprintf("%s-only", disease), disease))
     |> mutate(nesting_disease = basal_disease)
     |> select(-basal_disease, -x, -y, -z)
-    
+
   )
 }
 

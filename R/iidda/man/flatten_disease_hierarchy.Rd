@@ -24,6 +24,9 @@ in the tidy data set in the `data` argument.}
 
 \item{grouping_columns}{Character vector of column names to use when
 grouping to determine the context.}
+
+\item{basal_diseases_to_prune}{Character vector of `disease`s to
+remove from `data`.}
 }
 \description{
 Take a tidy data set with a potentially complex disease hierarchy
