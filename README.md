@@ -11,7 +11,7 @@ Open toolchain for processing infectious disease datasets available through [IID
 
 ## For Users
 
-The API can be found [here](https://math.mcmaster.ca/iidda/api/docs)
+The API for getting data can be found [here](https://math.mcmaster.ca/iidda/api/docs).
 
 To install the [IIDDA](https://github.com/canmod/iidda) [R packages](R/README.md), run:
 ```
