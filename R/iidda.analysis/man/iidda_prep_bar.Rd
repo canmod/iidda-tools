@@ -38,7 +38,6 @@ and they include handling missing values and aggregating series data by time uni
 Other prep_data_for_plotting: 
 \code{\link{iidda_prep_box}()},
 \code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_periodogram}()},
 \code{\link{iidda_prep_rohani}()},
 \code{\link{iidda_prep_seasonal_heatmap}()},
 \code{\link{iidda_prep_series}()},

@@ -104,6 +104,7 @@ period_averager <- function(data
 #' @export
 num_days = function(start_date, end_date) num_days_util(start_date, end_date)
 
+#' @describeIn num_days Low-level interface for `num_days`.
 #' @export
 num_days_util = function(start_date, end_date) {
   as.integer(round(difftime(as.Date(end_date), as.Date(start_date), units = "days"))) + 1L

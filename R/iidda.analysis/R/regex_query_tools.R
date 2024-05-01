@@ -75,7 +75,7 @@ query_options <- function(response_type = c("metadata"
 
 #' Get unique tokens from iidda metadata
 #'
-#' @param entries List returned by \code{iidda.api::ops$metadata}
+#' @param entries List returned by \code{iidda.api::ops_staging$metadata}
 #' @param metadata_search Character, field from which unique tokens are desired
 #'
 #' @return Character vector of unique tokens for a given field from all iidda
@@ -232,7 +232,7 @@ flexi_filter <- function(strings
   , USE.NAMES = FALSE
   ))
   # download the associated data
-  do.call(iidda.api::ops$filter
+  do.call(iidda.api::ops_staging$filter
           , c(list(resource_type = data_type
                    , response_type = "csv")
               , strings_to_search)

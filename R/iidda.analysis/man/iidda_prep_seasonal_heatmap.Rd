@@ -50,7 +50,6 @@ Other prep_data_for_plotting:
 \code{\link{iidda_prep_bar}()},
 \code{\link{iidda_prep_box}()},
 \code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_periodogram}()},
 \code{\link{iidda_prep_rohani}()},
 \code{\link{iidda_prep_series}()},
 \code{\link{iidda_prep_wavelet}()}

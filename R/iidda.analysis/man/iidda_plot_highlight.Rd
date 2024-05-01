@@ -45,7 +45,6 @@ Other plotting_functions:
 \code{\link{iidda_plot_box}()},
 \code{\link{iidda_plot_heatmap}()},
 \code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_periodogram}()},
 \code{\link{iidda_plot_rohani_heatmap}()},
 \code{\link{iidda_plot_scales}()},
 \code{\link{iidda_plot_series}()},

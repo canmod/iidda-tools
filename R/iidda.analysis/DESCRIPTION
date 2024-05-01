@@ -7,6 +7,7 @@ Maintainer: Steven Walker <swalk@mcmaster.ca>
 Description: This package contains tools that depend on \code{iidda} and/or 
     \code{iidda.api}.
 Depends:
+  R (>= 3.5.0),
   iidda, 
   iidda.api
 Imports: 

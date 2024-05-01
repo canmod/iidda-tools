@@ -500,7 +500,7 @@ WaveletNormalizer = function(
 #'
 #' @param time_variable name of the time variable field in `data`
 #' @param wavelet_variable name of the field in `data` to be wavelet transformed
-#'
+#' @param ... Arguments passed on to \code{\link{analyze.wavelet}}.
 #'
 #' @importFrom WaveletComp analyze.wavelet
 #' @return function that computes wavelet transform
@@ -614,7 +614,7 @@ PeriodAggregator = function(
 #' Time Scale Picker
 #'
 #' @param time_scale_variable Variable identifying the time scale of records.
-#' The values of such a variable should be things like `"wk"`, `"mn"`, `"yr"`.
+#' The values of such a variable should be things like `"wk"`, `"mo"`, `"yr"`.
 #' @param time_group_variable Variable identifying a grouping variable for
 #' the time scales (e.g. a column identifying the year.).
 #' @export
@@ -634,7 +634,7 @@ TimeScalePicker = function(
   }
 }
 pick_fine_time_scale = function(scales) {
-  ordering = c("wk", "mt", "qrtr", "yr")
+  ordering = c("wk", "mo", "qr", "yr")
   f = factor(as.character(scales), levels = ordering)
   f[which.min(as.numeric(f))] |> as.character()
 }
@@ -763,7 +763,7 @@ log1p_modified_trans <- function(n=10){
                     "expm1",
                     breaks = function(x) {
                       # x + 1 so we avoid the issue of zeroes
-                      axisTicks(log(range(x+1, na.rm = TRUE)), log = TRUE, n = n)
+                      axisTicks(log(range(x+1, na.rm = TRUE)), log = TRUE, nint = n)
                     })
 }
 
@@ -1045,7 +1045,8 @@ iidda_prep_seasonal_heatmap <- function(data,
   return(heat_data)
 }
 
-#' @export
+
+
 iidda_prep_heatmap_decomp = function(data
   , grouping_variable
   , series_variable
@@ -1066,7 +1067,7 @@ iidda_prep_heatmap_decomp = function(data
   heatmap_data
 }
 
-#' @export
+#' @noRd
 iidda_prep_line_agg = function(data
   , period_aggregator = PeriodAggregator()
 ) {
@@ -1087,6 +1088,8 @@ iidda_prep_line_agg = function(data
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param start_time_variable column name of time variable in `data`, default is "period_end_date"
+#' @param grouping_variable column name of grouping variable to appear on the y-axis of the heatmap.
+#' @param ranking_variable column name of variable used to rank the grouping variable.
 #' @param time_unit a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
 #' Defaults to "c("year")". The currently functionality expects that "year" is included, should be
 #' made more general to incorporate any of iidda.analysis:::time_units.
@@ -1198,7 +1201,7 @@ iidda_prep_rohani <- function(data,
 #' of the new `time_unit` field will be named from lubridate_funcs.
 #'
 #' @family prep_data_for_plotting
-#' @export
+#' @noRd
 iidda_prep_periodogram <- function(data,
                                   series_variable="deaths",
                                   time_variable = "period_end_date",
@@ -1455,7 +1458,7 @@ iidda_plot_ma <- function(plot_object,
   )
 }
 
-#' @export
+
 iidda_plot_line_agg = function(plot_object
   , data = NULL
   , series_variable = "daily_rate"
@@ -1487,10 +1490,10 @@ iidda_plot_line_agg = function(plot_object
 #'
 #' @param data Named list of two data frames: `heatmap` for the heatmap
 #' component and `line` for the line-graph component. This list can be
-#' computed using \code{\link{iidda_prep_heatmap_decomp}}
+#' computed using `iidda_prep_heatmap_decomp`
 #' @importFrom patchwork plot_layout
 #' @importFrom ggplot2 dup_axis
-#' @export
+#' @noRd
 iidda_plot_heatmap_decomp = function(plot_object
   , data = NULL
   , grouping_variable
@@ -1658,6 +1661,7 @@ iidda_plot_box <- function(plot_object,
 #' @param NA_colour colour for `NA` values, defaults to "black"
 #' @param palette_colour colour of heatmap palette, defaults to "RdGy". Should specify what type of palette colours
 #' are accepted by this argument.
+#' @param ... Not currently used.
 #'
 #' @importFrom ggplot2 ggplot_build geom_rect scale_x_continuous scale_y_continuous scale_fill_distiller xlab ylab
 #' @importFrom lubridate yday
@@ -1718,10 +1722,6 @@ iidda_plot_heatmap <- function(plot_object,
 
 }
 
-#' @export
-plot_line_over_heat = function() {
-
-}
 
 
 
@@ -1738,6 +1738,7 @@ plot_line_over_heat = function() {
 #' @param end_year_variable column name of time variable containing the year of the ending period, defaults to "End Year"
 #' @param start_day_variable column name of time variable containing the day of the starting period, defaults to "Day of Year"
 #' @param end_day_variable column name of time variable containing the day of the ending period, defaults to "End Day of Year"
+#' @param grouping_variable column name of grouping variable to appear on the y-axis of the heatmap.
 #' @param colour_trans function to scale colours, to be supplied to trans argument of scale_fill_gradientn()
 #' @param n_colours vector of colours to be supplied to scale_fill_gradientn()
 #' @param NA_colour colour for `NA` values, defaults to "black"
@@ -1811,7 +1812,7 @@ iidda_plot_rohani_heatmap <- function(plot_object,
 #' @return a ggplot2 plot object a rectangular plot highlight
 #'
 #' @family plotting_functions
-#' @export
+#' @noRd
 iidda_plot_periodogram <- function(plot_object,
                                   data=NULL,
                                   period_variable="per",
@@ -1988,9 +1989,10 @@ iidda_plot_scales <- function(
 #' @param data list containing metadata. If `NULL` data is inherited from `plot_object`.
 #' @param min_time name of field in data containing the minimum time period range, defaults to "min_time".
 #' @param max_time name of field in data containing the minimum time period range, defaults to "max_time".
-#' @param descriptor_variable either the name of a field in data containing the descriptor or a string to be used as the
+#' @param descriptor_name either the name of a field in data containing the descriptor or a string to be used as the
 #' plot title. If there are too more than 3 elements in the descriptor field, then `descriptor_variable` is used as the plot
 #' title.
+#' @param theme ggplot theme
 #'
 #' @return a ggplot2 plot object with title, subtitle and adjusted theme.
 #'
@@ -2024,22 +2026,20 @@ iidda_plot_settings <- function(plot_object,
 
 
 
-#' @export
 iidda_title = function(plot_object, min_time, max_time, descriptor_name, theme) {
   UseMethod("iidda_title")
 }
 
-#' @export
 iidda_title.gg = function(plot_object, min_time, max_time, descriptor_name, theme) {
   plot_object +
     ggtitle(
-      title = descriptor_name,
+      label = descriptor_name,
       subtitle = paste0(min_time, " to ", max_time)
     ) +
     theme()
 }
 
-#' @export
+
 iidda_title.patchwork = function(plot_object
     , min_time
     , max_time
@@ -2125,8 +2125,8 @@ get_unit_labels = function(unit) {
 #'
 #' @param data data set containing an input time field
 #' @param unit time unit, one of iidda.analysis:::time_units
-#' @param input_name field name in `data` containing input time field
-#' @param output_name field name of newly created time unit field, by default uses get_unit_labels().
+#' @param input_nm field name in `data` containing input time field
+#' @param output_nm field name of newly created time unit field, by default uses get_unit_labels().
 #'
 #' @return all fields in `data` with additional time unit field
 #' @export

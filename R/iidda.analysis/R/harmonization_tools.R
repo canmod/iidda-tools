@@ -39,7 +39,7 @@ generate_empty_df = function(dir_path, lookup_table, csv_name){
 #' @return csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
 #' @export
 generate_user_table = function(path, lookup_table_type){
-  lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_table_type)
+  lookup_table = iidda.api::ops_staging$lookup_tables(lookup_type = lookup_table_type)
   if(nrow(lookup_table) == 0){
     stop("Lookup table cannot be found in the API")
   } else{

@@ -22,9 +22,11 @@ iidda_plot_settings(
 
 \item{max_time}{name of field in data containing the minimum time period range, defaults to "max_time".}
 
-\item{descriptor_variable}{either the name of a field in data containing the descriptor or a string to be used as the
+\item{descriptor_name}{either the name of a field in data containing the descriptor or a string to be used as the
 plot title. If there are too more than 3 elements in the descriptor field, then `descriptor_variable` is used as the plot
 title.}
+
+\item{theme}{ggplot theme}
 }
 \value{
 a ggplot2 plot object with title, subtitle and adjusted theme.
@@ -39,7 +41,6 @@ Other plotting_functions:
 \code{\link{iidda_plot_heatmap}()},
 \code{\link{iidda_plot_highlight}()},
 \code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_periodogram}()},
 \code{\link{iidda_plot_rohani_heatmap}()},
 \code{\link{iidda_plot_scales}()},
 \code{\link{iidda_plot_series}()},

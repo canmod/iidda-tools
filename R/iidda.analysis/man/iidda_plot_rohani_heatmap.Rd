@@ -35,6 +35,8 @@ iidda_plot_rohani_heatmap(
 
 \item{end_day_variable}{column name of time variable containing the day of the ending period, defaults to "End Day of Year"}
 
+\item{grouping_variable}{column name of grouping variable to appear on the y-axis of the heatmap.}
+
 \item{colour_trans}{function to scale colours, to be supplied to trans argument of scale_fill_gradientn()}
 
 \item{n_colours}{vector of colours to be supplied to scale_fill_gradientn()}
@@ -58,7 +60,6 @@ Other plotting_functions:
 \code{\link{iidda_plot_heatmap}()},
 \code{\link{iidda_plot_highlight}()},
 \code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_periodogram}()},
 \code{\link{iidda_plot_scales}()},
 \code{\link{iidda_plot_series}()},
 \code{\link{iidda_plot_settings}()},
