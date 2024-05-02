@@ -36,5 +36,6 @@ LazyData: true
 RoxygenNote: 7.2.3.9000
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+StagedInstall: no
 Remotes:
   iidda.api=canmod/iidda-tools/R/iidda.api
