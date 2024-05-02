@@ -67,7 +67,7 @@ add_user_entries = function(entries, user_table_path){
     mutate(across(everything(), as.character))
   user_table = read_csv(user_table_path)
 
-  if(all(colnames(entries_df) %in% colnames(user_table))){
+  if (all(colnames(entries_df) %in% colnames(user_table))) {
     updated_df = bind_rows(user_table, entries_df) %>%
       filter(!if_all(.fns = is.na))
     write_data_frame(updated_df, user_table_path)
