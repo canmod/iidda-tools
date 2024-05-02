@@ -38,4 +38,5 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 StagedInstall: no
 Remotes:
-  iidda.api=canmod/iidda-tools/R/iidda.api
+  iidda.api=canmod/iidda-tools/R/iidda.api,
+  iidda=canmod/iidda-tools/R/iidda
