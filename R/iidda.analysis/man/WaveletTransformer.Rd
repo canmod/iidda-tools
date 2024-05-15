@@ -14,6 +14,8 @@ WaveletTransformer(
 \item{time_variable}{name of the time variable field in `data`}
 
 \item{wavelet_variable}{name of the field in `data` to be wavelet transformed}
+
+\item{...}{Arguments passed on to \code{\link{analyze.wavelet}}.}
 }
 \value{
 function that computes wavelet transform

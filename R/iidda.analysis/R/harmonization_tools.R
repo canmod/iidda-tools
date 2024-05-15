@@ -39,7 +39,7 @@ generate_empty_df = function(dir_path, lookup_table, csv_name){
 #' @return csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
 #' @export
 generate_user_table = function(path, lookup_table_type){
-  lookup_table = iidda.api::ops$lookup_tables(lookup_type = lookup_table_type)
+  lookup_table = iidda.api::ops_staging$lookup_tables(lookup_type = lookup_table_type)
   if(nrow(lookup_table) == 0){
     stop("Lookup table cannot be found in the API")
   } else{
@@ -67,7 +67,7 @@ add_user_entries = function(entries, user_table_path){
     mutate(across(everything(), as.character))
   user_table = read_csv(user_table_path)
 
-  if(all(colnames(entries_df) %in% colnames(user_table))){
+  if (all(colnames(entries_df) %in% colnames(user_table))) {
     updated_df = bind_rows(user_table, entries_df) %>%
       filter(!if_all(.fns = is.na))
     write_data_frame(updated_df, user_table_path)

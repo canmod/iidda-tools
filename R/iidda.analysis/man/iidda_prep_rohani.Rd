@@ -31,6 +31,10 @@ iidda_prep_rohani(
 Defaults to "c("year")". The currently functionality expects that "year" is included, should be
 made more general to incorporate any of iidda.analysis:::time_units.}
 
+\item{grouping_variable}{column name of grouping variable to appear on the y-axis of the heatmap.}
+
+\item{ranking_variable}{column name of variable used to rank the grouping variable.}
+
 \item{normalize}{boolean flag to normalize `series_variable` data to be between 0 and 1.}
 
 \item{handle_missing_values}{function to handle missing values, defaults to HandleMissingValues}
@@ -57,7 +61,6 @@ Other prep_data_for_plotting:
 \code{\link{iidda_prep_bar}()},
 \code{\link{iidda_prep_box}()},
 \code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_periodogram}()},
 \code{\link{iidda_prep_seasonal_heatmap}()},
 \code{\link{iidda_prep_series}()},
 \code{\link{iidda_prep_wavelet}()}

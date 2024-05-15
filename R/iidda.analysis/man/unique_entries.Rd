@@ -7,7 +7,7 @@
 unique_entries(entries, metadata_search)
 }
 \arguments{
-\item{entries}{List returned by \code{iidda.api::ops$metadata}}
+\item{entries}{List returned by \code{iidda.api::ops_staging$metadata}}
 
 \item{metadata_search}{Character, field from which unique tokens are desired}
 }

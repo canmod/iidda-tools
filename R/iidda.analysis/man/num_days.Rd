@@ -2,9 +2,12 @@
 % Please edit documentation in R/period_averager.R
 \name{num_days}
 \alias{num_days}
+\alias{num_days_util}
 \title{Numbers of Days}
 \usage{
 num_days(start_date, end_date)
+
+num_days_util(start_date, end_date)
 }
 \arguments{
 \item{start_date}{Vector of period starting dates}
@@ -16,6 +19,11 @@ Compute a vector giving the number of days in a
 set of periods, given equal length vectors of the start date and end date of
 these periods. This
 }
+\section{Functions}{
+\itemize{
+\item \code{num_days_util()}: Low-level interface for `num_days`.
+
+}}
 \seealso{
 Other time_periods: 
 \code{\link{mid_dates_times}},

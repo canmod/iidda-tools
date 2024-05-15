@@ -7,14 +7,14 @@
 #' @return the input object with the attribute
 #' \code{'iidda_time_plot_reference'} equal to \code{TRUE}
 #'
-#' @export
+#' @noRd
 ref = function(x) {
   attr(x, 'iidda_time_plot_reference') = TRUE
   x
 }
 
 
-#' @export
+#' @noRd
 is_ref = function(x) {
   isTRUE(attr(x, 'iidda_time_plot_reference'))
 }
@@ -28,12 +28,12 @@ is_ref = function(x) {
 #' @param time_id identifier for finding time axis information
 #' in each object
 #' @return Date vector of the limits of a shared time axis
-#' @export
+#' @noRd
 shared_time_limits = function(..., time_id) {
   UseMethod("shared_time_limits")
 }
 
-#' @export
+#' @noRd
 shared_time_limits.ggplot = function(..., time_id) {
   plts = list(...)
   (plts
@@ -57,19 +57,19 @@ time_extent = function(x, time_id) {
 }
 
 
-#' @export
+#' @noRd
 time_extent_date = function(x) {
   args = c(as.list(rev(range(x))), list(units = 'days'))
   dif = do.call(difftime, args)
   as.integer(dif)
 }
 
-#' @export
+#' @noRd
 time_extent.data.frame = function(x, time_id) {
   time_extent_date(x[[time_id]])
 }
 
-#' @export
+#' @noRd
 time_extent.ggplot = function(x, time_id) {
   time_extent(x$data, time_id)
 }
@@ -82,12 +82,12 @@ time_extent.ggplot = function(x, time_id) {
 #' @param time_id identifier for finding time axis information
 #' in each object
 #' @return modified list of objects
-#' @export
+#' @noRd
 time_harmonize = function(..., time_id) {
   UseMethod("time_harmonize")
 }
 
-#' @export
+#' @noRd
 time_harmonize.ggplot = function(..., time_id) {
   plts = ref_plts = list(...)
   which_ref = (plts
@@ -105,7 +105,7 @@ time_harmonize.ggplot = function(..., time_id) {
 }
 
 
-#' @export
+#' @noRd
 time_harmonize_list = function(l, time_id) {
   do.call(time_harmonize, c(l, list(time_id = time_id)))
 }
@@ -115,17 +115,17 @@ time_harmonize_list = function(l, time_id) {
 
 
 
-#' @export
+#' @noRd
 to_gtable = function(x) {
   UseMethod('to_gtable')
 }
 
-#' @export
+#' @noRd
 to_gtable.ggplot = function(x) {
   ggplotGrob(x)
 }
 
-#' @export
+#' @noRd
 to_gtable.gtable = function(x) x
 
 # to_gtable.grob = function(x) {
@@ -145,7 +145,7 @@ to_gtable.gtable = function(x) x
 #' Grob Utilities
 #'
 #' @param x TODO
-#' @export
+#' @noRd
 grob_names = function(x) {
   to_gtable(x)$layout$name
 }
@@ -153,23 +153,25 @@ grob_names = function(x) {
 #' Which Grobs
 #'
 #' @param grob_nms names of grobs
-#' @export
+#' @noRd
 which_grobs = function(x, grob_nms) {
   which(grob_names(x) %in% grob_nms)
 }
 
-#' @export
+
+#' @noRd
 which_grobs_not = function(x, grob_nms) {
   which(!grob_names(x) %in% grob_nms)
 }
 
-#' @export
+
+#' @noRd
 get_grobs = function(x, grob_nms) {
   to_gtable(x)$grob[which_grobs(x, grob_nms)]
 }
 
 #' param grob_nm name of grob to get
-#' @export
+#' @noRd
 get_grob = function(x, grob_nm) {
   stopifnot(length(grob_nm) == 1L)
   out_grob = get_grobs(x, grob_nm)
@@ -178,7 +180,7 @@ get_grob = function(x, grob_nm) {
   out_grob[[1L]]
 }
 
-#' @export
+#' @noRd
 rm_grobs = function(x, grob_nms) {
   grobs_to_keep = which_grobs_not(x, grob_nms)
   y = to_gtable(x)
@@ -187,7 +189,7 @@ rm_grobs = function(x, grob_nms) {
   y
 }
 
-#' @export
+#' @noRd
 zero_grob_col = function(x, grob_nm) {
   i = which_grobs(x, grob_nm)
   y = to_gtable(x)
@@ -206,9 +208,9 @@ seq_vec = function(v) {
 
 #remove_legend = function(plt, )
 
-#' Stack Time Plots
-#'
-#'
+# Stack Time Plots
+#
+#
 stack_time_plots = function(..., time_id, layout, widths, heights) {
   plts = do.call(time_harmonize, c(list(...), list(time_id = time_id)))
 

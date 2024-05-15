@@ -40,6 +40,8 @@ iidda_plot_heatmap(
 
 \item{palette_colour}{colour of heatmap palette, defaults to "RdGy". Should specify what type of palette colours
 are accepted by this argument.}
+
+\item{...}{Not currently used.}
 }
 \value{
 a ggplot2 plot object containing a yearly vs. weekly heatmap of time series data
@@ -54,7 +56,6 @@ Other plotting_functions:
 \code{\link{iidda_plot_box}()},
 \code{\link{iidda_plot_highlight}()},
 \code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_periodogram}()},
 \code{\link{iidda_plot_rohani_heatmap}()},
 \code{\link{iidda_plot_scales}()},
 \code{\link{iidda_plot_series}()},
