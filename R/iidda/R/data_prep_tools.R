@@ -803,3 +803,25 @@ filter_out_time_scales = function(data
   new_data
 }
 
+#' Interpolate Population
+#'
+#' @param tidy_pop One or more tidy population data frames 
+interp_pop = function(tidy_pop){
+  start_date = min(tidy_pop$date)
+  end_date = max(tidy_pop$date)
+  (tidy_pop
+    |> group_by(iso_3166_2)
+    # make the grid outside and then filter and do the population interpolation here, on the grid
+    |> do(
+      data.frame(date = iidda.analysis::grid_dates(start_date, end_date)
+                 , population = round(approx(x = .data$date
+                                             , y = .data$population
+                                             , xout = iidda.analysis::grid_dates(start_date
+                                                                                 , end_date
+                                             )
+                 )$y)
+      )
+    )
+    |> replace_na(list(population = 0))
+  )
+}
