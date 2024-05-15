@@ -728,8 +728,8 @@ flatten_disease_hierarchy = function(data
 
     # if there is only the basal disease (no sub-diseases), differentiate by adding '-only'
     # mutate(disease = ifelse(disease == basal_disease, sprintf("%s-only", disease), disease))
-    |> mutate(nesting_disease = basal_disease)
-    |> select(-basal_disease, -x, -y, -z)
+    # mutate(nesting_disease = basal_disease)
+    |> select(-x, -y, -z)
 
   )
 }
