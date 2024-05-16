@@ -688,9 +688,9 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 #'
 #' @export
 flatten_disease_hierarchy = function(data
-                                     , disease_lookup
-                                     , grouping_columns = c("period_start_date", "period_end_date", "location")
-                                     , basal_diseases_to_prune = character()
+   , disease_lookup
+   , grouping_columns = c("period_start_date", "period_end_date", "location")
+   , basal_diseases_to_prune = character()
 ) {
   disease_lookup =
     (disease_lookup
@@ -699,9 +699,12 @@ flatten_disease_hierarchy = function(data
   pruned_lookup =
     (disease_lookup
      |> filter(!disease %in% basal_diseases_to_prune)
-     |> mutate(nesting_disease = ifelse(nesting_disease %in% basal_diseases_to_prune,
-                                        '',
-                                        nesting_disease))
+     |> mutate(nesting_disease = ifelse(
+            nesting_disease %in% basal_diseases_to_prune
+          , ''
+          , nesting_disease
+        )
+      )
     )
   (data
 
@@ -774,7 +777,10 @@ time_scale_chooser = function(time_scale, which_fun) {
 #' the initial grouping used to compute the shortest time scales.
 #' @param final_group Character vector naming columns for defining the final
 #' grouping used to compute the longest of the shortest time scales.
-#' @param cleanup Should intermediate columns be cleaned up?
+#' @param cleanup Should intermediate columns be removed before returning the
+#' output
+#'
+#' @return A data set only containing records with the best time scale.
 #'
 #' @importFrom lubridate year
 #' @export
@@ -783,10 +789,12 @@ filter_out_time_scales = function(data
       , final_group = c("nesting_disease")
       , cleanup = TRUE
     ) {
-  time_scale_map = c(wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo", `two-wks` = "2wk", qrtr = "qr", qr = "qr")
+  time_scale_map = c(
+      wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo"
+    , `two-wks` = "2wk", qrtr = "qr", qr = "qr"
+  )
   data$time_scale = time_scale_map[as.character(data$time_scale)]
   if (length(unique(data$time_scale)) == 1L) return(data)
-  # mutate(longest_time_scale = time_scale_chooser(time_scale, which.max))
   new_data = (data
     |> mutate(year = year(period_end_date))
     |> group_by(across(all_of(c("year", initial_group))))
