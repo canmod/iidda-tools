@@ -2116,7 +2116,7 @@ lubridate_funcs = c(
 #' @return label of associated time unit
 #' @export
 get_unit_labels = function(unit) {
-  lubridate_funcs[sub("^([a-z]+)_[a-z0-9_]+$", "\\1", unit, perl=TRUE)]
+  lubridate_funcs[sub("^([a-z]+)_[a-z0-9_]+$", "\\1", unit, perl = TRUE)]
 }
 
 #' Mutate time variables
