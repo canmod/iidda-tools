@@ -816,8 +816,8 @@ filter_out_time_scales = function(data
 #' Interpolate Population
 #'
 #' @param tidy_pop One or more tidy population data frames
-#' @importFrom iidda.analysis grid_dates
-#' @export
+#' @noRd
+
 interp_pop = function(tidy_pop){
   start_date = min(tidy_pop$date)
   end_date = max(tidy_pop$date)
