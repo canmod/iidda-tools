@@ -1,4 +1,4 @@
-`import http
+import http
 import hmac
 import hashlib
 import time
