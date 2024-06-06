@@ -780,7 +780,7 @@ time_scale_chooser = function(time_scale, which_fun) {
 #' @export
 filter_out_time_scales = function(data
       , initial_group = c("iso_3166", "iso_3166_2", "disease", "nesting_disease")
-      , final_group = c("nesting_disease")
+      , final_group = c("basal_disease")
       , cleanup = TRUE
     ) {
   time_scale_map = c(wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo", `two-wks` = "2wk", qrtr = "qr", qr = "qr")
@@ -803,27 +803,4 @@ filter_out_time_scales = function(data
     )
   }
   new_data
-}
-
-#' Interpolate Population
-#'
-#' @param tidy_pop One or more tidy population data frames 
-interp_pop = function(tidy_pop){
-  start_date = min(tidy_pop$date)
-  end_date = max(tidy_pop$date)
-  (tidy_pop
-    |> group_by(iso_3166_2)
-    # make the grid outside and then filter and do the population interpolation here, on the grid
-    |> do(
-      data.frame(date = iidda.analysis::grid_dates(start_date, end_date)
-                 , population = round(approx(x = .data$date
-                                             , y = .data$population
-                                             , xout = iidda.analysis::grid_dates(start_date
-                                                                                 , end_date
-                                             )
-                 )$y)
-      )
-    )
-    |> replace_na(list(population = 0))
-  )
 }
