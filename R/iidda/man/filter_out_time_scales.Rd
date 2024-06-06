@@ -20,7 +20,11 @@ the initial grouping used to compute the shortest time scales.}
 \item{final_group}{Character vector naming columns for defining the final
 grouping used to compute the longest of the shortest time scales.}
 
-\item{cleanup}{Should intermediate columns be cleaned up?}
+\item{cleanup}{Should intermediate columns be removed before returning the
+output}
+}
+\value{
+A data set only containing records with the best time scale.
 }
 \description{
 Choose a single best `time_scale` for each year in a dataset, grouped by
