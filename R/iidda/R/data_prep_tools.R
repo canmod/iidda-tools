@@ -1,3 +1,23 @@
+## operations
+##
+## * get longest time scale in each group
+## * get shortest time scale in each group
+## * flatten disease hierarchy in each group
+## * distribute counts evenly ...
+## * sum counts ...
+## * find nesting time-scale
+##
+## questions
+##
+## * can we put the above (or more) operations together so that
+##   we remove double counting for the full archive?
+## * if so, can we make an interface that clarifies for the user
+##   how to make alternative choices?
+##
+
+
+
+
 #' Write Tidy Digitized Data and Metadata
 #'
 #' @param tidy_data Data frame of prepared data that
@@ -685,19 +705,36 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 #' grouping to determine the context.
 #' @param basal_diseases_to_prune Character vector of `disease`s to
 #' remove from `data`.
+#' @param specials_pattern Optional regular expression to use to match
+#' `disease` names in `data` that should be added to the lookup table. This
+#' is useful for disease names that are not historical and produced for
+#' harmonization purposes. The most common example is `"_unaccounted$"`,
+#' which is the default. Setting this argument to `NULL` avoids adding
+#' any special disease names to the lookup table.
 #'
 #' @export
 flatten_disease_hierarchy = function(data
    , disease_lookup
    , grouping_columns = c("period_start_date", "period_end_date", "location")
    , basal_diseases_to_prune = character()
+   , specials_pattern = "_unaccounted$"
 ) {
-  disease_lookup =
-    (disease_lookup
-     |> select(disease, nesting_disease)
-     |> distinct())
-  pruned_lookup =
-    (disease_lookup
+
+  # only need the lookup table to infer the hierarchy
+  disease_lookup = (disease_lookup
+   |> select(disease, nesting_disease)
+   |> distinct()
+  )
+
+  if (!is.null(specials_pattern)) {
+    specials = (data
+      |> filter(grepl(specials_pattern, canmod_cdi_api$disease))
+      |> select(disease, nesting_disease)
+      |> distinct()
+    )
+    disease_lookup = bind_rows(disease_lookup, specials)
+  }
+  pruned_lookup = (disease_lookup
      |> filter(!disease %in% basal_diseases_to_prune)
      |> mutate(nesting_disease = ifelse(
             nesting_disease %in% basal_diseases_to_prune

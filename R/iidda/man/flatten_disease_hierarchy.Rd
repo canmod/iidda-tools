@@ -8,7 +8,8 @@ flatten_disease_hierarchy(
   data,
   disease_lookup,
   grouping_columns = c("period_start_date", "period_end_date", "location"),
-  basal_diseases_to_prune = character()
+  basal_diseases_to_prune = character(),
+  specials_pattern = "_unaccounted$"
 )
 }
 \arguments{
@@ -27,6 +28,13 @@ grouping to determine the context.}
 
 \item{basal_diseases_to_prune}{Character vector of `disease`s to
 remove from `data`.}
+
+\item{specials_pattern}{Optional regular expression to use to match
+`disease` names in `data` that should be added to the lookup table. This
+is useful for disease names that are not historical and produced for
+harmonization purposes. The most common example is `"_unaccounted$"`,
+which is the default. Setting this argument to `NULL` avoids adding
+any special disease names to the lookup table.}
 }
 \description{
 Take a tidy data set with a potentially complex disease hierarchy

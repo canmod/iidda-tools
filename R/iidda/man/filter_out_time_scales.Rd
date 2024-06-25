@@ -7,7 +7,7 @@
 filter_out_time_scales(
   data,
   initial_group = c("iso_3166", "iso_3166_2", "disease", "nesting_disease"),
-  final_group = c("nesting_disease"),
+  final_group = c("basal_disease"),
   cleanup = TRUE
 )
 }
