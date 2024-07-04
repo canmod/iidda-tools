@@ -6,9 +6,10 @@
 \usage{
 filter_out_time_scales(
   data,
-  initial_group = c("iso_3166", "iso_3166_2", "disease", "nesting_disease"),
+  initial_group = c("iso_3166", "iso_3166_2", "disease", "nesting_disease",
+    "basal_disease"),
   final_group = c("basal_disease"),
-  cleanup = TRUE
+  aggregate_if_unavailable = TRUE
 )
 }
 \arguments{
@@ -20,8 +21,9 @@ the initial grouping used to compute the shortest time scales.}
 \item{final_group}{Character vector naming columns for defining the final
 grouping used to compute the longest of the shortest time scales.}
 
-\item{cleanup}{Should intermediate columns be removed before returning the
-output}
+\item{aggregate_if_unavailable}{If a location is not reporting for the determined
+'best timescale', but is reporting at a finer timescale, aggregate this finer 
+timescale to the 'best timescale'}
 }
 \value{
 A data set only containing records with the best time scale.
