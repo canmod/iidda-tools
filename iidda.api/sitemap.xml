@@ -1,33 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/404.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/articles/Quickstart.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/index.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/reference/iidda.api-package.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/reference/interactive.html</loc>
-  </url>
-  <url>
-    <loc>https://canmod.github.io/iidda-tools/iidda.api/reference/ops.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/404.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/LICENSE.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/articles/Quickstart.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/articles/index.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/authors.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/index.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/reference/iidda.api-package.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/reference/index.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/reference/interactive.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda.api/reference/ops.html</loc></url>
 </urlset>
+
