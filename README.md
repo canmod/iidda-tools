@@ -25,4 +25,6 @@ install.packages(c("iidda", "iidda.api", "iidda.analysis")
 
 ## For Developers
 
-TODO
+This repository contains several packages and tools that depend on each other.  These dependencies obey the following diagram.
+
+![](notes/dependency_relationships/dependency_relationships.svg)
