@@ -672,6 +672,34 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
   Recall(nesting_disease, disease_lookup, encountered_diseases)
 }
 
+
+#' Add Basal Disease
+#' 
+#' Add column `basal_disease` to tidy dataset
+#'
+#'  @param data A tidy data set with a `disease` column
+#' @param disease_lookup A lookup table with `disease` and `nesting_disease`
+#' columns that describe a global disease hierarchy that will be applied
+#' to find the basal disease of each `disease` in data 
+#'
+#' @return 
+#'
+#' @export
+add_basal_disease = function(data, lookup){
+  disease_lookup =
+    (lookup
+    |> select(disease, nesting_disease)
+    |> distinct())
+  
+  with_basal = (data
+    |> rowwise()
+    |> mutate(basal_disease = basal_disease(disease, disease_lookup))
+    |> ungroup()
+  )
+  
+  with_basal
+}
+
 #' Is Leaf Disease
 #'
 #' Given a set of `disease`-`nesting_disease` pairs that all share the same
