@@ -506,6 +506,7 @@ identify_time_scales = function(data){
    %>% mutate(time_scale = ifelse(period_end_date == as.Date(period_start_date) + 6, "wk", "2wk"))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 14, "mo", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 40, "qr", time_scale))
+   %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 260, "3qr", time_scale))
    %>% mutate(time_scale = ifelse(as.Date(period_end_date)-as.Date(period_start_date) > 300, "yr", time_scale))
   )
 }
@@ -670,6 +671,34 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
   if (is_basal) return(disease)
   encountered_diseases = append(encountered_diseases, disease)
   Recall(nesting_disease, disease_lookup, encountered_diseases)
+}
+
+
+#' Add Basal Disease
+#' 
+#' Add column `basal_disease` to tidy dataset
+#'
+#'  @param data A tidy data set with a `disease` column
+#' @param disease_lookup A lookup table with `disease` and `nesting_disease`
+#' columns that describe a global disease hierarchy that will be applied
+#' to find the basal disease of each `disease` in data 
+#'
+#' @return 
+#'
+#' @export
+add_basal_disease = function(data, lookup){
+  disease_lookup =
+    (lookup
+    |> select(disease, nesting_disease)
+    |> distinct())
+  
+  with_basal = (data
+    |> rowwise()
+    |> mutate(basal_disease = basal_disease(disease, disease_lookup))
+    |> ungroup()
+  )
+  
+  with_basal
 }
 
 #' Is Leaf Disease
@@ -870,38 +899,44 @@ filter_out_time_scales_old = function(data
 }
 
 
-#' Filter out Time Scales
+#' Normalize Time Scales
 #'
 #' Choose a single best `time_scale` for each year in a dataset, grouped by
 #' nesting disease. This best `time_scale` is defined as the longest
 #' of the shortest time scales in each location and sub-disease.
 #'
-#' @param data A tidy data set with a `time_scale` column.
+#' @param data A tidy data set with a `time_scale` and `year` column
 #' @param initial_group Character vector naming columns for defining
 #' the initial grouping used to compute the shortest time scales.
 #' @param final_group Character vector naming columns for defining the final
 #' grouping used to compute the longest of the shortest time scales.
+#' @param get_implied_zeros Add zeros that are implied by a '0' reported at a coarser timescale.
 #' @param aggregate_if_unavailable If a location is not reporting for the determined
 #' 'best timescale', but is reporting at a finer timescale, aggregate this finer
 #' timescale to the 'best timescale'
 #'
-#' @return A data set only containing records with the best time scale.
+#' @return A data set only containing records with the optimal time scale.
 #'
 #' @importFrom lubridate year
 #' @export
-filter_out_time_scales = function(data
-    , initial_group = c("iso_3166", "iso_3166_2", "disease", "nesting_disease", "basal_disease")
+normalize_time_scales = function(data
+    , initial_group = c("year", "iso_3166", "iso_3166_2", "disease", "nesting_disease", "basal_disease")
     , final_group = c("basal_disease")
+    , get_implied_zeros = TRUE
     , aggregate_if_unavailable = TRUE
 ) {
 
+  if(get_implied_zeros) data = get_implied_zeros(data)
+  
   if (length(unique(data$time_scale)) == 1L) return(data)
+  
+  if (!"year" %in% colnames(data)) {stop("The column 'year' does not exist in the dataset.")}
 
   new_data = (data
     # remove '_unaccounted' cases when deciding best time_scale
     |> factor_time_scale()
     |> filter(!grepl("_unaccounted$", disease))
-    |> mutate(year = year(period_end_date))
+   # |> mutate(year = year(period_end_date))
     |> group_by(across(all_of(c("year", initial_group))))
     |> mutate(shortest_time_scale = time_scale_chooser(time_scale, which.min))
     |> ungroup()
@@ -921,7 +956,8 @@ filter_out_time_scales = function(data
     |> rbind(new_data)
   )
 
-  if (isTRUE(aggregate_if_unavailable)) {
+  if(aggregate_if_unavailable) {
+
     # coarse scales to aggregate to
     scales = (all_new_data
     |> select(period_start_date, period_end_date, disease, nesting_disease, basal_disease)
@@ -934,7 +970,7 @@ filter_out_time_scales = function(data
     # available at a finer timescale
     data_to_aggregate = (data
      |> factor_time_scale()
-     |> mutate(year = year(period_end_date))
+   # |> mutate(year = year(period_end_date))
      |> left_join(select(all_new_data, "year","disease", "nesting_disease", "basal_disease", "time_scale") |> unique(),
                   by = c("year", "disease", "nesting_disease", "basal_disease"),
                   suffix = c('_old', '_new'))
@@ -969,13 +1005,13 @@ filter_out_time_scales = function(data
                  period_start_date, period_end_date, .keep_all = TRUE)
 
      # add back days_this_period and period_mid_date for the coarser start and end dates
+     # FIXME: apparently using iidda analysis functions will cause issues. oops
      |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
      |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
      |> select(-time_scale_old)
-
-     |> mutate(record_origin = 'derived')
+     |> mutate(record_origin = 'derived-aggregated-timescales')
     )
-
+    
     final = (all_new_data
      |> mutate(record_origin = ifelse("record_origin" %in% names(all_new_data), record_origin, 'historical'))
      |> rbind(aggregated_unavailable_data)
@@ -999,50 +1035,49 @@ filter_out_time_scales = function(data
 get_implied_zeros = function(data){
 
   starting_data = (data
-                   |> mutate(year = year(as.Date(period_end_date)))
-                   |> factor_time_scale()
-
-                   |> group_by(iso_3166_2, disease, year, original_dataset_id)
-                   |> mutate(all_zero = ifelse(sum(as.numeric(cases_this_period)) == 0, TRUE, FALSE))
-                   |> ungroup()
-
-                   |> group_by(disease, year, original_dataset_id)
-                   |> mutate(finest_timescale = min(time_scale))
-                   |> ungroup()
-  )
+     |> mutate(year = year(as.Date(period_end_date)))
+     |> factor_time_scale()
+     
+     |> group_by(iso_3166_2, disease, year, original_dataset_id)
+     |> mutate(all_zero = ifelse(sum(as.numeric(cases_this_period)) == 0, TRUE, FALSE))
+     |> ungroup()
+     
+     |> group_by(disease, year, original_dataset_id)
+     |> mutate(finest_timescale = min(time_scale))
+     |> ungroup()
+    )
 
   scales = (starting_data
-            |> filter(time_scale == finest_timescale)
-            |> distinct(disease, nesting_disease, basal_disease,
-                        year, time_scale, period_start_date, period_end_date,
-                        period_mid_date, days_this_period, original_dataset_id)
-  )
+     |> filter(time_scale == finest_timescale)
+     |> distinct(disease, nesting_disease, basal_disease,
+                year, time_scale, period_start_date, period_end_date, 
+                period_mid_date, days_this_period, original_dataset_id)
+)
 
   # records for which all_zero = true and finest_timescale isn't available
-  get_new_zeros = (starting_data
-                   |> filter(time_scale > finest_timescale, all_zero)
-
-                   # filter for timescales that are not in the original data
-                   |> anti_join(starting_data
-                                , by = c('iso_3166_2', 'year', 'finest_timescale' = 'time_scale',
-                                         'disease', 'nesting_disease', 'basal_disease', 'dataset_id'
-                                )) # nesting/basal too? see if that changes result!
-
-                   |> select(-period_start_date, -period_end_date, -period_mid_date,
-                             -days_this_period)
-  )
-
+  get_new_zeros = (starting_data                
+     |> filter(time_scale > finest_timescale, all_zero)
+     
+     # filter for timescales that are not in the original data
+     |> anti_join(starting_data
+                  , by = c('iso_3166_2', 'year', 'finest_timescale' = 'time_scale',
+                           'disease', 'nesting_disease', 'basal_disease', 'dataset_id'
+                  )) # nesting/basal too? see if that changes result!
+     
+     |> select(-period_start_date, -period_end_date, -period_mid_date,
+               -days_this_period)
+  ) 
+  
   # for rows in get_new_records, find the periods (i.e. start and end dates)
   # for the finest_timescale for a given year, disease, and original_dataset_id
-  new_zeros =
-    (get_new_zeros
+  new_zeros = (get_new_zeros
      |> left_join(scales, by = c('disease', 'year', 'finest_timescale' = 'time_scale',
-                                 'nesting_disease', 'basal_disease', 'original_dataset_id'
-     ), relationship = "many-to-many")
+                                 'nesting_disease', 'basal_disease', 'original_dataset_id'), 
+                  relationship = "many-to-many")
      |> select(-time_scale, -year, -all_zero)
      |> rename(time_scale = finest_timescale)
-
-     |> mutate(record_origin = 'derived')
+     
+     |> mutate(record_origin = 'derived-implied-zero')
     )
 
   # join back to original data
@@ -1091,26 +1126,26 @@ find_unaccounted_cases = function(data){
   unaccounted_data =
     (inner_join(sum_of_leaf, reported_totals, by =
                   c('iso_3166', 'iso_3166_2', 'period_start_date', 'period_end_date', 'nesting_disease'),
-                suffix = c('_sum', '_reported'))
+              suffix = c('_sum', '_reported'))
 
-     %>% mutate(cases_this_period_reported = as.numeric(cases_this_period_reported),
-                cases_this_period_sum = as.numeric(cases_this_period_sum))
+   %>% mutate(cases_this_period_reported = as.numeric(cases_this_period_reported),
+              cases_this_period_sum = as.numeric(cases_this_period_sum))
 
-     %>% filter(cases_this_period_sum < cases_this_period_reported)
-     %>% mutate(diff = cases_this_period_reported - cases_this_period_sum)
-     %>% rename(cases_this_period = diff)
-     %>% mutate(disease = paste(nesting_disease, 'unaccounted', sep = '_'))
+   %>% filter(cases_this_period_sum < cases_this_period_reported)
+   %>% mutate(diff = cases_this_period_reported - cases_this_period_sum)
+   %>% rename(cases_this_period = diff)
+   %>% mutate(disease = paste(nesting_disease, 'unaccounted', sep = '_'))
 
-     %>% select(-cases_this_period_reported, -cases_this_period_sum)
+   %>% select(-cases_this_period_reported, -cases_this_period_sum)
 
-     %>% mutate(original_dataset_id = '')
-     %>% mutate(historical_disease = '')
-     %>% mutate(record_origin = 'derived')
+   %>% mutate(original_dataset_id = '')
+   %>% mutate(historical_disease = '')
+   %>% mutate(record_origin = 'derived-unaccounted-cases')
     )
-
+  
   (data
-    |> mutate(record_origin = ifelse("record_origin" %in% names(data), record_origin, 'historical'))
-    |> rbind(unaccounted_data)
+    %>% mutate(record_origin = ifelse("record_origin" %in% names(data), record_origin, 'historical'))
+    %>% rbind(unaccounted_data)
   )
 }
 
