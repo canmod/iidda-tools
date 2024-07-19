@@ -36,7 +36,7 @@ update_makefiles = function(
     , source_makefiles = FALSE
     , derived_data_makefile = FALSE
   ) {
-  sources = list_dataset_ids_by_source(proj_root())
+  sources = list_dataset_ids_by_source()
   source_names = names(sources)
   harmonized_sources = grep("_harmonized$", source_names, value = TRUE)
   sorted_source_names = c(setdiff(source_names, harmonized_sources), harmonized_sources)
@@ -79,7 +79,7 @@ make_makefile = function(source, dataset) {
     )
   }
 
-  script = get_main_script(source, dataset, proj_root()) |> try()
+  script = get_main_script(source, dataset) |> try()
   if (inherits(script, "try-error")) return(character())
   main = sub(sprintf("^%s/", pipeline), "", script)
   if (length(main) == 1L) {
@@ -88,10 +88,10 @@ make_makefile = function(source, dataset) {
     stop("Cannot find main prep script for dataset ", dataset)
   }
 
-  focal_deps = get_all_dependencies(source, dataset, proj_root())
+  focal_deps = get_all_dependencies(source, dataset)
   focal_deps = setdiff(focal_deps, script)
   if (any_up) {
-    up_deps = get_all_dependencies(up_source, up_datasets, proj_root())
+    up_deps = get_all_dependencies(up_source, up_datasets)
   }
 
   deps = c()

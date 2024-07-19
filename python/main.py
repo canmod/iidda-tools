@@ -165,7 +165,7 @@ async def metadata(
     """
     Get metadata for datasets. There are 3 ways to filter datasets; they cannot be used in conjuction:
     - ***metadata_search, key, and string_comparison***
-    - ***dataset_ids*** 
+    - ***dataset_ids***
     - ***jq_query***
     """
     if jq_query is not None:
