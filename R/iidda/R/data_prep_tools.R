@@ -34,7 +34,7 @@ write_tidy_data = function(tidy_data, metadata, tidy_dir = NULL) {
   tidy_dataset = metadata$TidyDataset$tidy_dataset
 
   if (is.null(tidy_dir)) tidy_dir = metadata$TidyDataset$path_tidy_data
-  tidy_dir = strip_blob_github(tidy_dir)
+  tidy_dir = tidy_dir |> strip_blob_github() |> proj_path()
   if (nchar(tidy_dir) == 0L) stop("probably need to put a path to the tidy dataset in your metadata.")
   if (!dir.exists(tidy_dir)) dir.create(tidy_dir, recursive = TRUE)
 
@@ -418,16 +418,17 @@ schema_check = function(table, metadata) {
 #' @export
 read_digitized_data = function(metadata) {
   path = strip_blob_github(metadata$Digitization$path_digitized_data)
+  path_in_proj = proj_path(path)
   read_func = switch(
-    tools::file_ext(path),
+    tools::file_ext(path_in_proj),
     xlsx = xlsx_cells,
     csv = read.csv,
     rds = readRDS,
     txt = read_delim
   )
-  data = read_func(path)
+  data = read_func(path_in_proj)
 
-  if(tools::file_ext(path) == 'xlsx'){
+  if(tools::file_ext(path_in_proj) == 'xlsx'){
     (data
      %>% mutate(has_unclear_comment = grepl("unclear|uncelar", comment, ignore.case = TRUE),
          character = case_when(

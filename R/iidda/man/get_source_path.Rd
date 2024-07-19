@@ -4,12 +4,10 @@
 \alias{get_source_path}
 \title{Get Source Path}
 \usage{
-get_source_path(source, root)
+get_source_path(source)
 }
 \arguments{
 \item{source}{Source ID.}
-
-\item{root}{Path to the root of the repository.}
 }
 \description{
 Get Source Path

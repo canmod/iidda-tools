@@ -22,7 +22,7 @@ the initial grouping used to compute the shortest time scales.}
 grouping used to compute the longest of the shortest time scales.}
 
 \item{aggregate_if_unavailable}{If a location is not reporting for the determined
-'best timescale', but is reporting at a finer timescale, aggregate this finer 
+'best timescale', but is reporting at a finer timescale, aggregate this finer
 timescale to the 'best timescale'}
 }
 \value{

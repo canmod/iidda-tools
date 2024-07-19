@@ -4,12 +4,10 @@
 \alias{list_prep_script_ids}
 \title{List Prep Script IDs}
 \usage{
-list_prep_script_ids(source, root)
+list_prep_script_ids(source)
 }
 \arguments{
 \item{source}{Source ID.}
-
-\item{root}{Path to the root of the repository.}
 }
 \description{
 List Prep Script IDs

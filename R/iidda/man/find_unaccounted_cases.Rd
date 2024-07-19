@@ -10,11 +10,11 @@ find_unaccounted_cases(data)
 \item{data}{A tidy data set with a `basal_disease` column.}
 }
 \value{
-A data set containing records that are the difference between a 
+A data set containing records that are the difference between a
 reported total for a basal_disease and the sum of their leaf diseases
 }
 \description{
 Make new records for instances when the sum of leaf diseases is less than
-the reported total for their basal disease. The difference between these 
+the reported total for their basal disease. The difference between these
 counts gets disease name 'basal_disease'_unaccounted'.
 }

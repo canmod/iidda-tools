@@ -4,14 +4,12 @@
 \alias{get_all_dependencies}
 \title{Get all Dependencies}
 \usage{
-get_all_dependencies(source, dataset, root)
+get_all_dependencies(source, dataset)
 }
 \arguments{
 \item{source}{Source ID.}
 
 \item{dataset}{dataset ID.}
-
-\item{root}{Path to the root of the repository.}
 }
 \description{
 Get all Dependencies

@@ -7,18 +7,15 @@
 \alias{error_tar}
 \title{Prep Script Outcomes}
 \usage{
-all_prep_script_outcomes(root)
+all_prep_script_outcomes()
 
-successful_prep_script_outcomes(root)
+successful_prep_script_outcomes()
 
-failed_prep_script_outcomes(root)
+failed_prep_script_outcomes()
 
-error_tar(tar_name, root)
+error_tar(tar_name)
 }
 \arguments{
-\item{root}{Root path of the source project (e.g. `iidda-staging`). If
-`root` is missing then the current working directory is assumed.}
-
 \item{tar_name}{Name of a tar archive to be created with log files of failed
 prep script outcomes.}
 }

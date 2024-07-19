@@ -18,7 +18,8 @@ read_tracking_tables = function(path) {
     "staging_url_prefix", "scan", "access_script", "prep_script", "digitization_priority",
     "data_type", "name", "description", "web_resource", "source_tag"
   )
-  paths = file.path(path, list.files(path, pattern = '.csv'))
+  path_in_proj = proj_path(path)
+  paths = file.path(path_in_proj, list.files(path_in_proj, pattern = '.csv'))
   output = (paths
     %>% lapply(read.csv, check.names = FALSE)
     %>% setNames(tools::file_path_sans_ext(basename(paths)))
@@ -26,10 +27,14 @@ read_tracking_tables = function(path) {
     #%>% lapply(drop_empty_cols)
     %>% lapply(drop_empty_rows)
   )
-  valid_tabs = vapply(output, \(tab) all(names(tab) %in% valid_colnames), logical(1L))
+  valid_tabs = vapply(output
+    , \(tab) all(names(tab) %in% valid_colnames)
+    , logical(1L)
+  )
   if (any(!valid_tabs)) {
     for (tnm in names(output)[!valid_tabs]) {
-      warn_msg = sprintf("Tracking table %s has invalid column names. Valid column names include:\n   %s", tnm, paste0(valid_colnames, collapse = ", "))
+      tmp = "Tracking table %s has invalid column names. Valid column names include:\n   %s"
+      warn_msg = sprintf(tmp, tnm, paste0(valid_colnames, collapse = ", "))
       warning(warn_msg)
     }
   }
@@ -56,6 +61,7 @@ read_tracking_tables = function(path) {
 get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, original_format = TRUE, for_lbom = FALSE) {
   current_tidy_dataset = tidy_dataset
   current_digitization = digitization
+  tracking_path = proj_path(tracking_path)
 
   if (!original_format) {
     paths = file.path(tracking_path, list.files(tracking_path, pattern = '.csv'))
@@ -594,7 +600,7 @@ iidda_data_dictionary = function() {
 #' @export
 convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_source, harmonized_dataset_id, tidy_source_metadata_path) {
   prep_scripts = tidy_metadata$PrepScripts$prep_script[tidy_metadata$PrepScripts$source == tidy_source] |> unique()
-  
+
   get_ids = function(tracking_table, column_name, lookup_column_name, id_vector) {
     tracking_column = as.character(tracking_table[[column_name]])
     lookup_column = as.character(tracking_table[[lookup_column_name]])
@@ -604,7 +610,7 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
   digitization_ids = get_ids(tidy_metadata$DigitizationDependencies, "digitization", "tidy_dataset", dataset_ids)
   prep_ids = get_ids(tidy_metadata$PrepDependencies, "prep_script", "tidy_dataset", dataset_ids)
   access_ids = get_ids(tidy_metadata$AccessDependencies, "access_script", "tidy_dataset", dataset_ids)
-  
+
   get_tidy_metadata = function(tidy_dataset) {
     digitization = get_ids(tidy_metadata$DigitizationDependencies, "digitization", "tidy_dataset", tidy_dataset)
     iidda::get_tracking_metadata(tidy_dataset, digitization, tidy_source_metadata_path, original_format = FALSE)
@@ -644,7 +650,5 @@ convert_harmonized_metadata = function(tidy_metadata, harmonized_metadata, tidy_
 #'
 #' @export
 convert_metadata_path = function(metadata_path, harmonized_source, tidy_source) {
-  tidy_source_metadata_path = gsub(harmonized_source, tidy_source, metadata_path, fixed = TRUE)
-  if (!file.exists(tidy_source_metadata_path)) tidy_source_metadata_path
-  tidy_source_metadata_path
+  gsub(harmonized_source, tidy_source, metadata_path, fixed = TRUE)
 }

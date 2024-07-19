@@ -4,14 +4,12 @@
 \alias{get_dataset_path}
 \title{Get Dataset path}
 \usage{
-get_dataset_path(source, dataset, root, ext = "csv")
+get_dataset_path(source, dataset, ext = "csv")
 }
 \arguments{
 \item{source}{Source ID.}
 
 \item{dataset}{dataset ID.}
-
-\item{root}{Path to the root of the repository.}
 
 \item{ext}{Dataset file extension.}
 }

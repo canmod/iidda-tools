@@ -7,8 +7,7 @@
 list_dependency_paths(
   source,
   dataset,
-  type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts"),
-  root
+  type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
 )
 }
 \arguments{
@@ -17,8 +16,6 @@ list_dependency_paths(
 \item{dataset}{dataset ID.}
 
 \item{type}{Type of resource.}
-
-\item{root}{Path to the root of the repository.}
 }
 \description{
 List Dependency Paths

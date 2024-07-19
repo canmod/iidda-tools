@@ -6,16 +6,13 @@
 \usage{
 list_resource_ids(
   source,
-  type = c("TidyDatasets", "PrepScripts", "Scans", "Digitizations", "AccessScripts"),
-  root
+  type = c("TidyDatasets", "PrepScripts", "Scans", "Digitizations", "AccessScripts")
 )
 }
 \arguments{
 \item{source}{Source ID.}
 
 \item{type}{Type of resource.}
-
-\item{root}{Path to the root of the repository.}
 }
 \description{
 List Resources IDs

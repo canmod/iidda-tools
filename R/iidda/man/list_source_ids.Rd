@@ -4,10 +4,7 @@
 \alias{list_source_ids}
 \title{List Source IDs}
 \usage{
-list_source_ids(root)
-}
-\arguments{
-\item{root}{Path to the root of the repository.}
+list_source_ids()
 }
 \description{
 List Source IDs

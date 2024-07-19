@@ -29,20 +29,83 @@
 pipeline_exploration_starter = function(
     script_filename,
     exploration_project_path,
-    pipeline_repo_root = getwd(),
     ...
 ) {
-  if (!dir.exists(exploration_project_path)) {
-    dir.create(exploration_project_path, recursive = TRUE)
-  }
   script_path = file.path(
     exploration_project_path,
     assert_ext(script_filename, "R")
   )
-  path = assert_path_does_not_exist(add_root(script_path, pipeline_repo_root))
+  path = assert_path_does_not_exist(proj_path(script_path))
   template = system.file("pipeline_exploration_starter.R", package = "iidda")
   file.copy(template, path, ...)
 }
+
+#' Project Root
+#'
+#' Find the root path of an IIDDA-associated project (or any project
+#' with a file of a specific name in the root).
+#'
+#' Recursively walk up the file tree from `start_dir` until `filename` is
+#' found, and return the path to the directory containing `filename`. If
+#' `filename` is not found, return `default_root`
+#'
+#' @param filename String giving the name of the file that identifies the project.
+#' @param start_dir Optional directory from which to start looking for `filename`.
+#' @param default_root Project root to use if `filename` is not found.
+#'
+#' @export
+proj_root <- function(filename = ".iidda", start_dir = getwd(), default_root = start_dir) {
+  # Check if the file exists in the current directory
+  if (file.exists(file.path(start_dir, filename))) return(start_dir)
+
+  # If we have reached the root directory, return the original starting directory
+  parent_dir <- normalizePath(file.path(start_dir, ".."))
+  if (identical(parent_dir, start_dir)) return(default_root)
+
+  # Recursively search in the parent directory
+  Recall(filename, parent_dir, default_root)
+}
+
+is_absolute_path <- function(path) {
+  # Determine the OS type
+  os_type <- .Platform$OS.type
+
+  if (os_type == "windows") {
+    # Check for Windows absolute path (e.g., "C:/path")
+    return(grepl("^[a-zA-Z]:", path))
+  } else {
+    # Assume Unix-like system, check for Unix absolute path (e.g., "/path")
+    return(grepl("^/", path))
+  }
+}
+
+to_relative_path = function(path, containing_path) {
+  path = proj_path(path) |> strip_trailing_slash()
+  containing_path = proj_path(containing_path) |> strip_trailing_slash()
+  if (!startsWith(path, containing_path)) {
+    stop("Containing path does not contain the path")
+  }
+  sub(sprintf("^%s/", containing_path), "", path)
+}
+
+#' @export
+relative_paths = function(paths, containing_path = proj_root()) {
+  vapply(paths
+    , to_relative_path
+    , character(1L)
+    , containing_path
+    , USE.NAMES = FALSE
+  )
+}
+
+#' @export
+proj_path = function(...) {
+  path = file.path(...)
+  if (is_absolute_path(path)) return(path)
+  file.path(proj_root(), path)
+}
+
+assert_proj_path = function(path) assert_path(proj_path(path))
 
 #' Set Extension
 #'
@@ -62,14 +125,13 @@ set_ext = function(paths, ext) {
 #' @param ... Path components to directory containing the resources.
 #' @param ext Optional string giving the file extension of the resources. If
 #' missing then all resources are given.
-#' @param root Optional project root.
 #' @importFrom tools file_path_sans_ext list_files_with_exts
 #'
 #' @return List of matching files without their extensions.
 #'
 #' @export
-list_file_id = function(..., ext, root) {
-  path = add_root_and_check(file.path(...), root)
+list_file_id = function(..., ext) {
+  path = assert_proj_path(file.path(...))
   if (missing(ext)) {
     files = list.files(path)
   } else {
@@ -82,14 +144,12 @@ list_file_id = function(..., ext, root) {
 #'
 #' @param source Source ID.
 #' @param type Type of resource.
-#' @param root Path to the root of the repository.
 #'
 #' @export
 list_resource_ids = function(source
     , type = c("TidyDatasets", "PrepScripts", "Scans", "Digitizations", "AccessScripts")
-    , root
   ) {
-  pipeline_dir = add_root_and_check("pipelines", root)
+  pipeline_dir = assert_proj_path("pipelines")
   file = set_ext(match.arg(type), "csv")
   read.csv(file.path(pipeline_dir, source, "tracking", file))[[1L]]
 }
@@ -99,12 +159,10 @@ list_resource_ids = function(source
 #' @param source Source ID.
 #' @param dataset Dataset ID.
 #' @param type Type of resource.
-#' @param root Path to the root of the repository.
 #'
 #' @export
 list_dependency_ids = function(source, dataset
     , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
-    , root
   ) {
   type = switch(match.arg(type)
     , PrepScripts = "PrepDependencies"
@@ -112,7 +170,7 @@ list_dependency_ids = function(source, dataset
     , Digitizations = "DigitizationDependencies"
     , AccessScripts = "AccessDependencies"
   )
-  pipeline_dir = add_root_and_check("pipelines", root)
+  pipeline_dir = assert_proj_path("pipelines")
   file = set_ext(type, "csv")
   tracking = read.csv(file.path(pipeline_dir, source, "tracking", file))
   tracking[[1L]][tracking[[2L]] == dataset]
@@ -123,36 +181,31 @@ list_dependency_ids = function(source, dataset
 #' @param source Source ID.
 #' @param dataset dataset ID.
 #' @param type Type of resource.
-#' @param root Path to the root of the repository.
 #'
 #' @export
 list_dependency_paths = function(source, dataset
     , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
-    , root
   ) {
-  dependencies = list_dependency_ids(source, dataset, type, root)
-  pipeline_dir = add_root_and_check("pipelines", root)
+  dependencies = list_dependency_ids(source, dataset, type)
+  pipeline_dir = assert_proj_path("pipelines")
   file = set_ext(type, "csv")
   tracking = read.csv(file.path(pipeline_dir, source, "tracking", file))
   urls = tracking[[grep("^path_[a-z]+", names(tracking))]][tracking[[1L]] %in% dependencies]
-  vapply(strip_blob_github(urls), add_root_and_check, character(1L), USE.NAMES = FALSE)
+  vapply(strip_blob_github(urls), assert_proj_path, character(1L), USE.NAMES = FALSE)
 }
 
 #' List Source IDs
 #'
-#' @param root Path to the root of the repository.
 #' @export
-list_source_ids = function(root) list.files(add_root_and_check("pipelines", root))
+list_source_ids = function() list.files(assert_proj_path("pipelines"))
 
 #' List Dataset IDs by Source
 #'
-#' @param root Path to the root of the repository.
 #' @export
-list_dataset_ids_by_source = function(root) {
-  sources = list_source_ids(root)
+list_dataset_ids_by_source = function() {
+  sources = list_source_ids()
   sapply(sources
     , list_dataset_ids
-    , root = root
     , simplify = FALSE
   )
 }
@@ -160,34 +213,27 @@ list_dataset_ids_by_source = function(root) {
 #' List Dataset IDs
 #'
 #' @param source Source ID.
-#' @param root Path to the root of the repository.
 #'
 #' @export
-list_dataset_ids = function(source, root) {
-  list_resource_ids(source, "TidyDatasets", root)
-}
+list_dataset_ids = function(source) list_resource_ids(source, "TidyDatasets")
 
 #' List Prep Script IDs
 #'
 #' @param source Source ID.
-#' @param root Path to the root of the repository.
 #'
 #' @export
-list_prep_script_ids = function(source, root) {
-  list_resource_ids(source, "PrepScripts", root)
-}
+list_prep_script_ids = function(source) list_resource_ids(source, "PrepScripts")
 
 
 #' Get Main Script
 #'
 #' @param source Source ID.
 #' @param dataset dataset ID.
-#' @param root Path to the root of the repository.
 #'
 #' @export
-get_main_script = function(source, dataset, root) {
+get_main_script = function(source, dataset) {
   assert_string(
-    list_dependency_paths(source, dataset, "PrepScripts", root),
+    list_dependency_paths(source, dataset, "PrepScripts"),
     "prep script"
   )
 }
@@ -196,15 +242,13 @@ get_main_script = function(source, dataset, root) {
 #'
 #' @param source Source ID.
 #' @param dataset dataset ID.
-#' @param root Path to the root of the repository.
 #'
 #' @export
-get_all_dependencies = function(source, dataset, root) {
+get_all_dependencies = function(source, dataset) {
   unlist(lapply(c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
     , list_dependency_paths
     , source = source
     , dataset = dataset
-    , root = root
   ))
 }
 
@@ -212,37 +256,29 @@ get_all_dependencies = function(source, dataset, root) {
 #'
 #' @param source Source ID.
 #' @param dataset dataset ID.
-#' @param root Path to the root of the repository.
 #' @param ext Dataset file extension.
 #'
 #' @export
-get_dataset_path = function(source, dataset, root, ext = "csv") {
+get_dataset_path = function(source, dataset, ext = "csv") {
   path = file.path(
     "derived-data",
     source,
     dataset,
-    set_ext(assert_dataset(dataset, source, root), ext)
+    set_ext(assert_dataset(dataset, source), ext)
   )
 
   # don't check if the resulting path exists because
   # the dataset may not have been created yet
-  add_root(path, root)
+  proj_path(path)
 }
 
 #' Get Source Path
 #'
 #' @param source Source ID.
-#' @param root Path to the root of the repository.
 #'
 #' @export
-get_source_path = function(source, root) {
-  add_root(
-    file.path(
-      "pipelines",
-      source
-    ),
-    root
-  )
+get_source_path = function(source) {
+  proj_path(file.path("pipelines", source))
 }
 
 
@@ -260,6 +296,7 @@ strip_trailing_slash = function(paths) {
 
 assert_string = function(x, thing) {
   x = as.character(x)
+  if (length(x) == 0L) stop("Could not find a single ", thing)
   if (length(x) != 1L) {
       stop(
         "Can only work with one ",
@@ -278,8 +315,8 @@ assert_source = function(source, pipeline_dir) {
   source
 }
 
-assert_dataset = function(dataset, source, root) {
-  datasets = list_resource_ids(source, "TidyDatasets", root)
+assert_dataset = function(dataset, source) {
+  datasets = list_resource_ids(source, "TidyDatasets")
   if (!assert_string(dataset, "dataset") %in% datasets) {
     stop("Cannot find the dataset, ", dataset)
   }
@@ -317,25 +354,12 @@ assert_ext = function(file, ext) {
 }
 
 
-add_root_and_check = function(path, root) {
-  assert_path(add_root(path, root))
-}
-
-add_root = function(path, root) {
-  if (!missing(root)) {
-    return(file.path(assert_string(root, "root directory"), path))
-  }
-  path
-}
-
 #' Prep Script Outcomes
 #'
-#' @param root Root path of the source project (e.g. `iidda-staging`). If
-#' `root` is missing then the current working directory is assumed.
 #' @return Data frame with all prep script outcomes in the project.
 #' @export
-all_prep_script_outcomes = function(root) {
-  pipeline_dir = add_root_and_check("pipelines", root)
+all_prep_script_outcomes = function() {
+  pipeline_dir = assert_proj_path("pipelines")
   all_outcomes = list.files(pipeline_dir, recursive = TRUE, pattern = "PrepScriptOutcomes.csv", full.names = TRUE)
   lapply(all_outcomes, iidda::read_data_frame) |> dplyr::bind_rows()
 }
@@ -343,15 +367,15 @@ all_prep_script_outcomes = function(root) {
 #' @describeIn all_prep_script_outcomes Data frame with all successful prep
 #' script outcomes
 #' @export
-successful_prep_script_outcomes = function(root) {
-  dplyr::filter(all_prep_script_outcomes(root), execution_status == "succeeded")
+successful_prep_script_outcomes = function() {
+  dplyr::filter(all_prep_script_outcomes(), execution_status == "succeeded")
 }
 
 #' @describeIn all_prep_script_outcomes Data frame with all failed prep
 #' script outcomes
 #' @export
-failed_prep_script_outcomes = function(root) {
-  dplyr::filter(all_prep_script_outcomes(root), execution_status == "failed")
+failed_prep_script_outcomes = function() {
+  dplyr::filter(all_prep_script_outcomes(), execution_status == "failed")
 }
 
 #' @param tar_name Name of a tar archive to be created with log files of failed
@@ -359,10 +383,10 @@ failed_prep_script_outcomes = function(root) {
 #' @describeIn all_prep_script_outcomes Tar archive with log files of failed
 #' prep script outcomes.
 #' @export
-error_tar = function(tar_name, root) {
+error_tar = function(tar_name) {
   d = tempdir()
-  file.copy(failed_prep_script_outcomes(root)$log_file_path, d)
-  file.copy(failed_prep_script_outcomes(root)$err_file_path, d)
+  file.copy(failed_prep_script_outcomes()$log_file_path, d)
+  file.copy(failed_prep_script_outcomes()$err_file_path, d)
   cwd = getwd()
   on.exit({setwd(cwd)})
   tar_path = file.path(path.expand(cwd), tar_name)

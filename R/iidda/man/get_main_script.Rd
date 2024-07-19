@@ -4,14 +4,12 @@
 \alias{get_main_script}
 \title{Get Main Script}
 \usage{
-get_main_script(source, dataset, root)
+get_main_script(source, dataset)
 }
 \arguments{
 \item{source}{Source ID.}
 
 \item{dataset}{dataset ID.}
-
-\item{root}{Path to the root of the repository.}
 }
 \description{
 Get Main Script

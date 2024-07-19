@@ -4,10 +4,7 @@
 \alias{list_dataset_ids_by_source}
 \title{List Dataset IDs by Source}
 \usage{
-list_dataset_ids_by_source(root)
-}
-\arguments{
-\item{root}{Path to the root of the repository.}
+list_dataset_ids_by_source()
 }
 \description{
 List Dataset IDs by Source

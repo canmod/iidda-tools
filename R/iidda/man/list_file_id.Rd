@@ -4,15 +4,13 @@
 \alias{list_file_id}
 \title{List File ID}
 \usage{
-list_file_id(..., ext, root)
+list_file_id(..., ext)
 }
 \arguments{
 \item{...}{Path components to directory containing the resources.}
 
 \item{ext}{Optional string giving the file extension of the resources. If
 missing then all resources are given.}
-
-\item{root}{Optional project root.}
 }
 \value{
 List of matching files without their extensions.
