@@ -675,15 +675,15 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
 
 
 #' Add Basal Disease
-#' 
+#'
 #' Add column `basal_disease` to tidy dataset
 #'
 #'  @param data A tidy data set with a `disease` column
 #' @param disease_lookup A lookup table with `disease` and `nesting_disease`
 #' columns that describe a global disease hierarchy that will be applied
-#' to find the basal disease of each `disease` in data 
+#' to find the basal disease of each `disease` in data
 #'
-#' @return 
+#' @return
 #'
 #' @export
 add_basal_disease = function(data, lookup){
@@ -691,13 +691,13 @@ add_basal_disease = function(data, lookup){
     (lookup
     |> select(disease, nesting_disease)
     |> distinct())
-  
+
   with_basal = (data
     |> rowwise()
     |> mutate(basal_disease = basal_disease(disease, disease_lookup))
     |> ungroup()
   )
-  
+
   with_basal
 }
 
@@ -927,9 +927,9 @@ normalize_time_scales = function(data
 ) {
 
   if(get_implied_zeros) data = get_implied_zeros(data)
-  
+
   if (length(unique(data$time_scale)) == 1L) return(data)
-  
+
   if (!"year" %in% colnames(data)) {stop("The column 'year' does not exist in the dataset.")}
 
   new_data = (data
@@ -1011,7 +1011,7 @@ normalize_time_scales = function(data
      |> select(-time_scale_old)
      |> mutate(record_origin = 'derived-aggregated-timescales')
     )
-    
+
     final = (all_new_data
      |> mutate(record_origin = ifelse("record_origin" %in% names(all_new_data), record_origin, 'historical'))
      |> rbind(aggregated_unavailable_data)
@@ -1037,11 +1037,11 @@ get_implied_zeros = function(data){
   starting_data = (data
      |> mutate(year = year(as.Date(period_end_date)))
      |> factor_time_scale()
-     
+
      |> group_by(iso_3166_2, disease, year, original_dataset_id)
      |> mutate(all_zero = ifelse(sum(as.numeric(cases_this_period)) == 0, TRUE, FALSE))
      |> ungroup()
-     
+
      |> group_by(disease, year, original_dataset_id)
      |> mutate(finest_timescale = min(time_scale))
      |> ungroup()
@@ -1050,33 +1050,33 @@ get_implied_zeros = function(data){
   scales = (starting_data
      |> filter(time_scale == finest_timescale)
      |> distinct(disease, nesting_disease, basal_disease,
-                year, time_scale, period_start_date, period_end_date, 
+                year, time_scale, period_start_date, period_end_date,
                 period_mid_date, days_this_period, original_dataset_id)
 )
 
   # records for which all_zero = true and finest_timescale isn't available
-  get_new_zeros = (starting_data                
+  get_new_zeros = (starting_data
      |> filter(time_scale > finest_timescale, all_zero)
-     
+
      # filter for timescales that are not in the original data
      |> anti_join(starting_data
                   , by = c('iso_3166_2', 'year', 'finest_timescale' = 'time_scale',
                            'disease', 'nesting_disease', 'basal_disease', 'dataset_id'
                   )) # nesting/basal too? see if that changes result!
-     
+
      |> select(-period_start_date, -period_end_date, -period_mid_date,
                -days_this_period)
-  ) 
-  
+  )
+
   # for rows in get_new_records, find the periods (i.e. start and end dates)
   # for the finest_timescale for a given year, disease, and original_dataset_id
   new_zeros = (get_new_zeros
      |> left_join(scales, by = c('disease', 'year', 'finest_timescale' = 'time_scale',
-                                 'nesting_disease', 'basal_disease', 'original_dataset_id'), 
+                                 'nesting_disease', 'basal_disease', 'original_dataset_id'),
                   relationship = "many-to-many")
      |> select(-time_scale, -year, -all_zero)
      |> rename(time_scale = finest_timescale)
-     
+
      |> mutate(record_origin = 'derived-implied-zero')
     )
 
@@ -1142,7 +1142,7 @@ find_unaccounted_cases = function(data){
    %>% mutate(historical_disease = '')
    %>% mutate(record_origin = 'derived-unaccounted-cases')
     )
-  
+
   (data
     %>% mutate(record_origin = ifelse("record_origin" %in% names(data), record_origin, 'historical'))
     %>% rbind(unaccounted_data)

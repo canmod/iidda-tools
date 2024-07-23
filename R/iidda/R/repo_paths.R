@@ -176,6 +176,20 @@ list_dependency_ids = function(source, dataset
   tracking[[1L]][tracking[[2L]] == dataset]
 }
 
+#' @export
+list_prerequisite_paths = function(source, dataset) {
+  pipeline_dir = assert_proj_path("pipelines")
+  file = "Prerequisites.csv"
+  path = file.path(pipeline_dir, source, "tracking", file)
+  if (!file.exists(path)) return(character())
+  tracking = read.csv(path)
+  i = tracking[["tidy_dataset"]] == dataset
+  pre_source = tracking[["prerequisite_source"]][i]
+  pre_dataset = tracking[["prerequisite_dataset"]][i]
+  file = vapply(pre_dataset, set_ext, character(1L), "csv", USE.NAMES = FALSE)
+  file.path("derived-data", pre_source, pre_dataset, file)
+}
+
 #' List Dependency Paths
 #'
 #' @param source Source ID.
@@ -245,12 +259,15 @@ get_main_script = function(source, dataset) {
 #'
 #' @export
 get_all_dependencies = function(source, dataset) {
-  unlist(lapply(c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
+  pipeline_deps = unlist(lapply(c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
     , list_dependency_paths
     , source = source
     , dataset = dataset
   ))
+  prerequisite_deps = list_prerequisite_paths(source, dataset)
+  return(c(pipeline_deps, prerequisite_deps))
 }
+
 
 #' Get Dataset path
 #'
@@ -394,3 +411,5 @@ error_tar = function(tar_name) {
   setwd(d)
   tar(tarfile = tar_path, files = f)
 }
+
+

@@ -224,3 +224,43 @@ make_generic_makefile = function(makefile_dir) {
   writeLines(makefile_lines, makefile_path)
   makefile_path
 }
+
+
+get_dep_data = function(source, dataset) {
+  empty_dat = data.frame(
+      source = character()
+    , dataset = character()
+    , dependency = character()
+  )
+  if (is_empty(source) | is_empty(dataset)) {
+    return(empty_dat)
+  }
+  deps = get_all_dependencies(source, dataset)
+  deps = deps[!is_empty(deps)]
+  if (length(deps) == 0L) return(empty_dat)
+  data.frame(source, dataset, dependency = relative_paths(deps))
+}
+get_all_dep_data = function(sources) {
+  source_names = names(sources)
+  all_deps = list()
+  for (source in source_names) {
+    all_deps[[source]] = list()
+    for (dataset in sources[[source]]) {
+      all_deps[[source]][[dataset]] = get_dep_data(source, dataset)
+    }
+  }
+  all_deps
+}
+
+#' @export
+make_all_deps = function(...) {
+  .trash = (list_dataset_ids_by_source()
+    |> get_all_dep_data()
+    |> unlist(recursive = FALSE)
+    |> Reduce(f = rbind)
+    |> write.csv(
+        file = file.path(...)
+      , row.names = FALSE, quote = FALSE
+    )
+  )
+}

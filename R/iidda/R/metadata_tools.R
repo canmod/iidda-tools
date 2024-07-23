@@ -210,6 +210,26 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
   metadata
 }
 
+#' @export
+get_prerequisite_metadata = function(tracking_path) {
+  tracking = read_tracking_tables(tracking_path)
+  tracking
+}
+
+collect_tracking_metadata = function(...) {
+  all_paths = Sys.glob(file.path(..., "**", "tracking", "*.csv"))
+  all_data_frames = lapply(all_paths, iidda:::read_data_frame)
+  bound_frames = tapply(all_data_frames, basename(all_paths), dplyr::bind_rows, simplify = FALSE)
+  lapply(bound_frames, \(x) unique)
+}
+
+#' @export
+filter_dependencies = function(resources, dependencies, tidy_datasets) {
+  resource_ids = dependencies[[1L]][dependencies[[2L]] %in% tidy_datasets]
+  resources[resources[[1L]] %in% resource_ids, , drop = FALSE]
+}
+
+
 #' Which Tracking Tables have a Particular Column
 #'
 #' @param metadata Output of \code{\link{read_tracking_tables}}.

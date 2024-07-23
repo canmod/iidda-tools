@@ -121,11 +121,16 @@ drop_empty_rows = function(table) {
 #' @export
 write_data_frame = function(data, filename) {
 
+  characterize = function(data) {
+    data = sapply(data, as.character)
+    if (!is.matrix(data)) data = t(data)
+    return(data)
+  }
   ## convert the data frame to a character matrix without line feeds or
   ## unnecessary whitespace
-  if (nrow(data) > 0) {
+  if (nrow(data) > 0L) {
     data = (data
-      |> sapply(as.character)
+      |> characterize()
       |> gsub(pattern = "\\s+", replacement = " ")
       |> trimws()
     )
@@ -180,6 +185,7 @@ read_data_frame = function(filename, col_classes = "character") {
 #' @importFrom readr read_csv
 #' @export
 fix_csv = function(filename) {
+  message("Checking ", filename)
   tmp_file = tempfile(fileext = ".csv")
   initial_guess = readr::read_csv(filename, col_types = "c")
   write_data_frame(initial_guess, tmp_file)
