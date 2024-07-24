@@ -38,6 +38,31 @@ normalize_location = function(data){
 }
 
 
+#' Normalize Population
+#'
+#' 
+#' 
+#' @param data Tidy dataset with columns period_start_date, period_end_date, 
+#' iso_3166_2
+#' @param harmonized_population Harmonized population data from API or 
+#' iidda-staging/derived_data/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized.csv
+#' 
+#' @return Tidy dataset joined with harmonized population
+#'
+#' @export
+normalize_population = function(data, harmonized_population){
+  (data
+  |> mutate(across(starts_with("period_"), readr::parse_date))
+  |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
+  |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
+  |> left_join(harmonized_population |> group_by(iso_3166_2) |> mutate(date = as.Date(date))
+               , by = dplyr::join_by(iso_3166_2, closest(period_mid_date >= date))
+               , multiple = "all"
+  )
+)
+}
+
+
 #' Is Leaf Disease
 #'
 #' Given a set of `disease`-`nesting_disease` pairs that all share the same
