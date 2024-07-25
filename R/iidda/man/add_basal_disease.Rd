@@ -11,6 +11,9 @@ add_basal_disease(data, lookup)
 columns that describe a global disease hierarchy that will be applied
 to find the basal disease of each `disease` in data}
 }
+\value{
+tidy dataset with basal disease
+}
 \description{
 Add column `basal_disease` to tidy dataset
 }

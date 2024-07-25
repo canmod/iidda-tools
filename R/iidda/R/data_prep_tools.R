@@ -683,7 +683,7 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
 #' columns that describe a global disease hierarchy that will be applied
 #' to find the basal disease of each `disease` in data
 #'
-#' @return
+#' @return tidy dataset with basal disease
 #'
 #' @export
 add_basal_disease = function(data, lookup){
