@@ -66,6 +66,46 @@ proj_root <- function(filename = ".iidda", start_dir = getwd(), default_root = s
   Recall(filename, parent_dir, default_root)
 }
 
+#' @describeIn proj_root Is a particular directory inside a project as
+#' indicated by `filename`.
+#' @export
+in_proj <- function(filename = ".iidda", start_dir = getwd()) {
+  # Normalize the directory path
+  start_dir <- normalizePath(start_dir, mustWork = TRUE)
+
+  # Check if the file exists in the current directory
+  # and if it does that it is a file and not a directory itself.
+  path = file.path(start_dir, filename)
+  if (file.exists(path) & isFALSE(file.info(path)$isdir)) return(TRUE)
+
+  # Get the parent directory
+  parent_dir <- dirname(start_dir)
+
+  # If the current directory is the root, stop the recursion
+  if (parent_dir == start_dir) return(FALSE)
+
+  # Recur with the parent directory using Recall
+  Recall(filename, parent_dir)
+}
+
+#' @export
+in_git_repo = function() {
+  system("git rev-parse --is-inside-work-tree", intern = TRUE) == "true"
+}
+
+#' @export
+remote_iidda_git = function() {
+  if (!in_proj()) stop("Not in an iidda data repository.")
+  if (!in_git_repo()) stop("Not inside a git repository.")
+  resp = system("git config --get remote.origin.url", intern = TRUE)
+  if (length(resp) == 0L) stop("Repository does not have a remote origin url.")
+  resp = sub("^.*:", "", resp)
+  user = basename(dirname(resp))
+  repo = tools::file_path_sans_ext(basename(resp))
+  sprintf("https://github.com/%s/%s", user, repo)
+}
+
+
 is_absolute_path <- function(path) {
   # Determine the OS type
   os_type <- .Platform$OS.type
@@ -154,14 +194,7 @@ list_resource_ids = function(source
   read.csv(file.path(pipeline_dir, source, "tracking", file))[[1L]]
 }
 
-#' List Dependency IDs
-#'
-#' @param source Source ID.
-#' @param dataset Dataset ID.
-#' @param type Type of resource.
-#'
-#' @export
-list_dependency_ids = function(source, dataset
+get_dependency_csv = function(source
     , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
   ) {
   type = switch(match.arg(type)
@@ -172,8 +205,29 @@ list_dependency_ids = function(source, dataset
   )
   pipeline_dir = assert_proj_path("pipelines")
   file = set_ext(type, "csv")
-  tracking = read.csv(file.path(pipeline_dir, source, "tracking", file))
+  read.csv(file.path(pipeline_dir, source, "tracking", file))
+}
+
+#' List Dependency IDs
+#'
+#' @param source Source ID.
+#' @param dataset Dataset ID.
+#' @param type Type of resource.
+#'
+#' @export
+list_dependency_ids = function(source, dataset
+    , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
+  ) {
+  tracking = get_dependency_csv(source, type)
   tracking[[1L]][tracking[[2L]] == dataset]
+}
+
+#' @export
+list_dependency_ids_for_source = function(source
+    , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
+  ) {
+  tracking = get_dependency_csv(source, type)
+  tracking[[1L]]
 }
 
 #' @export
@@ -207,6 +261,7 @@ list_dependency_paths = function(source, dataset
   urls = tracking[[grep("^path_[a-z]+", names(tracking))]][tracking[[1L]] %in% dependencies]
   vapply(strip_blob_github(urls), assert_proj_path, character(1L), USE.NAMES = FALSE)
 }
+
 
 #' List Source IDs
 #'
@@ -267,6 +322,7 @@ get_all_dependencies = function(source, dataset) {
   prerequisite_deps = list_prerequisite_paths(source, dataset)
   return(c(pipeline_deps, prerequisite_deps))
 }
+
 
 
 #' Get Dataset path

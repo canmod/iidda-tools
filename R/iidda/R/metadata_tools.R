@@ -63,6 +63,7 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
   current_digitization = digitization
   tracking_path = proj_path(tracking_path)
 
+
   if (!original_format) {
     paths = file.path(tracking_path, list.files(tracking_path, pattern = '.csv'))
     d = (paths
@@ -72,6 +73,60 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
       #%>% lapply(drop_empty_cols)
       %>% lapply(drop_empty_rows)
     )
+    if (in_proj()) {
+      add_if = function(list, path, name) {
+        if (file.exists(path)) list[[name]] = read.csv(path
+          , check.names = FALSE
+          , colClasses = "character"
+        )
+        return(list)
+      }
+      git = remote_iidda_git()
+      d = (d
+        |> add_if("tracking/Sources.csv", "Sources")
+        |> add_if("tracking/TidyDatasets.csv", "TidyDatasets")
+        |> add_if("tracking/Columns.csv", "Columns")
+        |> add_if("tracking/Organizations.csv", "Organizations")
+        |> add_if(
+            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.PrepScripts.csv", tidy_dataset))
+          , "PrepDependencies"
+        )
+        |> add_if(
+            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.Digitizations.csv", tidy_dataset))
+          , "DigitizationDependencies"
+        )
+        |> add_if(
+            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.Scans.csv", tidy_dataset))
+          , "ScanDependencies"
+        )
+        |> add_if(
+            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.DerivedData", tidy_dataset))
+          , "DerivedData"
+        )
+        |> add_if(
+            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.Columns.csv", tidy_dataset))
+          , "Schema"
+        )
+      )
+      d$PrepScripts$path_prep_script = file.path(git, "blob", "main"
+        , "pipelines"
+        , d$PrepScripts$source
+        , "prep-scripts"
+        , sprintf("%s.%s",d$PrepScripts$prep_script, d$PrepScripts$extension)
+      )
+      d$Digitizations$path_digitized_data = file.path(git, "blob", "main"
+        , "pipelines"
+        , d$Digitizations$source
+        , "digitizations"
+        , sprintf("%s.%s", d$Digitizations$digitization, d$Digitizations$extension)
+      )
+      d$Scans$path_original_data = file.path(git, "blob", "main"
+        , "pipelines"
+        , d$Scans$source
+        , "scans"
+        , sprintf("%s.%s", d$Scans$scan, d$Scans$extension)
+      )
+    }
     lookup_tidy_dataset = data.frame(tidy_dataset = current_tidy_dataset)
     lookup_digitization = data.frame(digitization = current_digitization)
     dependency_re = "^([A-Z]{1}[a-z]*)Dependencies$"
@@ -126,7 +181,6 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
        %>% filter(tidy_dataset == current_tidy_dataset)
        %>% left_join(d$Columns, by = "column")
     )
-
     metadata = list(
       TidyDataset = filtered_tidy_datasets,
       Digitization = filtered_source_files$Digitizations,

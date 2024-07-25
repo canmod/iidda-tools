@@ -2,9 +2,12 @@
 % Please edit documentation in R/repo_paths.R
 \name{proj_root}
 \alias{proj_root}
+\alias{in_proj}
 \title{Project Root}
 \usage{
 proj_root(filename = ".iidda", start_dir = getwd(), default_root = start_dir)
+
+in_proj(filename = ".iidda", start_dir = getwd())
 }
 \arguments{
 \item{filename}{String giving the name of the file that identifies the project.}
@@ -22,3 +25,9 @@ Recursively walk up the file tree from `start_dir` until `filename` is
 found, and return the path to the directory containing `filename`. If
 `filename` is not found, return `default_root`
 }
+\section{Functions}{
+\itemize{
+\item \code{in_proj()}: Is a particular directory inside a project as
+indicated by `filename`.
+
+}}

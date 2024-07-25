@@ -1,11 +1,3 @@
-comment_lines = c(
-    "# Automatically generated -- do not edit by hand."
-  , "# To update the makefiles in an IIDDA repository,"
-  , "# run `iidda::update_makefiles()` from the repository"
-  , "# root. See ?iidda::update_makefiles for information"
-  , "# on how these makefiles are produced."
-)
-
 #' @export
 dependency_file = function(source, dataset) {
   deps_abs_path = get_all_dependencies(source, dataset)
@@ -17,6 +9,14 @@ dependency_file = function(source, dataset) {
   writeLines(body, dot_d)
   return(dot_d)
 }
+
+comment_lines = c(
+    "# Automatically generated -- do not edit by hand."
+  , "# To update the makefiles in an IIDDA repository,"
+  , "# run `iidda::update_makefiles()` from the repository"
+  , "# root. See ?iidda::update_makefiles for information"
+  , "# on how these makefiles are produced."
+)
 
 #' Update all Makefiles
 #'
@@ -253,14 +253,73 @@ get_all_dep_data = function(sources) {
 }
 
 #' @export
-make_all_deps = function(...) {
-  .trash = (list_dataset_ids_by_source()
+make_data_deps = function(dep_path) {
+  #if (file.exists(dependencies_csv)) {
+  dep_data = update_data_deps(dep_path)
+  .trash = update_all_deps(dep_data)
+  #} else {
+  #  make_all_deps(dependencies_csv)
+  #}
+}
+
+#' @export
+make_all_deps = function() {
+  dependencies_csv = file.path("global-output", "dependencies.csv")
+  dep_list = (list_dataset_ids_by_source()
     |> get_all_dep_data()
-    |> unlist(recursive = FALSE)
-    |> Reduce(f = rbind)
-    |> write.csv(
-        file = file.path(...)
-      , row.names = FALSE, quote = FALSE
-    )
   )
+  for (source in names(dep_list)) {
+    for (dataset in names(dep_list[[source]])) {
+      path = file.path("global-output", "data-dependencies", source, dataset)
+      if (!dir.exists(path)) dir.create(path, recursive = TRUE)
+      file = file.path(path, sprintf("%s.csv", dataset))
+      write.csv(
+          dep_list[[source]][[dataset]]
+        , file
+        , row.names = FALSE, quote = FALSE
+      )
+    }
+  }
+  .trash = save_dep_list(dependencies_csv, dep_list)
+}
+
+
+update_all_deps = function(dep_data) {
+  dependencies_csv = file.path("global-output", "dependencies.csv")
+  dependencies_data = read_data_frame(dependencies_csv)
+  i = dependencies_data$dataset %in% dep_data$dataset
+  j = dependencies_data$source %in% dep_data$source
+  dependencies_data = rbind(
+      dependencies_data[!(i & j), , drop = FALSE]
+    , dep_data
+  )
+  write.csv(
+      dependencies_data
+    , dependencies_csv
+    , row.names = FALSE, quote = FALSE
+  )
+}
+
+update_data_deps = function(dep_path) {
+  dep_dir = dirname(dep_path)
+  dataset = basename(dep_dir)
+  source = basename(dirname(dep_dir))
+  dep_data = get_dep_data(source, dataset)
+  write.csv(
+      dep_data
+    , dep_path
+    , row.names = FALSE, quote = FALSE
+  )
+  return(dep_data)
+}
+
+save_dep_list = function(dependencies_csv, dep_list) {
+  .trash = (dep_list
+      |> unlist(recursive = FALSE)
+      |> Reduce(f = rbind)
+      |> write.csv(
+          file = dependencies_csv
+        , row.names = FALSE, quote = FALSE
+      )
+    )
 }
