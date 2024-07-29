@@ -14,7 +14,7 @@
 #' @export
 MissingHandlers = function(
       unclear = c("Unclear", "unclear", "uncleaar", "uncelar", "r")
-    , not_reported = c("", "Not available", "*", "Not reportable")
+    , not_reported = c("", "Not available", "*", "Not reportable", "missing")
     , zeros = "-"
 ) {
   unclear_pattern = function(template = "\\s*\\((%s)\\)\\s*") {
