@@ -15,9 +15,9 @@ normalize_disease_hierarchy(
 }
 \arguments{
 \item{data}{A tidy data set with the following minimal set of columns:
-`disease`, `nesting_disease`, `period_start_date`, `period_end_date`,
-and `location`. Note that the latter three can be modified with
-`grouping_columns`.}
+`disease`, `nesting_disease`, `basal_disease`, `period_start_date`, 
+`period_end_date`, and `location`. Note that the latter three can be 
+modified with `grouping_columns`.}
 
 \item{disease_lookup}{A lookup table with `disease` and `nesting_disease`
 columns that describe a global disease hierarchy that will be applied
