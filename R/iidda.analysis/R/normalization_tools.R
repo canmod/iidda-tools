@@ -2,12 +2,12 @@
 #' Normalize Location
 #'
 #' Set geographic order of provinces and territories and remove country-level
-#' data
+#' data.
 #'
-#' @param data Tidy dataset with an iso_3166_2 column
+#' @param data Tidy dataset with an iso_3166_2 column.
 #' 
 #' @return Tidy dataset without country-level data and with provinces and 
-#' territories geographically ordered
+#' territories geographically ordered.
 #'
 #' @export
 normalize_location = function(data){
@@ -44,22 +44,28 @@ normalize_location = function(data){
 #' 
 #' @param data Tidy dataset with columns period_start_date, period_end_date, 
 #' iso_3166_2
-#' @param harmonized_population Harmonized population data from API or 
-#' iidda-staging/derived_data/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized.csv
+#' @param harmonized_population Harmonized population data from API
+#'  (load using api_hook$raw_csv(dataset_ids = "pop_ca_1871-2021_harmonized"))
+#'  or iidda-staging
+#'  (load from 
+#'  iidda-staging/derived_data/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized.csv)
 #' 
-#' @return Tidy dataset joined with harmonized population
+#' @return Tidy dataset joined with harmonized population.
 #'
+#' @importFrom tidyr starts_with
+#' @importFrom readr parse_date
 #' @export
 normalize_population = function(data, harmonized_population){
   (data
-  |> mutate(across(starts_with("period_"), readr::parse_date))
+   |> mutate(across(tidyr::starts_with("period_"), 
+                    ~ if (!inherits(., "Date")) readr::parse_date(.) else .))
   |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
   |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
   |> left_join(harmonized_population |> group_by(iso_3166_2) |> mutate(date = as.Date(date))
                , by = dplyr::join_by(iso_3166_2, closest(period_mid_date >= date))
-               , multiple = "all"
+               , multiple = "all")
+  |> select(-date)
   )
-)
 }
 
 
@@ -86,9 +92,9 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 #' same `nesting_disease`.
 #'
 #' @param data A tidy data set with the following minimal set of columns:
-#' `disease`, `nesting_disease`, `period_start_date`, `period_end_date`,
-#' and `location`. Note that the latter three can be modified with
-#' `grouping_columns`.
+#' `disease`, `nesting_disease`, `basal_disease`, `period_start_date`, 
+#' `period_end_date`, and `location`. Note that the latter three can be 
+#' modified with `grouping_columns`.
 #' @param disease_lookup A lookup table with `disease` and `nesting_disease`
 #' columns that describe a global disease hierarchy that will be applied
 #' locally to flatten disease hierarchy at each point in time and space
@@ -115,6 +121,9 @@ normalize_disease_hierarchy = function(data
                                      , specials_pattern = "_unaccounted$"
 ) {
   
+  if(!'basal_disease' %in% names(data)) {stop('The column basal_disease is not in your dataframe. 
+                                           Add it using iidda::add_basal_disease()')}
+  
   # only need the lookup table to infer the hierarchy
   disease_lookup = (disease_lookup
     |> select(disease, nesting_disease)
@@ -140,12 +149,11 @@ normalize_disease_hierarchy = function(data
      )
      )
   )
+  
   (data
     
-    # getting basal disease for all diseases
-      |> rowwise()
-      |> mutate(basal_disease = basal_disease(disease, disease_lookup))
-      |> ungroup()
+      # remove AIDS from ontario 1990-2021 source as it is not mutually exclusive from HIV
+      |> filter(!(disease == 'AIDS' & original_dataset_id == "cdi_on_1990-2021_wk"))
       
       # prune basal_diseases
       |> mutate(x = disease %in% basal_diseases_to_prune)
@@ -172,7 +180,7 @@ normalize_disease_hierarchy = function(data
 }
 
 time_scale_chooser = function(time_scale, which_fun) {
-  time_scale_order = c("wk", "2wk", "mo", "qr", "yr")
+  time_scale_order = c("wk", "2wk", "mo", "qr", "3qr","yr")
   time_scale = as.character(time_scale)
   bad_scale = !time_scale %in% time_scale_order
   if (any(bad_scale)) {
@@ -201,9 +209,9 @@ factor_time_scale = function(data){
   if (is.factor(data$time_scale)) {
     return(data)
   }
-  time_scale_map = c(wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo", `two-wks` = "2wk", qrtr = "qr", qr = "qr")
+  time_scale_map = c(wk = "wk", yr = "yr", mo = "mo", `2wk` = "2wk", mt = "mo", qrtr = "qr", qr = "qr", `3qr` = "3qr")
   data$time_scale = time_scale_map[as.character(data$time_scale)]
-  order = c("wk", "2wk", "mo", "qr", "yr")
+  order = c("wk", "2wk", "mo", "qr", "3qr","yr")
   
   return(mutate(data, time_scale = factor(data$time_scale, levels = order, ordered = TRUE)))
 }
@@ -216,7 +224,8 @@ factor_time_scale = function(data){
 #' nesting disease. This best `time_scale` is defined as the longest
 #' of the shortest time scales in each location and sub-disease.
 #'
-#' @param data A tidy data set with a `time_scale` and `year` column
+#' @param data A tidy data set with columns `time_scale`, `period_start_date`
+#' and `period_end_date`.
 #' @param initial_group Character vector naming columns for defining
 #' the initial grouping used to compute the shortest time scales.
 #' @param final_group Character vector naming columns for defining the final
@@ -224,7 +233,7 @@ factor_time_scale = function(data){
 #' @param get_implied_zeros Add zeros that are implied by a '0' reported at a coarser timescale.
 #' @param aggregate_if_unavailable If a location is not reporting for the determined
 #' 'best timescale', but is reporting at a finer timescale, aggregate this finer
-#' timescale to the 'best timescale'
+#' timescale to the 'best timescale'.
 #'
 #' @return A data set only containing records with the optimal time scale.
 #'
@@ -241,13 +250,19 @@ normalize_time_scales = function(data
   
   if (length(unique(data$time_scale)) == 1L) return(data)
   
-  if (!"year" %in% colnames(data)) {stop("The column 'year' does not exist in the dataset.")}
+  if (!"period_mid_date" %in% colnames(data)) {
+    (data = data
+     |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
+     |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
+    )
+  }
+  
+  data = mutate(data, year = lubridate::year(period_mid_date))
   
   new_data = (data
     # remove '_unaccounted' cases when deciding best time_scale
     |> factor_time_scale()
     |> filter(!grepl("_unaccounted$", disease))
-    # |> mutate(year = year(period_end_date))
     |> group_by(across(all_of(c("year", initial_group))))
     |> mutate(shortest_time_scale = time_scale_chooser(time_scale, which.min))
     |> ungroup()
@@ -261,7 +276,6 @@ normalize_time_scales = function(data
   # adding "unaccounted" data back, at the best_time_scale
   all_new_data = (data
     |> filter(grepl("_unaccounted$", disease))
-    |> mutate(year = year(period_end_date))
     |> semi_join(select(new_data, "year", "time_scale", "disease", "nesting_disease", "basal_disease") |> unique(),
                  by = c("year", "time_scale", final_group))
     |> rbind(new_data)
@@ -281,7 +295,6 @@ normalize_time_scales = function(data
     # available at a finer timescale
     data_to_aggregate = (data
        |> factor_time_scale()
-       # |> mutate(year = year(period_end_date))
        |> left_join(select(all_new_data, "year","disease", "nesting_disease", "basal_disease", "time_scale") |> unique(),
                     by = c("year", "disease", "nesting_disease", "basal_disease"),
                     suffix = c('_old', '_new'))
@@ -301,8 +314,20 @@ normalize_time_scales = function(data
        
        |> group_by(iso_3166, iso_3166_2, disease, nesting_disease, basal_disease, coarser_start_date, coarser_end_date)
        |> mutate(cases_coarse_period = sum(as.numeric(cases_this_period)))
-       |> mutate(population = round(mean(as.numeric(population))),
-                 population_reporting = round(mean(as.numeric(population_reporting))))
+    )
+    
+    if ("population" %in% colnames(aggregated_unavailable_data)) {
+      aggregated_unavailable_data = (aggregated_unavailable_data %>%
+        mutate(population = round(mean(as.numeric(population), na.rm = TRUE))))
+    }
+    
+    if ("population_reporting" %in% colnames(aggregated_unavailable_data)) {
+      aggregated_unavailable_data = (aggregated_unavailable_data %>%
+        mutate(population_reporting = round(mean(as.numeric(population_reporting), na.rm = TRUE))))
+    }
+    
+    aggregated_unavailable_data = 
+      (aggregated_unavailable_data
        |> ungroup()
        
        |> select(-cases_this_period, -period_start_date, -period_end_date,
@@ -320,10 +345,15 @@ normalize_time_scales = function(data
        |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
        |> select(-time_scale_old)
        |> mutate(record_origin = 'derived-aggregated-timescales')
+       
+       |> mutate(original_dataset_id = '',
+                 historical_disease = '',
+                 dataset_id = '')
     )
     
+    if(!"record_origin" %in% names(data)) all_new_data = mutate(all_new_data, record_origin = 'historical')
+    
     final = (all_new_data
-       |> mutate(record_origin = ifelse("record_origin" %in% names(all_new_data), record_origin, 'historical'))
        |> rbind(aggregated_unavailable_data)
     )
     
@@ -341,15 +371,20 @@ normalize_time_scales = function(data
 #' `disease`, `nesting_disease`, `year`, `original_dataset_id`, `iso_3166_2`,
 #' `basal_disease`, `time_scale`, `period_start_date`, `period_end_date`, 
 #' `period_mid_date`, `days_this_period`, `dataset_id`
-#' @return A tidy data set with inferred 0s
+#' @return A tidy data set with inferred 0s.
 #'
 #' @export
 get_implied_zeros = function(data){
   
-  if (!"year" %in% colnames(data)) {stop("The column 'year' does not exist in the dataset.")}
+  if (!"period_mid_date" %in% colnames(data)) {
+    (data = data
+     |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
+     |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
+    )
+  }
   
   starting_data = (data
-     |> mutate(year = year(as.Date(period_end_date)))
+     |> mutate(year = year(as.Date(period_mid_date)))
      |> factor_time_scale()
      
      |> group_by(iso_3166_2, disease, year, original_dataset_id)
@@ -392,11 +427,16 @@ get_implied_zeros = function(data){
      |> rename(time_scale = finest_timescale)
      
      |> mutate(record_origin = 'derived-implied-zero')
+     
+     |> mutate(original_dataset_id = '',
+               historical_disease = '',
+               dataset_id = '')
   )
+  
+  if(!"record_origin" %in% names(data)) data = mutate(data, record_origin = 'historical')
   
   # join back to original data
   (data
-    |> mutate(record_origin = ifelse("record_origin" %in% names(data), record_origin, 'historical'))
     |> rbind(new_zeros)
   )
 }
@@ -412,7 +452,7 @@ get_implied_zeros = function(data){
 #' @param data A tidy data set with a `basal_disease` column.
 #'
 #' @return A data set containing records that are the difference between a
-#' reported total for a basal_disease and the sum of their leaf diseases
+#' reported total for a basal_disease and the sum of their leaf diseases.
 #'
 #' @export
 find_unaccounted_cases = function(data){
@@ -420,19 +460,21 @@ find_unaccounted_cases = function(data){
   # check if sum of leaf diseases = reported sum of basal disease
   sum_of_leaf = (
     data
-    |> filter(disease != basal_disease)
-    |> group_by(iso_3166, iso_3166_2, period_start_date, period_end_date, nesting_disease)
+    |> filter(disease != nesting_disease)
+    |> group_by(iso_3166, iso_3166_2, period_start_date, period_end_date, nesting_disease, basal_disease)
     |> filter(!disease %in% unique(nesting_disease))
-    |> summarise(cases_this_period = sum(as.numeric(cases_this_period)))
+    |> mutate(cases_this_period = sum(as.numeric(cases_this_period)))
     |> ungroup()
+    |> distinct(iso_3166, iso_3166_2, period_start_date, period_end_date, 
+                nesting_disease, original_dataset_id, cases_this_period)
   )
   
   reported_totals = (
     data
-    |> filter(nesting_disease == '')
-    |> filter(disease %in% sum_of_leaf$basal_disease)
-    |> select(-basal_disease)
-    |> rename(basal_disease = disease)
+    |> filter(nesting_disease == '' | is.na(nesting_disease))
+    |> filter(disease %in% sum_of_leaf$nesting_disease)
+    |> select(-nesting_disease)
+    |> rename(nesting_disease = disease)
   )
   
   # if sum of leaf diseases is < reported sum of basal disease,
@@ -441,7 +483,7 @@ find_unaccounted_cases = function(data){
   unaccounted_data =
     (inner_join(sum_of_leaf, reported_totals, by =
                   c('iso_3166', 'iso_3166_2', 'period_start_date', 
-                    'period_end_date', 'basal_disease', 'original_dataset_id'),
+                    'period_end_date', 'nesting_disease', 'original_dataset_id'),
                 suffix = c('_sum', '_reported'))
      
      |> mutate(cases_this_period_reported = as.numeric(cases_this_period_reported),
@@ -453,14 +495,81 @@ find_unaccounted_cases = function(data){
      
      |> select(-cases_this_period_reported, -cases_this_period_sum)
      
-     |> mutate(original_dataset_id = '')
-     |> mutate(historical_disease = '')
+     |> mutate(original_dataset_id = '',
+               historical_disease = '',
+               dataset_id = '')
      |> mutate(record_origin = 'derived-unaccounted-cases')
     )
   
+  if(!"record_origin" %in% names(data)) data = mutate(data, record_origin = 'historical')
+  
   (data
-    |> mutate(record_origin = ifelse("record_origin" %in% names(data), record_origin, 'historical'))
     |> rbind(unaccounted_data)
   )
 }
 
+
+#' Normalize Duplicate Sources
+#'
+#' Filter out overlapping sources for the same `disease/nesting_disease/basal_disease`, 
+#' `period_start_date`, `period_end_date` , and `iso_3166_2`, with the choice to
+#' keep either national level data (i.e. from Statistics Canada / Dominion 
+#' Bureau of Statistics / Health Canada) or provincial level data (from a 
+#' provincial ministry of Health).
+#'
+#' @param data A tidy data set with columns `dataset_id` , `period_start_date`,
+#' `period_end_date` , `disease` , `nesting_disease` , `basal_disease`, and 
+#' `time_scale`.
+#' @param preferred_jurisdiction 'national' or 'provincial', indicating which 
+#' jurisdiction level will be kept if these sources overlap. 
+#'
+#' @return A data set with no overlapping sources. 
+#'
+#' @export
+normalize_duplicate_sources = function(data, preferred_jurisdiction = 'national'){
+  
+  if (!preferred_jurisdiction %in% c('provincial', 'national')) {
+    stop("preferred_jurisdiction must be either 'provincial' or 'national'")
+  }
+  
+  opposite_jurisdiction = ifelse(preferred_jurisdiction == 'national', 'provincial', 'national')
+  
+  overlap_info = (data
+    |> mutate(source_jurisdiction_level = ifelse(grepl('_ca_', dataset_id), 'national', 'provincial'))
+    
+    |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
+    |> mutate(period_mid_date = as.Date(iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period)))
+    
+    |> mutate(tag = ifelse(time_scale == 'yr',
+                           paste(iso_3166_2, disease, time_scale, format(period_mid_date, "%Y"), sep = '-'),
+                           paste(iso_3166_2, disease, time_scale, format(period_mid_date, "%b-%Y"), sep = '-'))
+    )
+    
+    |> mutate(nesting_tag = ifelse(nesting_disease != '',
+                                   ifelse(time_scale == 'yr',
+                                          paste(iso_3166_2, nesting_disease, time_scale, format(period_mid_date, "%Y"), sep = '-'),
+                                          paste(iso_3166_2, nesting_disease, time_scale, format(period_mid_date, "%b-%Y"), sep = '-')),
+                                   '')
+    )
+    
+    |> mutate(basal_tag = ifelse(nesting_disease != basal_disease & disease != basal_disease,
+                                 ifelse(time_scale == 'yr', 
+                                        paste(iso_3166_2, basal_disease, time_scale, format(period_mid_date, "%Y"), sep = '-'),
+                                        paste(iso_3166_2, basal_disease, time_scale, format(period_mid_date, "%b-%Y"), sep = '-')),
+                                 '')
+                  )
+  )
+  
+  preferred = filter(overlap_info, source_jurisdiction_level == preferred_jurisdiction)
+  other = filter(overlap_info, source_jurisdiction_level == opposite_jurisdiction)
+  
+  tag = anti_join(other, preferred, by = 'tag')
+  nesting_tag = anti_join(tag, preferred, by = c('nesting_tag' = 'tag'))
+  normalized_sources = (anti_join(nesting_tag, preferred, by = c('basal_tag' = 'tag'))
+                        |> rbind(preferred)
+                        #|> select(names(data))
+  )
+  
+  normalized_sources |> select(-source_jurisdiction_level, -tag, -nesting_tag, -basal_tag)
+  
+}

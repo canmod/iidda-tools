@@ -11,7 +11,7 @@ find_unaccounted_cases(data)
 }
 \value{
 A data set containing records that are the difference between a
-reported total for a basal_disease and the sum of their leaf diseases
+reported total for a basal_disease and the sum of their leaf diseases.
 }
 \description{
 Make new records for instances when the sum of leaf diseases is less than

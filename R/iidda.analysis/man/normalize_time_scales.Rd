@@ -14,7 +14,8 @@ normalize_time_scales(
 )
 }
 \arguments{
-\item{data}{A tidy data set with a `time_scale` and `year` column}
+\item{data}{A tidy data set with columns `time_scale`, `period_start_date`
+and `period_end_date`.}
 
 \item{initial_group}{Character vector naming columns for defining
 the initial grouping used to compute the shortest time scales.}
@@ -26,7 +27,7 @@ grouping used to compute the longest of the shortest time scales.}
 
 \item{aggregate_if_unavailable}{If a location is not reporting for the determined
 'best timescale', but is reporting at a finer timescale, aggregate this finer
-timescale to the 'best timescale'}
+timescale to the 'best timescale'.}
 }
 \value{
 A data set only containing records with the optimal time scale.

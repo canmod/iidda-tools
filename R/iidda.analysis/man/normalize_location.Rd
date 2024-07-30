@@ -7,13 +7,13 @@
 normalize_location(data)
 }
 \arguments{
-\item{data}{Tidy dataset with an iso_3166_2 column}
+\item{data}{Tidy dataset with an iso_3166_2 column.}
 }
 \value{
 Tidy dataset without country-level data and with provinces and 
-territories geographically ordered
+territories geographically ordered.
 }
 \description{
 Set geographic order of provinces and territories and remove country-level
-data
+data.
 }
