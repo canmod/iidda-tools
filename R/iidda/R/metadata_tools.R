@@ -195,12 +195,10 @@ get_dataset_metadata = function(dataset) {
   metadata = metadata |> finalize_tracking_tables(FALSE)
 
   ## combine dependencies
-  for (id )
+  #combined_metadata = list()
+  #combined_metadata$TidyDataset = metadata$Tidydataset
 
-  combined_metadata = list()
-  combined_metadata$TidyDataset = metadata$Tidydataset
-
-  nlist(metadata, prerequisite_metadata)
+  metadata
 }
 filter_new_format = function(table_list, current_tidy_dataset, current_digitization) {
   if (FALSE & in_proj()) {
