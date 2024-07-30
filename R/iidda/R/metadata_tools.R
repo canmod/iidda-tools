@@ -59,138 +59,25 @@ read_tracking_tables = function(path) {
 #' @importFrom tibble column_to_rownames remove_rownames
 #' @export
 get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, original_format = TRUE, for_lbom = FALSE) {
+  if (in_proj()) {
+    metadata = get_dataset_metadata(tidy_dataset)
+    if (for_lbom) metadata = process_lbom(metadata)
+    return(metadata)
+  }
   current_tidy_dataset = tidy_dataset
   current_digitization = digitization
   tracking_path = proj_path(tracking_path)
 
-
   if (!original_format) {
     paths = file.path(tracking_path, list.files(tracking_path, pattern = '.csv'))
-    d = (paths
+    table_list = (paths
       %>% lapply(read.csv, check.names = FALSE, colClasses = "character")
       %>% setNames(tools::file_path_sans_ext(basename(paths)))
       #%>% lapply(function(x) select(x, any_of(valid_colnames)))
       #%>% lapply(drop_empty_cols)
       %>% lapply(drop_empty_rows)
     )
-    if (in_proj()) {
-      add_if = function(list, path, name) {
-        if (file.exists(path)) list[[name]] = read.csv(path
-          , check.names = FALSE
-          , colClasses = "character"
-        )
-        return(list)
-      }
-      git = remote_iidda_git()
-      d = (d
-        |> add_if("tracking/Sources.csv", "Sources")
-        |> add_if("tracking/TidyDatasets.csv", "TidyDatasets")
-        |> add_if("tracking/Columns.csv", "Columns")
-        |> add_if("tracking/Organizations.csv", "Organizations")
-        |> add_if(
-            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.PrepScripts.csv", tidy_dataset))
-          , "PrepDependencies"
-        )
-        |> add_if(
-            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.Digitizations.csv", tidy_dataset))
-          , "DigitizationDependencies"
-        )
-        |> add_if(
-            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.Scans.csv", tidy_dataset))
-          , "ScanDependencies"
-        )
-        |> add_if(
-            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.DerivedData", tidy_dataset))
-          , "DerivedData"
-        )
-        |> add_if(
-            file.path("dataset-dependencies", tidy_dataset, sprintf("%s.Columns.csv", tidy_dataset))
-          , "Schema"
-        )
-      )
-      d$PrepScripts$path_prep_script = file.path(git, "blob", "main"
-        , "pipelines"
-        , d$PrepScripts$source
-        , "prep-scripts"
-        , sprintf("%s.%s",d$PrepScripts$prep_script, d$PrepScripts$extension)
-      )
-      d$Digitizations$path_digitized_data = file.path(git, "blob", "main"
-        , "pipelines"
-        , d$Digitizations$source
-        , "digitizations"
-        , sprintf("%s.%s", d$Digitizations$digitization, d$Digitizations$extension)
-      )
-      d$Scans$path_original_data = file.path(git, "blob", "main"
-        , "pipelines"
-        , d$Scans$source
-        , "scans"
-        , sprintf("%s.%s", d$Scans$scan, d$Scans$extension)
-      )
-    }
-    lookup_tidy_dataset = data.frame(tidy_dataset = current_tidy_dataset)
-    lookup_digitization = data.frame(digitization = current_digitization)
-    dependency_re = "^([A-Z]{1}[a-z]*)Dependencies$"
-    dep_files = grep(dependency_re, names(d), value = TRUE)
-    dep_id = sub(dependency_re, "\\1", dep_files)
-    source_file_re = sprintf("^%s.*(?<!Dependencies)$", dep_id)
-    source_files = vapply(
-      source_file_re,
-      grep,
-      character(1L),
-      names(d),
-      value = TRUE, perl = TRUE, USE.NAMES = FALSE
-    )
-
-    filtered_tidy_datasets = semi_join(
-      d$TidyDatasets,
-      lookup_tidy_dataset,
-      by = "tidy_dataset"
-    )
-    filtered_dependencies = mapply(
-      semi_join,
-      d[dep_files],
-      MoreArgs = list(
-        y = lookup_tidy_dataset,
-        by = "tidy_dataset"
-      ),
-      SIMPLIFY = FALSE,
-      USE.NAMES = TRUE
-    )
-    dependency_keys = (filtered_dependencies
-      %>% lapply(names)
-      %>% lapply(getElement, 1L) ## require key to be in first column!!
-    )
-    # this mapply filter needs to be explicit about the 'by' argument
-    filtered_source_files = mapply(
-      semi_join,
-      d[source_files],
-      filtered_dependencies,
-      dependency_keys  # by keys
-    )
-    filtered_digitizations = semi_join(
-      d$Digitizations,
-      lookup_digitization,
-      "digitization"
-    )
-    filtered_source_info = semi_join(
-      d$Sources,
-      filtered_digitizations,
-      "source"
-    )
-    filtered_columns = (d$Schema
-       %>% filter(tidy_dataset == current_tidy_dataset)
-       %>% left_join(d$Columns, by = "column")
-    )
-    metadata = list(
-      TidyDataset = filtered_tidy_datasets,
-      Digitization = filtered_source_files$Digitizations,
-      Source = filtered_source_info,
-      Originals = rename(filtered_source_files$Scans, original = scan),  ## IsOriginalOf
-      Columns = filtered_columns,
-      PrepScript = filtered_source_files$PrepScripts,
-      AccessScripts = filtered_source_files$AccessScripts
-    )
-
+    metadata = filter_new_format(table_list, current_tidy_dataset, current_digitization)
   } else {
 
     d = read_tracking_tables(tracking_path)
@@ -219,6 +106,225 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
     )
   }
 
+  finalize_tracking_tables(metadata, for_lbom)
+}
+
+
+add_resource_path = function(resource_table) {
+  if (is.null(resource_table)) return(resource_table)
+
+  ## drop old path columns
+  path_cols = grepl("^path_", names(resource_table))
+  resource_table = resource_table[, !path_cols, drop = FALSE]
+
+  ## construct consistent paths
+  id = resource_table[[1L]]
+  path = file.path(
+      "pipelines"
+    , resource_table$source
+    , gsub("_", "-", sprintf("%ss", names(resource_table)[1L]))
+    , sprintf("%s.%s", id, resource_table[["extension"]])
+  )
+
+  ## if in an iidda project, prepend the remote url component
+  ## TODO: do not assume main branch
+  if (in_proj()) {
+    path = file.path(remote_iidda_git(), "blob", "main", path)
+  }
+
+  ## create new resource path column
+  resource_table$resource_path = path
+  resource_table
+}
+
+add_data_path = function(dataset_table) {
+  path = file.path("derived-data", dataset_table[[1L]])
+  if (in_proj()) {
+    path = file.path(remote_iidda_git(), "blob", "main", path)
+  }
+  dataset_table$path_tidy_data = path
+  dataset_table
+}
+
+#' @export
+get_dataset_metadata = function(dataset) {
+
+  ## recursion to find dependencies of dependencies
+  prerequisite_dataset_ids = (dataset
+    |> read_prerequisite_paths("^derived-data/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+\\.csv$")
+    |> basename()
+    |> tools::file_path_sans_ext()
+  )
+  prerequisite_metadata = list()
+  for (id in prerequisite_dataset_ids) prerequisite_metadata[[id]] = Recall(id)
+
+  ## find direct dependencies
+  PrepScripts = (dataset
+    |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/prep-scripts/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
+    |> assert_tracking_type("PrepScripts")
+  )
+  AccessScripts = (dataset
+    |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/access-scripts/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
+    |> assert_tracking_type("AccessScripts")
+  )
+  Scans = (dataset
+    |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/scans/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
+    |> assert_tracking_type("Scans")
+  )
+  Digitizations = (dataset
+    |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/digitizations/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
+    |> assert_tracking_type("Digitizations")
+  )
+  metadata = nlist(PrepScripts, AccessScripts, Scans, Digitizations) |> lapply(add_resource_path)
+  sources = (metadata
+    |> lapply(getElement, "source")
+    |> unlist(use.names = FALSE)
+    |> unique()
+  )
+  metadata$Columns = read_column_metadata(dataset, "^metadata/columns/[a-zA-Z0-9_-]+\\.json$")
+  metadata$Columns$tidy_dataset = dataset
+  metadata = list(
+      TidyDataset = read_global_metadata(dataset, "tidy-datasets") |> add_data_path()
+    , Digitization = metadata$Digitizations
+    , Source = read_global_metadata(sources, "sources")
+    , Originals = rename(metadata$Scans, original = scan)  ## IsOriginalOf
+    , Columns = relocate(metadata$Columns, tidy_dataset, .before = title)
+    , PrepScript = metadata$PrepScripts
+    , AccessScripts = metadata$AccessScripts
+  )
+  metadata = metadata |> finalize_tracking_tables(FALSE)
+
+  ## combine dependencies
+  for (id )
+
+  combined_metadata = list()
+  combined_metadata$TidyDataset = metadata$Tidydataset
+
+  nlist(metadata, prerequisite_metadata)
+}
+filter_new_format = function(table_list, current_tidy_dataset, current_digitization) {
+  if (FALSE & in_proj()) {
+    add_if = function(list, path, name) {
+      if (file.exists(path)) list[[name]] = read.csv(path
+        , check.names = FALSE
+        , colClasses = "character"
+      )
+      return(list)
+    }
+    git = remote_iidda_git()
+    table_list = (table_list
+      |> add_if("tracking/Sources.csv", "Sources")
+      |> add_if("tracking/TidyDatasets.csv", "TidyDatasets")
+      |> add_if("tracking/Columns.csv", "Columns")
+      |> add_if("tracking/Organizations.csv", "Organizations")
+      |> add_if(
+          file.path("dataset-dependencies", current_tidy_dataset, sprintf("%s.PrepScripts.csv", tidy_dataset))
+        , "PrepDependencies"
+      )
+      |> add_if(
+          file.path("dataset-dependencies", current_tidy_dataset, sprintf("%s.Digitizations.csv", current_tidy_dataset))
+        , "DigitizationDependencies"
+      )
+      |> add_if(
+          file.path("dataset-dependencies", current_tidy_dataset, sprintf("%s.Scans.csv", current_tidy_dataset))
+        , "ScanDependencies"
+      )
+      |> add_if(
+          file.path("dataset-dependencies", current_tidy_dataset, sprintf("%s.DerivedData", current_tidy_dataset))
+        , "DerivedData"
+      )
+      |> add_if(
+          file.path("dataset-dependencies", current_tidy_dataset, sprintf("%s.Columns.csv", current_tidy_dataset))
+        , "Schema"
+      )
+    )
+    table_list$PrepScripts$path_prep_script = file.path(git, "blob", "main"
+      , "pipelines"
+      , table_list$PrepScripts$source
+      , "prep-scripts"
+      , sprintf("%s.%s",table_list$PrepScripts$prep_script, table_list$PrepScripts$extension)
+    )
+    table_list$Digitizations$path_digitized_data = file.path(git, "blob", "main"
+      , "pipelines"
+      , table_list$Digitizations$source
+      , "digitizations"
+      , sprintf("%s.%s", table_list$Digitizations$digitization, table_list$Digitizations$extension)
+    )
+    table_list$Scans$path_original_data = file.path(git, "blob", "main"
+      , "pipelines"
+      , table_list$Scans$source
+      , "scans"
+      , sprintf("%s.%s", table_list$Scans$scan, table_list$Scans$extension)
+    )
+  }
+  lookup_tidy_dataset = data.frame(tidy_dataset = current_tidy_dataset)
+  lookup_digitization = data.frame(digitization = current_digitization)
+  dependency_re = "^([A-Z]{1}[a-z]*)Dependencies$"
+  dep_files = grep(dependency_re, names(table_list), value = TRUE)
+  dep_id = sub(dependency_re, "\\1", dep_files)
+  source_file_re = sprintf("^%s.*(?<!Dependencies)$", dep_id)
+  source_files = vapply(
+    source_file_re,
+    grep,
+    character(1L),
+    names(table_list),
+    value = TRUE, perl = TRUE, USE.NAMES = FALSE
+  )
+
+  filtered_tidy_datasets = semi_join(
+    table_list$TidyDatasets,
+    lookup_tidy_dataset,
+    by = "tidy_dataset"
+  )
+  filtered_dependencies = mapply(
+    semi_join,
+    table_list[dep_files],
+    MoreArgs = list(
+      y = lookup_tidy_dataset,
+      by = "tidy_dataset"
+    ),
+    SIMPLIFY = FALSE,
+    USE.NAMES = TRUE
+  )
+  dependency_keys = (filtered_dependencies
+    %>% lapply(names)
+    %>% lapply(getElement, 1L) ## require key to be in first column!!
+  )
+  # this mapply filter needs to be explicit about the 'by' argument
+  filtered_source_files = mapply(
+    semi_join,
+    table_list[source_files],
+    filtered_dependencies,
+    dependency_keys  # by keys
+  )
+  filtered_digitizations = semi_join(
+    table_list$Digitizations,
+    lookup_digitization,
+    "digitization"
+  )
+  filtered_source_info = semi_join(
+    table_list$Sources,
+    filtered_digitizations,
+    "source"
+  )
+  filtered_columns = table_list$Columns
+  if (!is.null(table_list$Schema)) {
+    filtered_columns = (table_list$Schema
+       %>% filter(tidy_dataset == current_tidy_dataset)
+       %>% left_join(table_list$Columns, by = "column")
+    )
+  }
+  list(
+    TidyDataset = filtered_tidy_datasets,
+    Digitization = filtered_source_files$Digitizations,
+    Source = filtered_source_info,
+    Originals = rename(filtered_source_files$Scans, original = scan),  ## IsOriginalOf
+    Columns = filtered_columns,
+    PrepScript = filtered_source_files$PrepScripts,
+    AccessScripts = filtered_source_files$AccessScripts
+  )
+}
+finalize_tracking_tables = function(metadata, for_lbom) {
   metadata$Columns = (metadata$Columns
     %>% split(metadata$Columns$tidy_dataset)
     %>% lapply(remove_rownames)
@@ -245,22 +351,25 @@ get_tracking_metadata = function(tidy_dataset, digitization, tracking_path, orig
   } else {
     metadata$Originals = list(metadata$Originals)
   }
-  if (for_lbom) {
-    abs_path = metadata$Digitization$path_digitized_data
-    if (!is.null(abs_path)) {
-      if (length(abs_path) == 1L & is.character(abs_path)) {
-        metadata$lbom_info$relative_path = file.path(".", strip_blob_github(abs_path))
-      }
+  if (for_lbom) metadata = process_lbom(metadata)
+  metadata
+}
+
+process_lbom = function(metadata) {
+  abs_path = metadata$Digitization$resource_path
+  if (!is.null(abs_path)) {
+    if (length(abs_path) == 1L & is.character(abs_path)) {
+      metadata$lbom_info$relative_path = file.path(".", strip_blob_github(abs_path))
     }
-    metadata$lbom_info$data_category = switch(
-      metadata$TidyDataset$type,
-      Mortality = "mortality",
-      ACM = "all-cause-mortality",
-      Births = "births",
-      Plague = "plague",
-      Population = "population"
-    )
   }
+  metadata$lbom_info$data_category = switch(
+    metadata$TidyDataset$type,
+    Mortality = "mortality",
+    ACM = "all-cause-mortality",
+    Births = "births",
+    Plague = "plague",
+    Population = "population"
+  )
   metadata
 }
 
@@ -397,7 +506,7 @@ make_related_identifier = function(
 
   get_original_data_paths = function(metadata) {
     path_vec = unlist_char_list(
-      lapply(metadata$Originals, `[[`, "path_original_data")
+      lapply(metadata$Originals, `[[`, "resource_path")
     )
     path_vec[!is_empty(path_vec)]
   }
@@ -409,10 +518,10 @@ make_related_identifier = function(
   relation_type = match.arg(relation_type)
   path_vec = switch(relation_type
     , IsCompiledBy = c(
-      metadata$PrepScript$path_prep_script,
+      metadata$PrepScript$resource_path,
       metadata$AccessScripts$path_access_script
     )
-    , IsDerivedFrom = metadata$Digitization$path_digitized_data
+    , IsDerivedFrom = metadata$Digitization$resource_path
     , References = get_original_data_paths(metadata)
   )
   if (length(path_vec) == 0L) return(list())
@@ -435,7 +544,7 @@ make_contributors = function(metadata) {
           # is intended to provide the organization from whom we obtained
           # the original source documents
           contributorType = "Other",
-          name = metadata$Source$organization,
+          name = metadata$Source$organization, ## TODO: this will just put the ackronym. not great.
           nameType = "Organizational"
         )
       ),

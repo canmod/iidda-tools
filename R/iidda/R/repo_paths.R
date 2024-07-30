@@ -98,7 +98,7 @@ remote_iidda_git = function() {
   if (!in_proj()) stop("Not in an iidda data repository.")
   if (!in_git_repo()) stop("Not inside a git repository.")
   resp = system("git config --get remote.origin.url", intern = TRUE)
-  if (length(resp) == 0L) stop("Repository does not have a remote origin url.")
+  if (length(resp) == 0L) stop("Repository does not have a remote origin url.{")
   resp = sub("^.*:", "", resp)
   user = basename(dirname(resp))
   repo = tools::file_path_sans_ext(basename(resp))

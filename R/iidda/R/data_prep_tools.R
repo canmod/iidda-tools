@@ -417,7 +417,13 @@ schema_check = function(table, metadata) {
 #' @importFrom readr read_delim
 #' @export
 read_digitized_data = function(metadata) {
-  path = strip_blob_github(metadata$Digitization$path_digitized_data)
+  path = strip_blob_github(metadata$Digitization$resource_path)
+
+  ## for back-compatibility
+  if (is.null(metadata$Digitization$resource_path)) {
+    path = strip_blob_github(metadata$Digitization$path_digitized_data)
+  }
+
   path_in_proj = proj_path(path)
   read_func = switch(
     tools::file_ext(path_in_proj),
