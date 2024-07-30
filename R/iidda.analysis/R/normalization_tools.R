@@ -151,6 +151,9 @@ normalize_disease_hierarchy = function(data
   )
   
   (data
+    
+      # remove AIDS from ontario 1990-2021 source as it is not mutually exclusive from HIV
+      |> filter(!(disease == 'AIDS' & original_dataset_id == "cdi_on_1990-2021_wk"))
       
       # prune basal_diseases
       |> mutate(x = disease %in% basal_diseases_to_prune)
@@ -342,6 +345,10 @@ normalize_time_scales = function(data
        |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
        |> select(-time_scale_old)
        |> mutate(record_origin = 'derived-aggregated-timescales')
+       
+       |> mutate(original_dataset_id = '',
+                 historical_disease = '',
+                 dataset_id = '')
     )
     
     if(!"record_origin" %in% names(data)) all_new_data = mutate(all_new_data, record_origin = 'historical')
@@ -420,6 +427,10 @@ get_implied_zeros = function(data){
      |> rename(time_scale = finest_timescale)
      
      |> mutate(record_origin = 'derived-implied-zero')
+     
+     |> mutate(original_dataset_id = '',
+               historical_disease = '',
+               dataset_id = '')
   )
   
   if(!"record_origin" %in% names(data)) data = mutate(data, record_origin = 'historical')
@@ -484,8 +495,9 @@ find_unaccounted_cases = function(data){
      
      |> select(-cases_this_period_reported, -cases_this_period_sum)
      
-     |> mutate(original_dataset_id = '')
-     |> mutate(historical_disease = '')
+     |> mutate(original_dataset_id = '',
+               historical_disease = '',
+               dataset_id = '')
      |> mutate(record_origin = 'derived-unaccounted-cases')
     )
   
