@@ -107,12 +107,12 @@ read_prerequisite_data = function(dataset_id) {
   for (csv_path in paths) {
     if (file.exists(csv_path)) {
         original_dataset_id = tools::file_path_sans_ext(basename(csv_path))
-        df = (read_csv(csv_path, show_col_types = FALSE)
+        df = (read_data_frame(csv_path)
               %>% mutate(original_dataset_id = original_dataset_id)
               #%>% mutate(dataset_id = source_id)
         )
 
-        df = mutate(df, across(starts_with("cases"), as.character))
+        #df = mutate(df, across(starts_with("cases"), as.character))
 
         data_list = append(data_list, list(df))
       } else {

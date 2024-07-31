@@ -424,7 +424,8 @@ read_digitized_data = function(metadata) {
     path = strip_blob_github(metadata$Digitization$path_digitized_data)
   }
 
-  path_in_proj = proj_path(path)
+  path_in_proj = vapply(path, proj_path, character(1L))
+  if (length(path_in_proj) > 1L) stop("more than one digitization file")
   read_func = switch(
     tools::file_ext(path_in_proj),
     xlsx = xlsx_cells,
