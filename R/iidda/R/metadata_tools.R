@@ -146,9 +146,7 @@ add_data_path = function(dataset_table) {
   dataset_table
 }
 
-#' @export
-get_dataset_metadata = function(dataset) {
-
+get_all_dataset_metadata = function(dataset) {
   ## recursion to find dependencies of dependencies
   prerequisite_dataset_ids = (dataset
     |> read_prerequisite_paths("^derived-data/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+\\.csv$")
@@ -157,23 +155,47 @@ get_dataset_metadata = function(dataset) {
   )
   prerequisite_metadata = list()
   for (id in prerequisite_dataset_ids) prerequisite_metadata[[id]] = Recall(id)
+  prerequisite_metadata$PrepScripts = (prerequisite_metadata
+    |> lapply(getElement, "PrepScripts")
+    |> Reduce(f = bind_rows)
+    |> unique()
+  )
+  prerequisite_metadata$AccessScripts = (prerequisite_metadata
+    |> lapply(getElement, "AccessScripts")
+    |> Reduce(f = bind_rows)
+    |> unique()
+  )
+  prerequisite_metadata$Scans = (prerequisite_metadata
+    |> lapply(getElement, "Scans")
+    |> Reduce(f = bind_rows)
+    |> unique()
+  )
+  prerequisite_metadata$Digitizations = (prerequisite_metadata
+    |> lapply(getElement, "Digitizations")
+    |> Reduce(f = bind_rows)
+    |> unique()
+  )
 
   ## find direct dependencies
   PrepScripts = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/prep-scripts/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("PrepScripts")
+    |> bind_rows(prerequisite_metadata$PrepScripts)
   )
   AccessScripts = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/access-scripts/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("AccessScripts")
+    |> bind_rows(prerequisite_metadata$AccessScripts)
   )
   Scans = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/scans/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("Scans")
+    |> bind_rows(prerequisite_metadata$Scans)
   )
   Digitizations = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/digitizations/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("Digitizations")
+    |> bind_rows(prerequisite_metadata$Digitizations)
   )
   metadata = nlist(PrepScripts, AccessScripts, Scans, Digitizations) |> lapply(add_resource_path)
   sources = (metadata
@@ -183,23 +205,21 @@ get_dataset_metadata = function(dataset) {
   )
   metadata$Columns = read_column_metadata(dataset, "^metadata/columns/[a-zA-Z0-9_-]+\\.json$")
   metadata$Columns$tidy_dataset = dataset
-  metadata = list(
-      TidyDataset = read_global_metadata(dataset, "tidy-datasets") |> add_data_path()
-    , Digitization = metadata$Digitizations
-    , Source = read_global_metadata(sources, "sources")
-    , Originals = rename(metadata$Scans, original = scan)  ## IsOriginalOf
-    , Columns = relocate(metadata$Columns, tidy_dataset, .before = title)
-    , PrepScript = metadata$PrepScripts
-    , AccessScripts = metadata$AccessScripts
-  )
-  metadata = metadata |> finalize_tracking_tables(FALSE)
+  metadata$Columns = relocate(metadata$Columns, tidy_dataset, .before = title)
+  metadata$TidyDataset = read_global_metadata(dataset, "tidy-datasets") |> add_data_path()
+  metadata$Source = read_global_metadata(sources, "sources")
 
-  ## combine dependencies
-  #combined_metadata = list()
-  #combined_metadata$TidyDataset = metadata$Tidydataset
-
-  metadata
+  return(metadata)
 }
+
+#' @export
+get_dataset_metadata = function(dataset) {
+  metadata = get_all_dataset_metadata(dataset)
+  metadata$TidyDataset = add_data_path(metadata$TidyDataset)
+  metadata$Originals = rename(metadata$Scans, original = scan)  ## IsOriginalOf
+  metadata |> finalize_tracking_tables(FALSE)
+}
+
 filter_new_format = function(table_list, current_tidy_dataset, current_digitization) {
   if (FALSE & in_proj()) {
     add_if = function(list, path, name) {

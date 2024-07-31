@@ -99,8 +99,10 @@ read_prerequisite_metadata = function(dataset, derived_pattern, metadata_pattern
 }
 
 #' @export
-read_prerequisite_data = function(dataset_id, pattern) {
-  paths = read_prerequisite_paths(dataset_id, pattern)
+read_prerequisite_data = function(dataset_id) {
+  paths = read_prerequisite_paths(dataset_id
+    , pattern = "derived-data/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+\\.csv"
+  )
   data_list = list()
   for (csv_path in paths) {
     if (file.exists(csv_path)) {
