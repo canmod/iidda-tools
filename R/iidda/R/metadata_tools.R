@@ -353,19 +353,19 @@ finalize_tracking_tables = function(metadata, for_lbom) {
     metadata$Originals = split(metadata$Originals, metadata$Originals$original)
 
     ## are characteristics used anywhere? these are just causing problems, no?
-    metadata$Characteristics = (metadata$Originals
-      %>% bind_rows
-      %>% summarise(
-        type = summarise_strings(type),
-        disease = summarise_strings(disease),
-        location = summarise_strings(type),
-        #years = summarise_integers(years),
-        dates = summarise_dates(start_date, end_date),
-        frequency = summarise_strings(frequency),
-        breakdown = summarise_strings(breakdown)
-      )
-      %>% as.list
-    )
+    # metadata$Characteristics = (metadata$Originals
+    #   %>% bind_rows
+    #   %>% summarise(
+    #     type = summarise_strings(type),
+    #     disease = summarise_strings(disease),
+    #     location = summarise_strings(type),
+    #     #years = summarise_integers(years),
+    #     dates = summarise_dates(start_date, end_date),
+    #     frequency = summarise_strings(frequency),
+    #     breakdown = summarise_strings(breakdown)
+    #   )
+    #   %>% as.list
+    # )
   } else {
     metadata$Originals = list(metadata$Originals)
   }
