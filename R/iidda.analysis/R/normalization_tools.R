@@ -373,7 +373,7 @@ normalize_time_scales = function(data
 #' `period_mid_date`, `days_this_period`, `dataset_id`
 #' @return A tidy data set with inferred 0s.
 #'
-#' @importfrom lubridate year
+#' @importFrom lubridate year
 #' @export
 get_implied_zeros = function(data){
   
