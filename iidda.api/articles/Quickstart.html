@@ -83,23 +83,24 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">scarlet_fever_ontario</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 61 × 16</span></span></span>
-<span><span class="co">#&gt;    iso_3166 iso_3166_2 location location_type period_start_date period_end_date</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> CA       CA-ON      ONT.     province      1929-07-28        1929-08-03     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> CA       CA-ON      ONT.     province      1929-08-04        1929-08-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> CA       CA-ON      ONT.     province      1929-08-11        1929-08-17     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> CA       CA-ON      ONT.     province      1929-08-18        1929-08-24     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> CA       CA-ON      ONT.     province      1929-08-25        1929-08-31     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> CA       CA-ON      ONT.     province      1929-09-01        1929-09-07     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> CA       CA-ON      ONT.     province      1929-09-08        1929-09-14     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> CA       CA-ON      ONT.     province      1929-09-15        1929-09-21     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> CA       CA-ON      ONT.     province      1929-09-22        1929-09-28     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> CA       CA-ON      ONT.     province      1929-09-29        1929-10-05     </span></span>
+<span><span class="co">#&gt;    basal_disease cases_this_period dataset_id         disease historical_disease</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> scarlet-fever                23 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> scarlet-fever                27 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> scarlet-fever                47 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> scarlet-fever                24 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> scarlet-fever                24 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> scarlet-fever                45 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> scarlet-fever                57 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> scarlet-fever                46 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> scarlet-fever                45 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> scarlet-fever                67 cdi_ca_1924-55_wk… scarle… Scarlet Fever     </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 51 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 10 more variables: time_scale &lt;chr&gt;, disease &lt;chr&gt;, nesting_disease &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   basal_disease &lt;chr&gt;, historical_disease_family &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   historical_disease &lt;chr&gt;, historical_disease_subclass &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   dataset_id &lt;chr&gt;, original_dataset_id &lt;chr&gt;, cases_this_period &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 11 more variables: historical_disease_family &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   historical_disease_subclass &lt;chr&gt;, iso_3166 &lt;chr&gt;, iso_3166_2 &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   location &lt;chr&gt;, location_type &lt;chr&gt;, nesting_disease &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   original_dataset_id &lt;chr&gt;, period_end_date &lt;date&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   period_start_date &lt;date&gt;, time_scale &lt;chr&gt;</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">scarlet_fever_ontario</span></span>
 <span>  <span class="op">|&gt;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">period_end_date</span>, <span class="va">cases_this_period</span><span class="op">)</span><span class="op">)</span></span>
