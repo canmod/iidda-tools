@@ -685,7 +685,6 @@ async def filter(
 
         all_columns_list = list(global_data_dictionary.keys())
         all_columns_list.append("dataset_id") ## should be able to drop this now that it is in the dictionary
-        print(all_columns_list)
 
         cols = merged_csv.columns.tolist()
         cols = sorted(cols, key=all_columns_list.index)
