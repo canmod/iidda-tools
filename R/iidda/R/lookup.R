@@ -30,6 +30,7 @@ resource_type_dict = list(
   , Births = "Births"
   , Plague = "Plague" ## TODO: should this really be a dataset type? too specific to LBoM?
   , CDI_CANMOD = "CANMOD CDI"
+  , CDI_CANMOD_NORMALIZED = "CANMOD CDI NORMALIZED"
 )
 
 #' Frequency to By

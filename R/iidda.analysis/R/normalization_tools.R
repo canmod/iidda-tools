@@ -373,6 +373,7 @@ normalize_time_scales = function(data
 #' `period_mid_date`, `days_this_period`, `dataset_id`
 #' @return A tidy data set with inferred 0s.
 #'
+#' @importFrom lubridate year
 #' @export
 get_implied_zeros = function(data){
   
@@ -384,7 +385,7 @@ get_implied_zeros = function(data){
   }
   
   starting_data = (data
-     |> mutate(year = year(as.Date(period_mid_date)))
+     |> mutate(year = lubridate::year(as.Date(period_mid_date)))
      |> factor_time_scale()
      
      |> group_by(iso_3166_2, disease, year, original_dataset_id)
