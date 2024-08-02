@@ -112,7 +112,7 @@ def dataset_list_search(
             raise HTTPException(
                 status_code=400, detail="There are three ways to filter datasets; they cannot be used in conjunction. 1. Provide values for metadata_search, key, and string_comparison, 2. Explicitly provide dataset_ids, 3. Provide a value for jq_query.")
         elif jq_query is not None:
-            q = f'{jq_query} | keys'
+            q = f'{jq_query}'# | keys'
             print('---------===raw query===----------')
             print(q)
             print('---------===raw query===----------')
