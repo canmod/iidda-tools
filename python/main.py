@@ -369,6 +369,9 @@ async def download(
     async def main():
         tasks = []
         for dataset in dataset_list:
+            print("-------")
+            print(dataset)
+            print("-------")
             r = re.compile('^v([0-9]+)-(.*)')
             if r.match(dataset):
                 version = r.search(dataset).group(1)
