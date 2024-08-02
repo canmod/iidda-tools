@@ -262,6 +262,8 @@ async def raw_csv(
             if r.match(dataset):
                 version = r.search(dataset).group(1)
                 dataset = r.search(dataset).group(2)
+                print("dataset:")
+                print(dataset)
             else:
                 version = "latest"
             
