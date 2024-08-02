@@ -262,12 +262,12 @@ async def raw_csv(
             if r.match(dataset):
                 version = r.search(dataset).group(1)
                 dataset = r.search(dataset).group(2)
-                print("dataset:")
-                print(dataset)
             else:
                 version = "latest"
             
             if csv_exists(dataset_name=dataset, version=version):
+                print("----------")
+                print(dataset_name)
                 github_csv_as_future = get_dataset(dataset_name=dataset, version=version)
                 task = asyncio.ensure_future(github_csv_as_future)
                 tasks.append(task)
