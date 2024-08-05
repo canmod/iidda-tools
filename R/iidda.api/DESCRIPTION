@@ -21,7 +21,7 @@ Depends:
     readr,
     httr,
     iidda,
-    rapiclient (== 0.1.3)
+    rapiclient (>= 0.1.3)
 Remotes:
     iidda=canmod/iidda-tools/R/iidda
 VignetteBuilder: knitr
