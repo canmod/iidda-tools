@@ -511,6 +511,7 @@ async def filter(
 
     # filter_arguments is a dictionary containing the arguments input into the function
     filter_arguments = locals()
+    filter_arguments.pop("dataset_ids", None)
 
     # Delete the resource_type argument from filter_arguments
     filter_arguments = jq(
