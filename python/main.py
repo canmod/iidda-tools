@@ -439,6 +439,8 @@ async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
     response_type: str = Query("csv", enum=["csv", "dataset list"]),
+    dataset_ids: List[str] = Query(
+        default=None, description="Filter within datasets specified. By default all datasets will be used."),
     location: List[str] = Query(
         default=None, description=global_data_dictionary['location']['description']),
     iso_3166: List[str] = Query(
@@ -619,13 +621,17 @@ async def filter(
             pandas_containment_filter = f'({pandas_containment_filter})'
             pandas_query.append(pandas_containment_filter)
         filter_list.append(filter)
+    
     # combine all the individual pandas queries into a single string
     pandas_query = ' and '.join(pandas_query)
     # combine all the individual jq filters into a single string
     filter_string = ' and '.join(filter_list)
 
-    # Get list of datasets of the specific resource type
-    dataset_list = get_dataset_list(clear_cache=False)
+    # Get list of datasets
+    if (dataset_ids is None):
+        dataset_list = get_dataset_list(clear_cache=False)
+    else:
+        dataset_list = get_dataset_list(clear_cache=False, subset=dataset_ids)
     #print("++++")
     #print(dataset_list)
     #print("++++")
@@ -734,7 +740,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="API for the International Infectious Disease Data Archive (IIDDA)",
-        version="0.2.1",
+        version="0.2.2",
         description="API for searching, combining, filtering, and downloading infectious disease datasets available through IIDDA",
         routes=app.routes,
     )
