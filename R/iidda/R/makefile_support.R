@@ -1,7 +1,12 @@
 #' @export
 csv_to_json_files = function(csv_path, json_dir, name_field, use_extension = FALSE) {
   csv_data = read_data_frame(csv_path) # select(-Unnamed..11)
-  csv_list = toJSON(csv_data, auto_unbox = TRUE, pretty = TRUE) |> parse_json()
+  data_to_json_files(csv_data, json_dir, name_field, use_extension)
+}
+
+#' @export
+data_to_json_files = function(data, json_dir, name_field, use_extension = FALSE) {
+  csv_list = toJSON(data, auto_unbox = TRUE, pretty = TRUE) |> parse_json()
   if (!dir.exists(json_dir)) dir.create(json_dir, recursive = TRUE)
   for (i in seq_along(csv_list)) {
     filename = csv_list[[i]][[name_field]]
@@ -125,4 +130,11 @@ read_prerequisite_data = function(dataset_id) {
 #' @export
 read_global_metadata = function(id, type) {
   sprintf("metadata/%s/%s.json", type, id) |> json_files_to_data()
+}
+
+#' @export
+read_lookup = function(lookup_id) {
+  path = file.path("lookup-tables", sprintf("%s.csv", lookup_id))
+  trash = fix_csv(path)
+  read_data_frame(path)
 }

@@ -175,6 +175,20 @@ read_data_frame = function(filename, col_classes = "character") {
   )
 }
 
+#' @export
+read_data_columns = function(filename) {
+  read.table(filename
+        # CSV Dialect Translation
+      , header = TRUE           # header=true
+      , sep = ','               # delimiter
+      , quote = "\""            # quoteChar="\""
+      , comment.char='#'        # commentChar='#'
+      , na.strings = '""'         # nullSequence=""
+      , colClasses = "character"
+      , nrows = 1
+  ) |> names()
+}
+
 #' Fix CSV
 #'
 #' Fix the format of a CSV file that is not in IIDDA format.
