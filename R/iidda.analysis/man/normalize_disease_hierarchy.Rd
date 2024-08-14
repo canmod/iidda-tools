@@ -15,8 +15,8 @@ normalize_disease_hierarchy(
 }
 \arguments{
 \item{data}{A tidy data set with the following minimal set of columns:
-`disease`, `nesting_disease`, `basal_disease`, `period_start_date`, 
-`period_end_date`, and `location`. Note that the latter three can be 
+`disease`, `nesting_disease`, `basal_disease`, `period_start_date`,
+`period_end_date`, and `location`. Note that the latter three can be
 modified with `grouping_columns`.}
 
 \item{disease_lookup}{A lookup table with `disease` and `nesting_disease`
@@ -30,7 +30,7 @@ grouping to determine the context.}
 \item{basal_diseases_to_prune}{Character vector of `disease`s to
 remove from `data`.}
 
-\item{find_unaccounted_cases}{Make new records for instances when the sum of 
+\item{find_unaccounted_cases}{Make new records for instances when the sum of
 leaf diseases is less than the reported total for their basal disease.}
 
 \item{specials_pattern}{Optional regular expression to use to match

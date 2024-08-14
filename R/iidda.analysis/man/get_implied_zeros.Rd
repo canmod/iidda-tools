@@ -9,7 +9,7 @@ get_implied_zeros(data)
 \arguments{
 \item{data}{A tidy data set with the following minimal set of columns:
 `disease`, `nesting_disease`, `year`, `original_dataset_id`, `iso_3166_2`,
-`basal_disease`, `time_scale`, `period_start_date`, `period_end_date`, 
+`basal_disease`, `time_scale`, `period_start_date`, `period_end_date`,
 `period_mid_date`, `days_this_period`, `dataset_id`}
 }
 \value{
