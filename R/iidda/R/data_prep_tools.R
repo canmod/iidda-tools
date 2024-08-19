@@ -834,7 +834,7 @@ aggregate_disease_hierarchy = function(data, ...) {
 #'
 #' Save the records of a dataset that contain non-numeric data within
 #' a specified numeric field. This report will be saved in the
-#' `supporting-output/dataset_id` directory
+#' `supporting-output/dataset_id` directory.
 #'
 #' @param data Data frame.
 #' @param numeric_column Name of a numeric column in \code{data}.
@@ -843,8 +843,35 @@ aggregate_disease_hierarchy = function(data, ...) {
 #'
 #' @export
 non_numeric_report = function(data, numeric_column, dataset_id) {
-  report = data[is.na(as.numeric(data[[numeric_column]])), ]
   filename = sprintf("supporting-output/%s/non-numeric-%s.csv", dataset_id, numeric_column)
+  report = data[is.na(as.numeric(data[[numeric_column]])), ]
+  save_report(report, filename)
+  report
+}
+
+#' Empty Column Report
+#'
+#' Save the records of a dataset that contain empty values in
+#' `columns`. This report will be saved in the
+#' `supporting-output/dataset_id` directory.
+#'
+#' @inheritParams non_numeric_report
+#' @param columns Character vector of columns giving the columns to
+#' check for emptiness.
+#'
+#' @export
+empty_column_report = function(data, columns, dataset_id) {
+  filename = sprintf("supporting-output/%s/empty-%s.csv", dataset_id, paste(columns, collapse = "-"))
+  i = rep(FALSE, nrow(data))
+  for (column in columns) {
+    i = i | is_empty(data[[column]])
+  }
+  report = data[i, , drop = FALSE]
+  save_report(report, filename)
+  report
+}
+
+save_report = function(report, filename) {
   p = proj_path(filename)
   d = dirname(p)
   if (!dir.exists(d)) dir.create(d, recursive = TRUE)

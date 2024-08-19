@@ -17,5 +17,5 @@ after further processing.}
 \description{
 Save the records of a dataset that contain non-numeric data within
 a specified numeric field. This report will be saved in the
-`supporting-output/dataset_id` directory
+`supporting-output/dataset_id` directory.
 }
