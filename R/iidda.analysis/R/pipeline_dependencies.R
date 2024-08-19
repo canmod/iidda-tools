@@ -10,6 +10,7 @@
 #' @param metadata Optional list giving dataset metadata. The default uses
 #' the IIDDA API, which requires the internet.
 #'
+#' @importFrom utils browseURL
 #' @export
 browse_pipeline_dependencies = function(dataset_ids
     , dependency_types = c("IsCompiledBy", "IsDerivedFrom", "References")

@@ -165,7 +165,15 @@ add_source_data_id = function(data, dataset_id, type) {
   data
 }
 
-
+#' Add Provenance
+#'
+#' Add provenance information to an IIDDA dataset, by creating columns
+#' containing the scan and digitization IDs associated with each record.
+#'
+#' @param tidy_data Data frame in IIDDA tidy form.
+#' @param tidy_dataset The IIDDA identifier associated with the dataset for
+#' which `tidy_data` serves as an intermediate object during its creation.
+#'
 #' @export
 add_provenance = function(tidy_data, tidy_dataset) {
   (tidy_data
@@ -787,8 +795,8 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
 #'
 #' Add column `basal_disease` to tidy dataset
 #'
-#'  @param data A tidy data set with a `disease` column
-#' @param disease_lookup A lookup table with `disease` and `nesting_disease`
+#' @param data A tidy data set with a `disease` column
+#' @param lookup A lookup table with `disease` and `nesting_disease`
 #' columns that describe a global disease hierarchy that will be applied
 #' to find the basal disease of each `disease` in data
 #'
@@ -819,4 +827,26 @@ aggregate_disease_hierarchy = function(data, ...) {
    |> flatten_disease_hierarchy(...)
    # group by nesting_disease etc ...
   )
+}
+
+
+#' Non-Numeric Report
+#'
+#' Save the records of a dataset that contain non-numeric data within
+#' a specified numeric field. This report will be saved in the
+#' `supporting-output/dataset_id` directory
+#'
+#' @param data Data frame.
+#' @param numeric_column Name of a numeric column in \code{data}.
+#' @param dataset_id ID for the dataset that \code{data} will become, likely
+#' after further processing.
+#'
+#' @export
+non_numeric_report = function(data, numeric_column, dataset_id) {
+  report = data[is.na(as.numeric(data[[numeric_column]])), ]
+  filename = sprintf("supporting-output/%s/non-numeric-%s.csv", dataset_id, numeric_column)
+  p = proj_path(filename)
+  d = dirname(p)
+  if (!dir.exists(d)) dir.create(d, recursive = TRUE)
+  write_data_frame(report, p)
 }

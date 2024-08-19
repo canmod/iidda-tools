@@ -60,7 +60,7 @@ ca_iso_3166_2 = function(data) {
 #' @importFrom tidyr starts_with
 #' @importFrom readr parse_date
 #' @export
-normalize_population = function(data, harmonized_population){
+normalize_population = function(data, harmonized_population) {
   (data
    |> mutate(across(tidyr::starts_with("period_"),
                     ~ if (!inherits(., "Date")) readr::parse_date(.) else .))
@@ -251,6 +251,13 @@ normalize_time_scales = function(data
                                  , aggregate_if_unavailable = TRUE
 ) {
 
+  if (any(c("iso_3166", "iso_3166_2") %in% final_group)) {
+    if (aggregate_if_unavailable) {
+      message("turning off aggregation_if_unavailable because location information is in the final_group. please read the help file for normalized_time_scales about aggregation_if_unavailable.")
+      aggregate_if_unavailable = FALSE
+    }
+  }
+
   if(get_implied_zeros) data = get_implied_zeros(data)
 
   if (length(unique(data$time_scale)) == 1L) return(data)
@@ -279,14 +286,16 @@ normalize_time_scales = function(data
   )
 
   # adding "unaccounted" data back, at the best_time_scale
+  minimal_columns = c("year", "time_scale", "disease", "nesting_disease", "basal_disease")
+  by_columns = c("year", "time_scale", intersect(final_group, minimal_columns)) |> unique()
   all_new_data = (data
     |> filter(grepl("_unaccounted$", disease))
-    |> semi_join(select(new_data, "year", "time_scale", "disease", "nesting_disease", "basal_disease") |> unique(),
-                 by = c("year", "time_scale", final_group))
+    |> semi_join(select(new_data, minimal_columns) |> unique(),
+                 by = by_columns)
     |> rbind(new_data)
   )
 
-  if(aggregate_if_unavailable) {
+  if (aggregate_if_unavailable) {
 
     # coarse scales to aggregate to
     scales = (all_new_data
@@ -358,9 +367,7 @@ normalize_time_scales = function(data
 
     if(!"record_origin" %in% names(data)) all_new_data = mutate(all_new_data, record_origin = 'historical')
 
-    final = (all_new_data
-       |> rbind(aggregated_unavailable_data)
-    )
+    final = bind_rows(all_new_data, aggregated_unavailable_data)
 
     return(final)
   } else{
@@ -394,7 +401,7 @@ get_implied_zeros = function(data){
      |> factor_time_scale()
 
      |> group_by(iso_3166_2, disease, year, original_dataset_id)
-     |> mutate(all_zero = ifelse(sum(as.numeric(cases_this_period)) == 0, TRUE, FALSE))
+     |> mutate(all_zero = isTRUE(sum(as.numeric(cases_this_period)) == 0))
      |> ungroup()
 
      |> group_by(disease, year, original_dataset_id)
@@ -442,9 +449,7 @@ get_implied_zeros = function(data){
   if(!"record_origin" %in% names(data)) data = mutate(data, record_origin = 'historical')
 
   # join back to original data
-  (data
-    |> rbind(new_zeros)
-  )
+  bind_rows(data, new_zeros)
 }
 
 
@@ -538,6 +543,8 @@ normalize_duplicate_sources = function(data, preferred_jurisdiction = 'national'
     stop("preferred_jurisdiction must be either 'provincial' or 'national'")
   }
 
+  sep = " *** "  ## for separating different fields to produce a tag
+
   opposite_jurisdiction = ifelse(preferred_jurisdiction == 'national', 'provincial', 'national')
 
   overlap_info = (data
@@ -547,21 +554,21 @@ normalize_duplicate_sources = function(data, preferred_jurisdiction = 'national'
     |> mutate(period_mid_date = as.Date(iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period)))
 
     |> mutate(tag = ifelse(time_scale == 'yr',
-                           paste(iso_3166_2, disease, time_scale, format(period_mid_date, "%Y"), sep = '-'),
-                           paste(iso_3166_2, disease, time_scale, format(period_mid_date, "%b-%Y"), sep = '-'))
+                           paste(iso_3166_2, disease, time_scale, format(period_mid_date, "%Y"), sep = sep),
+                           paste(iso_3166_2, disease, time_scale, format(period_mid_date, "%b-%Y"), sep = sep))
     )
 
     |> mutate(nesting_tag = ifelse(nesting_disease != '',
                                    ifelse(time_scale == 'yr',
-                                          paste(iso_3166_2, nesting_disease, time_scale, format(period_mid_date, "%Y"), sep = '-'),
-                                          paste(iso_3166_2, nesting_disease, time_scale, format(period_mid_date, "%b-%Y"), sep = '-')),
+                                          paste(iso_3166_2, nesting_disease, time_scale, format(period_mid_date, "%Y"), sep = sep),
+                                          paste(iso_3166_2, nesting_disease, time_scale, format(period_mid_date, "%b-%Y"), sep = sep)),
                                    '')
     )
 
     |> mutate(basal_tag = ifelse(nesting_disease != basal_disease & disease != basal_disease,
                                  ifelse(time_scale == 'yr',
-                                        paste(iso_3166_2, basal_disease, time_scale, format(period_mid_date, "%Y"), sep = '-'),
-                                        paste(iso_3166_2, basal_disease, time_scale, format(period_mid_date, "%b-%Y"), sep = '-')),
+                                        paste(iso_3166_2, basal_disease, time_scale, format(period_mid_date, "%Y"), sep = sep),
+                                        paste(iso_3166_2, basal_disease, time_scale, format(period_mid_date, "%b-%Y"), sep = sep)),
                                  '')
                   )
   )
@@ -573,7 +580,6 @@ normalize_duplicate_sources = function(data, preferred_jurisdiction = 'national'
   nesting_tag = anti_join(tag, preferred, by = c('nesting_tag' = 'tag'))
   normalized_sources = (anti_join(nesting_tag, preferred, by = c('basal_tag' = 'tag'))
                         |> rbind(preferred)
-                        #|> select(names(data))
   )
 
   normalized_sources |> select(-source_jurisdiction_level, -tag, -nesting_tag, -basal_tag)

@@ -175,6 +175,10 @@ read_data_frame = function(filename, col_classes = "character") {
   )
 }
 
+#' Read Data Columns
+#'
+#' @param filename Path to a CSV file in IIDDA format.
+#'
 #' @export
 read_data_columns = function(filename) {
   read.table(filename
@@ -183,7 +187,7 @@ read_data_columns = function(filename) {
       , sep = ','               # delimiter
       , quote = "\""            # quoteChar="\""
       , comment.char='#'        # commentChar='#'
-      , na.strings = '""'         # nullSequence=""
+      , na.strings = '""'       # nullSequence=""
       , colClasses = "character"
       , nrows = 1
   ) |> names()

@@ -21,6 +21,7 @@ production = NULL
 #' @importFrom httr content
 #' @importFrom rapiclient get_api get_operations set_default_args_list
 #' @importFrom iidda list_xpath rm_trailing_slash
+#' @importFrom utils browseURL
 
 handle_iidda_response <- function(x) {
     if (x$status_code == 400L) {

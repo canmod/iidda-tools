@@ -401,7 +401,7 @@ process_lbom = function(metadata) {
 
 collect_tracking_metadata = function(...) {
   all_paths = Sys.glob(file.path(..., "**", "tracking", "*.csv"))
-  all_data_frames = lapply(all_paths, iidda:::read_data_frame)
+  all_data_frames = lapply(all_paths, iidda::read_data_frame)
   bound_frames = tapply(all_data_frames, basename(all_paths), dplyr::bind_rows, simplify = FALSE)
   lapply(bound_frames, \(x) unique)
 }

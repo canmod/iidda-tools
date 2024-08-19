@@ -37,6 +37,7 @@ generate_empty_df = function(dir_path, lookup_table, csv_name){
 #' @param path string indicating path to directory
 #' @param lookup_table_type string indicating type of lookup table
 #' @return csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
+#' @importFrom iidda.api ops_staging
 #' @export
 generate_user_table = function(path, lookup_table_type){
   lookup_table = iidda.api::ops_staging$lookup_tables(lookup_type = lookup_table_type)

@@ -9,14 +9,14 @@ time_scale_order = c("wk", "2wk", "mo", "qr", "yr")
 #' so that there is no chance of double-counting cases.
 #'
 #' @param canmod_cdi Dataset from IIDDA of type `CANMOD CDI`.
-#' @param ... Arguments to pass on to.
+#' @param ... Arguments to pass on to \code{\link{normalize_time_scales}}.
 #' @importFrom dplyr select mutate filter
 #' @export
 clean_canmod_cdi = function(canmod_cdi, ...) {
   (canmod_cdi
     |> dplyr::mutate(iso_3166_2 = sub("CA-", "", iso_3166_2))
     |> dplyr::filter(!is.na(iso_3166_2))
-    |> iidda::filter_out_time_scales(...)
+    |> normalize_time_scales(...)
     |> dplyr::select(-population_reporting)
   )
 }

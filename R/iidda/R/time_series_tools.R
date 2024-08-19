@@ -10,6 +10,7 @@
 #' before islands are located.
 #'
 #' @importFrom dplyr arrange mutate
+#' @importFrom stats lag
 #' @export
 time_series_islands = function(data, series_variable, time_variable = NULL) {
   if (!is.null(time_variable)) data = arrange(data, get(time_variable))

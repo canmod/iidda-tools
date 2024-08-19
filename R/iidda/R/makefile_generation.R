@@ -291,6 +291,8 @@ update_data_deps = function(dep_path) {
   return(dep_data)
 }
 
+#' @importFrom utils write.csv
+#' @noRd
 save_dep_list = function(dependencies_csv, dep_list) {
   .trash = (dep_list
       |> unlist(recursive = FALSE)
