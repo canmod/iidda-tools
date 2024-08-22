@@ -193,8 +193,10 @@ lookup_join = function(raw_data, lookup_table, join_by, verbose = FALSE){
   # Check if there are any duplicate normalizations defined in lookup table after these steps
   # Specifically, get lookup table without normalizations and check for duplicates in that table
   lookup_table_keys = select(update_lookup_table, shared_cols)
-  if(any(duplicated(lookup_table_keys))){
-    stop("Multiple normalizations found for some entries in final lookup table.")
+  dup_keys = duplicated(lookup_table_keys)
+  if (any(dup_keys)) {
+    warning("Multiple normalizations found for some entries in final lookup table.")
+    update_lookup_table = update_lookup_table[!dup_keys,,drop = FALSE]
   }
 
   # left_join and resolve any duplicate columns with resolve_join
