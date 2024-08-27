@@ -16,9 +16,6 @@ exists in \code{exploration_project_path}, an error is returned.}
 \item{...}{Additional arguments to pass to \code{\link{file.copy}}. A
 useful argument here is `overwrite`, which indicates whether an existing
 exploration script should be overwritten.}
-
-\item{pipeline_repo_root}{Path to the folder of a cloned IIDDA pipeline
-repository.}
 }
 \description{
 Create an R script providing a place to start when exploring an IIDDA

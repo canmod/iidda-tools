@@ -42,3 +42,20 @@ open_locally = function(urls, command = 'open', args = character()) {
     stop("Currently only works on Windows and MacOS.")
   }
 }
+
+#' @describeIn open_locally Open the resources of an IIDDA pipeline locally.
+#' @param id Pipeline ID.
+#' @param type Type of resource.
+#' @export
+open_resources_locally = function(id, type = c("scans", "digitizations", "prep-scripts", "access-scripts")) {
+  type = match.arg(type)
+  glob = sprintf("pipelines/*/%s/%s.*", type, id)
+  paths = Sys.glob(glob)
+  is_metadata = grepl("^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.json", basename(paths))
+  paths = paths[!is_metadata]
+  if (length(paths) > 0L) {
+    open_locally(paths)
+  } else {
+    message("cannot find ", glob)
+  }
+}

@@ -212,6 +212,12 @@ get_all_dataset_metadata = function(dataset) {
   return(metadata)
 }
 
+#' Get Dataset Metadata
+#'
+#' Get an object with metadata information about a particular dataset from
+#' tracking tables.
+#'
+#' @param dataset Dataset identifier.
 #' @export
 get_dataset_metadata = function(dataset) {
   metadata = get_all_dataset_metadata(dataset)
@@ -329,7 +335,7 @@ filter_new_format = function(table_list, current_tidy_dataset, current_digitizat
   if (!is.null(table_list$Schema)) {
     filtered_columns = (table_list$Schema
        %>% filter(tidy_dataset == current_tidy_dataset)
-       %>% left_join(table_list$Columns, by = "column")
+       %>% left_join(table_list$Columns, by = "name")
     )
   }
   list(
@@ -346,7 +352,7 @@ finalize_tracking_tables = function(metadata, for_lbom) {
   metadata$Columns = (metadata$Columns
     %>% split(metadata$Columns$tidy_dataset)
     %>% lapply(remove_rownames)
-    %>% lapply(column_to_rownames, var = "column")
+    %>% lapply(column_to_rownames, var = "name")
   )
 
   if (nrow(metadata$Originals) > 0L) {
@@ -391,24 +397,16 @@ process_lbom = function(metadata) {
   metadata
 }
 
-#' @export
-get_prerequisite_metadata = function(tracking_path) {
-  tracking = read_tracking_tables(tracking_path)
-  tracking
-}
+
 
 collect_tracking_metadata = function(...) {
   all_paths = Sys.glob(file.path(..., "**", "tracking", "*.csv"))
-  all_data_frames = lapply(all_paths, iidda:::read_data_frame)
+  all_data_frames = lapply(all_paths, iidda::read_data_frame)
   bound_frames = tapply(all_data_frames, basename(all_paths), dplyr::bind_rows, simplify = FALSE)
   lapply(bound_frames, \(x) unique)
 }
 
-#' @export
-filter_dependencies = function(resources, dependencies, tidy_datasets) {
-  resource_ids = dependencies[[1L]][dependencies[[2L]] %in% tidy_datasets]
-  resources[resources[[1L]] %in% resource_ids, , drop = FALSE]
-}
+
 
 
 #' Which Tracking Tables have a Particular Column
@@ -555,17 +553,19 @@ make_related_identifier = function(
 make_contributors = function(metadata) {
   enterers = metadata$Digitization$data_enterer |> unique()
   enterers = enterers[nchar(enterers) != 0L]
+  orgs = metadata$Source$organization |> unique()
+  orgs = orgs[nchar(orgs) != 0L]
     c(
-      list(
+      lapply(orgs, function(name) {
         list(
           # wish there was a better type than "Other", but this contributor
           # is intended to provide the organization from whom we obtained
           # the original source documents
           contributorType = "Other",
-          name = metadata$Source$organization, ## TODO: this will just put the ackronym. not great.
+          name = name, ## TODO: this will just put the ackronym. not great.
           nameType = "Organizational"
         )
-      ),
+      }),
     lapply(enterers, function(name) {
       list(
         contributorType = "Other",
@@ -584,6 +584,10 @@ make_contributors = function(metadata) {
 #' @importFrom jsonlite write_json
 #' @export
 make_data_cite_tidy_data = function(metadata, file) {
+  name_util = function(vec, name) {
+    lapply(vec, as.list) |> lapply(setNames, name)
+  }
+
   # schema:
   # https://github.com/datacite/schema/blob/master/source/json/kernel-4.3/datacite_4.3_schema.json
 
@@ -701,9 +705,10 @@ make_data_cite_tidy_data = function(metadata, file) {
         SchemeURI = "https://ror.org/"
       )
     ),
-    geoLocations = list(list(
-      geoLocationPlace = metadata$Source$location
-    )),
+    geoLocations = name_util(
+        metadata$geo
+      , "geoLocationPlace"
+    ),
     schemaVersion = "http://datacite.org/schema/kernel-4"
   )
   write_json(data_cite, file, pretty = TRUE, auto_unbox = TRUE)

@@ -26,7 +26,7 @@ make_mock_api = function(tidy_source, local_iidda_path) {
           , col_types = readr::cols(.default = "c")
           , na = character()
         )
-        |> bind_rows()
+        |> bind_rows() ## not imported!
       )
     },
     lookup_tables = function(lookup_type) {

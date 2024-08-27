@@ -195,6 +195,7 @@ SeriesHarmonizer = function(
 #' @param week_end numeric value of the last week number to look for heaping errors
 #'
 #' @importFrom dplyr if_else group_split lag lead
+#' @importFrom stats sd
 #' @return function to fix heaping errors
 #'
 #' ## Returned Function
@@ -204,6 +205,7 @@ SeriesHarmonizer = function(
 #' - Return - all fields in `data` with an additional field called "deheaped_" concatenated with `series_variable`.
 #' If no heaping errors are found, this additional field is identical to the field `series_variable
 #'
+#' @importFrom stats median
 #' @family data_prep_constructors
 #' @export
 WaveletDeheaper = function(
@@ -1196,7 +1198,7 @@ iidda_prep_rohani <- function(data,
 #' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
 #'
 #'
-#' @importFrom stats spec.pgram
+#' @importFrom stats spec.pgram na.fail
 #' @return all fields in`data` with records prepped for plotting box plots. The name
 #' of the new `time_unit` field will be named from lubridate_funcs.
 #'
@@ -2148,6 +2150,7 @@ mutate_time_vars = function(
 #'
 #' @param unit time unit, one or more of iidda.analysis:::time_units
 #'
+#' @importFrom utils getFromNamespace
 #' @importFrom lubridate wday mday qday yday week epiweek isoweek month quarter year
 #' @return function to compute time unit
 #' @export

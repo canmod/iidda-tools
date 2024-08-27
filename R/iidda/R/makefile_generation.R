@@ -1,4 +1,7 @@
-#' @export
+## This file was a failed experiment.
+## TODO: git rm with a clear log message
+
+
 dependency_file = function(source, dataset) {
   deps_abs_path = get_all_dependencies(source, dataset)
   deps_rel_path = relative_paths(deps_abs_path)
@@ -18,19 +21,7 @@ comment_lines = c(
   , "# on how these makefiles are produced."
 )
 
-#' Update all Makefiles
-#'
-#' Run this after updating CSV files in `pipelines/{DATA-SOURCE}/tracking`
-#' folders and/or in `global-metadata/tracking`. To update the makefile for
-#' a single dataset please use \code{\link{make_makefile}}.
-#'
-#' @param dataset_makefiles Should makefiles for each dataset be constructed
-#' using information in the `tracking` folder for that dataset?
-#' @param source_makefiles Should generic makefiles for each source be
-#' constructed?
-#' @param derived_data_makefile Should an overall generic makefile for all
-#' sources be constructed?
-#' @export
+
 update_makefiles = function(
       dataset_makefiles = TRUE
     , source_makefiles = FALSE
@@ -51,14 +42,6 @@ update_makefiles = function(
   invisible(NULL)
 }
 
-#' Generate Dataset Makefile
-#'
-#' Run this function from the root of an IIDDA repository.
-#'
-#' @param source IIDDA source ID.
-#' @param dataset IIDDA dataset ID.
-#'
-#' @export
 make_makefile = function(source, dataset) {
   all_ids = list_dataset_ids_by_source()
   pipeline = sprintf("pipelines/%s", source)
@@ -173,12 +156,7 @@ make_makefile = function(source, dataset) {
   makefile_path
 }
 
-#' Make a Generic Makefile
-#'
-#' This function is for IIDDA maintainers only. It id used to generate
-#' a makefile that recursively looks for makefiles within a folder hierarchy.
-#'
-#' @export
+
 make_generic_makefile = function(makefile_dir) {
   makefile_lines = c(comment_lines
       , "IGNORE_FILE := .iidda-ignore"
@@ -252,7 +230,7 @@ get_all_dep_data = function(sources) {
   all_deps
 }
 
-#' @export
+
 make_data_deps = function(dep_path) {
   #if (file.exists(dependencies_csv)) {
   dep_data = update_data_deps(dep_path)
@@ -262,7 +240,7 @@ make_data_deps = function(dep_path) {
   #}
 }
 
-#' @export
+
 make_all_deps = function() {
   dependencies_csv = file.path("global-output", "dependencies.csv")
   dep_list = (list_dataset_ids_by_source()
@@ -313,6 +291,8 @@ update_data_deps = function(dep_path) {
   return(dep_data)
 }
 
+#' @importFrom utils write.csv
+#' @noRd
 save_dep_list = function(dependencies_csv, dep_list) {
   .trash = (dep_list
       |> unlist(recursive = FALSE)

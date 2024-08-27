@@ -40,7 +40,7 @@ print(scarlet_fever_ontario)
 
 ```{r scarlet_fever_ontario_plot, fig.width=7}
 (scarlet_fever_ontario
-  |> ggplot(aes(period_mid_date, cases_this_period))
+  |> ggplot(aes(period_end_date, cases_this_period))
   + geom_line() + geom_point()
   + ggtitle("Scarlet Fever Incidence in Ontario, Canada")
   + theme_bw()

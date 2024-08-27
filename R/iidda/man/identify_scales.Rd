@@ -4,7 +4,11 @@
 \alias{identify_scales}
 \title{Identify Scales}
 \usage{
-identify_scales(data, location_type_fixer = canada_province_scale_finder)
+identify_scales(
+  data,
+  location_type_fixer = canada_province_scale_finder,
+  time_scale_identifier = identify_time_scales
+)
 }
 \arguments{
 \item{data}{Data frame in IIDDA tidy format to add time scale
@@ -12,7 +16,11 @@ and location scale information.}
 
 \item{location_type_fixer}{Function that takes a data frame in IIDDA
 tidy format and adds or fixes the `location_type` field.}
+
+\item{time_scale_identifier}{Function that takes a data frame in IIDDA
+tidy format and adds the `time_scale` field.}
 }
 \description{
-Identifies time scales (wk, mt, qrtr, yr) and location types (province or country) within a tidy dataset.
+Identifies time scales (wk, mo, qr, yr) and location types
+(province or country) within a tidy dataset.
 }

@@ -19,8 +19,6 @@
 #' @param exploration_project_path Path to the folder for containing the script.
 #' If this path doesn't exist, then it is created. If \code{script_filename}
 #' exists in \code{exploration_project_path}, an error is returned.
-#' @param pipeline_repo_root Path to the folder of a cloned IIDDA pipeline
-#' repository.
 #' @param ... Additional arguments to pass to \code{\link{file.copy}}. A
 #' useful argument here is `overwrite`, which indicates whether an existing
 #' exploration script should be overwritten.
@@ -88,11 +86,13 @@ in_proj <- function(filename = ".iidda", start_dir = getwd()) {
   Recall(filename, parent_dir)
 }
 
+#' In Git Repo
 #' @export
 in_git_repo = function() {
   system("git rev-parse --is-inside-work-tree", intern = TRUE) == "true"
 }
 
+#' Remote IIDDA Git
 #' @export
 remote_iidda_git = function() {
   if (!in_proj()) stop("Not in an iidda data repository.")
@@ -128,6 +128,13 @@ to_relative_path = function(path, containing_path) {
   sub(sprintf("^%s/", containing_path), "", path)
 }
 
+#' Relative Paths
+#'
+#' Convert a set of absolute paths to relative paths with respect to a
+#' specified `containing_path`
+#'
+#' @param paths Vector of absolute paths.
+#' @param containing_path Target working directory to be relative to.
 #' @export
 relative_paths = function(paths, containing_path = proj_root()) {
   vapply(paths
@@ -138,6 +145,13 @@ relative_paths = function(paths, containing_path = proj_root()) {
   )
 }
 
+#' Project Path
+#'
+#' Return a path in absolute form (if that is how it is specified) or
+#' relative to the IIDDA project root found using \code{\link{proj_root}}.
+#'
+#' @param ... Path components for \code{\link{file.path}}.
+#'
 #' @export
 proj_path = function(...) {
   path = file.path(...)
@@ -222,6 +236,11 @@ list_dependency_ids = function(source, dataset
   tracking[[1L]][tracking[[2L]] == dataset]
 }
 
+#' List Dependency IDs for Source
+#'
+#' @param source IIDDA source ID, which should correspond to
+#' metadata in `metadata/sources/souce.json` and a folder in `pipelines`.
+#' @param type Type of dependency.
 #' @export
 list_dependency_ids_for_source = function(source
     , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
@@ -230,19 +249,6 @@ list_dependency_ids_for_source = function(source
   tracking[[1L]]
 }
 
-#' @export
-list_prerequisite_paths = function(source, dataset) {
-  pipeline_dir = assert_proj_path("pipelines")
-  file = "Prerequisites.csv"
-  path = file.path(pipeline_dir, source, "tracking", file)
-  if (!file.exists(path)) return(character())
-  tracking = read.csv(path)
-  i = tracking[["tidy_dataset"]] == dataset
-  pre_source = tracking[["prerequisite_source"]][i]
-  pre_dataset = tracking[["prerequisite_dataset"]][i]
-  file = vapply(pre_dataset, set_ext, character(1L), "csv", USE.NAMES = FALSE)
-  file.path("derived-data", pre_source, pre_dataset, file)
-}
 
 #' List Dependency Paths
 #'
@@ -254,6 +260,7 @@ list_prerequisite_paths = function(source, dataset) {
 list_dependency_paths = function(source, dataset
     , type = c("PrepScripts", "Scans", "Digitizations", "AccessScripts")
   ) {
+  type = match.arg(type)
   dependencies = list_dependency_ids(source, dataset, type)
   pipeline_dir = assert_proj_path("pipelines")
   file = set_ext(type, "csv")
@@ -455,6 +462,7 @@ failed_prep_script_outcomes = function() {
 #' prep script outcomes.
 #' @describeIn all_prep_script_outcomes Tar archive with log files of failed
 #' prep script outcomes.
+#' @importFrom utils tar
 #' @export
 error_tar = function(tar_name) {
   d = tempdir()

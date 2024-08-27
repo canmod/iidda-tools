@@ -8,19 +8,19 @@ normalize_duplicate_sources(data, preferred_jurisdiction = "national")
 }
 \arguments{
 \item{data}{A tidy data set with columns `dataset_id` , `period_start_date`,
-`period_end_date` , `disease` , `nesting_disease` , `basal_disease`, and 
+`period_end_date` , `disease` , `nesting_disease` , `basal_disease`, and
 `time_scale`.}
 
-\item{preferred_jurisdiction}{'national' or 'provincial', indicating which 
+\item{preferred_jurisdiction}{'national' or 'provincial', indicating which
 jurisdiction level will be kept if these sources overlap.}
 }
 \value{
 A data set with no overlapping sources.
 }
 \description{
-Filter out overlapping sources for the same `disease/nesting_disease/basal_disease`, 
+Filter out overlapping sources for the same `disease/nesting_disease/basal_disease`,
 `period_start_date`, `period_end_date` , and `iso_3166_2`, with the choice to
-keep either national level data (i.e. from Statistics Canada / Dominion 
-Bureau of Statistics / Health Canada) or provincial level data (from a 
+keep either national level data (i.e. from Statistics Canada / Dominion
+Bureau of Statistics / Health Canada) or provincial level data (from a
 provincial ministry of Health).
 }

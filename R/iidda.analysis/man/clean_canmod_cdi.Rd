@@ -9,7 +9,7 @@ clean_canmod_cdi(canmod_cdi, ...)
 \arguments{
 \item{canmod_cdi}{Dataset from IIDDA of type `CANMOD CDI`.}
 
-\item{...}{Arguments to pass on to.}
+\item{...}{Arguments to pass on to \code{\link{normalize_time_scales}}.}
 }
 \description{
 The important cleaning steps include (1) removing `CA-` from ISO-3166-2

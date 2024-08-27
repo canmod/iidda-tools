@@ -21,6 +21,7 @@ production = NULL
 #' @importFrom httr content
 #' @importFrom rapiclient get_api get_operations set_default_args_list
 #' @importFrom iidda list_xpath rm_trailing_slash
+#' @importFrom utils browseURL
 
 handle_iidda_response <- function(x) {
     if (x$status_code == 400L) {
@@ -83,7 +84,20 @@ make_api_obj = function(api_url, base_path, type) {
   )
 }
 
+check_rapiclient = function() {
+  if (!file.exists(system.file("canmod", package = "rapiclient"))) {
+    warning(
+        "Your installation of rapiclient does not support passing "
+      , "vectors to the arguments of iidda.api functions."
+      , "If you wish to pass vectors, please follow installation "
+      , "instructions for rapiclient here: "
+      , "https://canmod.r-universe.dev/rapiclient"
+    )
+  }
+}
+
 make_ops_list = function(api_url, base_path, type) {
+  check_rapiclient()
 
   summary_to_function_name = function(x) {
     gsub(pattern = " ", replacement = "_", tolower(x))

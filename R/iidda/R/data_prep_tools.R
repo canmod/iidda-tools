@@ -111,8 +111,113 @@ write_tidy_data = function(tidy_data, metadata, tidy_dir = NULL) {
     as.character(file.info(tidy_file)$size),
     "bytes", sep = " "
   )
-  make_data_cite_tidy_data(metadata, meta_file)
+  (metadata
+    |> update_metadata_dates(tidy_data)
+    |> update_metadata_locations(tidy_data)
+    |> make_data_cite_tidy_data(meta_file)
+  )
   return(files)
+}
+
+source_data_metadata = function(dataset_id, type) {
+  path = sprintf("dataset-dependencies/%s/%s.d", dataset_id, dataset_id)
+  pat = sprintf("^pipelines/[a-zA-Z0-9_-]+/%ss", type)
+  (path
+    |> readLines()
+    |> grep(pattern = pat, value = TRUE)
+    |> sprintf(fmt = "%s.json")
+    |> json_files_to_data()
+  )
+}
+
+add_source_data_id = function(data, dataset_id, type) {
+  id_col = sprintf("%s_id", type)
+  if (id_col %in% names(data)) return(data)
+  metadata = source_data_metadata(dataset_id, type)
+  if (isTRUE(nrow(metadata) > 1L)) {
+    if ("period_end_date" %in% names(data)) {
+      date_field = "period_end_date"
+    } else if ("date" %in% names(data)) {
+      date_field = "date"
+    }
+    start_col = grep("^(period_)?start_date$", names(metadata), value = TRUE)
+    end_col = grep("^(period_)?end_date$", names(metadata), value = TRUE)
+    start = metadata[[start_col]]
+    end = metadata[[end_col]]
+    stopifnot(identical(start, sort(start)))
+    stopifnot(identical(end, sort(end)))
+    stopifnot(all(start < end))
+    i = findInterval(
+        as.numeric(as.Date(data$period_end_date))
+      , as.numeric(as.Date(c(start[1L], end)))
+      , all.inside = TRUE
+    )
+  } else if (isTRUE(nrow(metadata) == 1L)) {
+    i = 1L
+  } else { # no metadata or it is malformed
+    i = 1L
+    metadata = list()
+    metadata[[type]] = ""
+  }
+  if (!all(is_empty(metadata[[type]][i]))) {
+    data[[id_col]] = metadata[[type]][i]
+  }
+  data
+}
+
+#' Add Provenance
+#'
+#' Add provenance information to an IIDDA dataset, by creating columns
+#' containing the scan and digitization IDs associated with each record.
+#'
+#' @param tidy_data Data frame in IIDDA tidy form.
+#' @param tidy_dataset The IIDDA identifier associated with the dataset for
+#' which `tidy_data` serves as an intermediate object during its creation.
+#'
+#' @export
+add_provenance = function(tidy_data, tidy_dataset) {
+  (tidy_data
+    |> add_source_data_id(tidy_dataset, "scan")
+    |> add_source_data_id(tidy_dataset, "digitization")
+  )
+}
+
+update_metadata_dates = function(metadata, data) {
+  min_not_empty = function(x) min(x[!is_empty(x)])
+  max_not_empty = function(x) max(x[!is_empty(x)])
+  if ("period_start_date" %in% names(data)) {
+    metadata$TidyDataset$period_start_date = min_not_empty(data$period_start_date)
+  }
+  if ("period_end_date" %in% names(data)) {
+    metadata$TidyDataset$period_end_date = max_not_empty(data$period_end_date)
+  }
+  if ("date" %in% names(data)) {
+    metadata$TidyDataset$period_start_date = min_not_empty(data$date)
+    metadata$TidyDataset$period_end_date = max_not_empty(data$date)
+  }
+  return(metadata)
+}
+
+update_metadata_locations = function(metadata, data) {
+  metadata$geo = unique(metadata$Source$location)
+  loc = character()
+  if ("iso_3166" %in% names(data)) {
+    loc = c(loc, unique(data$iso_3166))
+  }
+  if ("iso_3166_2" %in% names(data)) {
+    loc = c(loc, unique(data$iso_3166_2))
+  }
+  if (length(loc) == 0L) {
+    if ("nesting_location" %in% names(data)) {
+      loc = c(loc, unique(data$nesting_location))
+    }
+    if ("location" %in% names(data)) {
+      loc = c(loc, unique(data$location))
+    }
+  }
+  loc = loc[!is_empty(loc)]
+  if (length(loc) != 0L) metadata$geo = unique(loc)
+  return(metadata)
 }
 
 #' Read Tidy Data and Metadata files
@@ -297,9 +402,11 @@ check_metadata_cols = function(tidy_data, metadata) {
                    %>% getElement(metadata$TidyDataset$tidy_dataset)
                    %>% rownames)
   tidy_data_cols = colnames(tidy_data)
-  tidy_data_diff = setdiff(tidy_data_cols, metadata_cols)
+  tidy_data_diff = setdiff(metadata_cols, tidy_data_cols)
 
-  if(setequal(metadata_cols, tidy_data_cols) == FALSE) stop(paste("Metadata does not contain columns", tidy_data_diff, "from tidy data", collapse = '\n'))
+  if(setequal(metadata_cols, tidy_data_cols) == FALSE) {
+    stop(paste("\nMetadata does not contain column", tidy_data_diff, "from tidy data", collapse = ''))
+  }
 
   if(any(colSums(!is.na(tidy_data)) == 0)) stop(paste(names(tidy_data)[sapply(tidy_data, function(x) sum(is.na(x)) == length(x))], "is missing all values", collapse = ' '))
 }
@@ -505,17 +612,20 @@ combine_weeks = function(cleaned_sheets, sheet_dates, metadata) {
 
 #' Identify Scales
 #'
-#'Identifies time scales (wk, mt, qrtr, yr) and location types (province or country) within a tidy dataset.
+#' Identifies time scales (wk, mo, qr, yr) and location types
+#' (province or country) within a tidy dataset.
 #'
 #' @param data Data frame in IIDDA tidy format to add time scale
 #' and location scale information.
 #' @param location_type_fixer Function that takes a data frame in IIDDA
 #' tidy format and adds or fixes the `location_type` field.
+#' @param time_scale_identifier Function that takes a data frame in IIDDA
+#' tidy format and adds the `time_scale` field.
 #'
 #' @export
-identify_scales = function(data, location_type_fixer = canada_province_scale_finder) {
+identify_scales = function(data, location_type_fixer = canada_province_scale_finder, time_scale_identifier = identify_time_scales) {
   (data
-    |> identify_time_scales()
+    |> time_scale_identifier()
     |> location_type_fixer()
   )
 }
@@ -531,7 +641,7 @@ identify_time_scales = function(data){
 }
 canada_province_scale_finder = function(data) {
   if ("location" %in% names(data)) {
-    data$location_type = ifelse(data$location %in% c("Canada", "CANADA"), "country", "province")
+    data$location_type = ifelse(trimws(data$location) %in% c("Canada", "CANADA"), "country", "province")
   }
   data
 }
@@ -697,8 +807,8 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
 #'
 #' Add column `basal_disease` to tidy dataset
 #'
-#'  @param data A tidy data set with a `disease` column
-#' @param disease_lookup A lookup table with `disease` and `nesting_disease`
+#' @param data A tidy data set with a `disease` column
+#' @param lookup A lookup table with `disease` and `nesting_disease`
 #' columns that describe a global disease hierarchy that will be applied
 #' to find the basal disease of each `disease` in data
 #'
@@ -729,4 +839,53 @@ aggregate_disease_hierarchy = function(data, ...) {
    |> flatten_disease_hierarchy(...)
    # group by nesting_disease etc ...
   )
+}
+
+
+#' Non-Numeric Report
+#'
+#' Save the records of a dataset that contain non-numeric data within
+#' a specified numeric field. This report will be saved in the
+#' `supporting-output/dataset_id` directory.
+#'
+#' @param data Data frame.
+#' @param numeric_column Name of a numeric column in \code{data}.
+#' @param dataset_id ID for the dataset that \code{data} will become, likely
+#' after further processing.
+#'
+#' @export
+non_numeric_report = function(data, numeric_column, dataset_id) {
+  filename = sprintf("supporting-output/%s/non-numeric-%s.csv", dataset_id, numeric_column)
+  report = data[is.na(as.numeric(data[[numeric_column]])), ]
+  save_report(report, filename)
+  report
+}
+
+#' Empty Column Report
+#'
+#' Save the records of a dataset that contain empty values in
+#' `columns`. This report will be saved in the
+#' `supporting-output/dataset_id` directory.
+#'
+#' @inheritParams non_numeric_report
+#' @param columns Character vector of columns giving the columns to
+#' check for emptiness.
+#'
+#' @export
+empty_column_report = function(data, columns, dataset_id) {
+  filename = sprintf("supporting-output/%s/empty-%s.csv", dataset_id, paste(columns, collapse = "-"))
+  i = rep(FALSE, nrow(data))
+  for (column in columns) {
+    i = i | is_empty(data[[column]])
+  }
+  report = data[i, , drop = FALSE]
+  save_report(report, filename)
+  report
+}
+
+save_report = function(report, filename) {
+  p = proj_path(filename)
+  d = dirname(p)
+  if (!dir.exists(d)) dir.create(d, recursive = TRUE)
+  write_data_frame(report, p)
 }

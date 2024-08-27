@@ -112,7 +112,12 @@ def dataset_list_search(
             raise HTTPException(
                 status_code=400, detail="There are three ways to filter datasets; they cannot be used in conjunction. 1. Provide values for metadata_search, key, and string_comparison, 2. Explicitly provide dataset_ids, 3. Provide a value for jq_query.")
         elif jq_query is not None:
-            return jq(f'{jq_query} | keys').transform(data)
+            qq = f'{jq_query}'# | keys'
+            q = jq(qq).transform(data)
+            print('---------===raw query===----------')
+            print(q)
+            print('---------===raw query===----------')
+            return q
         elif key is not None and metadata_search is not None:
             if string_comparison == "Contains":
                 string_comparison = f'contains("{metadata_search}")'
@@ -121,11 +126,13 @@ def dataset_list_search(
 
             keys = key.split(" ")
             if len(keys) > 1:
-                return jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys').transform(data)
+                q = f'map_values(select(. != "No metadata.") | select({keys[0]} | if type == "array" then select(.[] {keys[1]} | if type == "array" then del(.. | nulls) | select(.[] | {string_comparison}) else select(. != null) | select(. | {string_comparison}) end) else select({keys[1]} != null) | select({keys[1]} | {string_comparison}) end)) | keys'
             else:
-                return jq(
-                    f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys').transform(data)
+                q = f'map_values(select(. != "No metadata.") | select({keys[0]} != null) | select({keys[0]} | if type == "array" then (.[] | {string_comparison}) else {string_comparison} end)) | keys'
+            print('---------======----------')
+            print(q)
+            print('---------======----------')
+            return jq(q).transform(data)
 signal.alarm(0)
 
 print("Defining middleware...")
@@ -258,6 +265,8 @@ async def raw_csv(
     async def main():
         tasks = []
         for dataset in dataset_list:
+            print("-------")
+            print(dataset)
             r = re.compile('^v([0-9]+)-(.*)')
             if r.match(dataset):
                 version = r.search(dataset).group(1)
@@ -365,6 +374,9 @@ async def download(
     async def main():
         tasks = []
         for dataset in dataset_list:
+            print("-------")
+            print(dataset)
+            print("-------")
             r = re.compile('^v([0-9]+)-(.*)')
             if r.match(dataset):
                 version = r.search(dataset).group(1)
@@ -427,6 +439,8 @@ async def filter(
     resource_type: str = Query(
         enum=get_resource_types()),
     response_type: str = Query("csv", enum=["csv", "dataset list"]),
+    dataset_ids: List[str] = Query(
+        default=None, description="Filter within datasets specified. By default all datasets will be used."),
     location: List[str] = Query(
         default=None, description=global_data_dictionary['location']['description']),
     iso_3166: List[str] = Query(
@@ -497,6 +511,7 @@ async def filter(
 
     # filter_arguments is a dictionary containing the arguments input into the function
     filter_arguments = locals()
+    filter_arguments.pop("dataset_ids", None)
 
     # Delete the resource_type argument from filter_arguments
     filter_arguments = jq(
@@ -607,13 +622,17 @@ async def filter(
             pandas_containment_filter = f'({pandas_containment_filter})'
             pandas_query.append(pandas_containment_filter)
         filter_list.append(filter)
+    
     # combine all the individual pandas queries into a single string
     pandas_query = ' and '.join(pandas_query)
     # combine all the individual jq filters into a single string
     filter_string = ' and '.join(filter_list)
 
-    # Get list of datasets of the specific resource type
-    dataset_list = get_dataset_list(clear_cache=False)
+    # Get list of datasets
+    if (dataset_ids is None):
+        dataset_list = get_dataset_list(clear_cache=False)
+    else:
+        dataset_list = get_dataset_list(clear_cache=False, subset=dataset_ids)
     #print("++++")
     #print(dataset_list)
     #print("++++")
@@ -684,7 +703,7 @@ async def filter(
                 list(map(lambda x: x[1], num_missing_columns)), axis=1)
 
         all_columns_list = list(global_data_dictionary.keys())
-        all_columns_list.append("dataset_id")
+        all_columns_list.append("dataset_id") ## should be able to drop this now that it is in the dictionary
 
         cols = merged_csv.columns.tolist()
         cols = sorted(cols, key=all_columns_list.index)
@@ -722,7 +741,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="API for the International Infectious Disease Data Archive (IIDDA)",
-        version="0.2.1",
+        version="0.2.2",
         description="API for searching, combining, filtering, and downloading infectious disease datasets available through IIDDA",
         routes=app.routes,
     )

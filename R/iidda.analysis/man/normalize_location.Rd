@@ -10,7 +10,7 @@ normalize_location(data)
 \item{data}{Tidy dataset with an iso_3166_2 column.}
 }
 \value{
-Tidy dataset without country-level data and with provinces and 
+Tidy dataset without country-level data and with provinces and
 territories geographically ordered.
 }
 \description{
