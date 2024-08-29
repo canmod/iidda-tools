@@ -196,7 +196,7 @@ signal.alarm(timeout_dur)
 @app.get("/data_dictionary")
 async def data_dictionary():
     dictionary = requests.get(
-        'https://raw.githubusercontent.com/canmod/iidda-staging/main/global-metadata/data-dictionary.json').json()
+        'https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json').json()
     return dictionary
 signal.alarm(0)
 
@@ -212,7 +212,7 @@ async def lookup_tables(lookup_type: str = Query("location"
     if lookup_type not in available_lookup_types:
         raise HTTPException(
             status_code=400, detail=f"'{lookup_type}' is not a valid resource_type. Available values are {available_lookup_types}")
-    template = 'https://raw.githubusercontent.com/canmod/iidda-staging/main/lookup-tables/{}.csv'
+    template = 'https://raw.githubusercontent.com/canmod/iidda/main/lookup-tables/{}.csv'
     filled_template = template.format(lookup_type)
     lookup = requests.get(filled_template).text
     return StreamingResponse(iter([lookup]), media_type="text/plain")
