@@ -543,16 +543,28 @@ read_digitized_data = function(metadata) {
   data = read_func(path_in_proj)
 
   if(tools::file_ext(path_in_proj) == 'xlsx'){
-    (data
-     %>% mutate(has_unclear_comment = grepl("unclear|uncelar", comment, ignore.case = TRUE),
-         character = case_when(
-           has_unclear_comment & data_type %in% c("character", "blank") ~
-             ifelse(data_type == "character", sprintf("%s (unclear)", character), "(unclear)"),
-                  TRUE ~ character
-                ))
-     %>% select(-has_unclear_comment))
+    data = (data
+     %>% get_unclear_comments()
+    )
   }
   data
+}
+
+get_unclear_comments = function(data){
+  (data
+   %>% mutate(
+     comment = strsplit(comment, "\r\n\r\nComment:\r\n    ") %>%
+       sapply(function(x) rev(unlist(x))[1], simplify = TRUE)
+   )
+   
+   %>% mutate(has_unclear_comment = grepl("unclear|uncelar", comment, ignore.case = TRUE),
+              character = case_when(
+                has_unclear_comment & data_type %in% c("character", "blank") ~
+                  ifelse(data_type == "character", sprintf("%s (unclear)", character), "(unclear)"),
+                TRUE ~ character
+              ))
+   %>% select(-has_unclear_comment)
+  )
 }
 
 #' Collapse xlsx Value Columns
