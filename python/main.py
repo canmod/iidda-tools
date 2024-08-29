@@ -208,7 +208,7 @@ async def lookup_tables(lookup_type: str = Query("location"
         , description='Type of lookup table.'
         , enum=["location", "disease", "sex", "canmod-disease-lookup", "canmod-location-lookup"]
     )):
-    available_lookup_types = ["location", "disease", "sex"]
+    available_lookup_types = ["location", "disease", "sex", "canmod-disease-lookup", "canmod-location-lookup"]
     if lookup_type not in available_lookup_types:
         raise HTTPException(
             status_code=400, detail=f"'{lookup_type}' is not a valid resource_type. Available values are {available_lookup_types}")
