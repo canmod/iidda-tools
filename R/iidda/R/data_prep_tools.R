@@ -647,6 +647,16 @@ split_data = function(tidy_data){
 }
 
 
+summarise_columns = function(tidy_data, dataset_name, metadata) {
+  sapply(
+    names(tidy_data),
+    iidda:::column_summary,
+    tidy_data,
+    dataset_name,
+    metadata,
+    simplify = FALSE
+  )
+}
 
 column_summary = function(column, tidy_data, dataset_name, metadata) {
   if (!column %in% colnames(tidy_data)) {

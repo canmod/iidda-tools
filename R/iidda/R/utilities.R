@@ -43,8 +43,8 @@ open_locally = function(urls, command = 'open', args = character()) {
   }
 }
 
-#' @describeIn open_locally Open the resources of an IIDDA pipeline locally.
-#' @param id Pipeline ID.
+#' @describeIn open_locally Open IIDDA pipeline resources locally.
+#' @param id Resource ID.
 #' @param type Type of resource.
 #' @export
 open_resources_locally = function(id, type = c("scans", "digitizations", "prep-scripts", "access-scripts")) {
@@ -59,3 +59,21 @@ open_resources_locally = function(id, type = c("scans", "digitizations", "prep-s
     message("cannot find ", glob)
   }
 }
+
+#' @describeIn open_locally Open all pipeline resources regardless of
+#' resource type.
+#' @export
+open_all_resources_locally = function(id) {
+  open_resources_locally(id, "scans")
+  open_resources_locally(id, "digitizations")
+  open_resources_locally(id, "prep-scripts")
+  open_resources_locally(id, "access-scripts")
+}
+
+#' @describeIn open_locally Open scans locally.
+#' @export
+open_scans_locally = function(id) open_resources_locally(id, "scans")
+
+#' @describeIn open_locally Open digitizations locally.
+#' @export
+open_digitizations_locally = function(id) open_resources_locally(id, "digitizations")
