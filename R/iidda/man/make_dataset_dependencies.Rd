@@ -10,7 +10,7 @@ make_dataset_dependencies(tidy_dataset, paths)
 \item{tidy_dataset}{Dataset ID for which dependencies are being
 declared.}
 
-\item{dataset_paths}{Relative paths to dependencies.}
+\item{paths}{Relative paths to dependencies.}
 }
 \description{
 Create a dependency file for a dataset. This file is created once and

@@ -301,7 +301,7 @@ make_dataset_metadata = function(tidy_dataset, type, ...) {
 #'
 #' @param tidy_dataset Dataset ID for which dependencies are being
 #' declared.
-#' @param dataset_paths Relative paths to dependencies.
+#' @param paths Relative paths to dependencies.
 #' @export
 make_dataset_dependencies = function(tidy_dataset, paths) {
   dataset_dir = file.path("dataset-dependencies", tidy_dataset)
