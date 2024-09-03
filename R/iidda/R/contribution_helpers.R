@@ -24,7 +24,7 @@ register_prep_script = function(script_path, type) {
     |> basename()
     |> tools::file_path_sans_ext()
   )
-  derived_path = sprintf("derived-data/%s.csv", dataset_id)
+  derived_path = sprintf("derived-data/%s/%s.csv", dataset_id)
   lines = readLines(script_path)
   p = data.frame(x = character())
   quoted_frame = strcapture('"([^"]+)"', lines, proto = p)
