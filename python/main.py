@@ -180,8 +180,6 @@ async def metadata(
     - ***dataset_ids***
     - ***jq_query***
     """
-    print("DSKFJHDSFJKHSDFKJHSDF")
-    print(response_type)
     if jq_query is not None:
         try:
             return jq(f'{jq_query}').transform(get_dataset_list(clear_cache=False, response_type=response_type))
@@ -189,15 +187,10 @@ async def metadata(
             raise HTTPException(
                 status_code=400, detail="Something went wrong. Make sure the jq_query value returns data in the correct format.")
     elif (key is None or metadata_search is None) and jq_query is None and dataset_ids is None:
-        y = get_dataset_list(clear_cache=False, response_type=response_type)
-        y = to_keys_list(y, response_type)
-        return 
+        return get_dataset_list(clear_cache=False, response_type=response_type)
 
-    dataset_list = dataset_list_search(
-        dataset_ids, key, metadata_search, None, string_comparison)
-    y = get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
-    y = to_keys_list(y, response_type)
-    return y
+    dataset_list = dataset_list_search(dataset_ids, key, metadata_search, None, string_comparison)
+    return get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
 signal.alarm(0)
 
 print("Defining data dictionary...")
