@@ -736,9 +736,9 @@ signal.alarm(timeout_dur)
 print("Defining open API schema...")
 signal.alarm(timeout_dur)
 def custom_openapi():
-    print("+++++")
-    print(os.getcwd())
-    print("+++++")
+    #print("+++++")
+    #print(os.getcwd())
+    #print("+++++")
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
