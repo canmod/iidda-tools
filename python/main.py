@@ -175,6 +175,8 @@ async def metadata(
     - ***dataset_ids***
     - ***jq_query***
     """
+    print("DSKFJHDSFJKHSDFKJHSDF")
+    print(response_type)
     if jq_query is not None:
         try:
             return jq(f'{jq_query}').transform(get_dataset_list(clear_cache=False, response_type=response_type))
