@@ -89,6 +89,11 @@ def generate_hash_signature(
 def read_the_csv_files(x):
     return pd.read_csv(x, dtype=str)
 
+def to_keys_list(x, response_type):
+    if response_type == "dataset_ids":
+        x = list(x.keys())
+    return x
+
 def split_date_range_strings(string, delimiters):
     for delimiter in delimiters:
         parts = string.split(delimiter)
@@ -184,15 +189,15 @@ async def metadata(
             raise HTTPException(
                 status_code=400, detail="Something went wrong. Make sure the jq_query value returns data in the correct format.")
     elif (key is None or metadata_search is None) and jq_query is None and dataset_ids is None:
-        return get_dataset_list(clear_cache=False, response_type=response_type)
+        y = get_dataset_list(clear_cache=False, response_type=response_type)
+        y = to_keys_list(y, response_type)
+        return 
 
     dataset_list = dataset_list_search(
         dataset_ids, key, metadata_search, None, string_comparison)
-    return_dataset_list = get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
-    if response_type == "dataset_ids":
-        print("HELLEHHELLHELLHELLHELHELHELHELHELHE")
-        return_dataset_list = list(return_dataset_list.keys())
-    return return_dataset_list
+    y = get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
+    y = to_keys_list(y, response_type)
+    return y
 signal.alarm(0)
 
 print("Defining data dictionary...")
