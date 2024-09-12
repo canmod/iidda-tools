@@ -188,6 +188,7 @@ async def metadata(
         dataset_ids, key, metadata_search, None, string_comparison)
     return_dataset_list = get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
     if response_type == "dataset_ids":
+        print("HELLEHHELLHELLHELLHELHELHELHELHELHE")
         return_dataset_list = list(return_dataset_list.keys())
     return return_dataset_list
 signal.alarm(0)
@@ -743,7 +744,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="API for the International Infectious Disease Data Archive (IIDDA)",
-        version="0.2.2",
+        version="0.3.0",
         description="API for searching, combining, filtering, and downloading infectious disease datasets available through IIDDA",
         routes=app.routes,
     )
