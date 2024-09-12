@@ -167,7 +167,7 @@ async def metadata(
         default=None, description="Return metadata for the datasets specified."),
     jq_query: str = Query(None, description="JSON filter written in jq notation. Filter is applied to the metadata of the selected response_type. Cannot be used in conjuction with dataset_ids, key, and metadata_search parameters. Docs: https://stedolan.github.io/jq/"),
     response_type=Query("metadata", enum=sorted(
-        ["github_url", "metadata", "csv_dialect", "data_dictionary", "columns", "ids"]))
+        ["github_url", "metadata", "csv_dialect", "data_dictionary", "columns", "dataset_ids"]))
 ):
     """
     Get metadata for datasets. There are 3 ways to filter datasets; they cannot be used in conjuction:
@@ -186,8 +186,10 @@ async def metadata(
 
     dataset_list = dataset_list_search(
         dataset_ids, key, metadata_search, None, string_comparison)
-
-    return get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
+    return_dataset_list = get_dataset_list(clear_cache=False, response_type=response_type, subset=dataset_list)
+    if response_type == "dataset_ids":
+        return_dataset_list = list(return_dataset_list.keys())
+    return return_dataset_list
 signal.alarm(0)
 
 print("Defining data dictionary...")

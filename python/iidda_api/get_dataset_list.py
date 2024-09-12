@@ -38,7 +38,7 @@ def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
 
     Args:
         clear_cache (bool): clears all cache stored in the cache backend
-        response_type (str, optional): Type of information stored in the dictionary. Acceptable values include "columns", "csv_dialect", "data_dictionary", "github_url", "metadata". Defaults to "metadata".
+        response_type (str, optional): Type of information stored in the dictionary. Acceptable values include "columns", "csv_dialect", "data_dictionary", "github_url", "metadata", "dataset_ids". Defaults to "metadata".
         subset (str or List(str), optional): List of dataset ID strings, or "all" to return all datasets. Defaults to "all".
 
     Returns:
