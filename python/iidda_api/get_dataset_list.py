@@ -121,6 +121,8 @@ def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
                 filter(lambda asset: asset['name'] == title + '.json', latest_version_metadata))
         elif response_type == "github_url":
             return {"github_url": version_in_question["html_url"]}
+        elif response_type == "dataset_ids":
+            return {}
         else:
             latest_version_metadata = list(filter(
                 lambda asset: asset['name'] == title + "_" + response_type + '.json', latest_version_metadata))

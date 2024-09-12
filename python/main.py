@@ -167,7 +167,7 @@ async def metadata(
         default=None, description="Return metadata for the datasets specified."),
     jq_query: str = Query(None, description="JSON filter written in jq notation. Filter is applied to the metadata of the selected response_type. Cannot be used in conjuction with dataset_ids, key, and metadata_search parameters. Docs: https://stedolan.github.io/jq/"),
     response_type=Query("metadata", enum=sorted(
-        ["github_url", "metadata", "csv_dialect", "data_dictionary", "columns"]))
+        ["github_url", "metadata", "csv_dialect", "data_dictionary", "columns", "ids"]))
 ):
     """
     Get metadata for datasets. There are 3 ways to filter datasets; they cannot be used in conjuction:
