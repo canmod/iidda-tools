@@ -95,6 +95,9 @@ def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
 
             result_file = dict(zip(dataset_title_list, dataset_metadata))
 
+            if response_type == "dataset_ids":
+                result_file = list(result_file.keys())
+
             return result_file
 
     async def get_dataset_data(session, title, version):
