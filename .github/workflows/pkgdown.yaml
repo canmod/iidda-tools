@@ -45,3 +45,22 @@ jobs:
           branch: gh-pages
           folder: R/iidda.api/docs
           target-folder: iidda.api
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+          working-directory: ./R/iidda
+
+      - name: Build site
+        run: pkgdown::build_site_github_pages(pkg = "R/iidda", new_process = FALSE, install = FALSE, dest_dir = "docs")
+        shell: Rscript {0}
+
+      - name: Deploy to GitHub pages 🚀
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          clean: false
+          branch: gh-pages
+          folder: R/iidda/docs
+          target-folder: iidda
