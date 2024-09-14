@@ -6,3 +6,7 @@ reference:
 - title: Data Harmonization
   contents:
   - has_concept("harmonization")
+
+- title: Not Data Harmonization
+  contents:
+  - lacks_concepts(c("harmonization"))
