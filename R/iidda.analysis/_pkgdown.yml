@@ -1,3 +1,8 @@
 url: https://canmod.github.io/iidda-tools/iidda.analysis
 template:
   bootstrap: 5
+
+reference:
+- title Data Harmonization
+- contents:
+  -has_concept("harmonization")
