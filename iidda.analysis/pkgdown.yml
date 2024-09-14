@@ -1,8 +1,10 @@
 pandoc: 3.1.11
 pkgdown: 2.1.0
 pkgdown_sha: ~
-articles: {}
-last_built: 2024-09-14T19:33Z
+articles:
+  flexi_filter: flexi_filter.html
+  plot_rohani: plot_rohani.html
+last_built: 2024-09-14T19:44Z
 urls:
-  reference: https://canmod.github.io/iidda-tools/iidda/reference
-  article: https://canmod.github.io/iidda-tools/iidda/articles
+  reference: https://canmod.github.io/iidda-tools/iidda.analysis/reference
+  article: https://canmod.github.io/iidda-tools/iidda.analysis/articles
