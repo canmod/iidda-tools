@@ -5,4 +5,4 @@ template:
 reference:
 - title Data Harmonization
 - contents:
-  -has_concept("harmonization")
+  - has_concept("harmonization")
