@@ -81,5 +81,5 @@ jobs:
         with:
           clean: false
           branch: gh-pages
-          folder: R/iidda/docs
+          folder: R/iidda.analysis/docs
           target-folder: iidda.analysis
