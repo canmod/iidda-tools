@@ -24,10 +24,13 @@ register_prep_script = function(script_path, type) {
     |> basename()
     |> tools::file_path_sans_ext()
   )
-  derived_path = sprintf("derived-data/%s/%s.csv", dataset_id)
+  derived_path = sprintf("derived-data/%s/%s.csv", dataset_id, dataset_id)
   lines = readLines(script_path)
   p = data.frame(x = character())
-  quoted_frame = strcapture('"([^"]+)"', lines, proto = p)
+  quoted_frame = rbind(
+      strcapture('"([^"]+)"', lines, proto = p)
+    , strcapture("'([^']+)'", lines, proto = p)
+  )
   quoted = (quoted_frame
     |> unlist(use.names = FALSE)
     |> na.omit()
@@ -60,12 +63,12 @@ register_prep_script = function(script_path, type) {
         "the following dataset already exists so previously saved data is being used to inform the metadata:\n    "
       , derived_path
     )
-    message()
   } else {
     message(
         "creating the following dataset to potentially learn about metadata from the data:\n    "
       , derived_path
     )
+    dir.create(dirname(derived_path), showWarnings = FALSE)
     data_env = new.env(parent = parent.frame())
     sys.source(script_path, envir = data_env)
     rm(list = ls(data_env), envir = data_env)
@@ -91,6 +94,7 @@ register_prep_script = function(script_path, type) {
   if (all(date_fields %in% fields)) {
     periods = data[date_fields] |> unlist() |> range()
   } else {
+    warning("The period_start_date and period_end_date fields are not in the data. This is fine, but it will require manual entry of these fields in the metadata for the derived dataset")
     periods = rep("", times = 2L)
   }
 
@@ -167,7 +171,7 @@ build_metadata_filepath = function(name, type) {
 #' @param source Source ID.
 #' @export
 make_resource_metadata = function(source) {
-  types = c("prep-scripts", "access-scripts", "scans", "digitization")
+  types = c("prep-scripts", "access-scripts", "scans", "digitizations")
   for (type in types) make_resource_metadata_type(source, type)
 }
 

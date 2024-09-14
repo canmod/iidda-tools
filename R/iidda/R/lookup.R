@@ -29,9 +29,11 @@ resource_type_dict = list(
   , ACM = "All-Cause Mortality"
   , Births = "Births"
   , Plague = "Plague" ## TODO: should this really be a dataset type? too specific to LBoM?
+  , Schedule = "Schedule"
   , CDI_CANMOD = "CANMOD CDI"
   , CDI_CANMOD_NORMALIZED = "CANMOD CDI NORMALIZED"
   , Compilation = "Compilation"
+  , Check = "Check"
 )
 
 #' Frequency to By

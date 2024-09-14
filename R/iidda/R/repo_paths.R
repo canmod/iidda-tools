@@ -476,4 +476,19 @@ error_tar = function(tar_name) {
   tar(tarfile = tar_path, files = f)
 }
 
-
+#' Source from Digitization ID
+#'
+#' @param digitization_ids Character vector of digitization IDs
+#' @return Character vector of source IDs associated with digitization.
+#' @export
+source_from_digitization_id = function(digitization_ids) {
+  u = unique(digitization_ids)
+  l = setNames(
+      vapply(u
+        , \(x) Sys.glob(sprintf("pipelines/*/digitizations/%s.*.json", x))
+        , character(1L)
+      ) |> dirname() |> dirname() |> basename()
+    , u
+  )
+  l[digitization_ids]
+}
