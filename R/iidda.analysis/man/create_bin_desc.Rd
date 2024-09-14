@@ -15,3 +15,4 @@ data frame of data with bin_desc column
 \description{
 Create age bin descriptions for joining age_group lookup table
 }
+\concept{harmonization}

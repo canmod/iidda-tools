@@ -19,16 +19,4 @@ a ggplot2 plot object with scaled \code{y} data
 \description{
 Scale time series data by transformation.
 }
-\seealso{
-Other plotting_functions: 
-\code{\link{iidda_plot_bar}()},
-\code{\link{iidda_plot_box}()},
-\code{\link{iidda_plot_heatmap}()},
-\code{\link{iidda_plot_highlight}()},
-\code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_rohani_heatmap}()},
-\code{\link{iidda_plot_series}()},
-\code{\link{iidda_plot_settings}()},
-\code{\link{iidda_plot_wavelet}()}
-}
 \concept{plotting_functions}

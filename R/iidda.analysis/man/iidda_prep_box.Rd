@@ -34,13 +34,4 @@ of the new `time_unit` field will be named from lubridate_funcs.
 Prep data for plotting box plots. Prep steps were taken from `LBoM::monthly_box_plot`
 and they include handling missing values and creating additional time unit fields.
 }
-\seealso{
-Other prep_data_for_plotting: 
-\code{\link{iidda_prep_bar}()},
-\code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_rohani}()},
-\code{\link{iidda_prep_seasonal_heatmap}()},
-\code{\link{iidda_prep_series}()},
-\code{\link{iidda_prep_wavelet}()}
-}
 \concept{prep_data_for_plotting}

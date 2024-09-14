@@ -37,3 +37,4 @@ Choose a single best `time_scale` for each year in a dataset, grouped by
 nesting disease. This best `time_scale` is defined as the longest
 of the shortest time scales in each location and sub-disease.
 }
+\concept{normalization}

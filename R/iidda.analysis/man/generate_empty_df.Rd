@@ -20,3 +20,4 @@ empty csv file with columns from \code{lookup_table} in the directory if success
 Creates an empty table in a specified directory
 using columns names from another data frame
 }
+\concept{harmonization}

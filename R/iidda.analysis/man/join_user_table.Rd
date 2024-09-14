@@ -21,3 +21,4 @@ data frame of harmonized data with user-defined keys
 \description{
 Joins user-defined lookup table to data
 }
+\concept{harmonization}

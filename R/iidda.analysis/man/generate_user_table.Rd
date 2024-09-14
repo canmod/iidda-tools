@@ -17,3 +17,4 @@ csv file of empty lookup table with columns from \code{lookup_table_type} in the
 \description{
 Creates an empty user-defined lookup table in a specified directory
 }
+\concept{harmonization}

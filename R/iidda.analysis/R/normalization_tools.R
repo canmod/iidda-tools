@@ -10,6 +10,7 @@
 #' territories geographically ordered.
 #'
 #' @importFrom iidda is_empty
+#' @concept normalization
 #' @export
 normalize_location = function(data) filter(data, !is_empty(iso_3166_2))
 
@@ -18,6 +19,7 @@ normalize_location = function(data) filter(data, !is_empty(iso_3166_2))
 #' @param data Dataset containing an `iso_3166_2` field with Canadian province
 #' and territory codes.
 #'
+#' @concept normalization
 #' @export
 ca_iso_3166_2 = function(data) {
   geog_order = c(
@@ -45,31 +47,49 @@ ca_iso_3166_2 = function(data) {
 
 #' Normalize Population
 #'
-#'
-#'
-#' @param data Tidy dataset with columns period_start_date, period_end_date,
-#' iso_3166_2
-#' @param harmonized_population Harmonized population data from API
-#'  (load using api_hook$raw_csv(dataset_ids = "pop_ca_1871-2021_harmonized"))
-#'  or iidda-staging
-#'  (load from
-#'  iidda-staging/derived_data/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized.csv)
+#' @param data Tidy dataset with columns period_start_date, period_end_date
+#' iso_3166_2.
+#' @param harmonized_population Harmonized population data with
+#' columns date, iso_3166_2, and population (other columns will be dropped).
 #'
 #' @return Tidy dataset joined with harmonized population.
 #'
 #' @importFrom tidyr starts_with
 #' @importFrom readr parse_date
+#' @concept normalization
 #' @export
 normalize_population = function(data, harmonized_population) {
+  pop = (harmonized_population
+    |> select(iso_3166_2, date, population)
+    |> group_by(iso_3166_2, date)
+    |> mutate(
+        date = as.Date(date)
+      , population = as.numeric(population)
+      , n = n()
+    )
+    |> ungroup()
+  )
+  if (any(pop$n > 1L)) stop("population dataset contains multiple records for some year-location pairs.")
   (data
-   |> mutate(across(tidyr::starts_with("period_"),
-                    ~ if (!inherits(., "Date")) readr::parse_date(.) else .))
-  |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
-  |> mutate(period_mid_date = iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period))
-  |> left_join(harmonized_population |> group_by(iso_3166_2) |> mutate(date = as.Date(date))
-               , by = dplyr::join_by(iso_3166_2, closest(period_mid_date >= date))
-               , multiple = "all")
-  |> select(-date)
+    |> mutate(across(tidyr::starts_with("period_"), as.Date))
+    |> mutate(
+        days_this_period = iidda.analysis::num_days(
+            period_start_date
+          , period_end_date
+        )
+    )
+    |> mutate(
+        period_mid_date = iidda.analysis::mid_dates(
+            period_start_date
+          , period_end_date
+          , days_this_period
+       )
+    )
+    |> left_join(pop
+       , by = dplyr::join_by(iso_3166_2, closest(period_mid_date >= date))
+       , relationship = "many-to-one"
+    )
+    |> select(-date, -n)
   )
 }
 
@@ -85,7 +105,7 @@ normalize_population = function(data, harmonized_population) {
 #'
 #' @return True if disease is never a nesting disease (it is a leaf disease),
 #' False if disease is a nesting disease.
-#'
+#' @concept normalization
 #' @export
 is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nesting_disease)
 
@@ -117,13 +137,14 @@ is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nestin
 #' which is the default. Setting this argument to `NULL` avoids adding
 #' any special disease names to the lookup table.
 #'
+#' @concept normalization
 #' @export
 normalize_disease_hierarchy = function(data
-                                     , disease_lookup
-                                     , grouping_columns = c("period_start_date", "period_end_date", "location")
-                                     , basal_diseases_to_prune = character()
-                                     , find_unaccounted_cases = TRUE
-                                     , specials_pattern = "_unaccounted$"
+   , disease_lookup
+   , grouping_columns = c("period_start_date", "period_end_date", "location")
+   , basal_diseases_to_prune = character()
+   , find_unaccounted_cases = TRUE
+   , specials_pattern = "_unaccounted$"
 ) {
 
   if(!'basal_disease' %in% names(data)) {stop('The column basal_disease is not in your dataframe.
@@ -158,6 +179,7 @@ normalize_disease_hierarchy = function(data
   (data
 
       # remove AIDS from ontario 1990-2021 source as it is not mutually exclusive from HIV
+      # TODO: move to prep-script
       |> filter(!(disease == 'AIDS' & original_dataset_id == "cdi_on_1990-2021_wk"))
 
       # prune basal_diseases
@@ -209,8 +231,10 @@ time_scale_chooser = function(time_scale, which_fun) {
 #'
 #' @return A data set with a factored time_scale column.
 #'
+#' @concept normalization
 #' @export
 factor_time_scale = function(data){
+  ## TODO: consider renaming to time_scale_as_factor or something??
   if (is.factor(data$time_scale)) {
     return(data)
   }
@@ -242,6 +266,7 @@ factor_time_scale = function(data){
 #'
 #' @return A data set only containing records with the optimal time scale.
 #'
+#' @concept normalization
 #' @importFrom lubridate year
 #' @export
 normalize_time_scales = function(data
@@ -385,6 +410,7 @@ normalize_time_scales = function(data
 #' `period_mid_date`, `days_this_period`, `dataset_id`
 #' @return A tidy data set with inferred 0s.
 #'
+#' @concept normalization
 #' @importFrom lubridate year
 #' @export
 get_implied_zeros = function(data){
@@ -465,9 +491,12 @@ get_implied_zeros = function(data){
 #' @return A data set containing records that are the difference between a
 #' reported total for a basal_disease and the sum of their leaf diseases.
 #'
+#' @concept normalization
+#' @importFrom iidda source_from_digitization_id
 #' @export
 find_unaccounted_cases = function(data){
 
+  data = mutate(data, source_id = source_from_digitization_id(digitization_id))
   # check if sum of leaf diseases = reported sum of basal disease
   sum_of_leaf = (
     data
@@ -477,7 +506,7 @@ find_unaccounted_cases = function(data){
     |> mutate(cases_this_period = sum(as.numeric(cases_this_period)))
     |> ungroup()
     |> distinct(iso_3166, iso_3166_2, period_start_date, period_end_date,
-                nesting_disease, original_dataset_id, cases_this_period)
+                nesting_disease, source_id, cases_this_period)
   )
 
   reported_totals = (
@@ -535,7 +564,7 @@ find_unaccounted_cases = function(data){
 #' jurisdiction level will be kept if these sources overlap.
 #'
 #' @return A data set with no overlapping sources.
-#'
+#' @concept normalization
 #' @export
 normalize_duplicate_sources = function(data, preferred_jurisdiction = 'national'){
 
@@ -546,9 +575,16 @@ normalize_duplicate_sources = function(data, preferred_jurisdiction = 'national'
   sep = " *** "  ## for separating different fields to produce a tag
 
   opposite_jurisdiction = ifelse(preferred_jurisdiction == 'national', 'provincial', 'national')
+  if (!"original_dataset_id" %in% names(data)) {
+    if ("dataset_id" %in% names(data)) {
+      data$original_dataset_id = data$dataset_id
+    } else {
+      stop("missing dataset id information")
+    }
+  }
 
   overlap_info = (data
-    |> mutate(source_jurisdiction_level = ifelse(grepl('_ca_', dataset_id), 'national', 'provincial'))
+    |> mutate(source_jurisdiction_level = ifelse(grepl('_ca_', original_dataset_id), 'national', 'provincial'))
 
     |> mutate(days_this_period = iidda.analysis::num_days(period_start_date, period_end_date))
     |> mutate(period_mid_date = as.Date(iidda.analysis::mid_dates(period_start_date, period_end_date, days_this_period)))
@@ -585,3 +621,58 @@ normalize_duplicate_sources = function(data, preferred_jurisdiction = 'national'
   normalized_sources |> select(-source_jurisdiction_level, -tag, -nesting_tag, -basal_tag)
 
 }
+
+
+# Function to create the grid
+
+#' Create a grid of dates starting at the first day in grid unit
+#'
+#' Wrapper of `seq.Date()` and `lubridate::floor_date`
+#'
+#' @inheritParams base::seq.Date
+#' @inheritParams lubridate::floor_date
+#' @param start_date starting date
+#' @param end_date end date
+#' @param lookback Logical, should the first value start before `start_date`
+#'
+#' @return vector of Dates at the first of each week, month, year
+#'
+#' @export
+#' @concept normalization
+#'
+#' @examples
+#' grid_dates(start_date = "2023-04-01"
+#' , end_date = "2023-05-16")
+#'
+#' grid_dates(start_date = "2023-04-01"
+#' , end_date = "2023-05-16"
+#' , lookback = FALSE)
+#'
+#'
+#' grid_dates(start_date = "2020-04-01"
+#' , end_date = "2023-05-16"
+#' , by = "2 months"
+#' , unit = "month")
+#' grid_dates(start_date = "2020-04-01"
+#' , end_date = "2023-05-16"
+#' , by = "2 months")
+grid_dates <- function(start_date = "1920-01-01"
+                       , end_date = "2020-01-01"
+                       , by = "1 week"
+                       , unit = "week"
+                       , lookback = TRUE
+                       , week_start = 7){
+  if(!grepl(unit, by)){
+    message("there may be a mismatch between your grid units in `by` and `unit`")
+  }
+  start_date <- check_date(start_date)
+  end_date <- check_date(end_date)
+  dvec <- lubridate::floor_date(seq(start_date, end_date, by = by), unit = unit)
+  if(!lookback){
+    dvec <- dvec[dvec > start_date]
+
+  }
+  return(dvec)
+
+}
+

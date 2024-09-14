@@ -30,17 +30,4 @@ function that computes wavelet transform
 \description{
 Compute the wavelet transform.
 }
-\seealso{
-Other data_prep_constructors: 
-\code{\link{ComputeMovingAverage}()},
-\code{\link{HandleMissingValues}()},
-\code{\link{HandleZeroValues}()},
-\code{\link{SeriesHarmonizer}()},
-\code{\link{TrimSeries}()},
-\code{\link{WaveletDeheaper}()},
-\code{\link{WaveletInterpolator}()},
-\code{\link{WaveletJoiner}()},
-\code{\link{WaveletNormalizer}()},
-\code{\link{data_prep_constructors}}
-}
 \concept{data_prep_constructors}

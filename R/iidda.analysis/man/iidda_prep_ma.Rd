@@ -40,13 +40,4 @@ Prep data for plotting moving average. Prep steps were taken from `LBoM::plot.LB
 handling missing values and zeroes, optionally trimming time series and computing the moving
 average.
 }
-\seealso{
-Other prep_data_for_plotting: 
-\code{\link{iidda_prep_bar}()},
-\code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_rohani}()},
-\code{\link{iidda_prep_seasonal_heatmap}()},
-\code{\link{iidda_prep_series}()},
-\code{\link{iidda_prep_wavelet}()}
-}
 \concept{prep_data_for_plotting}

@@ -19,3 +19,4 @@ Adds entries to user-defined lookup table
 Entries should have names or columns from the user lookup table
 \code{standards} can be used for entries
 }
+\concept{harmonization}

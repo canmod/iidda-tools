@@ -7,6 +7,7 @@
 #' @param csv_name string indicating name of the created .csv file
 #' @return empty csv file with columns from \code{lookup_table} in the directory if successfully generated
 #' @importFrom iidda write_data_frame
+#' @concept harmonization
 #' @export
 generate_empty_df = function(dir_path, lookup_table, csv_name){
   if(!dir.exists(dir_path)){
@@ -37,9 +38,10 @@ generate_empty_df = function(dir_path, lookup_table, csv_name){
 #' @param path string indicating path to directory
 #' @param lookup_table_type string indicating type of lookup table
 #' @return csv file of empty lookup table with columns from \code{lookup_table_type} in the directory if successful
-#' @importFrom iidda.api ops_staging
+#' @concept harmonization
 #' @export
 generate_user_table = function(path, lookup_table_type){
+  need_iidda_api("generate_user_table")
   lookup_table = iidda.api::ops_staging$lookup_tables(lookup_type = lookup_table_type)
   if(nrow(lookup_table) == 0){
     stop("Lookup table cannot be found in the API")
@@ -62,6 +64,7 @@ generate_user_table = function(path, lookup_table_type){
 #' @importFrom tidyselect everything
 #' @importFrom readr read_csv
 #' @importFrom iidda write_data_frame
+#' @concept harmonization
 #' @export
 add_user_entries = function(entries, user_table_path){
   entries_df = as.data.frame(entries) %>%
@@ -82,6 +85,7 @@ add_user_entries = function(entries, user_table_path){
 #' Defines column names to join by for a type of lookup table
 #' @param lookup_type string indicating type of lookup table (disease, location, sex, age group)
 #' @return vector of column names to join by for the type of lookup table
+#' @concept harmonization
 #' @export
 names_to_join_by = function(lookup_type){
   lookup_type_list = list(location = c("location", "location_type"),
@@ -123,6 +127,7 @@ names_to_join_by = function(lookup_type){
 #' @importFrom dplyr mutate select rename_with across if_all cur_column
 #' @importFrom stringr str_ends str_replace str_remove
 #' @importFrom tidyselect ends_with
+#' @concept harmonization
 #' @export
 resolve_join = function(df){
   if(any(str_ends(colnames(df), "\\.x")) & any(str_ends(colnames(df), "\\.y"))){ # left_join results in columns ending in .x and .y if shared
@@ -152,6 +157,7 @@ resolve_join = function(df){
 #' @importFrom dplyr select left_join across
 #' @importFrom tidyselect everything
 #' @importFrom tidyr replace_na
+#' @concept harmonization
 #' @export
 lookup_join = function(raw_data, lookup_table, join_by, verbose = FALSE){
 
@@ -235,6 +241,7 @@ rep_delimiter = function(x, base_delimiter, escape = FALSE, max_repeats = 5, ...
 #' @importFrom dplyr group_by across summarise n ungroup left_join
 #' @importFrom tidyselect all_of
 #' @return data frame of data with bin_desc column
+#' @concept harmonization
 #' @export
 create_bin_desc <- function(age_df){
   if(!("age_group" %in% colnames)){
@@ -267,8 +274,11 @@ create_bin_desc <- function(age_df){
 #' @param lookup_type string indicating type of lookup table from API to join
 #' @param api_hook API operations list
 #' @return data frame of harmonized data with keys from API
+#' @concept harmonization
 #' @export
-join_lookup_table = function(raw_data, lookup_type, api_hook = iidda.api::ops){
+join_lookup_table = function(raw_data, lookup_type, api_hook){
+  need_iidda_api("join_lookup_table")
+  if (missing(api_hook)) api_hook = iidda.api::ops_staging
   lookup_table = api_hook$lookup_tables(lookup_type = lookup_type)
   n_row_lookup_table = nrow(lookup_table)
   if((n_row_lookup_table == 0) | is.null(n_row_lookup_table)) {
@@ -295,6 +305,7 @@ join_lookup_table = function(raw_data, lookup_type, api_hook = iidda.api::ops){
 #' @param join_by vector of strings indicating columns to join by (optional if \code{lookup_type} is disease, location, or sex)
 #' @return data frame of harmonized data with user-defined keys
 #' @importFrom readr read_csv
+#' @concept harmonization
 #' @export
 join_user_table = function(raw_data, user_table_path, lookup_type, join_by) {
   if (missing(join_by)) join_by = names_to_join_by(lookup_type)
@@ -328,56 +339,3 @@ check_date <- function(x){
   if(!inherits(x, "Date")) {x <- as.Date(x)}
   return(x)
 }
-
-# Function to create the grid
-
-#' Create a grid of dates starting at the first day in grid unit
-#'
-#' Wrapper of `seq.Date()` and `lubridate::floor_date`
-#'
-#' @inheritParams base::seq.Date
-#' @inheritParams lubridate::floor_date
-#' @param start_date starting date
-#' @param end_date end date
-#' @param lookback Logical, should the first value start before `start_date`
-#'
-#' @return vector of Dates at the first of each week, month, year
-#'
-#' @export
-#'
-#' @examples
-#' grid_dates(start_date = "2023-04-01"
-#' , end_date = "2023-05-16")
-#'
-#' grid_dates(start_date = "2023-04-01"
-#' , end_date = "2023-05-16"
-#' , lookback = FALSE)
-#'
-#'
-#' grid_dates(start_date = "2020-04-01"
-#' , end_date = "2023-05-16"
-#' , by = "2 months"
-#' , unit = "month")
-#' grid_dates(start_date = "2020-04-01"
-#' , end_date = "2023-05-16"
-#' , by = "2 months")
-grid_dates <- function(start_date = "1920-01-01"
-                       , end_date = "2020-01-01"
-                       , by = "1 week"
-                       , unit = "week"
-                       , lookback = TRUE
-                       , week_start = 7){
-  if(!grepl(unit, by)){
-    message("there may be a mismatch between your grid units in `by` and `unit`")
-  }
-  start_date <- check_date(start_date)
-  end_date <- check_date(end_date)
-  dvec <- lubridate::floor_date(seq(start_date, end_date, by = by), unit = unit)
-  if(!lookback){
-    dvec <- dvec[dvec > start_date]
-
-  }
-  return(dvec)
-
-}
-

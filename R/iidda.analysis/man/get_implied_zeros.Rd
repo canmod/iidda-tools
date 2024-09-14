@@ -18,3 +18,4 @@ A tidy data set with inferred 0s.
 \description{
 Add zeros to data set that are implied by a '0' reported at a coarser timescale.
 }
+\concept{normalization}

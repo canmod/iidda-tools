@@ -24,17 +24,4 @@ function to harmonize disease/cause names
 Harmonizes the series variable in `data` so there is one data value for each time
 unit in time variable (to account for different variations in disease/cause name)
 }
-\seealso{
-Other data_prep_constructors: 
-\code{\link{ComputeMovingAverage}()},
-\code{\link{HandleMissingValues}()},
-\code{\link{HandleZeroValues}()},
-\code{\link{TrimSeries}()},
-\code{\link{WaveletDeheaper}()},
-\code{\link{WaveletInterpolator}()},
-\code{\link{WaveletJoiner}()},
-\code{\link{WaveletNormalizer}()},
-\code{\link{WaveletTransformer}()},
-\code{\link{data_prep_constructors}}
-}
 \concept{data_prep_constructors}

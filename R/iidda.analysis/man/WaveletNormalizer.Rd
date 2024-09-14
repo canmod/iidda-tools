@@ -69,17 +69,4 @@ function that creates normalized trend and de-trended fields
 \description{
 Creates normalizing fields in `data`
 }
-\seealso{
-Other data_prep_constructors: 
-\code{\link{ComputeMovingAverage}()},
-\code{\link{HandleMissingValues}()},
-\code{\link{HandleZeroValues}()},
-\code{\link{SeriesHarmonizer}()},
-\code{\link{TrimSeries}()},
-\code{\link{WaveletDeheaper}()},
-\code{\link{WaveletInterpolator}()},
-\code{\link{WaveletJoiner}()},
-\code{\link{WaveletTransformer}()},
-\code{\link{data_prep_constructors}}
-}
 \concept{data_prep_constructors}

@@ -15,3 +15,4 @@ A data set with a factored time_scale column.
 \description{
 Factor Time Scale
 }
+\concept{normalization}

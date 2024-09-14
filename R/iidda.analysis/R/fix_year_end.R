@@ -15,6 +15,7 @@
 #' @param temp_year_variable temporary variable name when pivoting the data frame
 #'
 #' @return all fields in `data` with only records corresponding to year end weeks that have been split
+#' @concept dates
 #' @export
 year_end_fix <- function(data,
                          series_variable="deaths",

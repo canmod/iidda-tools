@@ -24,3 +24,4 @@ keep either national level data (i.e. from Statistics Canada / Dominion
 Bureau of Statistics / Health Canada) or provincial level data (from a
 provincial ministry of Health).
 }
+\concept{normalization}

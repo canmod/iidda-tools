@@ -28,9 +28,4 @@ In addition to the type of return value (date vs time), the former rounds
 down to the nearest date whereas the latter is accurate to the nearest hour
 and so can account for uneven
 }
-\seealso{
-Other time_periods: 
-\code{\link{num_days}()},
-\code{\link{period_averager}()}
-}
-\concept{time_periods}
+\concept{periods}

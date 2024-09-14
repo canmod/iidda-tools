@@ -17,3 +17,4 @@ territories geographically ordered.
 Set geographic order of provinces and territories and remove country-level
 data.
 }
+\concept{normalization}

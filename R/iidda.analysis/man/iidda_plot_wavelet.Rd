@@ -53,16 +53,4 @@ Plot wavelet to look similar to base R plot of \code{WaveletComp::wt.image} usin
 Some visual choices were made to reflect work done by Steven Lee (https://github.com/davidearn/StevenLee)
 and Kevin Zhao (https://github.com/davidearn/KevinZhao).
 }
-\seealso{
-Other plotting_functions: 
-\code{\link{iidda_plot_bar}()},
-\code{\link{iidda_plot_box}()},
-\code{\link{iidda_plot_heatmap}()},
-\code{\link{iidda_plot_highlight}()},
-\code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_rohani_heatmap}()},
-\code{\link{iidda_plot_scales}()},
-\code{\link{iidda_plot_series}()},
-\code{\link{iidda_plot_settings}()}
-}
 \concept{plotting_functions}

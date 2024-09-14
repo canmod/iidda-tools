@@ -1,15 +1,15 @@
 Package: iidda.analysis
 Type: Package
 Title: Tools for Analyzing IIDDA Datasets
-Version: 0.2.2
+Version: 0.4.0
 Author: Steven Walker
 Maintainer: Steven Walker <swalk@mcmaster.ca>
-Description: This package contains tools that depend on \code{iidda} and/or 
-    \code{iidda.api}.
+Description: This package contains tools for working with data
+    obtained from the International Infectious Disease Data
+    Archive.
 Depends:
   R (>= 3.5.0),
-  iidda, 
-  iidda.api
+  iidda
 Imports: 
   stringr,
   magrittr,
@@ -29,6 +29,7 @@ Imports:
 Suggests:
   knitr,
   rmarkdown,
+  iidda.api,
   testthat (>= 3.0.0)
 License: GPL (>= 3)
 Encoding: UTF-8

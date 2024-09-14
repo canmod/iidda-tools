@@ -20,3 +20,4 @@ False if disease is a nesting disease.
 Given a set of `disease`-`nesting_disease` pairs that all share the same
 \code{\link{basal_disease}},
 }
+\concept{normalization}

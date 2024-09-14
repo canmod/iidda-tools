@@ -34,16 +34,4 @@ a ggplot2 plot object with title, subtitle and adjusted theme.
 \description{
 Add basic features to a ggplot2 plot object including title, subtitle and classic `ggplot2::theme_bw` theme.
 }
-\seealso{
-Other plotting_functions: 
-\code{\link{iidda_plot_bar}()},
-\code{\link{iidda_plot_box}()},
-\code{\link{iidda_plot_heatmap}()},
-\code{\link{iidda_plot_highlight}()},
-\code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_rohani_heatmap}()},
-\code{\link{iidda_plot_scales}()},
-\code{\link{iidda_plot_series}()},
-\code{\link{iidda_plot_wavelet}()}
-}
 \concept{plotting_functions}

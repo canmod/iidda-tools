@@ -16,3 +16,4 @@ data frame with one remaining column for duplicates
 Resolves any duplicate columns that results after left_join due to shared columns between data frames.
 Rule: Keeps old values if all newly joined values are NA. Keeps new values otherwise (even if some entries are empty)
 }
+\concept{harmonization}

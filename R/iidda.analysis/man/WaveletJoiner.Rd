@@ -36,17 +36,4 @@ function to join data and trend data sets
 Joins series data and trend datasets and keeps all time units in one of the
 datasets.
 }
-\seealso{
-Other data_prep_constructors: 
-\code{\link{ComputeMovingAverage}()},
-\code{\link{HandleMissingValues}()},
-\code{\link{HandleZeroValues}()},
-\code{\link{SeriesHarmonizer}()},
-\code{\link{TrimSeries}()},
-\code{\link{WaveletDeheaper}()},
-\code{\link{WaveletInterpolator}()},
-\code{\link{WaveletNormalizer}()},
-\code{\link{WaveletTransformer}()},
-\code{\link{data_prep_constructors}}
-}
 \concept{data_prep_constructors}

@@ -13,3 +13,4 @@ and territory codes.}
 \description{
 Order Canadian Provinces Geographically
 }
+\concept{normalization}

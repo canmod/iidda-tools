@@ -34,13 +34,4 @@ of the resulting `time_unit` field will be named from lubridate_funcs.
 Prep data for plotting bar graphs. Prep steps were taken from `LBoM::monthly_bar_graph` and `LBoM::weekly_bar_graph`
 and they include handling missing values and aggregating series data by time unit grouping variable.
 }
-\seealso{
-Other prep_data_for_plotting: 
-\code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_rohani}()},
-\code{\link{iidda_prep_seasonal_heatmap}()},
-\code{\link{iidda_prep_series}()},
-\code{\link{iidda_prep_wavelet}()}
-}
 \concept{prep_data_for_plotting}

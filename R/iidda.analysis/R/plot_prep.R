@@ -5,7 +5,7 @@
 
 #' Data Prep Constructors
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @name data_prep_constructors
 NULL
 
@@ -27,7 +27,7 @@ NULL
 #'    * `series_variable` column name of series variable in `data`, default is "deaths"
 #' - Return - all fields in `data` with either `NA` records removed or replaced
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 HandleMissingValues <- function(
                            na_remove=FALSE,
@@ -69,7 +69,7 @@ HandleMissingValues <- function(
 #'    * `series_variable` column name of series variable in `data`, default is "deaths"
 #' - Return - all fields in `data` with either zero records removed or replaced
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 HandleZeroValues <- function(
                         zero_remove=FALSE,
@@ -111,7 +111,7 @@ HandleZeroValues <- function(
 #'    * `time_variable` column name of time variable in `data`, default is "period_end_date"
 #' - Return - all fields in `data` with filtered records to trim leading and/or trailing zeroes
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 TrimSeries <- function(zero_lead=FALSE,
                        zero_trail=FALSE){
@@ -164,7 +164,7 @@ TrimSeries <- function(zero_lead=FALSE,
 #'    * `data` data frame containing time series data
 #' - Return - all fields in `data` with summarized series variable for unique time variable
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 SeriesHarmonizer = function(
     time_variable = "period_end_date",
@@ -206,7 +206,7 @@ SeriesHarmonizer = function(
 #' If no heaping errors are found, this additional field is identical to the field `series_variable
 #'
 #' @importFrom stats median
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 WaveletDeheaper = function(
     time_variable = "period_end_date",
@@ -307,7 +307,7 @@ WaveletDeheaper = function(
 #'    * `trend_data` data frame containing trend data
 #' - Return - joined data set by `time_variable` with updated field names
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 WaveletJoiner = function(
     time_variable = "period_end_date",
@@ -351,7 +351,7 @@ WaveletJoiner = function(
 #' - Return - `data` with linearly interpolated `series_variable` and
 #' `trend_variable`
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 WaveletInterpolator = function(
     time_variable = "period_end_date",
@@ -449,7 +449,7 @@ WaveletInterpolator = function(
 #'    * `data` data frame containing time series data
 #' - Return - `data` with additional normalized fields
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 WaveletNormalizer = function(
     time_variable = "period_end_date",
@@ -514,7 +514,7 @@ WaveletNormalizer = function(
 #' - Return - the wavelet transform object from EMD::analyze.wavelet applied to
 #' `wavelet_variable` in `data`
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 WaveletTransformer = function(
     time_variable = "period_end_date",
@@ -550,7 +550,7 @@ WaveletTransformer = function(
 #' - Return - all fields in `data` with the `series_variable` data replaced with the moving
 #' average.
 #'
-#' @family data_prep_constructors
+#' @concept data_prep_constructors
 #' @export
 ComputeMovingAverage <- function(ma_window_length=52){
 
@@ -819,7 +819,7 @@ quantile_trans <- function(x){
 #' @importFrom dplyr group_by_at
 #' @return all fields in `data` with records prepped for plotting moving average time series
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @export
 iidda_prep_series <- function(data,
                          series_variable="deaths",
@@ -870,7 +870,7 @@ iidda_prep_series <- function(data,
 #'
 #' @return all fields in `data` with records prepped for plotting moving average time series
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @export
 iidda_prep_ma <- function(data,
                          series_variable="deaths",
@@ -909,7 +909,7 @@ iidda_prep_ma <- function(data,
 #' @return `data` with records prepped for plotting bar graphs with `series_variable` and `time_unit` field. The name
 #' of the resulting `time_unit` field will be named from lubridate_funcs.
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @export
 iidda_prep_bar <- function(data,
                           series_variable="deaths",
@@ -947,7 +947,7 @@ iidda_prep_bar <- function(data,
 #' @return all fields in`data` with records prepped for plotting box plots. The name
 #' of the new `time_unit` field will be named from lubridate_funcs.
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @export
 iidda_prep_box <- function(data,
                           series_variable="deaths",
@@ -991,7 +991,7 @@ iidda_prep_box <- function(data,
 #' @return all fields in`data` with records prepped for plotting seasonal heatmaps. The name
 #' of the new `time_unit` fields will be named from lubridate_funcs.
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @export
 iidda_prep_seasonal_heatmap <- function(data,
                           series_variable="deaths",
@@ -1105,7 +1105,7 @@ iidda_prep_line_agg = function(data
 #' @return all fields in`data` with records prepped for plotting rohani heatmaps. The name
 #' of the new `time_unit` fields will be named from lubridate_funcs.
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @export
 iidda_prep_rohani <- function(data,
                               series_variable="deaths",
@@ -1202,7 +1202,7 @@ iidda_prep_rohani <- function(data,
 #' @return all fields in`data` with records prepped for plotting box plots. The name
 #' of the new `time_unit` field will be named from lubridate_funcs.
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @noRd
 iidda_prep_periodogram <- function(data,
                                   series_variable="deaths",
@@ -1301,7 +1301,7 @@ iidda_prep_periodogram <- function(data,
 #'        * \code{contour_data_to_plot} - data set of the transformed wavelet data prepped
 #' for plotting with \code{ggplot2::geom_contour}
 #'
-#' @family prep_data_for_plotting
+#' @concept prep_data_for_plotting
 #' @export
 iidda_prep_wavelet = function(
     data,
@@ -1446,7 +1446,7 @@ iidda_get_metadata <- function(data,
 #'
 #' @importFrom ggplot2 geom_line scale_y_continuous
 #' @return a ggplot2 plot object containing a moving average time series
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_ma <- function(plot_object,
                          data=NULL,
@@ -1561,7 +1561,7 @@ iidda_plot_heatmap_decomp = function(plot_object
 #' @param time_variable column name of time variable in `data`, default is "period_end_date"
 #' @param time_unit time unit to display on the x-axis.
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @return a ggplot2 plot object containing a moving average time series
 iidda_plot_series <- function(plot_object,
                          data=NULL,
@@ -1596,7 +1596,7 @@ iidda_plot_series <- function(plot_object,
 #' @importFrom ggplot2 geom_col
 #' @return a ggplot2 plot object containing a bar graphs of time series data
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_bar <- function(plot_object,
                           data=NULL,
@@ -1633,7 +1633,7 @@ iidda_plot_bar <- function(plot_object,
 #' @importFrom ggplot2 geom_boxplot scale_x_discrete
 #' @return a ggplot2 plot object containing a box plots of time series data
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_box <- function(plot_object,
                           data=NULL,
@@ -1669,7 +1669,7 @@ iidda_plot_box <- function(plot_object,
 #' @importFrom lubridate yday
 #' @return a ggplot2 plot object containing a yearly vs. weekly heatmap of time series data
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_heatmap <- function(plot_object,
                               data=NULL,
@@ -1750,7 +1750,7 @@ iidda_plot_heatmap <- function(plot_object,
 #' @importFrom ggplot2 geom_raster scale_y_discrete scale_fill_gradientn labs theme_bw theme element_blank
 #' @return a ggplot2 plot object containing a yearly vs. weekly heatmap of time series data
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_rohani_heatmap <- function(plot_object,
                               data=NULL,
@@ -1813,7 +1813,7 @@ iidda_plot_rohani_heatmap <- function(plot_object,
 #' @importFrom ggplot2 ggtitle
 #' @return a ggplot2 plot object a rectangular plot highlight
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @noRd
 iidda_plot_periodogram <- function(plot_object,
                                   data=NULL,
@@ -1858,7 +1858,7 @@ iidda_plot_periodogram <- function(plot_object,
 #' @importFrom ggplot2 geom_tile scale_x_datetime geom_contour geom_polygon
 #' @return a ggplot2 object of a wavelet
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_wavelet <- function(plot_object,
                                   data=NULL,
@@ -1947,7 +1947,7 @@ iidda_plot_wavelet <- function(plot_object,
 #'
 #' @importFrom ggforce geom_mark_rect
 #' @return a ggplot2 plot object a rectangular plot highlight
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_highlight <- function(
     plot_object,
@@ -1973,7 +1973,7 @@ iidda_plot_highlight <- function(
 #' @param scale_transform transformation to apply to \code{y} variable, must be a valid ggplot2 transformation.
 #'
 #' @return a ggplot2 plot object with scaled \code{y} data
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_scales <- function(
     plot_object,
@@ -1998,7 +1998,7 @@ iidda_plot_scales <- function(
 #'
 #' @return a ggplot2 plot object with title, subtitle and adjusted theme.
 #'
-#' @family plotting_functions
+#' @concept plotting_functions
 #' @export
 iidda_plot_settings <- function(plot_object,
                                data,

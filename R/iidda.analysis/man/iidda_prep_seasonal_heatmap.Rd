@@ -45,13 +45,4 @@ Prep data for seasonal heatmap plots. Prep steps were taken from `LBoM::seasonal
 and they include creating additional time unit fields, splitting weeks that cover the
 year end,  and optionally normalizing series data to be in the range (0,1).
 }
-\seealso{
-Other prep_data_for_plotting: 
-\code{\link{iidda_prep_bar}()},
-\code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_rohani}()},
-\code{\link{iidda_prep_series}()},
-\code{\link{iidda_prep_wavelet}()}
-}
 \concept{prep_data_for_plotting}

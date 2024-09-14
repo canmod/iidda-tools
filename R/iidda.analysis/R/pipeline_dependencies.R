@@ -16,6 +16,7 @@ browse_pipeline_dependencies = function(dataset_ids
     , dependency_types = c("IsCompiledBy", "IsDerivedFrom", "References")
     , metadata = iidda.api::ops_staging$metadata(dataset_ids = dataset_ids)
   ) {
+  need_iidda_api("browse_pipeline_dependencies")
   dataset_ids = unique(dataset_ids)
   if (length(dataset_ids) > 1L) {
     lapply(dataset_ids, browse_pipeline_dependencies, dependency_types, metadata)

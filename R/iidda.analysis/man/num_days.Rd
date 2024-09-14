@@ -24,9 +24,4 @@ these periods. This
 \item \code{num_days_util()}: Low-level interface for `num_days`.
 
 }}
-\seealso{
-Other time_periods: 
-\code{\link{mid_dates_times}},
-\code{\link{period_averager}()}
-}
-\concept{time_periods}
+\concept{periods}

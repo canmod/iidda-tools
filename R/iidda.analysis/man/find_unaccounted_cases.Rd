@@ -18,3 +18,4 @@ Make new records for instances when the sum of leaf diseases is less than
 the reported total for their basal disease. The difference between these
 counts gets disease name 'basal_disease'_unaccounted'.
 }
+\concept{normalization}

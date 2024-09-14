@@ -15,3 +15,4 @@ vector of column names to join by for the type of lookup table
 \description{
 Defines column names to join by for a type of lookup table
 }
+\concept{harmonization}

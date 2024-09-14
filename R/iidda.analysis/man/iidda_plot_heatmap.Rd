@@ -50,16 +50,4 @@ a ggplot2 plot object containing a yearly vs. weekly heatmap of time series data
 Add a yearly vs. weekly heatmap to an exiting ggplot plot object. Graphical choices were made to closely reflect
 plots generated with`LBoM::seasonal_heat_map`.
 }
-\seealso{
-Other plotting_functions: 
-\code{\link{iidda_plot_bar}()},
-\code{\link{iidda_plot_box}()},
-\code{\link{iidda_plot_highlight}()},
-\code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_rohani_heatmap}()},
-\code{\link{iidda_plot_scales}()},
-\code{\link{iidda_plot_series}()},
-\code{\link{iidda_plot_settings}()},
-\code{\link{iidda_plot_wavelet}()}
-}
 \concept{plotting_functions}

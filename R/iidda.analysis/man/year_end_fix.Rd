@@ -57,3 +57,4 @@ series variable value for both of the newly created weeks. This doesn't seem to 
 seasonal heatmap, however it might make sense to do something sensible like dividing the series variable value in half and allocating
 each week to have half of the values.
 }
+\concept{dates}

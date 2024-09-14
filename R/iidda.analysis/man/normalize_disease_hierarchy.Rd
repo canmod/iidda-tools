@@ -46,3 +46,4 @@ and flatten this hierarchy so that, at any particular time and location
 (or some other context), all diseases in the `disease` column have the
 same `nesting_disease`.
 }
+\concept{normalization}

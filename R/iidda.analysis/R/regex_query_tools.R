@@ -40,7 +40,7 @@ query_options <- function(response_type = c("metadata"
                                           , "Population"
                                           , "pop"
                                           , "Pop")){
-
+  need_iidda_api("query_options")
   response_type = match.arg(response_type)
   data_type = match.arg(data_type)
   # check strings
@@ -120,6 +120,7 @@ unique_field_entries <- function(response_type = c("metadata"
                                  , string_comparison = "contains"
                                  , sort = TRUE
 ){
+  need_iidda_api("unique_field_entries")
   entries <- iidda.api::ops_staging$metadata(response_type = response_type
                                      , metadata_search = metadata_search
                                      , string_comparison = string_comparison)
@@ -214,6 +215,7 @@ flexi_filter <- function(strings
                          , data_type = "Communicable Disease Incidence"
                          , ...
 ){
+  need_iidda_api("flexi_filter")
   # could be good to check strings
   # this was used in earlier fn:
   # data_type[data_type %in% c("cdi", "CDI")]<-"Communicable Disease Incidence"

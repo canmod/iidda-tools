@@ -42,17 +42,4 @@ the function `find_heap_and_deheap` created by Kevin Zhao
 (https://github.com/davidearn/KevinZhao/blob/main/Report/make_SF_RData.R). This needs
 to be better documented.
 }
-\seealso{
-Other data_prep_constructors: 
-\code{\link{ComputeMovingAverage}()},
-\code{\link{HandleMissingValues}()},
-\code{\link{HandleZeroValues}()},
-\code{\link{SeriesHarmonizer}()},
-\code{\link{TrimSeries}()},
-\code{\link{WaveletInterpolator}()},
-\code{\link{WaveletJoiner}()},
-\code{\link{WaveletNormalizer}()},
-\code{\link{WaveletTransformer}()},
-\code{\link{data_prep_constructors}}
-}
 \concept{data_prep_constructors}

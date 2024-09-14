@@ -46,13 +46,4 @@ all fields in `data` with records prepped for plotting moving average time serie
 Prep data for basic time series plot. Prep steps were taken from `LBoM::plot.LBoM` and they include
 handling missing values and zeroes, and optionally trimming time series.
 }
-\seealso{
-Other prep_data_for_plotting: 
-\code{\link{iidda_prep_bar}()},
-\code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_rohani}()},
-\code{\link{iidda_prep_seasonal_heatmap}()},
-\code{\link{iidda_prep_wavelet}()}
-}
 \concept{prep_data_for_plotting}

@@ -7,14 +7,11 @@
 normalize_population(data, harmonized_population)
 }
 \arguments{
-\item{data}{Tidy dataset with columns period_start_date, period_end_date,
-iso_3166_2}
+\item{data}{Tidy dataset with columns period_start_date, period_end_date
+iso_3166_2.}
 
-\item{harmonized_population}{Harmonized population data from API
-(load using api_hook$raw_csv(dataset_ids = "pop_ca_1871-2021_harmonized"))
-or iidda-staging
-(load from
-iidda-staging/derived_data/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized.csv)}
+\item{harmonized_population}{Harmonized population data with
+columns date, iso_3166_2, and population (other columns will be dropped).}
 }
 \value{
 Tidy dataset joined with harmonized population.
@@ -22,3 +19,4 @@ Tidy dataset joined with harmonized population.
 \description{
 Normalize Population
 }
+\concept{normalization}

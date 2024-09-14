@@ -23,3 +23,4 @@ entries in the returned data frame are strings.
 \description{
 Left joins lookup table to data frame of data.
 }
+\concept{harmonization}

@@ -78,9 +78,5 @@ data <- data.frame(disease = "senioritis"
 period_averager(data, keep_raw = TRUE, keep_cols = c("disease", "location"))
 
 }
-\seealso{
-Other time_periods: 
-\code{\link{mid_dates_times}},
-\code{\link{num_days}()}
-}
+\concept{periods}
 \concept{time_periods}

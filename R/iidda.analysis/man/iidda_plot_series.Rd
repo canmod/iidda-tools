@@ -30,16 +30,4 @@ a ggplot2 plot object containing a moving average time series
 \description{
 Add a time series line to an exiting ggplot plot object.
 }
-\seealso{
-Other plotting_functions: 
-\code{\link{iidda_plot_bar}()},
-\code{\link{iidda_plot_box}()},
-\code{\link{iidda_plot_heatmap}()},
-\code{\link{iidda_plot_highlight}()},
-\code{\link{iidda_plot_ma}()},
-\code{\link{iidda_plot_rohani_heatmap}()},
-\code{\link{iidda_plot_scales}()},
-\code{\link{iidda_plot_settings}()},
-\code{\link{iidda_plot_wavelet}()}
-}
 \concept{plotting_functions}

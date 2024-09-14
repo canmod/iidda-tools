@@ -21,6 +21,7 @@
 #' @param keep_cols Character vector containing the names of columns in the
 #' input `data` to retain in the output. All columns are retained by default.
 #'
+#' @concept periods
 #' @returns Data frame containing the following fields.
 #' * Columns from the original dataset specified using `keep_raw` and
 #' `keep_cols`.
@@ -99,8 +100,7 @@ period_averager <- function(data
 #' @param start_date Vector of period starting dates
 #' @param end_date Vector of period ending dates
 #'
-#' @family time_periods
-#'
+#' @concept periods
 #' @export
 num_days = function(start_date, end_date) num_days_util(start_date, end_date)
 
@@ -126,7 +126,7 @@ num_days_util = function(start_date, end_date) {
 #' @param period_length Vector of integers giving the period length in days.
 #' If missing then it is calculated using \code{\link{num_days}}.
 #'
-#' @family time_periods
+#' @concept periods
 #' @importFrom lubridate as_datetime days hours
 #' @name mid_dates_times
 

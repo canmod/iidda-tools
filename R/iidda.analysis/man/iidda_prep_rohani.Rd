@@ -56,13 +56,4 @@ variable. Needs to be generalized more, might
 need to handle the case where the desired y-axis is a second time unit, as in the seasonal heatmap plot and therefore
 making use of the year_end_fix function.
 }
-\seealso{
-Other prep_data_for_plotting: 
-\code{\link{iidda_prep_bar}()},
-\code{\link{iidda_prep_box}()},
-\code{\link{iidda_prep_ma}()},
-\code{\link{iidda_prep_seasonal_heatmap}()},
-\code{\link{iidda_prep_series}()},
-\code{\link{iidda_prep_wavelet}()}
-}
 \concept{prep_data_for_plotting}
