@@ -3,6 +3,6 @@ template:
   bootstrap: 5
 
 reference:
-- title Data Harmonization
+- title: Data Harmonization
   contents:
   - has_concept("harmonization")
