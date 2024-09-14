@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">iidda.analysis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,16 +50,13 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Tidy dataset with columns period_start_date, period_end_date,
-iso_3166_2</p></dd>
+<dd><p>Tidy dataset with columns period_start_date, period_end_date
+iso_3166_2.</p></dd>
 
 
 <dt id="arg-harmonized-population">harmonized_population<a class="anchor" aria-label="anchor" href="#arg-harmonized-population"></a></dt>
-<dd><p>Harmonized population data from API
-(load using api_hook$raw_csv(dataset_ids = "pop_ca_1871-2021_harmonized"))
-or iidda-staging
-(load from
-iidda-staging/derived_data/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized/pop_ca_1871-2021_harmonized.csv)</p></dd>
+<dd><p>Harmonized population data with
+columns date, iso_3166_2, and population (other columns will be dropped).</p></dd>
 
 </dl></div>
     <div class="section level2">
