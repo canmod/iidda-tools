@@ -12,6 +12,7 @@
       "Please re-establish connectivity, restart R, and try again."
     )
   }
+  check_rapiclient()  ## some stuff won't work if you don't use the canmod fork
   messages = lapply(messages, MakeMessage)
   ops = suppressWarnings({try(do.call(make_ops_list, production), silent = TRUE)})
   ops_local = suppressWarnings({try(do.call(make_ops_list, local), silent = TRUE)})
