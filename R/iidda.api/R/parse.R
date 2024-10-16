@@ -32,22 +32,12 @@ MakeMessage = function(msg) {
   self
 }
 
-## thinking this should be in the iidda package. could be useful
-## for users
-parse_columns = function(data) {
+#' @importFrom iidda parse_columns
+parse_api_result = function(data) {
   if (getOption("iidda_api_all_char")) return(data)
   messages$conversion$display()
   dict = get_dict()
-  if (!all(names(data) %in% names(dict))) return(data)
-  for (cc in names(data)) {
-    if (dict[[cc]]$type == "string" & dict[[cc]]$format == "num_missing") {
-      data[[cc]] = readr::parse_number(data[[cc]])
-    }
-    if (dict[[cc]]$type == "date" & dict[[cc]]$format == "ISO8601") {
-      data[[cc]] = readr::parse_date(data[[cc]])
-    }
-  }
-  data
+  iidda::parse_columns(data, dict)
 }
 
 arrange_rows = function(data) {

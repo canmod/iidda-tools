@@ -62,7 +62,8 @@ json_files_to_csv = function(json_paths, csv_path) {
 json_files_to_data = function(json_paths) {
   (json_paths
     |> lapply(read_json)
-    |> toJSON(auto_unbox = TRUE) |> fromJSON()
+    |> toJSON(auto_unbox = TRUE)
+    |> fromJSON()
   )
 }
 

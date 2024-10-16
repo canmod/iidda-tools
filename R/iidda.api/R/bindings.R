@@ -59,7 +59,7 @@ handle_iidda_response <- function(x) {
         , encoding = "UTF-8"
         , col_types = readr::cols(.default = "c") # read all columns in as strings
         , na = character() # nothing is missing, only blank
-      ) |> arrange_rows() |> parse_columns() # only if options set
+      ) |> arrange_rows() |> parse_api_result() # only if options set
       return(data)
     }
     else if (content_type == 'application/x-zip-compressed') {

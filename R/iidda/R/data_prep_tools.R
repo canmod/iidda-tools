@@ -556,7 +556,7 @@ get_unclear_comments = function(data){
      comment = strsplit(comment, "\r\n\r\nComment:\r\n    ") %>%
        sapply(function(x) rev(unlist(x))[1], simplify = TRUE)
    )
-   
+
    %>% mutate(has_unclear_comment = grepl("unclear|uncelar", comment, ignore.case = TRUE),
               character = case_when(
                 has_unclear_comment & data_type %in% c("character", "blank") ~
@@ -898,4 +898,19 @@ save_report = function(report, filename) {
   d = dirname(p)
   if (!dir.exists(d)) dir.create(d, recursive = TRUE)
   write_data_frame(report, p)
+}
+
+#' Cell Block
+#'
+#' Create a data frame for representing a rectangular range of cells
+#' in an Excel file. This is useful for adding blank cells that do not
+#' get read in by `xlsx_cells`.
+#'
+#' @param cells_data Data read in using `xlsx_cells`, or just any data frame
+#' with integer columns `row` and `col`.
+#' @export
+cell_block = function(cells_data) {
+  nr = diff(range(cells_data$row)) + 1L
+  nc = diff(range(cells_data$col)) + 1L
+  matrix(NA_character_, nr, nc) |> as.data.frame()
 }

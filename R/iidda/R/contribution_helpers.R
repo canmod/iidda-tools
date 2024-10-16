@@ -68,7 +68,7 @@ register_prep_script = function(script_path, type) {
         "creating the following dataset to potentially learn about metadata from the data:\n    "
       , derived_path
     )
-    dir.create(dirname(derived_path), showWarnings = FALSE)
+    dir.create(dirname(derived_path), showWarnings = FALSE, recursive = TRUE)
     data_env = new.env(parent = parent.frame())
     sys.source(script_path, envir = data_env)
     rm(list = ls(data_env), envir = data_env)
