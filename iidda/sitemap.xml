@@ -12,6 +12,7 @@
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/all_prep_script_outcomes.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/basal_disease.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/blob_to_raw.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda/reference/cell_block.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/check_metadata_cols.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/check_tidy_data_cols.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/collapse_xlsx_value_columns.html</loc></url>
@@ -94,6 +95,7 @@
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/open_locally.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/or_pattern.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/pager.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda/reference/parse_columns.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/paste_operators.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/pipeline_exploration_starter.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/proj_path.html</loc></url>
