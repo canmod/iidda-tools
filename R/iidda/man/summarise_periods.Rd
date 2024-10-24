@@ -14,7 +14,7 @@ summarise_periods_vec(period_start_date, period_end_date, cutoff = 50)
 `period_end_date`. If either are missing an error results.}
 
 \item{cutoff}{Number of characters, above which the output string
-takes the form `{max-date} to {min-date} (with gaps)`.}
+takes the form `max-date to min-date (with gaps)`.}
 
 \item{period_start_date}{Column with the start dates of the periods.}
 

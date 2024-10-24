@@ -851,7 +851,7 @@ add_basal_disease = function(data, lookup) {
   with_basal
 }
 
-#' @export
+
 prune_lookup = function(lookup, basal_diseases_to_prune) {
   hierarchy = (disease_lookup
     |> select(disease, nesting_disease)

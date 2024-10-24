@@ -431,7 +431,7 @@ summarise_diseases_by_locations = function(data) {
 #' @param data Data frame hopefully containing both `period_start_date` and
 #' `period_end_date`. If either are missing an error results.
 #' @param cutoff Number of characters, above which the output string
-#' takes the form `{max-date} to {min-date} (with gaps)`.
+#' takes the form `max-date to min-date (with gaps)`.
 #'
 #' @returns A string summarizing the data in the columns
 #'
