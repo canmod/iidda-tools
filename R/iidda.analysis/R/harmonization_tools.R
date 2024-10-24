@@ -202,6 +202,7 @@ lookup_join = function(raw_data, lookup_table, join_by, verbose = FALSE){
   dup_keys = duplicated(lookup_table_keys)
   if (any(dup_keys)) {
     warning("Multiple normalizations found for some entries in final lookup table.")
+    print(update_lookup_table[dup_keys,,drop = FALSE])
     update_lookup_table = update_lookup_table[!dup_keys,,drop = FALSE]
   }
 

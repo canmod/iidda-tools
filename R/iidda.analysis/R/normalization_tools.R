@@ -97,7 +97,7 @@ normalize_population = function(data, harmonized_population) {
 #' Is Leaf Disease
 #'
 #' Given a set of `disease`-`nesting_disease` pairs that all share the same
-#' \code{\link{basal_disease}},
+#' \code{\link{basal_disease}}, identify
 #'
 #' @param disease Disease name vector.
 #' @param nesting_disease Vector of the same length as \code{disease} giving
@@ -107,7 +107,55 @@ normalize_population = function(data, harmonized_population) {
 #' False if disease is a nesting disease.
 #' @concept normalization
 #' @export
-is_leaf_disease = function(disease, nesting_disease) !disease %in% unique(nesting_disease)
+is_leaf_disease = function(disease, nesting_disease) {
+  x = !disease %in% unique(nesting_disease)
+  #if (any(disease %in% "typhoid-paratyphoid-fever")) browser()
+  x
+}
+
+# Function to precompute all paths in the hierarchy
+precompute_paths <- function(hierarchy) {
+  # Recursive function to trace the path of a disease up to the root
+  trace_path <- function(disease, hierarchy) {
+    parent <- hierarchy$nesting_disease[hierarchy$disease == disease]
+
+    # If there is no parent (NA or empty string), return the disease itself
+    if (length(parent) == 0 || is.na(parent) || parent == "") {
+      return(c(disease))
+    } else {
+      # Recursively find the path for the parent and append this disease
+      return(c(trace_path(parent, hierarchy), disease))
+    }
+  }
+
+  # Precompute the path for every disease in the hierarchy
+  unique_diseases <- unique(hierarchy$disease)
+  all_paths <- lapply(unique_diseases, trace_path, hierarchy = hierarchy)
+  names(all_paths) <- unique_diseases
+
+  return(all_paths)
+}
+
+# Function to identify leaf diseases in a subset using precomputed paths
+find_leaves_with_precomputed <- function(subset, precomputed_paths) {
+  # A disease is a leaf if it is NOT in the path of any other disease in the subset
+  is_leaf <- sapply(subset, function(disease) {
+    # Get the path for this disease from the precomputed paths
+    path <- precomputed_paths[[disease]]
+
+    # Check if this disease appears in any other disease's path
+    no_other_has_as_ancestor <- !any(sapply(subset[subset != disease], function(other_disease) {
+      disease %in% precomputed_paths[[other_disease]]
+    }))
+
+    # Return TRUE if no other disease in the subset includes this one in its path
+    return(no_other_has_as_ancestor)
+  })
+
+  # Return the leaf diseases
+  return(subset[is_leaf])
+}
+
 
 #' Normalize Disease Hierarchy
 #'
@@ -156,6 +204,7 @@ normalize_disease_hierarchy = function(data
     |> distinct()
   )
 
+
   if (find_unaccounted_cases) data = find_unaccounted_cases(data)
 
   if (!is.null(specials_pattern)) {
@@ -169,18 +218,15 @@ normalize_disease_hierarchy = function(data
   pruned_lookup = (disease_lookup
      |> filter(!disease %in% basal_diseases_to_prune)
      |> mutate(nesting_disease = ifelse(
-       nesting_disease %in% basal_diseases_to_prune
-       , ''
-       , nesting_disease
-     )
+         nesting_disease %in% basal_diseases_to_prune
+         , ''
+         , nesting_disease
+       )
      )
   )
+  paths = precompute_paths(pruned_lookup)
 
   (data
-
-      # remove AIDS from ontario 1990-2021 source as it is not mutually exclusive from HIV
-      # TODO: move to prep-script
-      |> filter(!(disease == 'AIDS' & original_dataset_id == "cdi_on_1990-2021_wk"))
 
       # prune basal_diseases
       |> mutate(x = disease %in% basal_diseases_to_prune)
@@ -194,8 +240,9 @@ normalize_disease_hierarchy = function(data
       |> ungroup()
 
       # keeping only leaf diseases
-      |> group_by(across(c("basal_disease", all_of(grouping_columns)))) # period_start_date, period_end_date, location, basal_disease)
-      |> filter(is_leaf_disease(disease, nesting_disease))
+      |> group_by(across(c("basal_disease", all_of(grouping_columns))))
+      #filter(is_leaf_disease(disease, nesting_disease))
+      |> filter(disease %in% find_leaves_with_precomputed(disease, paths))
       |> ungroup()
 
       # if there is only the basal disease (no sub-diseases), differentiate by adding '-only'
@@ -205,6 +252,7 @@ normalize_disease_hierarchy = function(data
 
   )
 }
+
 
 time_scale_chooser = function(time_scale, which_fun) {
   time_scale_order = c("wk", "2wk", "mo", "qr", "3qr","yr")
