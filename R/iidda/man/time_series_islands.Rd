@@ -17,5 +17,6 @@ before islands are located.}
 \description{
 Find 'island rows' in a dataset with ordered rows. Islands have a
 series variable that is not `NA` surrounded by `NA` values in that
-same variable.
+same variable. This function could work well with \code{\link{pad_weeks}},
+if you are looking for weekly 'islands'.
 }

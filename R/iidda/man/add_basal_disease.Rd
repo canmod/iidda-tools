@@ -7,11 +7,11 @@
 add_basal_disease(data, lookup)
 }
 \arguments{
-\item{data}{A tidy data set with a `disease` column}
+\item{data}{A tidy data set with a `disease` column.}
 
 \item{lookup}{A lookup table with `disease` and `nesting_disease`
 columns that describe a global disease hierarchy that will be applied
-to find the basal disease of each `disease` in data}
+to find the basal disease of each `disease` in data.}
 }
 \value{
 tidy dataset with basal disease

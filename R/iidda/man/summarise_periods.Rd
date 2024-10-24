@@ -2,9 +2,12 @@
 % Please edit documentation in R/string_tools.R
 \name{summarise_periods}
 \alias{summarise_periods}
+\alias{summarise_periods_vec}
 \title{Summarise Periods}
 \usage{
 summarise_periods(data, cutoff = 50)
+
+summarise_periods_vec(period_start_date, period_end_date, cutoff = 50)
 }
 \arguments{
 \item{data}{Data frame hopefully containing both `period_start_date` and
@@ -12,6 +15,10 @@ summarise_periods(data, cutoff = 50)
 
 \item{cutoff}{Number of characters, above which the output string
 takes the form `{max-date} to {min-date} (with gaps)`.}
+
+\item{period_start_date}{Column with the start dates of the periods.}
+
+\item{period_end_date}{Column with the end dates of the periods.}
 }
 \value{
 A string summarizing the data in the columns
@@ -19,3 +26,9 @@ A string summarizing the data in the columns
 \description{
 Summarise time periods in an IIDDA dataset.
 }
+\section{Functions}{
+\itemize{
+\item \code{summarise_periods_vec()}: For use inside `mutate` and `summarise`
+functions.
+
+}}

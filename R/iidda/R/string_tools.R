@@ -437,15 +437,27 @@ summarise_diseases_by_locations = function(data) {
 #'
 #' @export
 summarise_periods = function(data, cutoff = 50) {
-  # ord = order(data$period_start_date, data$period_end_date)
-  # start = data$period_start_date[ord]
-  # end = data$period_end_date[ord]
-  string = with(data, summarise_dates(period_start_date, period_end_date))
+  summarise_periods_vec(
+      data$period_start_date
+    , data$period_end_date
+    , cutoff = cutoff
+  )
+}
+
+#' @describeIn summarise_periods For use inside `mutate` and `summarise`
+#' functions.
+#' @param period_start_date Column with the start dates of the periods.
+#' @param period_end_date Column with the end dates of the periods.
+#'
+#' @export
+summarise_periods_vec = function(period_start_date, period_end_date, cutoff = 50) {
+  string = summarise_dates(period_start_date, period_end_date)
   if (isTRUE(nchar(string) > cutoff)) {
     string = sprintf("%s to %s (with gaps)"
-      , as.character(min(data$period_start_date))
-      , as.character(max(data$period_end_date))
+      , as.character(min(period_start_date))
+      , as.character(max(period_end_date))
     )
   }
   string
 }
+

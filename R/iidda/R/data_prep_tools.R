@@ -817,19 +817,30 @@ basal_disease = function(disease, disease_lookup, encountered_diseases = charact
 #'
 #' Add column `basal_disease` to tidy dataset
 #'
-#' @param data A tidy data set with a `disease` column
+#' @param data A tidy data set with a `disease` column.
 #' @param lookup A lookup table with `disease` and `nesting_disease`
 #' columns that describe a global disease hierarchy that will be applied
-#' to find the basal disease of each `disease` in data
+#' to find the basal disease of each `disease` in data.
 #'
 #' @return tidy dataset with basal disease
 #'
 #' @export
-add_basal_disease = function(data, lookup){
-  disease_lookup =
-    (lookup
+add_basal_disease = function(data, lookup) {
+  disease_lookup = (lookup
     |> select(disease, nesting_disease)
-    |> distinct())
+    |> distinct()
+  )
+
+  all_diseases = unique(data$disease)
+  is_missing = !all_diseases %in% disease_lookup$disease
+  if (any(is_missing)) {
+    missing_diseases = (data
+      |> select(disease, nesting_disease)
+      |> filter(disease %in% all_diseases[is_missing])
+      |> distinct()
+    )
+    disease_lookup = rbind(missing_diseases, disease_lookup)
+  }
 
   with_basal = (data
     |> rowwise()
@@ -838,6 +849,28 @@ add_basal_disease = function(data, lookup){
   )
 
   with_basal
+}
+
+#' @export
+prune_lookup = function(lookup, basal_diseases_to_prune) {
+  hierarchy = (disease_lookup
+    |> select(disease, nesting_disease)
+    |> distinct()
+  )
+  new_basal_diseases = unique(hierarchy$disease[hierarchy$nesting_disease %in% basal_diseases_to_prune])
+  children_of_the_new = (hierarchy
+    |> filter(nesting_disease %in% new_basal_diseases)
+  )
+  parents_of_the_new = (hierarchy
+    |> filter(disease %in% new_basal_diseases)
+    |> mutate(nesting_disease = "")
+  )
+  the_old = (hierarchy
+    |> filter(!nesting_disease %in% new_basal_diseases)
+    |> filter(!disease %in% new_basal_diseases)
+  )
+  hierarchy = rbind(children_of_the_new, parents_of_the_new, the_old)
+  add_basal_disease(hierarchy, hierarchy)
 }
 
 
