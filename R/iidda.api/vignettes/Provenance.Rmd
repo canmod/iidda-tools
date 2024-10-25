@@ -94,7 +94,7 @@ Let's start with the scan to see if the original source actually published this 
 url_scans(provenance$scan_id)
 ```
 
-It takes some time to find the specific part of this document that contains our datum. It is actually a little more difficult than usual in this case, because the document has spread the columns of a single table across two pages. We simplify here by cutting and pasting the relevant parts of the table together, and indeed to do find a single case of smallpox in Albert in January of 1980.
+It takes some time to find the specific part of this document that contains our datum. It is actually a little more difficult than usual in this case, because the document has spread the columns of a single table across two pages. We simplify here by cutting and pasting the relevant parts of the table together, and indeed we do find a single case of smallpox in Albert in January of 1980.
 
 ```{r images, echo = FALSE, fig.width = 6, fig.height = 6}
 load("image-data/smallpox.rdata")
