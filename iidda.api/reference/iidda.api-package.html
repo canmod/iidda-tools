@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">iidda.api</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Quickstart.html">Quickstart</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Provenance.html">Dataset Provenance</a></li>
+    <li><a class="dropdown-item" href="../articles/Quickstart.html">Quickstart</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -51,7 +52,145 @@ the datasets are returned as data frames.</p><div class="section">
 <h3 id="listing-the-datasets">Listing the Datasets<a class="anchor" aria-label="anchor" href="#listing-the-datasets"></a></h3>
 
 
-<p></p><div class="sourceCode {r " dataset-names><pre><code></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="../reference/ops.html">ops_staging</a></span><span class="op">$</span><span class="fu">metadata</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   [1] "cdi_on_1990-2021_wk"</span></span>
+<span><span class="co">#&gt;   [2] "cdi_ca_1979-83_4wk_prov_statcan"</span></span>
+<span><span class="co">#&gt;   [3] "cdi_ca_1978_wk_prov_statcan"</span></span>
+<span><span class="co">#&gt;   [4] "cdi_ca_1977_wk_prov_statcan"</span></span>
+<span><span class="co">#&gt;   [5] "cdi_ca_1976_wk_prov_statcan"</span></span>
+<span><span class="co">#&gt;   [6] "cdi_ca_1975_wk_prov_statcan"</span></span>
+<span><span class="co">#&gt;   [7] "cdi_wc_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;   [8] "cdi_ca_1993-2001_quart_prov_hc"</span></span>
+<span><span class="co">#&gt;   [9] "cdi_ca_1990-1992_mn_prov_hc"</span></span>
+<span><span class="co">#&gt;  [10] "cdi_ca_1984-89_4wk_prov_statcan"</span></span>
+<span><span class="co">#&gt;  [11] "cdi_ca_1972_wk_prov"</span></span>
+<span><span class="co">#&gt;  [12] "cdi_ca_1971_wk_prov"</span></span>
+<span><span class="co">#&gt;  [13] "cdi_ca_1970_wk_prov"</span></span>
+<span><span class="co">#&gt;  [14] "cdi_ca_1969_wk_prov"</span></span>
+<span><span class="co">#&gt;  [15] "cdi_ca_1968_wk_prov"</span></span>
+<span><span class="co">#&gt;  [16] "cdi_ca_1967_wk_prov_mcgill"</span></span>
+<span><span class="co">#&gt;  [17] "cdi_ca_1966_wk_prov_mcgill"</span></span>
+<span><span class="co">#&gt;  [18] "cdi_ca_1965_wk_prov_mcgill"</span></span>
+<span><span class="co">#&gt;  [19] "cdi_ca_1964_wk_prov_mcgill"</span></span>
+<span><span class="co">#&gt;  [20] "cdi_wc_ca_1924_wk_prov"</span></span>
+<span><span class="co">#&gt;  [21] "mort_on_1940-1947_mn"</span></span>
+<span><span class="co">#&gt;  [22] "mort_on_1903-1939_mn"</span></span>
+<span><span class="co">#&gt;  [23] "cdi_sk_1910-1927_mn"</span></span>
+<span><span class="co">#&gt;  [24] "cdi_on_1940-1947_mn"</span></span>
+<span><span class="co">#&gt;  [25] "cdi_on_1903-1939_mn"</span></span>
+<span><span class="co">#&gt;  [26] "cdi_ca_1962_wk_prov_dbs"</span></span>
+<span><span class="co">#&gt;  [27] "cdi_ab_2004-19_wk_age"</span></span>
+<span><span class="co">#&gt;  [28] "canmod-cdi-normalized"</span></span>
+<span><span class="co">#&gt;  [29] "phac-reporting-schedule"</span></span>
+<span><span class="co">#&gt;  [30] "cdi_yf_ca_1945-1955_wk_prov"</span></span>
+<span><span class="co">#&gt;  [31] "cdi_qc_1915-1925_mn_county_municipality"</span></span>
+<span><span class="co">#&gt;  [32] "cdi_on_1939-1989_wk"</span></span>
+<span><span class="co">#&gt;  [33] "cdi_granuing_ca_1946-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [34] "cdi_ca_1973_wk_prov"</span></span>
+<span><span class="co">#&gt;  [35] "cdi_ca_1960_wk_prov_dbs"</span></span>
+<span><span class="co">#&gt;  [36] "prototype-dataset"</span></span>
+<span><span class="co">#&gt;  [37] "canmod-pop-normalized"</span></span>
+<span><span class="co">#&gt;  [38] "canmod-cdi-unharmonized"</span></span>
+<span><span class="co">#&gt;  [39] "canmod-cdi-harmonized"</span></span>
+<span><span class="co">#&gt;  [40] "pop_ca_1921-71_an_age_prov_sex"</span></span>
+<span><span class="co">#&gt;  [41] "phac-cdi-portal"</span></span>
+<span><span class="co">#&gt;  [42] "mort_ca_2000-2020_wk_prov_causes"</span></span>
+<span><span class="co">#&gt;  [43] "mort_ca_1990-1999_wk_prov_causes"</span></span>
+<span><span class="co">#&gt;  [44] "mort_ca_1980-1989_wk_prov_causes"</span></span>
+<span><span class="co">#&gt;  [45] "mort_ca_1970-1979_wk_prov_causes"</span></span>
+<span><span class="co">#&gt;  [46] "mort_ca_1960-1969_wk_prov_causes"</span></span>
+<span><span class="co">#&gt;  [47] "mort_ca_1950-1959_wk_prov_causes"</span></span>
+<span><span class="co">#&gt;  [48] "canmod-time-scale-cross-check"</span></span>
+<span><span class="co">#&gt;  [49] "canmod-mort-normalized"</span></span>
+<span><span class="co">#&gt;  [50] "canmod-location-cross-check"</span></span>
+<span><span class="co">#&gt;  [51] "canmod-disease-cross-check"</span></span>
+<span><span class="co">#&gt;  [52] "cdi_ca_1924-55_wk_prov_dbs_statcan_harmonized"</span></span>
+<span><span class="co">#&gt;  [53] "cdi_ca_1979-89_4wk_prov_harmonized"</span></span>
+<span><span class="co">#&gt;  [54] "cdi_on_1990-2021_wk_harmonized"</span></span>
+<span><span class="co">#&gt;  [55] "cdi_ca_1990-2001_quart_prov_harmonized"</span></span>
+<span><span class="co">#&gt;  [56] "cdi_tball_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [57] "cdi_chanc_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [58] "cdi_ca_1975-78_wk_prov_harmonized"</span></span>
+<span><span class="co">#&gt;  [59] "cdi_ca_1961_wk_prov_dbs"</span></span>
+<span><span class="co">#&gt;  [60] "cdi_ca_1959_wk_prov_dbs_w4_52"</span></span>
+<span><span class="co">#&gt;  [61] "cdi_ca_1959_wk_prov_dbs_w1_3"</span></span>
+<span><span class="co">#&gt;  [62] "cdi_ca_1958_wk_prov_dbs"</span></span>
+<span><span class="co">#&gt;  [63] "cdi_ca_1957_wk_prov_dbs"</span></span>
+<span><span class="co">#&gt;  [64] "cdi_ca_1956_wk_prov_dbs"</span></span>
+<span><span class="co">#&gt;  [65] "cdi_bot_ca_1933-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [66] "cdi_ab_2004-19_wk_harmonized"</span></span>
+<span><span class="co">#&gt;  [67] "cdi_uf_ca_1928-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [68] "cdi_typhpara_ca_1952-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [69] "cdi_typh_ca_1924-52_wk_prov"</span></span>
+<span><span class="co">#&gt;  [70] "cdi_tbunspec_ca_1933-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [71] "cdi_tbpulm_ca_1933-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [72] "cdi_tbmisc_ca_1933-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [73] "cdi_syphunspec_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [74] "cdi_syphtertother_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [75] "cdi_syphtertneuro_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [76] "cdi_syphtertcard_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [77] "cdi_syphsec_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [78] "cdi_syphprim_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [79] "cdi_syphother_ca_1944-51_wk_prov"</span></span>
+<span><span class="co">#&gt;  [80] "cdi_syphlatent_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [81] "cdi_syphcong_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [82] "cdi_syphall_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [83] "cdi_sst_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [84] "cdi_smallpox_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [85] "cdi_sf_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [86] "cdi_salm_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [87] "cdi_rub_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [88] "cdi_poliopar_ca_1949-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [89] "cdi_polio_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [90] "cdi_pneu_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [91] "cdi_paratyph_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [92] "cdi_optneo_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [93] "cdi_on_1939-1989_wk_harmonized"</span></span>
+<span><span class="co">#&gt;  [94] "cdi_nspecurethritis_ca_1949-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [95] "cdi_mumps_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [96] "cdi_meningosep_ca_1952-54_wk_prov"</span></span>
+<span><span class="co">#&gt;  [97] "cdi_meningivar_ca_1925-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [98] "cdi_meningisep_ca_1935-55_wk_prov"</span></span>
+<span><span class="co">#&gt;  [99] "cdi_malar_ca_1929-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [100] "cdi_lymphgran_ca_1946-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [101] "cdi_jauncat_ca_1948-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [102] "cdi_jaun_ca_1927-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [103] "cdi_impet_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [104] "cdi_hep_ca_1945-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [105] "cdi_erys_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [106] "cdi_enceph_ca_1924-34_wk_prov"</span></span>
+<span><span class="co">#&gt; [107] "cdi_dysunspec_ca_1927-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [108] "cdi_dysbac_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [109] "cdi_dysam_ca_1927-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [110] "cdi_dysall_ca_1929-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [111] "cdi_diphth_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [112] "cdi_diarent_ca_1945-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [113] "cdi_diar_ca_1937-44_wk_prov"</span></span>
+<span><span class="co">#&gt; [114] "cdi_cp_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [115] "cdi_ca_1968-72_wk_prov_harmonized"</span></span>
+<span><span class="co">#&gt; [116] "cdi_ca_1964-67_wk_prov_harmonized"</span></span>
+<span><span class="co">#&gt; [117] "cdi_tbnpulm_ca_1935-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [118] "cdi_qc_1915-1925_mn_harmonized"</span></span>
+<span><span class="co">#&gt; [119] "cdi_poliounspec_ca_1949-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [120] "cdi_polionpar_ca_1949-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [121] "cdi_otherVD_ca_1944-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [122] "cdi_on_1940-1947_mn_harmonized"</span></span>
+<span><span class="co">#&gt; [123] "cdi_on_1903-1939_mn_harmonized"</span></span>
+<span><span class="co">#&gt; [124] "cdi_gonall_ca_1924-55_wk_prov"</span></span>
+<span><span class="co">#&gt; [125] "cdi_ca_1956-63_1973-74_wk_prov_harmonized"</span></span>
+<span><span class="co">#&gt; [126] "pop_ca_1971-2021_an_age_prov_sex"</span></span>
+<span><span class="co">#&gt; [127] "pop_ca_1871-2021_harmonized"</span></span>
+<span><span class="co">#&gt; [128] "pop_ca_1871-1921_10-yearly_prov_age_sex"</span></span>
+<span><span class="co">#&gt; [129] "mort_uk_1842-1950"</span></span>
+<span><span class="co">#&gt; [130] "mort_uk_1661-1845"</span></span>
+<span><span class="co">#&gt; [131] "mort_uk_1642-1845_wk_davenport"</span></span>
+<span><span class="co">#&gt; [132] "mort_plag_uk_1661-1688_wk_par"</span></span>
+<span><span class="co">#&gt; [133] "london-mort-harmonized"</span></span>
+<span><span class="co">#&gt; [134] "cdi_sk_1910-1927_mn_harmonized"</span></span>
+<span><span class="co">#&gt; [135] "cdi_ca_1963_wk_prov_dbs"</span></span>
+<span><span class="co">#&gt; [136] "canmod-mort-harmonized"</span></span>
+<span><span class="co">#&gt; [137] "acm_uk_1842-1930_age"</span></span>
+<span><span class="co">#&gt; [138] "acm_uk_1661-1845"</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -60,16 +199,23 @@ the datasets are returned as data frames.</p><div class="section">
 
 <p>Just choose one of the identifiers above, and pass it to the
 <code>raw_csv</code> function in the API.</p>
-<p></p><div class="sourceCode {r, eval = FALSE}"><pre><code></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">cdi_1975</span> <span class="op">=</span> <span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="../reference/ops.html">ops_staging</a></span><span class="op">$</span><span class="fu">raw_csv</span><span class="op">(</span></span>
+<span>   dataset_ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>     <span class="st">"cdi_ca_1975_wk_prov_statcan"</span>,</span>
+<span>     <span class="st">"cdi_ca_1976_wk_prov_statcan"</span></span>
+<span>   <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre><p></p></div>
 <p>You can pass more than one dataset.</p>
-<p></p><div class="sourceCode {r, eval = FALSE}"><pre><code></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">cdi_1975</span> <span class="op">=</span> <span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="../reference/ops.html">ops_staging</a></span><span class="op">$</span><span class="fu">raw_csv</span><span class="op">(</span></span>
+<span>   dataset_ids <span class="op">=</span> <span class="st">"cdi_ca_1975_wk_prov_statcan"</span></span>
+<span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
 <h3 id="all-metadata-by-dataset">All Metadata by Dataset<a class="anchor" aria-label="anchor" href="#all-metadata-by-dataset"></a></h3>
 
 
-<p></p><div class="sourceCode {r, eval = FALSE}"><pre><code></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="../reference/ops.html">ops_staging</a></span><span class="op">$</span><span class="fu">metadata</span><span class="op">(</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>On my browser at least, it is easier to look at in JSON form rather than
 R list form. The JSON metadata can be directly accessed using
 the URL form of the API:
@@ -84,7 +230,10 @@ the URL form of the API:
 the <a href="https://canmod.net/digitization" class="external-link">CANMOD digitization project</a>
 can be accessed using <code>resource_type = "CANMOD CDI"</code> with the <code>filter</code>
 function.</p>
-<p></p><div class="sourceCode {r, eval = FALSE}"><pre><code></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">canmod_cdi</span> <span class="op">=</span> <span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="../reference/ops.html">ops_staging</a></span><span class="op">$</span><span class="fu">filter</span><span class="op">(</span></span>
+<span>     resource_type <span class="op">=</span> <span class="st">"CANMOD CDI"</span></span>
+<span>   , iso_3166 <span class="op">=</span> <span class="st">"CA"</span> <span class="co">## country code for canada</span></span>
+<span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
 
     </div>
