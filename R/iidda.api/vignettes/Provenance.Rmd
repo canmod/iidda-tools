@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 In this vignette we illustrate how to investigate the provenance of a particular record in the a dataset obtained from the API. We use an example of a surprisingly late smallpox record in the CANMOD data.
 
+![](images/Smallpox_virus_virions_TEM_PHIL_1849.JPG){width="60%"}
+
 We use the following packages for this illustration.
 
 ```{r other_packages, message=FALSE}
@@ -110,7 +112,7 @@ p + annotation_custom(location, xmin=1.2, xmax=2.2, ymin=1, ymax=3) +
     annotation_custom(name, xmin=0, xmax=1, ymin=0, ymax=1)
 ```
 
-So it looks like an error made before this document was published, but in some cases we need to look further to see if we introduced the error in our curation process. The next place to look would usually be the digitized Excel file, which we can get using the `?url_digitizations` function.
+So in this case it looks like an error that was made before this source document was published, but in some cases we need to look further to see if we introduced the error in our curation process. The next place to look would usually be the digitized Excel file, which we can get using the `?url_digitizations` function.
 
 ```{r digitizations}
 url_digitizations(provenance$digitization_id)
