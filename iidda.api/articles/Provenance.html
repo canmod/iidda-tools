@@ -67,6 +67,7 @@
 <p>In this vignette we illustrate how to investigate the provenance of a
 particular record in the a dataset obtained from the API. We use an
 example of a surprisingly late smallpox record in the CANMOD data.</p>
+<p><img src="images%2FSmallpox_virus_virions_TEM_PHIL_1849.JPG" style="width:60.0%"></p>
 <p>We use the following packages for this illustration.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -159,11 +160,11 @@ across two pages. We simplify here by cutting and pasting the relevant
 parts of the table together, and indeed to do find a single case of
 smallpox in Albert in January of 1980.</p>
 <p><img src="Provenance_files/figure-html/images-1.png" width="576"></p>
-<p>So it looks like an error made before this document was published,
-but in some cases we need to look further to see if we introduced the
-error in our curation process. The next place to look would usually be
-the digitized Excel file, which we can get using the
-<code><a href="../reference/urls.html">?url_digitizations</a></code> function.</p>
+<p>So in this case it looks like an error that was made before this
+source document was published, but in some cases we need to look further
+to see if we introduced the error in our curation process. The next
+place to look would usually be the digitized Excel file, which we can
+get using the <code><a href="../reference/urls.html">?url_digitizations</a></code> function.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/urls.html">url_digitizations</a></span><span class="op">(</span><span class="va">provenance</span><span class="op">$</span><span class="va">digitization_id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "https://github.com/canmod/iidda-staging/blob/main/pipelines/cdi_ca_1979-89_4wk_prov/digitizations/cdi_ca_1979-83_4wk_prov_statcan.xlsx"</span></span></code></pre></div>
