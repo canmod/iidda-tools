@@ -16,7 +16,11 @@ knitr::opts_chunk$set(
 
 In this vignette we illustrate how to obtain data from the API using scarlet fever data in Ontario as an example.
 
-![](images/Streptococcus_Pyogenes_(Group_A_Strep)_(52602981880).jpg){width="60%"}
+![](images/Streptococcus_Pyogenes_(Group_A_Strep)_(52602981880).jpg){width="75%"}
+
+(Image From: https://www.flickr.com/photos/niaid/52602981880/)
+
+## Preliminaries
 
 We use the following packages for this illustration.
 

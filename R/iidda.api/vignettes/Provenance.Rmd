@@ -18,6 +18,10 @@ In this vignette we illustrate how to investigate the provenance of a particular
 
 ![](images/Smallpox_virus_virions_TEM_PHIL_1849.JPG){width="60%"}
 
+(Image From: https://phil.cdc.gov/details.aspx?pid=1849)
+
+## Preliminaries
+
 We use the following packages for this illustration.
 
 ```{r other_packages, message=FALSE}
