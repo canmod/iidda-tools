@@ -19,6 +19,7 @@ browse_pipeline_dependencies = function(dataset_ids
   need_iidda_api("browse_pipeline_dependencies")
   dataset_ids = unique(dataset_ids)
   if (length(dataset_ids) > 1L) {
+    ## recursion
     lapply(dataset_ids, browse_pipeline_dependencies, dependency_types, metadata)
   } else {
     d = do.call(rbind, lapply(

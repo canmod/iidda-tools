@@ -106,7 +106,7 @@ normalize_population = function(data, harmonized_population) {
 #' @return True if disease is never a nesting disease (it is a leaf disease),
 #' False if disease is a nesting disease.
 #' @concept normalization
-#' @export
+#' @noRd
 is_leaf_disease = function(disease, nesting_disease) {
   x = !disease %in% unique(nesting_disease)
   #if (any(disease %in% "typhoid-paratyphoid-fever")) browser()
