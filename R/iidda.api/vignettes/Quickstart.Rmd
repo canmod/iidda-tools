@@ -14,11 +14,15 @@ knitr::opts_chunk$set(
 )
 ```
 
+In this vignette we illustrate how to obtain data from the API. We use the following packages for this illustration.
+
 ```{r other_packages, message=FALSE}
 library(dplyr)
 library(ggplot2)
 library(iidda.api)
 ```
+
+We require a hook for the API, which in this case is `iidda.api::ops_staging`. This hook will eventually be changed to `iidda.api::ops` once we stabilize. We also turn off messages from the API that are not helpful when presenting this material.
 
 ```{r api_hook}
 api_hook = iidda.api::ops_staging

@@ -1,0 +1,130 @@
+---
+title: "Dataset Provenance"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quickstart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In this vignette we illustrate how to investigate the provenance of a particular record in the a dataset obtained from the API. We use an example of a surprisingly late smallpox record in the CANMOD data.
+
+We use the following packages for this illustration.
+
+```{r other_packages, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(grid)
+library(iidda.api)
+```
+
+We require a hook for the API, which in this case is `iidda.api::ops_staging`. This hook will eventually be changed to `iidda.api::ops` once we stabilize. In fact if you do not have access to the [iidda-staging](https://github.com/canmod/iidda-staging) repository you will need to wait until we stabilize.
+
+```{r api_hook}
+api_hook = iidda.api::ops_staging
+```
+
+For convenience we define a custom `print` function and turn off messages from the API that are not helpful when presenting the material.
+
+```{r fancy_print}
+print_single_row = function(data) {
+  (data
+    |> t() 
+    |> as.data.frame() 
+    |> setNames("Value")
+  )
+}
+options(iidda_api_msgs = FALSE)
+```
+
+## Example: The Last Case of Smallpox
+
+Smallpox has been eliminated from Canada in 1946 [https://www.cmaj.ca/content/161/12/1543](https://www.cmaj.ca/content/161/12/1543). Then why does IIDDA have a case in Alberta in 1980?
+
+```{r smallpox}
+smallpox = api_hook$filter(resource_type = "Compilation"
+  , dataset_ids = "canmod-cdi-normalized"
+  , basal_disease = "smallpox"
+)
+latest_smallpox = (smallpox
+  |> filter(cases_this_period > 0)
+  |> filter(max(period_start_date) == period_start_date)
+)
+(latest_smallpox
+  |> select(
+    , iso_3166_2
+    , period_start_date
+    , period_end_date
+    , cases_this_period
+  ) 
+  |> print_single_row()
+)
+```
+
+That's got to be wrong, right?
+
+This is one of the many instances where one will want to go back to the source documents to check whether surprising data represent errors in the data curation process.
+
+The CANMOD data have columns containing provenance information. These columns give identifiers for resources used to produce each record. For our smallpox case we have the following provenance.
+```{r provenance}
+provenance = (latest_smallpox
+  |> distinct(
+      original_dataset_id
+    , digitization_id
+    , scan_id
+  )
+)
+print_single_row(provenance)
+```
+
+Here we see identifiers for the original dataset that was included in the compiled dataset, for the digitization (which is an Excel file containing manually entered data), and for the PDF scan of the original source document. These identifiers are of no use unless we can use them to find these resources. Here we show how.
+
+Let's start with the scan to see if the original source actually published this very late smallpox case. We use the `?url_scans` function to convert this identifier into an URL at which we can find the document.
+
+```{r scans}
+url_scans(provenance$scan_id)
+```
+
+It takes some time to find the specific part of this document that contains our datum. It is actually a little more difficult than usual in this case, because the document has spread the columns of a single table across two pages. We simplify here by cutting and pasting the relevant parts of the table together, and indeed to do find a single case of smallpox in Albert in January of 1980.
+
+```{r images, echo = FALSE, fig.width = 6, fig.height = 6}
+# Load your images
+img1 <- png::readPNG("images/smallpox-location.png")
+img2 <- png::readPNG("images/smallpox-name.png")
+img3 <- png::readPNG("images/smallpox-numbers.png")
+
+# Create grobs for each image
+location <- rasterGrob(img1, interpolate=TRUE)
+name <- rasterGrob(img2, interpolate=TRUE)
+numbers <- rasterGrob(img3, interpolate=TRUE)
+
+# Create an empty ggplot
+p <- ggplot() + xlim(0, 2.3) + ylim(0, 3) +
+    theme_void()  # No background grid or axes
+
+# Add each image to the plot at different positions
+p + annotation_custom(location, xmin=1.2, xmax=2.2, ymin=1, ymax=3) +
+    annotation_custom(numbers, xmin=1.2, xmax=2.2, ymin=0, ymax=1) +
+    annotation_custom(name, xmin=0, xmax=1, ymin=0, ymax=1)
+```
+
+So it looks like an error made before this document was published, but in some cases we need to look further to see if we introduced the error in our curation process. The next place to look would usually be the digitized Excel file, which we can get using the `?url_digitizations` function.
+
+```{r digitizations}
+url_digitizations(provenance$digitization_id)
+```
+
+We can also find all of the prep-scripts that would potentially have their output modified if we updated this digitization using the `?url_affected_scripts` function.
+
+```{r scripts}
+url_affected_scripts(provenance$digitization_id)
+```
+
+Finally, note that these `url_*` functions are nicely paired with the base R `?browseURL` function.
