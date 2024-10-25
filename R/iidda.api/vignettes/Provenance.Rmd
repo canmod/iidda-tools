@@ -2,7 +2,7 @@
 title: "Dataset Provenance"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Quickstart}
+  %\VignetteIndexEntry{Provenance}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -95,17 +95,12 @@ url_scans(provenance$scan_id)
 It takes some time to find the specific part of this document that contains our datum. It is actually a little more difficult than usual in this case, because the document has spread the columns of a single table across two pages. We simplify here by cutting and pasting the relevant parts of the table together, and indeed to do find a single case of smallpox in Albert in January of 1980.
 
 ```{r images, echo = FALSE, fig.width = 6, fig.height = 6}
-# Load your images
-img1 <- png::readPNG("images/smallpox-location.png")
-img2 <- png::readPNG("images/smallpox-name.png")
-img3 <- png::readPNG("images/smallpox-numbers.png")
+load("image-data/smallpox.rdata")
 
-# Create grobs for each image
-location <- rasterGrob(img1, interpolate=TRUE)
-name <- rasterGrob(img2, interpolate=TRUE)
-numbers <- rasterGrob(img3, interpolate=TRUE)
+location <- rasterGrob(smallpox_location, interpolate=TRUE)
+name <- rasterGrob(smallpox_name, interpolate=TRUE)
+numbers <- rasterGrob(smallpox_numbers, interpolate=TRUE)
 
-# Create an empty ggplot
 p <- ggplot() + xlim(0, 2.3) + ylim(0, 3) +
     theme_void()  # No background grid or axes
 
