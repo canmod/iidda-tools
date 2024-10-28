@@ -19,6 +19,7 @@ install.packages("iidda.api"
 ```
 
 Useful links:
+
 * [Package intro](https://canmod.github.io/iidda-tools/iidda.api/reference/iidda.api-package)
 * [Package function reference](https://canmod.github.io/iidda-tools/iidda.api/reference)
 * [Package vignettes](https://canmod.github.io/iidda-tools/iidda.api/articles)
