@@ -78,57 +78,23 @@ if it exists</p></li>
 <span class="r-in"><span><span class="co">## Access functions with a dollar sign. For example, this command</span></span></span>
 <span class="r-in"><span><span class="co">## will give weekly incidence data in PEI in January of 1940.</span></span></span>
 <span class="r-in"><span><span class="va">ops_staging</span><span class="op">$</span><span class="fu">filter</span><span class="op">(</span></span></span>
-<span class="r-in"><span>     resource_type <span class="op">=</span> <span class="st">"CANMOD CDI"</span></span></span>
+<span class="r-in"><span>     resource_type <span class="op">=</span> <span class="st">"Compilations"</span></span></span>
+<span class="r-in"><span>   , dataset_id <span class="op">=</span> <span class="st">"canmod-cdi-normalized"</span></span></span>
 <span class="r-in"><span>   , iso_3166_2 <span class="op">=</span> <span class="st">"CA-PE"</span></span></span>
 <span class="r-in"><span>   , period_end_date <span class="op">=</span> <span class="st">"1940-01-01..1940-02-01"</span></span></span>
 <span class="r-in"><span>   , time_scale <span class="op">=</span> <span class="st">"wk"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Now converting some fields from character to numeric or date. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You can turn this off with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_all_char = TRUE). </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Do not display any iidda.api messages with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_msgs = FALSE).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Messages displayed at most once per R session.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Now sorting by date. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You can turn this off with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_date_sort = FALSE). </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Do not display any iidda.api messages with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_msgs = FALSE).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Messages displayed at most once per R session.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 68 × 16</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    basal_disease         cases_this_period dataset_id disease historical_disease</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> botulism                              0 cdi_ca_19… botuli… Botulism          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> chickenpox                            0 cdi_ca_19… chicke… Chickenpox        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> diphtheria                            0 cdi_ca_19… diphth… Diphtheria        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> malaria                               0 cdi_ca_19… malaria Malaria           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> mumps                                 0 cdi_ca_19… mumps   Mumps             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> typhoid-paratyphoid-…                 0 cdi_ca_19… paraty… Paratyphoid Fever </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> pneumonia                             3 cdi_ca_19… pneumo… Pneumonia         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> poliomyelitis                         0 cdi_ca_19… poliom… Poliomyelitis     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> rubella                               0 cdi_ca_19… rubella Rubella(German me…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> scarlet-fever                         8 cdi_ca_19… scarle… Scarlet Fever     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 58 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 11 more variables: historical_disease_family &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease_subclass &lt;chr&gt;, iso_3166 &lt;chr&gt;, iso_3166_2 &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   location &lt;chr&gt;, location_type &lt;chr&gt;, nesting_disease &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   original_dataset_id &lt;chr&gt;, period_end_date &lt;date&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   period_start_date &lt;date&gt;, time_scale &lt;chr&gt;</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in handle_response(result):</span> The IIDDA API returned the following error:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>     'Compilations' is not a valid resource_type. Available values are ['CANMOD CDI', 'Check', 'Communicable Disease Incidence', 'Compilation', 'Mortality', 'Population', 'Schedule']</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> This documentation might be of interest:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>     https://math.mcmaster.ca/iidda/api/docs</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Operations objects that are not available are error objects. As of the</span></span></span>
 <span class="r-in"><span><span class="co">## time of writing only ops_staging is live.</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ops</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Error in do.call(make_ops_list, production) : \n  second argument must be a list\n"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">ops</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "try-error"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"condition")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;simpleError in do.call(make_ops_list, production): second argument must be a list&gt;</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ops_local</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Error in rapiclient::get_api(url = file.path(iidda::rm_trailing_slash(file.path(api_url,  : \n  'url' does not appear to be JSON or YAML\n"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">ops_local</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "try-error"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"condition")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;simpleError in rapiclient::get_api(url = file.path(iidda::rm_trailing_slash(file.path(api_url,     base_path)), "openapi.json")): 'url' does not appear to be JSON or YAML&gt;</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
