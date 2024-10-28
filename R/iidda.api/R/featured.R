@@ -18,6 +18,7 @@ NULL
 #' dataset, possibly filtered.
 #'
 #' @examples
+#' options(iidda_api_msgs = TRUE)
 #' featured_ids()
 #' atlantic_polio_1950s = featured_data("canmod-cdi-normalized"
 #'   , iso_3166_2 = c("CA-NL", "CA-NS", "CA-PE", "CA-NB")

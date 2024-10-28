@@ -172,44 +172,13 @@ make_ops_list = function(api_url, base_path, type) {
 #' This R package provides a simple wrapper to this API so that
 #' the datasets are returned as data frames.
 #'
-#' ## Listing the Datasets
+#' Useful links for people who just want to get data.
+#' * `?featured`
+#' * `vignette("QuickStart")`
+#' * `vignette("Provenance")`
 #'
-#' There are many datasets in the archive, but the most important ones are
-#' called compilations. These compilations generally pull together data
-#' from several sources and are designed to provide convenience for users
-#' who just want to get the data and start using it right away. To list
-#' the IDs of the compilation datasets one may use the following R command.
-#' ```{r "compilation-dataset-names"}
-#' featured_ids()
-#' ```
-#'
-#' To get the list of all of the datasets in the archive one may use the
-#' following.
-#' ```{r "all-dataset-names"}
-#' ops_staging$metadata() |> names()
-#' ```
-#'
-#' ## Getting Datasets
-#'
-#' To read one of these datasets into an R data frame, choose one of the
-#' identifiers above and pass it to the `raw_csv` operation.
-#' ```{r}
-#' canmod_cdi = iidda.api::ops_staging$raw_csv(
-#'    dataset_ids = "canmod-cdi-normalized"
-#' )
-#' print(canmod_cdi)
-#' ```
-#'
-#' ## All Metadata by Dataset
-#'
-#' ```{r, eval = FALSE}
-#' iidda.api::ops_staging$metadata()
-#' ```
-#'
-#' On my browser at least, it is easier to look at in JSON form rather than
-#' R list form. The JSON metadata can be directly accessed using
-#' the URL form of the API:
-#' [https://math.mcmaster.ca/iidda/api/metadata](https://math.mcmaster.ca/iidda/api/metadata).
+#' More advanced users might be interested in the lower-level wrapper
+#' of the API operations here: `?ops`.
 #'
 "_PACKAGE"
 
