@@ -78,16 +78,32 @@ if it exists</p></li>
 <span class="r-in"><span><span class="co">## Access functions with a dollar sign. For example, this command</span></span></span>
 <span class="r-in"><span><span class="co">## will give weekly incidence data in PEI in January of 1940.</span></span></span>
 <span class="r-in"><span><span class="va">ops_staging</span><span class="op">$</span><span class="fu">filter</span><span class="op">(</span></span></span>
-<span class="r-in"><span>     resource_type <span class="op">=</span> <span class="st">"Compilations"</span></span></span>
+<span class="r-in"><span>     resource_type <span class="op">=</span> <span class="st">"Compilation"</span></span></span>
 <span class="r-in"><span>   , dataset_id <span class="op">=</span> <span class="st">"canmod-cdi-normalized"</span></span></span>
 <span class="r-in"><span>   , iso_3166_2 <span class="op">=</span> <span class="st">"CA-PE"</span></span></span>
 <span class="r-in"><span>   , period_end_date <span class="op">=</span> <span class="st">"1940-01-01..1940-02-01"</span></span></span>
 <span class="r-in"><span>   , time_scale <span class="op">=</span> <span class="st">"wk"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in handle_response(result):</span> The IIDDA API returned the following error:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>     'Compilations' is not a valid resource_type. Available values are ['CANMOD CDI', 'Check', 'Communicable Disease Incidence', 'Compilation', 'Mortality', 'Population', 'Schedule']</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> This documentation might be of interest:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>     https://math.mcmaster.ca/iidda/api/docs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 68 × 22</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    basal_disease   cases_this_period dataset_id days_this_period digitization_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> botulism                        0 canmod-cd…                7 cdi_bot_ca_193…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> chickenpox                      0 canmod-cd…                7 cdi_cp_ca_1924…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> diphtheria                      0 canmod-cd…                7 cdi_diphth_ca_…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> malaria                         0 canmod-cd…                7 cdi_malar_ca_1…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> mumps                           0 canmod-cd…                7 cdi_mumps_ca_1…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> typhoid-paraty…                 0 canmod-cd…                7 cdi_paratyph_c…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> pneumonia                       3 canmod-cd…                7 cdi_pneu_ca_19…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> poliomyelitis                   0 canmod-cd…                7 cdi_polio_ca_1…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> rubella                         0 canmod-cd…                7 cdi_rub_ca_192…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> scarlet-fever                   8 canmod-cd…                7 cdi_sf_ca_1924…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 58 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 17 more variables: disease &lt;chr&gt;, historical_disease &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease_family &lt;chr&gt;, historical_disease_subclass &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   iso_3166 &lt;chr&gt;, iso_3166_2 &lt;chr&gt;, location &lt;chr&gt;, location_type &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   nesting_disease &lt;chr&gt;, original_dataset_id &lt;chr&gt;, period_end_date &lt;date&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   period_mid_date &lt;date&gt;, period_start_date &lt;date&gt;, population &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   record_origin &lt;chr&gt;, scan_id &lt;chr&gt;, time_scale &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Operations objects that are not available are error objects. As of the</span></span></span>
 <span class="r-in"><span><span class="co">## time of writing only ops_staging is live.</span></span></span>
