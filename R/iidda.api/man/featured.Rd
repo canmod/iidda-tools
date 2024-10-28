@@ -73,7 +73,7 @@ datasets in the repository.
 
 }}
 \examples{
-options(iidda_api_msgs = TRUE)
+options(iidda_api_msgs = FALSE)
 featured_ids()
 atlantic_polio_1950s = featured_data("canmod-cdi-normalized"
   , iso_3166_2 = c("CA-NL", "CA-NS", "CA-PE", "CA-NB")

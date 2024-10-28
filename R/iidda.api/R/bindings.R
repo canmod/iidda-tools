@@ -163,10 +163,10 @@ make_ops_list = function(api_url, base_path, type) {
 
 #' \pkg{iidda.api}
 #'
-#' IIDDA API.
+#' R wrapper for the IIDDA API.
 #'
-#' IIDDA is the International Infectious Disease Data Archive.
-#' This archive has an [API](https://math.mcmaster.ca/iidda/api/docs)
+#' IIDDA is the International Infectious Disease Data Archive. This archive
+#' has an [API](https://math.mcmaster.ca/iidda/api/docs)
 #' (Application Programming Interface)
 #' for accessing data and potentially for building applications.
 #' This R package provides a simple wrapper to this API so that
@@ -174,7 +174,7 @@ make_ops_list = function(api_url, base_path, type) {
 #'
 #' Useful links for people who just want to get data.
 #' * `?featured`
-#' * `vignette("QuickStart")`
+#' * `vignette("Quickstart")`
 #' * `vignette("Provenance")`
 #'
 #' More advanced users might be interested in the lower-level wrapper
@@ -186,24 +186,29 @@ make_ops_list = function(api_url, base_path, type) {
 #'
 #' Objects containing the functions associated with API functions
 #' documented [here](https://math.mcmaster.ca/iidda/api/docs).
+#' These objects are for advanced usage, providing more functionality
+#' than the simpler tools for accessing \code{\link{featured_data}}.
 #'
 #' @examples
 #' ## Print out the available functions.
 #' names(ops_staging)
 #'
 #' ## Access functions with a dollar sign. For example, this command
-#' ## will give weekly incidence data in PEI in January of 1940.
+#' ## will give unharmonized weekly incidence data in January of 1956.
+#' options(iidda_api_msgs = FALSE)
 #' ops_staging$filter(
-#'      resource_type = "Compilation"
-#'    , dataset_id = "canmod-cdi-normalized"
-#'    , iso_3166_2 = "CA-PE"
-#'    , period_end_date = "1940-01-01..1940-02-01"
+#'      resource_type = "Communicable Disease Incidence"
+#'    , dataset_id = "cdi_ca_1956_wk_prov_dbs"
+#'    , period_end_date = "1956-01-01..1956-02-01"
 #'    , time_scale = "wk"
 #' )
 #'
 #' ## Operations objects that are not available are error objects. As of the
-#' ## time of writing only ops_staging is live.
+#' ## time of writing `ops` is not not live, but will be.
 #' print(class(ops))
+#'
+#' ## The `ops_local` is only live for developers who have deployed a
+#' ## local version of the API.
 #' print(class(ops_local))
 #'
 #' @name ops

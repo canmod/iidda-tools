@@ -6,11 +6,11 @@
 \alias{iidda.api-package}
 \title{\pkg{iidda.api}}
 \description{
-IIDDA API.
+R wrapper for the IIDDA API.
 }
 \details{
-IIDDA is the International Infectious Disease Data Archive.
-This archive has an \href{https://math.mcmaster.ca/iidda/api/docs}{API}
+IIDDA is the International Infectious Disease Data Archive. This archive
+has an \href{https://math.mcmaster.ca/iidda/api/docs}{API}
 (Application Programming Interface)
 for accessing data and potentially for building applications.
 This R package provides a simple wrapper to this API so that
@@ -19,7 +19,7 @@ the datasets are returned as data frames.
 Useful links for people who just want to get data.
 \itemize{
 \item \code{?featured}
-\item \code{vignette("QuickStart")}
+\item \code{vignette("Quickstart")}
 \item \code{vignette("Provenance")}
 }
 
