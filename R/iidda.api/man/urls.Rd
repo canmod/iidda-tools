@@ -5,7 +5,7 @@
 \alias{url_scans}
 \alias{url_digitizations}
 \alias{url_affected_scripts}
-\title{URLs}
+\title{Data Provenance}
 \usage{
 url_scans(
   scan_ids,

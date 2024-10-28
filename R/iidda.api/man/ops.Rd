@@ -42,7 +42,8 @@ names(ops_staging)
 ## Access functions with a dollar sign. For example, this command
 ## will give weekly incidence data in PEI in January of 1940.
 ops_staging$filter(
-     resource_type = "CANMOD CDI"
+     resource_type = "Compilations"
+   , dataset_id = "canmod-cdi-normalized"
    , iso_3166_2 = "CA-PE"
    , period_end_date = "1940-01-01..1940-02-01"
    , time_scale = "wk"
@@ -50,8 +51,8 @@ ops_staging$filter(
 
 ## Operations objects that are not available are error objects. As of the
 ## time of writing only ops_staging is live.
-print(ops)
-print(ops_local)
+print(class(ops))
+print(class(ops_local))
 
 }
 \keyword{datasets}

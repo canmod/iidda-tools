@@ -84,16 +84,23 @@ make_api_obj = function(api_url, base_path, type) {
   )
 }
 
+our_rapiclient_fork = function() {
+  ## look for a zero-byte file in the rapiclient package. the
+  ## existence of this file would indicate that the user has
+  ## the our fork of rapiclient that supports passing vectors.
+  file.exists(system.file("canmod", package = "rapiclient"))
+}
+msg_rapiclient = function() {
+  c(
+      "Your installation of rapiclient does not support passing "
+    , "vectors to the arguments of iidda.api functions. "
+    , "If you wish to pass vectors, please follow installation "
+    , "instructions for rapiclient here: "
+    , "https://canmod.r-universe.dev/rapiclient"
+  )
+}
 check_rapiclient = function() {
-  if (!file.exists(system.file("canmod", package = "rapiclient"))) {
-    warning(
-        "Your installation of rapiclient does not support passing "
-      , "vectors to the arguments of iidda.api functions."
-      , "If you wish to pass vectors, please follow installation "
-      , "instructions for rapiclient here: "
-      , "https://canmod.r-universe.dev/rapiclient"
-    )
-  }
+  if (!our_rapiclient_fork()) warning(msg_rapiclient())
 }
 
 make_ops_list = function(api_url, base_path, type) {
@@ -167,30 +174,31 @@ make_ops_list = function(api_url, base_path, type) {
 #'
 #' ## Listing the Datasets
 #'
-#' ```{r "dataset-names"}
-#' iidda.api::ops_staging$metadata() |> names()
+#' There are many datasets in the archive, but the most important ones are
+#' called compilations. These compilations generally pull together data
+#' from several sources and are designed to provide convenience for users
+#' who just want to get the data and start using it right away. To list
+#' the IDs of the compilation datasets one may use the following R command.
+#' ```{r "compilation-dataset-names"}
+#' featured_ids()
+#' ```
+#'
+#' To get the list of all of the datasets in the archive one may use the
+#' following.
+#' ```{r "all-dataset-names"}
+#' ops_staging$metadata() |> names()
 #' ```
 #'
 #' ## Getting Datasets
 #'
-#' Just choose one of the identifiers above, and pass it to the
-#' `raw_csv` function in the API.
-#' ```{r, eval = FALSE}
-#' cdi_1975 = iidda.api::ops_staging$raw_csv(
-#'    dataset_ids = c(
-#'      "cdi_ca_1975_wk_prov_statcan",
-#'      "cdi_ca_1976_wk_prov_statcan"
-#'    )
+#' To read one of these datasets into an R data frame, choose one of the
+#' identifiers above and pass it to the `raw_csv` operation.
+#' ```{r}
+#' canmod_cdi = iidda.api::ops_staging$raw_csv(
+#'    dataset_ids = "canmod-cdi-normalized"
 #' )
+#' print(canmod_cdi)
 #' ```
-#'
-#' You can pass more than one dataset.
-#' ```{r, eval = FALSE}
-#' cdi_1975 = iidda.api::ops_staging$raw_csv(
-#'    dataset_ids = "cdi_ca_1975_wk_prov_statcan"
-#' )
-#' ```
-#'
 #'
 #' ## All Metadata by Dataset
 #'
@@ -202,20 +210,6 @@ make_ops_list = function(api_url, base_path, type) {
 #' R list form. The JSON metadata can be directly accessed using
 #' the URL form of the API:
 #' [https://math.mcmaster.ca/iidda/api/metadata](https://math.mcmaster.ca/iidda/api/metadata).
-#'
-#' ## CANMOD Digitization Project
-#'
-#' The communicable disease incidence (CDI) data collected as part of
-#' the [CANMOD digitization project](https://canmod.net/digitization)
-#' can be accessed using `resource_type = "CANMOD CDI"` with the `filter`
-#' function.
-#'
-#' ```{r, eval = FALSE}
-#' canmod_cdi = iidda.api::ops_staging$filter(
-#'      resource_type = "CANMOD CDI"
-#'    , iso_3166 = "CA" ## country code for canada
-#' )
-#' ```
 #'
 "_PACKAGE"
 
@@ -231,7 +225,8 @@ make_ops_list = function(api_url, base_path, type) {
 #' ## Access functions with a dollar sign. For example, this command
 #' ## will give weekly incidence data in PEI in January of 1940.
 #' ops_staging$filter(
-#'      resource_type = "CANMOD CDI"
+#'      resource_type = "Compilations"
+#'    , dataset_id = "canmod-cdi-normalized"
 #'    , iso_3166_2 = "CA-PE"
 #'    , period_end_date = "1940-01-01..1940-02-01"
 #'    , time_scale = "wk"
@@ -239,8 +234,8 @@ make_ops_list = function(api_url, base_path, type) {
 #'
 #' ## Operations objects that are not available are error objects. As of the
 #' ## time of writing only ops_staging is live.
-#' print(ops)
-#' print(ops_local)
+#' print(class(ops))
+#' print(class(ops_local))
 #'
 #' @name ops
 NULL

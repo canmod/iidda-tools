@@ -1,4 +1,4 @@
-#' URLs
+#' Data Provenance
 #'
 #' Get URLs to dependencies of datasets for investigating
 #' data provenance. See `vignette("Provenance")` for an
