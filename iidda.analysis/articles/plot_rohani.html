@@ -138,7 +138,7 @@ Canada in 1956.</p>
 <span><span class="co">## See problems(...) for more details.</span></span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">raw</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 16,016 × 13</span></span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 16,016 × 15</span></span></span>
 <span><span class="co">##    cases_cum_median_prev_5_years cases_cum_prev_year cases_cum_report_year</span></span>
 <span><span class="co">##                            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 1</span>                          <span style="text-decoration: underline;">1</span>415                 921                   927</span></span>
@@ -152,10 +152,11 @@ Canada in 1956.</p>
 <span><span class="co">## <span style="color: #BCBCBC;"> 9</span>                            <span style="color: #BB0000;">NA</span>                  <span style="color: #BB0000;">NA</span>                    <span style="color: #BB0000;">NA</span></span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span>                            <span style="color: #BB0000;">NA</span>                  <span style="color: #BB0000;">NA</span>                    <span style="color: #BB0000;">NA</span></span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 16,006 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 10 more variables: cases_median_prev_5_years &lt;dbl&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   cases_prev_period &lt;dbl&gt;, cases_this_period &lt;dbl&gt;, historical_disease &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   historical_disease_subclass &lt;chr&gt;, location &lt;chr&gt;, location_type &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   period_end_date &lt;date&gt;, period_start_date &lt;date&gt;, time_scale &lt;chr&gt;</span></span></span></code></pre>
+<span><span class="co">## <span style="color: #949494;"># ℹ 12 more variables: cases_median_prev_5_years &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   cases_prev_period &lt;dbl&gt;, cases_this_period &lt;dbl&gt;, digitization_id &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   historical_disease &lt;chr&gt;, historical_disease_subclass &lt;chr&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   location &lt;chr&gt;, location_type &lt;chr&gt;, period_end_date &lt;date&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   period_start_date &lt;date&gt;, scan_id &lt;chr&gt;, time_scale &lt;chr&gt;</span></span></span></code></pre>
 <p>Our focal example within these data are for weekly measles counts
 broken down by province.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
