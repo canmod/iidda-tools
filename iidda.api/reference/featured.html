@@ -9,7 +9,7 @@ substantial preparation to enhance their utility for research and analysis."></h
 
     <a class="navbar-brand me-2" href="../index.html">iidda.api</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,7 +113,7 @@ datasets in the repository.</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>iidda_api_msgs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>iidda_api_msgs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">featured_ids</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "canmod-cdi-harmonized"   "canmod-cdi-normalized"  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3] "canmod-cdi-unharmonized" "canmod-mort-harmonized" </span>
@@ -123,18 +123,6 @@ datasets in the repository.</p></li>
 <span class="r-in"><span>  , basal_disease <span class="op">=</span> <span class="st">"poliomyelitis"</span></span></span>
 <span class="r-in"><span>  , period_end_date <span class="op">=</span> <span class="st">"1950-01-01..1959-12-31"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Now converting some fields from character to numeric or date. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You can turn this off with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_all_char = TRUE). </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Do not display any iidda.api messages with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_msgs = FALSE).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Messages displayed at most once per R session.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Now sorting by date. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You can turn this off with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_date_sort = FALSE). </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Do not display any iidda.api messages with</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> options(iidda_api_msgs = FALSE).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Messages displayed at most once per R session.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
