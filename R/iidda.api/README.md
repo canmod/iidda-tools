@@ -7,7 +7,9 @@
 
 ## `iidda.api`
 
-The `iidda.api` package is used to get data from the International Infectious Disease Data Archive (IIDDA), and can be installed with the following R command.
+![](misc/1939weeklyON.jpg)
+
+The `iidda.api` package is used to get data through the [API for the International Infectious Disease Data Archive (IIDDA)](https://math.mcmaster.ca/iidda/api/docs), and can be installed with the following R command.
 
 ```
 install.packages("iidda.api"
