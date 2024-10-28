@@ -42,7 +42,7 @@ names(ops_staging)
 ## Access functions with a dollar sign. For example, this command
 ## will give weekly incidence data in PEI in January of 1940.
 ops_staging$filter(
-     resource_type = "Compilations"
+     resource_type = "Compilation"
    , dataset_id = "canmod-cdi-normalized"
    , iso_3166_2 = "CA-PE"
    , period_end_date = "1940-01-01..1940-02-01"
