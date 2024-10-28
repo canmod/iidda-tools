@@ -194,17 +194,24 @@ make_ops_list = function(api_url, base_path, type) {
 #' names(ops_staging)
 #'
 #' ## Access functions with a dollar sign. For example, this command
-#' ## will give unharmonized weekly incidence data in January of 1956.
-#' options(iidda_api_msgs = FALSE)
-#' ops_staging$filter(
+#' ## will give weekly incidence data in January of 1956.
+#' options(iidda_api_msgs = FALSE, iidda_api_all_char = TRUE)
+#' jan_56 = ops_staging$filter(
 #'      resource_type = "Communicable Disease Incidence"
 #'    , dataset_id = "cdi_ca_1956_wk_prov_dbs"
 #'    , period_end_date = "1956-01-01..1956-02-01"
 #'    , time_scale = "wk"
 #' )
+#' cols = c(
+#'     "period_end_date"
+#'   , "location"
+#'   , "historical_disease"
+#'   , "cases_this_period"
+#' )
+#' print(jan_56[, cols])
 #'
 #' ## Operations objects that are not available are error objects. As of the
-#' ## time of writing `ops` is not not live, but will be.
+#' ## time of writing `ops` is not live, but will be.
 #' print(class(ops))
 #'
 #' ## The `ops_local` is only live for developers who have deployed a
