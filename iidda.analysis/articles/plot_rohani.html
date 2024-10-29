@@ -78,7 +78,7 @@ make a start on specifications for plotting functions in
 <p>Throughout we will use communicable disease incidence data from
 Canada in 1956.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">iidda.api</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://canmod.github.io/iidda-tools/iidda.api" class="external-link">iidda.api</a></span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Loading required package: readr</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: httr</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: iidda</span></span></code></pre>
@@ -96,7 +96,7 @@ Canada in 1956.</p>
 <pre><code><span><span class="co">## Loading required package: tidyr</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: rapiclient</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">raw</span> <span class="op">=</span> <span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/iidda.api/man/ops.html" class="external-link">ops_staging</a></span><span class="op">$</span><span class="fu">raw_csv</span><span class="op">(</span>dataset_ids <span class="op">=</span> <span class="st">"cdi_ca_1956_wk_prov_dbs"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">raw</span> <span class="op">=</span> <span class="fu">iidda.api</span><span class="fu">::</span><span class="va"><a href="https://canmod.github.io/iidda-tools/iidda.api/reference/ops.html" class="external-link">ops_staging</a></span><span class="op">$</span><span class="fu">raw_csv</span><span class="op">(</span>dataset_ids <span class="op">=</span> <span class="st">"cdi_ca_1956_wk_prov_dbs"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Now converting some fields from character to numeric or date. </span></span>
 <span><span class="co">## You can turn this off with</span></span>
 <span><span class="co">## options(iidda_api_all_char = TRUE). </span></span>
