@@ -4,7 +4,8 @@
 #' data provenance. See `vignette("Provenance")` for an
 #' illustration. See
 #' [iidda-staging](https://github.com/canmod/iidda-staging#identifiers)
-#' for information on IIDDA identifiers.
+#' for information on IIDDA identifiers. If you do not have access
+#' to this link, please contact the maintainer.
 #'
 #' @param dataset_ids Identifiers for datasets that will
 #' restrict the search for dependencies to metadata for
