@@ -85,6 +85,12 @@ presenting this material.</p>
 <div class="section level2">
 <h2 id="scarlet-fever-data-in-ontario">Scarlet Fever Data in Ontario<a class="anchor" aria-label="anchor" href="#scarlet-fever-data-in-ontario"></a>
 </h2>
+<p>Data from the <a href="https://canmod.net/digitization" class="external-link">canmod
+digitization project</a> provides communicable disease incidence data
+for all notifiable infectious diseases, including scarlet fever. The
+name of the main dataset from that project is
+<code>canmod-cdi-normalized</code>, which we can get and filter using
+the following <code><a href="../reference/featured.html">?featured_data</a></code> command.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">scarlet_fever_ontario</span> <span class="op">=</span> <span class="fu"><a href="../reference/featured.html">featured_data</a></span><span class="op">(</span></span>
 <span>    dataset_id <span class="op">=</span> <span class="st">"canmod-cdi-normalized"</span></span>
