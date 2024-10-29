@@ -10,6 +10,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3.9000
+URL: https://canmod.github.io/iidda-tools/iidda.api, https://github.com/canmod/iidda-tools/tree/main/R/iidda.api
 Suggests: 
     knitr,
     rmarkdown,
