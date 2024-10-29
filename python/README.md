@@ -68,16 +68,6 @@ version of the API in this repository. It is not currently up 😢.
 ### Using the R Bindings
 
 The [iidda.api](../R/iidda.api) package can be used to interact with the API.
-Currently these bindings depend on having a running development version of the
-API (see instructions above).
-- Note: Fresh installation might require (re)installation of [iidda.api](../R/iidda.api). Run `remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda.api')` while the deployment version is running.
-
-### Using a Shiny App
-
-The [iidda.shiny](../R/iidda.shiny) app is another way to interact with the API.
-As with the R bindings, this app depends on having a running development version
-of the API.
-
 
 ## Troubleshooting
 
