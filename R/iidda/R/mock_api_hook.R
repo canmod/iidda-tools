@@ -1,5 +1,7 @@
 #' Mock API Hook
 #'
+#'
+#'
 #' @param repo_path Path to an IIDDA repository.
 #'
 #' @export

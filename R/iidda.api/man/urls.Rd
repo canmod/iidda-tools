@@ -44,7 +44,9 @@ Get URLs to dependencies of datasets for investigating
 data provenance. See \code{vignette("Provenance")} for an
 illustration. See
 \href{https://github.com/canmod/iidda-staging#identifiers}{iidda-staging}
-for information on IIDDA identifiers.
+for information on IIDDA identifiers. If you do not have access
+to this link, please contact the
+\href{https://github.com/canmod/iidda-tools/tree/main/R/iidda.api#maintainer}{maintainer}.
 }
 \section{Functions}{
 \itemize{

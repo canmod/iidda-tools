@@ -10,5 +10,5 @@ set_iidda_col_types(data)
 \item{data}{Dataset from IIDDA Api}
 }
 \description{
-Deprecated -- iidda.api package is not more robust.
+Deprecated -- iidda.api package is more robust.
 }

@@ -5,7 +5,8 @@
 #' illustration. See
 #' [iidda-staging](https://github.com/canmod/iidda-staging#identifiers)
 #' for information on IIDDA identifiers. If you do not have access
-#' to this link, please contact the maintainer.
+#' to this link, please contact the
+#' [maintainer](https://github.com/canmod/iidda-tools/tree/main/R/iidda.api#maintainer).
 #'
 #' @param dataset_ids Identifiers for datasets that will
 #' restrict the search for dependencies to metadata for

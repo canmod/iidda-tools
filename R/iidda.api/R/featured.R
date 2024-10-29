@@ -65,7 +65,7 @@ featured_data = function(dataset_id, ...) {
     if (any(arg_lengths > 1L)) stop(msg_rapiclient())
   }
   args = c(args, args_filter)
-  do.call(ops_staging$filter, args)
+  do.call(ops_staging$filter, args)[ , cnames_data, drop = FALSE]
 }
 
 roxygen_featured_params = function() {

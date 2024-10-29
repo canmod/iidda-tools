@@ -30,18 +30,17 @@ library(ggplot2)
 library(iidda.api)
 ```
 
-We require a hook for the API, which in this case is `iidda.api::ops_staging`. This hook will eventually be changed to `iidda.api::ops` once we stabilize. We also turn off messages from the API that are not helpful when presenting this material.
+We also turn off messages from the API that are not helpful when presenting this material.
 
-```{r api_hook}
-api_hook = iidda.api::ops_staging
+```{r api_options}
 options(iidda_api_msgs = FALSE)
 ```
 
 ## Scarlet Fever Data in Ontario
 
 ```{r scarlet_fever_ontario}
-scarlet_fever_ontario = api_hook$filter(resource_type = "Compilation"
-  , dataset_ids = "canmod-cdi-normalized"
+scarlet_fever_ontario = featured_data(
+    dataset_id = "canmod-cdi-normalized"
   , iso_3166 = "CA"
   , iso_3166_2 = "CA-ON"
   , time_scale = "wk"

@@ -32,6 +32,7 @@
 #' @export
 write_tidy_data = function(tidy_data, metadata, tidy_dir = NULL) {
   tidy_dataset = metadata$TidyDataset$tidy_dataset
+  tidy_data = tidy_data[, rownames(metadata$Columns[[tidy_dataset]]), drop = FALSE]
 
   if (is.null(tidy_dir)) tidy_dir = metadata$TidyDataset$path_tidy_data
   tidy_dir = tidy_dir |> strip_blob_github() |> proj_path()
@@ -849,28 +850,6 @@ add_basal_disease = function(data, lookup) {
   )
 
   with_basal
-}
-
-
-prune_lookup = function(lookup, basal_diseases_to_prune) {
-  hierarchy = (disease_lookup
-    |> select(disease, nesting_disease)
-    |> distinct()
-  )
-  new_basal_diseases = unique(hierarchy$disease[hierarchy$nesting_disease %in% basal_diseases_to_prune])
-  children_of_the_new = (hierarchy
-    |> filter(nesting_disease %in% new_basal_diseases)
-  )
-  parents_of_the_new = (hierarchy
-    |> filter(disease %in% new_basal_diseases)
-    |> mutate(nesting_disease = "")
-  )
-  the_old = (hierarchy
-    |> filter(!nesting_disease %in% new_basal_diseases)
-    |> filter(!disease %in% new_basal_diseases)
-  )
-  hierarchy = rbind(children_of_the_new, parents_of_the_new, the_old)
-  add_basal_disease(hierarchy, hierarchy)
 }
 
 

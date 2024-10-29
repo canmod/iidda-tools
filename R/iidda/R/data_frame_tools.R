@@ -1,6 +1,6 @@
 #' Set IIDDA Column Types
 #'
-#' Deprecated -- iidda.api package is not more robust.
+#' Deprecated -- iidda.api package is more robust.
 #'
 #' @param data Dataset from IIDDA Api
 #'
