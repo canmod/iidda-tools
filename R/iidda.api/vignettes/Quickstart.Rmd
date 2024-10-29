@@ -38,6 +38,8 @@ options(iidda_api_msgs = FALSE)
 
 ## Scarlet Fever Data in Ontario
 
+Data from the [canmod digitization project](https://canmod.net/digitization) provides communicable disease incidence data for all notifiable infectious diseases, including scarlet fever. The name of the main dataset from that project is `canmod-cdi-normalized`, which we can get and filter using the following `?featured_data` command.
+
 ```{r scarlet_fever_ontario}
 scarlet_fever_ontario = featured_data(
     dataset_id = "canmod-cdi-normalized"
