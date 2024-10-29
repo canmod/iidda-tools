@@ -7,6 +7,8 @@
 
 The `iidda.analysis` package contains functions for visualization, analysis, and harmonization of `iidda` datasets.
 
+This package is not stable. You will likely be more interested in the [iidda.api](https://canmod.github.io/iidda-tools/iidda.api) package.
+
 ## Installation
 
 ### Stable Version
@@ -25,4 +27,3 @@ install.packages(c("iidda.analysis")
 ```
 remotes::install_github('canmod/iidda-tools', subdir = 'R/iidda.analysis')
 ```
-s
