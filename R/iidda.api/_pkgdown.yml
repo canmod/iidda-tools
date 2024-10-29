@@ -5,3 +5,15 @@ navbar:
   structure:
     left:  [intro, reference, articles]
     right: [search, github]
+reference:
+- title: Getting Data
+  desc:  Get featured datasets and data provenance information.
+- contents:
+  - iidda.api-package
+  - featured
+  - urls
+- title: Technical Documentation
+  desc:  Technical information about the low-level API and this R wrapper for it.
+- contents:
+  - ops
+  - interactive
