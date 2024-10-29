@@ -8,7 +8,7 @@
 
 ## Where to Start
 
-Lots of stuff here, but [this](https://canmod.github.io/iidda-tools/iidda.api) is probably where you want to start.
+Lots of stuff here, but the [iidda.api](https://canmod.github.io/iidda-tools/iidda.api) package is stable and probably where you want to start. The [iidda](R/iidda) and [iidda.analysis](R/iidda.analysis) packages are not yet stable, but provide tools that the API and data prep pipelining depend on.
 
 ## Installing all R Packages
 
