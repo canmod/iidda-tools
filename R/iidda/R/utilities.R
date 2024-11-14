@@ -77,3 +77,37 @@ open_scans_locally = function(id) open_resources_locally(id, "scans")
 #' @describeIn open_locally Open digitizations locally.
 #' @export
 open_digitizations_locally = function(id) open_resources_locally(id, "digitizations")
+
+open_dataset_locally = function(id) {
+  open_locally(file.path("derived-data", id, sprintf("%s.csv", id)))
+}
+
+open_provenance_locally = function(data, row_number) {
+  open_scans_locally(data$scan_id[row_number])
+  open_digitizations_locally(data$digitization_id[row_number])
+  id = data$original_dataset_id[row_number]
+  d = file.path("derived-data", id, sprintf("%s.csv", id)) |> read_data_frame()
+  all_in = function(cols) all(cols %in% names(data)) & all(cols %in% names(d))
+  if (all_in(c("period_start_date", "period_end_date"))) {
+    d = filter(d
+      , period_start_date == data$period_start_date[row_number]
+      , period_end_date == data$period_end_date[row_number]
+    )
+  }
+  if (all_in("historical_disease")) {
+    d = filter(d
+      , historical_disease == data$historical_disease[row_number]
+    )
+  }
+  if (all_in("historical_disease_subclass")) {
+    d = filter(d
+      , historical_disease_subclass == data$historical_disease_subclass[row_number]
+    )
+  }
+  if (all_in("historical_disease_family")) {
+    d = filter(d
+      , historical_disease_family == data$historical_disease_family[row_number]
+    )
+  }
+  d
+}

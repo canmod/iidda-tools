@@ -926,3 +926,93 @@ cell_block = function(cells_data) {
   nc = diff(range(cells_data$col)) + 1L
   matrix(NA_character_, nr, nc) |> as.data.frame()
 }
+
+#' @export
+sum_timescales = function(data, filter_out_bad_time_scales = TRUE) {
+  r = (data
+    |> filter(iso_3166_2 != '')
+    |> group_by(time_scale, year, iso_3166_2, original_dataset_id,# iidda_source_id,
+                 historical_disease, historical_disease_subclass, historical_disease_family,
+                digitization_id, scan_id)
+    # Exclude groups where any cases_this_period is 'unclear'
+    |> filter(!any(cases_this_period %in% c(
+      'unclear', 'Not available', 'Not reportable',
+      'missing', 'not received'
+    )))
+    |> summarise(
+        cases_this_period = sum(as.numeric(cases_this_period))
+      , n_periods = n()
+    )
+    |> ungroup()
+  )
+  if (filter_out_bad_time_scales) {
+    r = (r
+      |> filter(
+        ((time_scale == "wk") & (n_periods >  51L)) |
+        ((time_scale == "mo") & (n_periods == 12L)) |
+        ((time_scale == "qr") & (n_periods ==  4L)) |
+        ((time_scale == "yr") & (n_periods ==  1L))
+      )
+    )
+  }
+  select(r, -n_periods)
+}
+
+#' @export
+do_time_scale_cross_check = function(sum_of_timescales) {
+  grouped_data = (sum_of_timescales
+    |> group_by(year, iso_3166_2, historical_disease, historical_disease_subclass,
+                 historical_disease_family, original_dataset_id, #iidda_source_id,
+                digitization_id, scan_id)
+    |> summarise(
+      distinct_values = n_distinct(cases_this_period),
+      .groups = 'drop'
+    )
+
+    |> ungroup()
+    |> filter(distinct_values != 1)
+  )
+
+  # join back with original data to get all rows for groups with discrepancies
+  (sum_of_timescales
+     |> semi_join(grouped_data, by = c(
+       "year", "iso_3166_2", "historical_disease",
+       "historical_disease_subclass", "historical_disease_family",
+       #"iidda_source_id",
+       "original_dataset_id", "digitization_id", "scan_id"
+     ))
+     |> pivot_wider(
+       names_from = time_scale,
+       values_from = cases_this_period,
+       names_prefix = "cases_this_period_",
+       values_fill = list(cases_this_period = NA)
+     )
+     |> rowwise()
+     |> mutate(
+       max_cases = max(c_across(starts_with("cases_this_period_")), na.rm = TRUE),
+       min_cases = min(c_across(starts_with("cases_this_period_")), na.rm = TRUE),
+       percent_error = ifelse(max_cases == 0, NA, abs((max_cases - min_cases) / max_cases * 100)),
+       discrepancy = max_cases - min_cases
+     )
+     |> ungroup()
+     |> select(-max_cases, -min_cases)
+
+     |> filter(discrepancy != 0)
+
+     # adding back 'distinct_values'
+     |> left_join(grouped_data |> select(year, iso_3166_2, historical_disease, historical_disease_subclass,
+                                          historical_disease_family, original_dataset_id, distinct_values,
+                                          digitization_id, scan_id#, iidda_source_id
+                                         ),
+                   by = c("year", "iso_3166_2", "historical_disease", "historical_disease_subclass",
+                          "historical_disease_family", "original_dataset_id", "digitization_id",
+                          "scan_id"#, "iidda_source_id"
+                          ))
+
+     |> relocate(cases_this_period_wk, .before = cases_this_period_mo)
+     |> relocate(original_dataset_id, .after = distinct_values)
+     |> relocate(scan_id, .after = original_dataset_id)
+     |> relocate(digitization_id, .after = scan_id)
+     |> arrange(desc(percent_error))
+  )
+}
