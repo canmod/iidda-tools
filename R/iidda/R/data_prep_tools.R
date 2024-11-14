@@ -927,6 +927,13 @@ cell_block = function(cells_data) {
   matrix(NA_character_, nr, nc) |> as.data.frame()
 }
 
+#' Sum Timescales
+#'
+#' @param data Data frame to aggregate to different time scales.
+#' @param filter_out_bad_time_scales Should time scales be filtered out
+#' if they do not have a reasonable number of periods (e.g., 600 weeks
+#' in a year would be filtered out).
+#'
 #' @export
 sum_timescales = function(data, filter_out_bad_time_scales = TRUE) {
   r = (data
@@ -958,6 +965,13 @@ sum_timescales = function(data, filter_out_bad_time_scales = TRUE) {
   select(r, -n_periods)
 }
 
+#' Time Scale Cross Check
+#'
+#' Function used to produce the time-scale cross-check for the CANMOD
+#' digitization project.
+#'
+#' @param sum_of_timescales Dataframe with aggregations to different time
+#' scales (TODO: describe)
 #' @export
 do_time_scale_cross_check = function(sum_of_timescales) {
   grouped_data = (sum_of_timescales
