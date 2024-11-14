@@ -23,6 +23,7 @@
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/csv_to_json_files.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/data_to_json_files.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/disease_coverage_heatmap.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda/reference/do_time_scale_cross_check.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/drop_empty_rows.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/empty_column_report.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/empty_is_blank.html</loc></url>
@@ -131,6 +132,7 @@
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/standards.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/statcan_mort_prep.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/strip_blob_github.html</loc></url>
+<url><loc>https://canmod.github.io/iidda-tools/iidda/reference/sum_timescales.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/summarise_dates.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/summarise_diseases.html</loc></url>
 <url><loc>https://canmod.github.io/iidda-tools/iidda/reference/summarise_integers.html</loc></url>
