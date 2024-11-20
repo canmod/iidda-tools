@@ -89,19 +89,25 @@ in_proj <- function(filename = ".iidda", start_dir = getwd()) {
 #' In Git Repo
 #' @export
 in_git_repo = function() {
-  system("git rev-parse --is-inside-work-tree", intern = TRUE) == "true"
+  isTRUE(system("git rev-parse --is-inside-work-tree", intern = TRUE) == "true")
 }
 
 #' Remote IIDDA Git
 #' @export
 remote_iidda_git = function() {
   if (!in_proj()) stop("Not in an iidda data repository.")
-  if (!in_git_repo()) stop("Not inside a git repository.")
-  resp = system("git config --get remote.origin.url", intern = TRUE)
-  if (length(resp) == 0L) stop("Repository does not have a remote origin url.{")
-  resp = sub("^.*:", "", resp)
-  user = basename(dirname(resp))
-  repo = tools::file_path_sans_ext(basename(resp))
+  if (!in_git_repo()) {
+    ## TODO: fix hardcoding
+    message("Not inside a git repository. Using default remote URL.")
+    user = "canmod"
+    repo = "iidda-staging"
+  } else {
+    resp = system("git config --get remote.origin.url", intern = TRUE)
+    if (length(resp) == 0L) stop("Repository does not have a remote origin url.{")
+    resp = sub("^.*:", "", resp)
+    user = basename(dirname(resp))
+    repo = tools::file_path_sans_ext(basename(resp))
+  }
   sprintf("https://github.com/%s/%s", user, repo)
 }
 
