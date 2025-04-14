@@ -158,7 +158,7 @@ published this very late smallpox case. We use the
 at which we can find the document.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/urls.html">url_scans</a></span><span class="op">(</span><span class="va">provenance</span><span class="op">$</span><span class="va">scan_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "https://github.com/canmod/iidda-staging/blob/main/pipelines/cdi_ca_1979-89_4wk_prov/scans/cdi_ca_1979-83_4wk_prov_statcan.pdf"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "https://github.com/davidearn/iidda/blob/main/pipelines/cdi_ca_1979-89_4wk_prov/scans/cdi_ca_1979-83_4wk_prov_statcan.pdf"</span></span></code></pre></div>
 <p>It takes some time to find the specific part of this document that
 contains our datum. It is actually a little more difficult than usual in
 this case, because the document has spread the columns of a single table
@@ -173,20 +173,20 @@ place to look would usually be the digitized Excel file, which we can
 get using the <code><a href="../reference/urls.html">?url_digitizations</a></code> function.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/urls.html">url_digitizations</a></span><span class="op">(</span><span class="va">provenance</span><span class="op">$</span><span class="va">digitization_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "https://github.com/canmod/iidda-staging/blob/main/pipelines/cdi_ca_1979-89_4wk_prov/digitizations/cdi_ca_1979-83_4wk_prov_statcan.xlsx"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "https://github.com/davidearn/iidda/blob/main/pipelines/cdi_ca_1979-89_4wk_prov/digitizations/cdi_ca_1979-83_4wk_prov_statcan.xlsx"</span></span></code></pre></div>
 <p>We can also find all of the prep-scripts that would potentially have
 their output modified if we updated this digitization using the
 <code><a href="../reference/urls.html">?url_affected_scripts</a></code> function.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/urls.html">url_affected_scripts</a></span><span class="op">(</span><span class="va">provenance</span><span class="op">$</span><span class="va">digitization_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "https://github.com/canmod/iidda-staging/blob/main/pipelines/cdi_ca_1979-89_4wk_prov/prep-scripts/cdi_ca_1979-83_4wk_province_statisticscanada.R" </span></span>
-<span><span class="co">#&gt; [2] "https://github.com/canmod/iidda-staging/blob/main/pipelines/canmod-cross-checks/prep-scripts/canmod-time-scale-cross-check.R"                    </span></span>
-<span><span class="co">#&gt; [3] "https://github.com/canmod/iidda-staging/blob/main/pipelines/canmod-compilations/prep-scripts/canmod-cdi-unharmonized.R"                          </span></span>
-<span><span class="co">#&gt; [4] "https://github.com/canmod/iidda-staging/blob/main/pipelines/canmod-cross-checks/prep-scripts/canmod-location-cross-check.R"                      </span></span>
-<span><span class="co">#&gt; [5] "https://github.com/canmod/iidda-staging/blob/main/pipelines/canmod-cross-checks/prep-scripts/canmod-disease-cross-check.R"                       </span></span>
-<span><span class="co">#&gt; [6] "https://github.com/canmod/iidda-staging/blob/main/pipelines/canmod-compilations/prep-scripts/canmod-cdi-harmonized.R"                            </span></span>
-<span><span class="co">#&gt; [7] "https://github.com/canmod/iidda-staging/blob/main/pipelines/cdi_ca_1979-89_4wk_prov_harmonized/prep-scripts/cdi_ca_1979-89_4wk_prov_harmonized.R"</span></span>
-<span><span class="co">#&gt; [8] "https://github.com/canmod/iidda-staging/blob/main/pipelines/canmod-compilations/prep-scripts/canmod-cdi-normalized.R"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "https://github.com/davidearn/iidda/blob/main/pipelines/cdi_ca_1979-89_4wk_prov/prep-scripts/cdi_ca_1979-83_4wk_province_statisticscanada.R" </span></span>
+<span><span class="co">#&gt; [2] "https://github.com/davidearn/iidda/blob/main/pipelines/canmod-cross-checks/prep-scripts/canmod-time-scale-cross-check.R"                    </span></span>
+<span><span class="co">#&gt; [3] "https://github.com/davidearn/iidda/blob/main/pipelines/canmod-cross-checks/prep-scripts/canmod-location-cross-check.R"                      </span></span>
+<span><span class="co">#&gt; [4] "https://github.com/davidearn/iidda/blob/main/pipelines/canmod-cross-checks/prep-scripts/canmod-disease-cross-check.R"                       </span></span>
+<span><span class="co">#&gt; [5] "https://github.com/davidearn/iidda/blob/main/pipelines/canmod-compilations/prep-scripts/canmod-cdi-unharmonized.R"                          </span></span>
+<span><span class="co">#&gt; [6] "https://github.com/davidearn/iidda/blob/main/pipelines/canmod-compilations/prep-scripts/canmod-cdi-harmonized.R"                            </span></span>
+<span><span class="co">#&gt; [7] "https://github.com/davidearn/iidda/blob/main/pipelines/cdi_ca_1979-89_4wk_prov_harmonized/prep-scripts/cdi_ca_1979-89_4wk_prov_harmonized.R"</span></span>
+<span><span class="co">#&gt; [8] "https://github.com/davidearn/iidda/blob/main/pipelines/canmod-compilations/prep-scripts/canmod-cdi-normalized.R"</span></span></code></pre></div>
 <p>Finally, note that these <code>url_*</code> functions are nicely
 paired with the base R <code><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">?browseURL</a></code> function.</p>
 </div>
