@@ -209,9 +209,9 @@ signal.alarm(timeout_dur)
 @app.get("/lookup_tables", responses={200: {"content": {"text/plain": {}}}}, response_class=StreamingResponse)
 async def lookup_tables(lookup_type: str = Query("location"
         , description='Type of lookup table.'
-        , enum=["location", "disease", "sex", "canmod-disease-lookup", "canmod-location-lookup", "phac-to-canmod-disease-lookup"]
+        , enum=["location", "disease", "sex", "canmod-disease-lookup", "canmod-location-lookup", "phac-to-canmod-disease-lookup", "lbom-cause-lookup"]
     )):
-    available_lookup_types = ["location", "disease", "sex", "canmod-disease-lookup", "canmod-location-lookup", "phac-to-canmod-disease-lookup"]
+    available_lookup_types = ["location", "disease", "sex", "canmod-disease-lookup", "canmod-location-lookup", "phac-to-canmod-disease-lookup", "lbom-cause-lookup"]
     if lookup_type not in available_lookup_types:
         raise HTTPException(
             status_code=400, detail=f"'{lookup_type}' is not a valid resource_type. Available values are {available_lookup_types}")
