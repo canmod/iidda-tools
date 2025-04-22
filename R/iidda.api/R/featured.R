@@ -43,7 +43,8 @@ featured_data = function(dataset_id, ...) {
   cnames_data = ops_staging$metadata(
       dataset_ids = "canmod-cdi-normalized"
     , response_type = "data_dictionary"
-  )[[1]] |> vapply(\(x) x$name, character(1L))
+  )[[1]]
+  cnames_data = vapply(cnames_data, function(x) x$name, character(1L))
 
   cnames_bad = setdiff(cnames_filter, cnames_data)
   if (length(cnames_bad) > 0L) {
@@ -95,4 +96,4 @@ featured_metadata = function() {
 #' @describeIn featured Return the IDs of all the featured
 #' datasets in the repository.
 #' @export
-featured_ids = function() featured_metadata() |> names()
+featured_ids = function() names(featured_metadata())

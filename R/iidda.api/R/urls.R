@@ -49,19 +49,15 @@ url_affected_scripts = function(digitization_id
   ## list over datasets giving the urls to the related identifiers.
   ## related identifiers is DataCite terminology, which in our case here
   ## means resources like Excel files and R scripts.
-  rel_urls = (metadata
-    |> lapply(getElement, "relatedIdentifiers")
-    |> lapply(vapply, getElement, character(1L), 1L)
-  )
+  rel_ids = lapply(metadata, getElement, "relatedIdentifiers")
+  rel_urls = lapply(rel_ids, vapply, getElement, character(1L), 1L)
+
   ## url for the focal digitization
   dig_urls = url_digitizations(digitization_id)
 
   ## dataset IDs of datasets that will be affected
-  affected_dataset_ids = (rel_urls
-    |> vapply(\(x) any(x %in% dig_urls), logical(1L))
-    |> which()
-    |> names()
-  )
+  affected_dataset_ids = vapply(rel_urls, \(x) any(x %in% dig_urls), logical(1L))
+  affected_dataset_ids = names(which(affected_dataset_ids))
 
   ## the first resource is always the main prep script of the dataset,
   ## and so we extract these urls to those script.
@@ -91,11 +87,8 @@ resource_urls = function(resource_ids
   ext_pat = paste(valid_ext, collapse = "|")
   urls = dataset_dependency_urls(dataset_ids, relation_type, metadata)
   pat = sprintf("%s/%s.(%s)$", type, resource_ids, ext_pat)
-  filtered_urls = (pat
-    |> lapply(grep, urls, value = TRUE)
-    |> unlist(use.names = FALSE)
-    |> unique()
-  )
+  filtered_urls = lapply(pat, grep, urls, value = TRUE)
+  filtered_urls = unique(unlist(filtered_urls, use.names = FALSE))
   return(filtered_urls)
 }
 
@@ -104,19 +97,17 @@ dataset_dependency_urls = function(dataset_ids = character()
     , metadata = ops_staging$metadata(dataset_ids = dataset_ids)
 ) {
   identifier_list = related_identifiers(dataset_ids, metadata)
-  (identifier_list
-    |> Filter(f = \(x) x$relationType %in% dependency_types)
-    |> lapply(getElement, "relatedIdentifier")
-    |> unlist(use.names = FALSE)
+  filtered_list = Filter(
+      function(x) x$relationType %in% dependency_types
+    , identifier_list
   )
+  rel_ids = lapply(filtered_list, getElement, "relatedIdentifier")
+  unlist(rel_ids, use.names = FALSE)
 }
 
 related_identifiers = function(dataset_ids = character()
   , metadata = ops_staging$metadata(dataset_ids = dataset_ids)
 ) {
-  (metadata
-    |> lapply(getElement, "relatedIdentifiers")
-    |> unlist(recursive = FALSE, use.names = FALSE)
-    |> unique()
-  )
+  rel_ids = lapply(metadata, getElement, "relatedIdentifiers")
+  unique(unlist(rel_ids, recursive = FALSE, use.names = FALSE))
 }

@@ -25,8 +25,9 @@ production = NULL
 
 handle_iidda_response <- function(x) {
     if (x$status_code == 400L) {
-      api_err_msg = (httr::content(x)$detail
-        |> unlist(use.names = FALSE, recursive = TRUE)
+      api_err_msg = unlist(httr::content(x)$detail
+        , use.names = FALSE
+        , recursive = TRUE
       )
       err_tmplt = "The IIDDA API returned the following error:\n    %s\nThis documentation might be of interest:\n    %s"
       err_msg = sprintf(err_tmplt, api_err_msg, iidda.api::docs_url_staging)
@@ -59,7 +60,8 @@ handle_iidda_response <- function(x) {
         , encoding = "UTF-8"
         , col_types = readr::cols(.default = "c") # read all columns in as strings
         , na = character() # nothing is missing, only blank
-      ) |> arrange_rows() |> parse_api_result() # only if options set
+      )
+      data = parse_api_result(arrange_rows(data)) # only if options set
       return(data)
     }
     else if (content_type == 'application/x-zip-compressed') {
