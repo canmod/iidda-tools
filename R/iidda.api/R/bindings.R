@@ -112,7 +112,7 @@ make_ops_list = function(api_url, base_path, type) {
 
   iidda_api = make_api_obj(api_url, base_path, type)
   if (class(iidda_api)[1] == 'try-error') {
-    backup = iidda.api:::cached_api_list[[type]]
+    backup = cached_api_list[[type]]
     if (inherits(backup, "rapi_api")) {
       iidda_api = backup
     } else {
