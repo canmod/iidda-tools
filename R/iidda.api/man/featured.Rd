@@ -80,5 +80,6 @@ atlantic_polio_1950s = featured_data("canmod-cdi-normalized"
   , basal_disease = "poliomyelitis"
   , period_end_date = "1950-01-01..1959-12-31"
 )
+head(atlantic_polio_1950s)
 
 }

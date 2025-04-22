@@ -25,6 +25,7 @@ NULL
 #'   , basal_disease = "poliomyelitis"
 #'   , period_end_date = "1950-01-01..1959-12-31"
 #' )
+#' head(atlantic_polio_1950s)
 #'
 #' @export
 featured_data = function(dataset_id, ...) {
@@ -60,33 +61,21 @@ featured_data = function(dataset_id, ...) {
     , dataset_ids = dataset_id
   )
   args_filter = args_filter[cnames_good]
-  if (!our_rapiclient_fork()) {
-    arg_lengths = vapply(args_filter, length, integer(1L))
-    if (any(arg_lengths > 1L)) stop(msg_rapiclient())
-  }
   args = c(args, args_filter)
   do.call(ops_staging$filter, args)[ , cnames_data, drop = FALSE]
 }
 
 roxygen_featured_params = function() {
-  if (!our_rapiclient_fork()) {
-    vec = c(
-        "ERROR: Instruction list is not available because the following "
-      , "issue occurred when building the package documentation. "
-      , msg_rapiclient()
-    )
-  } else {
-    filter_params = try(attributes(ops_staging$filter)$definition$parameters)
-    if (inherits(filter_params, "try-error")) {
-      filter_params = cached_api_list$staging$paths$`/filter`$get$parameters
-    }
-    names(filter_params) = vapply(filter_params, \(x) x$name, character(1L))
-    exclude = c("resource_type", "response_type", "dataset_ids")
-    pnames = setdiff(names(filter_params), exclude)
-    filter_params = filter_params[pnames]
-    pdesc = vapply(filter_params, \(x) x$description, character(1L))
-    vec = sprintf("\n* %s : %s", pnames, pdesc)
+  filter_params = try(attributes(ops_staging$filter)$definition$parameters)
+  if (inherits(filter_params, "try-error")) {
+    filter_params = cached_api_list$staging$paths$`/filter`$get$parameters
   }
+  names(filter_params) = vapply(filter_params, \(x) x$name, character(1L))
+  exclude = c("resource_type", "response_type", "dataset_ids")
+  pnames = setdiff(names(filter_params), exclude)
+  filter_params = filter_params[pnames]
+  pdesc = vapply(filter_params, \(x) x$description, character(1L))
+  vec = sprintf("\n* %s : %s", pnames, pdesc)
   paste(vec, collapse = "")
 }
 

@@ -19,7 +19,7 @@ production = NULL
 #' @importFrom stats setNames
 #' @importFrom readr cols
 #' @importFrom httr content
-#' @importFrom rapiclient get_api get_operations set_default_args_list
+#' @importFrom rapiclient get_api get_operations
 #' @importFrom iidda list_xpath rm_trailing_slash
 #' @importFrom utils browseURL
 
@@ -73,7 +73,7 @@ handle_iidda_response <- function(x) {
   }
 
 make_api_obj = function(api_url, base_path, type) {
-  try(
+  api_obj = try(
     rapiclient::get_api(
       url = file.path(
         iidda::rm_trailing_slash(file.path(api_url, base_path)),
@@ -82,30 +82,10 @@ make_api_obj = function(api_url, base_path, type) {
     ),
     silent = TRUE
   )
-}
-
-our_rapiclient_fork = function() {
-  ## look for a zero-byte file in the rapiclient package. the
-  ## existence of this file would indicate that the user has
-  ## the our fork of rapiclient that supports passing vectors.
-  file.exists(system.file("canmod", package = "rapiclient"))
-}
-msg_rapiclient = function() {
-  c(
-      "Your installation of rapiclient does not support passing "
-    , "vectors to the arguments of iidda.api functions. "
-    , "If you wish to pass vectors, please follow installation "
-    , "instructions for rapiclient here: "
-    , "https://canmod.r-universe.dev/rapiclient"
-  )
-}
-check_rapiclient = function() {
-  if (!our_rapiclient_fork()) warning(msg_rapiclient())
+  return(api_obj)
 }
 
 make_ops_list = function(api_url, base_path, type) {
-  check_rapiclient()
-
   summary_to_function_name = function(x) {
     gsub(pattern = " ", replacement = "_", tolower(x))
   }
@@ -141,7 +121,7 @@ make_ops_list = function(api_url, base_path, type) {
   }
 
   for (name in names(raw_requests)) {
-    raw_requests[[name]] <- rapiclient::set_default_args_list(
+    raw_requests[[name]] <- set_default_args_list(
       raw_requests[[name]],
       parameter_list(name)
     )
@@ -158,7 +138,14 @@ make_ops_list = function(api_url, base_path, type) {
     post_request_names,
     get_request_names
   )
-  setNames(raw_requests, request_names)
+  requests = setNames(raw_requests, request_names)
+
+  ## use our .api_args function, instead of rapiclient's
+  for (method in names(requests)) {
+    assign(".api_args", .api_args, environment(requests[[method]]))
+  }
+
+  return(requests)
 }
 
 #' IIDDA API Operations
