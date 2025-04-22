@@ -25,7 +25,7 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
-          extra-repositories: 'https://canmod.github.io/drat'
+          extra-repositories: 'https://canmod.github.io/drat, https://github.com/r-universe/canmod'
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
