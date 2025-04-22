@@ -71,11 +71,11 @@ roxygen_featured_params = function() {
   if (inherits(filter_params, "try-error")) {
     filter_params = cached_api_list$staging$paths$`/filter`$get$parameters
   }
-  names(filter_params) = vapply(filter_params, \(x) x$name, character(1L))
+  names(filter_params) = vapply(filter_params, function(x) x$name, character(1L))
   exclude = c("resource_type", "response_type", "dataset_ids")
   pnames = setdiff(names(filter_params), exclude)
   filter_params = filter_params[pnames]
-  pdesc = vapply(filter_params, \(x) x$description, character(1L))
+  pdesc = vapply(filter_params, function(x) x$description, character(1L))
   vec = sprintf("\n* %s : %s", pnames, pdesc)
   paste(vec, collapse = "")
 }

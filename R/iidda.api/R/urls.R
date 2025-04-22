@@ -56,7 +56,7 @@ url_affected_scripts = function(digitization_id
   dig_urls = url_digitizations(digitization_id)
 
   ## dataset IDs of datasets that will be affected
-  affected_dataset_ids = vapply(rel_urls, \(x) any(x %in% dig_urls), logical(1L))
+  affected_dataset_ids = vapply(rel_urls, function(x) any(x %in% dig_urls), logical(1L))
   affected_dataset_ids = names(which(affected_dataset_ids))
 
   ## the first resource is always the main prep script of the dataset,
