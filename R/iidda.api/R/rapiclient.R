@@ -6,11 +6,10 @@
     arg_names <- arg_names[!arg_names %in% c("...", ".__body__")]
     args <- mget(arg_names, environment)
     expand_url_args = function(x) {
-      if (is.null(x)) return(x) ## silence warning about passing NULL to structure
-      structure(
-          do.call(c, lapply(x, function(z) as.list(z)))
-        , names = rep(names(x), sapply(x, length))
-      )
+      lst = do.call(c, lapply(x, function(z) as.list(z)))
+      if (is.null(lst)) return(lst) ## silence warning about passing NULL to structure
+      nmd_lst = structure(lst, names = rep(names(x), sapply(x, length)))
+      return(nmd_lst)
     }
     expand_url_args(args)
 }

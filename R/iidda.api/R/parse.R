@@ -1,4 +1,6 @@
-set_dict_names = function(x) setNames(x, vapply(x, getElement, character(1L), "name"))
+set_dict_names = function(x) {
+  setNames(x, vapply(x, getElement, character(1L), "name"))
+}
 get_dict = function() {
   suppressWarnings({iidda.api::ops_staging$data_dictionary() |> set_dict_names()})
 }
