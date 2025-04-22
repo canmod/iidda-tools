@@ -9,7 +9,7 @@ substantial preparation to enhance their utility for research and analysis."></h
 
     <a class="navbar-brand me-2" href="../index.html">iidda.api</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,7 +124,22 @@ datasets in the repository.</p></li>
 <span class="r-in"><span>  , basal_disease <span class="op">=</span> <span class="st">"poliomyelitis"</span></span></span>
 <span class="r-in"><span>  , period_end_date <span class="op">=</span> <span class="st">"1950-01-01..1959-12-31"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in featured_data("canmod-cdi-normalized", iso_3166_2 = c("CA-NL",     "CA-NS", "CA-PE", "CA-NB"), basal_disease = "poliomyelitis",     period_end_date = "1950-01-01..1959-12-31"):</span> Your installation of rapiclient does not support passing vectors to the arguments of iidda.api functions. If you wish to pass vectors, please follow installation instructions for rapiclient here: https://canmod.r-universe.dev/rapiclient</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">atlantic_polio_1950s</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 21</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   iso_3166 iso_3166_2 period_start_date period_end_date disease  nesting_disease</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> CA       CA-NL      1950-01-01        1950-01-07      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> CA       CA-NL      1950-01-01        1950-01-07      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> CA       CA-NL      1950-01-01        1950-01-07      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> CA       CA-NL      1950-01-08        1950-01-14      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> CA       CA-NL      1950-01-08        1950-01-14      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> CA       CA-NL      1950-01-08        1950-01-14      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 15 more variables: basal_disease &lt;chr&gt;, cases_this_period &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   location &lt;chr&gt;, location_type &lt;chr&gt;, time_scale &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease &lt;chr&gt;, historical_disease_family &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease_subclass &lt;chr&gt;, days_this_period &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   period_mid_date &lt;date&gt;, population &lt;dbl&gt;, record_origin &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   original_dataset_id &lt;chr&gt;, digitization_id &lt;chr&gt;, scan_id &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
