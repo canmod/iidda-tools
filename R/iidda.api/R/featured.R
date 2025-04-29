@@ -30,7 +30,9 @@ NULL
 #' @export
 featured_data = function(dataset_id, ...) {
   dataset_id = as.character(dataset_id)
-  if (length(dataset_id) != 1L) stop("Can only get one featured dataset at a time.")
+  if (length(dataset_id) != 1L) {
+    stop("Can only get one featured dataset at a time.")
+  }
   cid = featured_ids()
   if (!dataset_id %in% cid) {
     stop(
@@ -39,6 +41,10 @@ featured_data = function(dataset_id, ...) {
     )
   }
   args_filter = list(...)
+  if (length(args_filter) == 0L) {
+    output = iidda.api::ops_staging$raw_csv(dataset_ids = dataset_id)
+    return(output)
+  }
   cnames_filter = names(args_filter) # names of columns used in the filter
   cnames_data = ops_staging$metadata(
       dataset_ids = "canmod-cdi-normalized"
@@ -63,7 +69,8 @@ featured_data = function(dataset_id, ...) {
   )
   args_filter = args_filter[cnames_good]
   args = c(args, args_filter)
-  do.call(ops_staging$filter, args)[ , cnames_data, drop = FALSE]
+  output = do.call(ops_staging$filter, args)[ , cnames_data, drop = FALSE]
+  return(output)
 }
 
 roxygen_featured_params = function() {
