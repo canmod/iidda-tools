@@ -142,4 +142,5 @@ def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
 
     # If OS is windows then include the below line
     # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    print("waiting for response")
     return asyncio.run(main())
