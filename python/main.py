@@ -17,6 +17,8 @@ import nest_asyncio
 import signal
 # import os
 
+print("Running main.py")
+
 LOGGING_CONFIG["formatters"]["default"]["fmt"] = "%(asctime)s [%(name)s] %(levelprefix)s %(message)s"
 
 # root = "/iidda/app"
