@@ -132,6 +132,7 @@ def get_dataset_list(clear_cache, response_type="metadata", subset="all"):
 
         if latest_version_metadata != []:
             metadata_url = latest_version_metadata[0]['url']
+            print(metadata_url)
             async with session.get(metadata_url, headers=headers) as response:
                 metadata = await response.text()
                 metadata = json.loads(metadata)
