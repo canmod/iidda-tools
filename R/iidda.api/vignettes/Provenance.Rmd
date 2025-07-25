@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this vignette we illustrate how to investigate the provenance of a particular record in the a dataset obtained from the API. We use an example of a surprisingly late smallpox record in the CANMOD data.
+In this vignette we illustrate how to investigate the provenance of a particular record in the a dataset obtained from the API. We use an example of a surprisingly late smallpox record in the CANDID data.
 
 ![](images/Smallpox_virus_virions_TEM_PHIL_1849.JPG){width="60%"}
 

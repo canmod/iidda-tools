@@ -3,10 +3,11 @@ set_dict_names = function(x) {
 }
 get_dict = function() {
   dict = suppressWarnings({iidda.api::ops_staging$data_dictionary()})
+  #"https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json"
   set_dict_names(dict)
 }
 
-## converted to messager objects in zzz.R
+## converted to message objects in zzz.R
 messages = list(
   conversion = list(
     "Now converting some fields from character to numeric or date. ",

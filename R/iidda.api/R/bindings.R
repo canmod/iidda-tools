@@ -25,17 +25,21 @@ production = NULL
 
 handle_iidda_response <- function(x) {
     if (x$status_code == 400L) {
-      api_err_msg = unlist(httr::content(x)$detail
-        , use.names = FALSE
-        , recursive = TRUE
-      )
-      err_tmplt = "The IIDDA API returned the following error:\n    %s\nThis documentation might be of interest:\n    %s"
-      err_msg = sprintf(err_tmplt, api_err_msg, iidda.api::docs_url_staging)
-      stop(err_msg)
+      response_content = httr::content(x)
+      if ("detail" %in% names(response_content)) { ## condition needed because 400s can originate outside of the iidda api
+        api_err_msg = unlist(response_content$detail
+          , use.names = FALSE
+          , recursive = TRUE
+        )
+        err_tmplt = "The IIDDA API returned the following error:\n    %s\nThis documentation might be of interest:\n    %s"
+        err_msg = sprintf(err_tmplt, api_err_msg, iidda.api::docs_url_staging)
+        stop(err_msg)
+      }
     } else if (x$status_code == 404L) {
       msg = sprintf("404 Not Found. The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. This documentation might be of interest:\n    %s", iidda.api::docs_url_staging)
       stop(msg)
-    } else if (x$status_code != 200L) {
+    }
+    if (x$status_code != 200L) {
       err_tmplt = "Something went wrong with the IIDDA API.\nStatus code: %s\nRequest URL: %s\nThis documentation might be of interest:\n    %s"
       err_msg = sprintf(err_tmplt, x$status_code, x$url, iidda.api::docs_url_staging)
       stop(err_msg)
