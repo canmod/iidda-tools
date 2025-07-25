@@ -1,10 +1,10 @@
 pandoc: 3.1.11
-pkgdown: 2.1.2
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   Provenance: Provenance.html
   Quickstart: Quickstart.html
-last_built: 2025-05-07T12:36Z
+last_built: 2025-07-25T21:14Z
 urls:
   reference: https://canmod.github.io/iidda-tools/iidda.api/reference
   article: https://canmod.github.io/iidda-tools/iidda.api/articles
