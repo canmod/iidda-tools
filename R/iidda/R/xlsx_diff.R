@@ -21,32 +21,33 @@
 #'
 #' @export
 xlsx_diff = function(path_one, path_two, ...) {
+  value_one = value_two = NULL
   one = (path_one
     |> xlsx_cells(...)
-    |> filter(!is_blank)
+    |> dplyr::filter(!is_blank)
     |> collapse_xlsx_value_columns()
-    |> select(address, sheet, value)
+    |> dplyr::select(address, sheet, value)
   )
   two = (path_two
     |> xlsx_cells(...)
-    |> filter(!is_blank)
+    |> dplyr::filter(!is_blank)
     |> collapse_xlsx_value_columns()
-    |> select(address, sheet, value)
+    |> dplyr::select(address, sheet, value)
   )
   all_equal = all.equal(one, two)
   if (isTRUE(all_equal)) return(TRUE)
   by = c("sheet", "address")
   in_both_but_different = (one
     |> dplyr::inner_join(two, by = by, suffix = c("_one", "_two"))
-    |> filter(value_one != value_two)
+    |> dplyr::filter(value_one != value_two)
   )
   in_two_only = (two
     |> dplyr::anti_join(one, by = by)
-    |> distinct()
+    |> dplyr::distinct()
   )
   in_one_only = (one
     |> dplyr::anti_join(two, by = by)
-    |> distinct()
+    |> dplyr::distinct()
   )
 
   nlist(all_equal, in_both_but_different, in_one_only, in_two_only)
