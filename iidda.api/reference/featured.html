@@ -116,23 +116,30 @@ datasets in the repository.</p></li>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>iidda_api_msgs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">featured_ids</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in handle_response(result):</span> Something went wrong with the IIDDA API.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Status code: 400</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Request URL: https://math.mcmaster.ca/iidda/api/metadata?metadata_search=Compilation&amp;key=.types%20.resourceType&amp;string_comparison=Equals&amp;response_type=metadata</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> This documentation might be of interest:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>     https://math.mcmaster.ca/iidda/api/docs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "canmod-cdi-harmonized"   "canmod-cdi-normalized"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "canmod-cdi-unharmonized" "canmod-mort-harmonized" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "canmod-mort-normalized"  "canmod-pop-normalized"  </span>
 <span class="r-in"><span><span class="va">atlantic_polio_1950s</span> <span class="op">=</span> <span class="fu">featured_data</span><span class="op">(</span><span class="st">"canmod-cdi-normalized"</span></span></span>
 <span class="r-in"><span>  , iso_3166_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CA-NL"</span>, <span class="st">"CA-NS"</span>, <span class="st">"CA-PE"</span>, <span class="st">"CA-NB"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  , basal_disease <span class="op">=</span> <span class="st">"poliomyelitis"</span></span></span>
 <span class="r-in"><span>  , period_end_date <span class="op">=</span> <span class="st">"1950-01-01..1959-12-31"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in handle_response(result):</span> Something went wrong with the IIDDA API.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Status code: 400</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Request URL: https://math.mcmaster.ca/iidda/api/metadata?metadata_search=Compilation&amp;key=.types%20.resourceType&amp;string_comparison=Equals&amp;response_type=metadata</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> This documentation might be of interest:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>     https://math.mcmaster.ca/iidda/api/docs</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">atlantic_polio_1950s</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'atlantic_polio_1950s' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 21</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   iso_3166 iso_3166_2 period_start_date period_end_date disease  nesting_disease</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> CA       CA-NL      1950-01-01        1950-01-07      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> CA       CA-NL      1950-01-01        1950-01-07      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> CA       CA-NL      1950-01-01        1950-01-07      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> CA       CA-NL      1950-01-08        1950-01-14      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> CA       CA-NL      1950-01-08        1950-01-14      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> CA       CA-NL      1950-01-08        1950-01-14      poliomy… poliomyelitis  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 15 more variables: basal_disease &lt;chr&gt;, cases_this_period &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   location &lt;chr&gt;, location_type &lt;chr&gt;, time_scale &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease &lt;chr&gt;, historical_disease_family &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   historical_disease_subclass &lt;chr&gt;, days_this_period &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   period_mid_date &lt;date&gt;, population &lt;dbl&gt;, record_origin &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   original_dataset_id &lt;chr&gt;, digitization_id &lt;chr&gt;, scan_id &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
