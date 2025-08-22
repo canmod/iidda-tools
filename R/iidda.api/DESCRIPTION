@@ -2,7 +2,7 @@ Package: iidda.api
 Title: IIDDA API
 Version: 0.4.0
 Authors@R: 
-    person("Steve", "Walker", , "swalk@mcmaster.ca", role = c("aut", "cre"))
+    person("Steve", "Walker", , "stevencarlislewalker@gmail.com", role = c("aut", "cre"))
 Description: R Bindings for the IIDDA API.
 License: GPL (>= 3)
 Imports: readr, httr, curl, iidda, rapiclient (>= 0.1.3)

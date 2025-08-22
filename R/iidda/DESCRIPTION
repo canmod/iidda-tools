@@ -2,9 +2,9 @@ Type: Package
 Package: iidda
 Title: Processing Infectious Disease Datasets in IIDDA.
 Version: 1.0.0
-Maintainer: Steve Walker <swalk@mcmaster.ca>
+Maintainer: Steve Walker <stevencarlislewalker@gmail.com>
 Authors@R: 
-  c(person("Steve Walker", rol = c("aut", "cre"), email = "swalk@mcmaster.ca"),
+  c(person("Steve Walker", rol = c("aut", "cre"), email = "stevencarlislewalker@gmail.com"),
     person("Samara Manzin", rol = "aut"),
     person("Michael Roswell", role = "aut"),
     person("Gabrielle MacKinnon", rol = "aut"),
