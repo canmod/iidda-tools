@@ -6,7 +6,7 @@
 \usage{
 iidda_plot_settings(
   plot_object,
-  data,
+  data = data.frame(),
   min_time = "min_time",
   max_time = "max_time",
   descriptor_name = "descriptor_name",
@@ -14,16 +14,16 @@ iidda_plot_settings(
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
-\item{data}{list containing metadata. If `NULL` data is inherited from `plot_object`.}
+\item{data}{list containing metadata. If \code{NULL} data is inherited from \code{plot_object}.}
 
 \item{min_time}{name of field in data containing the minimum time period range, defaults to "min_time".}
 
 \item{max_time}{name of field in data containing the minimum time period range, defaults to "max_time".}
 
 \item{descriptor_name}{either the name of a field in data containing the descriptor or a string to be used as the
-plot title. If there are too more than 3 elements in the descriptor field, then `descriptor_variable` is used as the plot
+plot title. If there are too more than 3 elements in the descriptor field, then \code{descriptor_variable} is used as the plot
 title.}
 
 \item{theme}{ggplot theme}
@@ -32,6 +32,6 @@ title.}
 a ggplot2 plot object with title, subtitle and adjusted theme.
 }
 \description{
-Add basic features to a ggplot2 plot object including title, subtitle and classic `ggplot2::theme_bw` theme.
+Add basic features to a ggplot2 plot object including title, subtitle and classic \code{ggplot2::theme_bw} theme.
 }
 \concept{plotting_functions}

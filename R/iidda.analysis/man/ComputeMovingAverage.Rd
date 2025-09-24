@@ -12,15 +12,18 @@ Defaults to 52, so that weekly data is averaged over years.}
 }
 \value{
 a function to remove to compute the moving average of a time series variable
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-   * `series_variable` column name of series variable in `data`, default is "deaths"
-   * `time_variable` column name of time variable in `data`, default is "period_end_date"
-- Return - all fields in `data` with the `series_variable` data replaced with the moving
+\subsection{Returned Function}{
+\itemize{
+\item Arguments
+\itemize{
+\item \code{data} data frame containing time series data
+\item \code{series_variable} column name of series variable in \code{data}, default is "deaths"
+\item \code{time_variable} column name of time variable in \code{data}, default is "period_end_date"
+}
+\item Return - all fields in \code{data} with the \code{series_variable} data replaced with the moving
 average.
+}
+}
 }
 \description{
 Compute Moving Average of Time Series

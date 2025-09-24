@@ -8,9 +8,9 @@ get_implied_zeros(data)
 }
 \arguments{
 \item{data}{A tidy data set with the following minimal set of columns:
-`disease`, `nesting_disease`, `year`, `original_dataset_id`, `iso_3166_2`,
-`basal_disease`, `time_scale`, `period_start_date`, `period_end_date`,
-`period_mid_date`, `days_this_period`, `dataset_id`}
+\code{disease}, \code{nesting_disease}, \code{year}, \code{original_dataset_id}, \code{iso_3166_2},
+\code{basal_disease}, \code{time_scale}, \code{period_start_date}, \code{period_end_date},
+\code{period_mid_date}, \code{days_this_period}, \code{dataset_id}}
 }
 \value{
 A tidy data set with inferred 0s.

@@ -16,12 +16,12 @@ mutate_time_vars(
 
 \item{unit}{time unit, one of iidda.analysis:::time_units}
 
-\item{input_nm}{field name in `data` containing input time field}
+\item{input_nm}{field name in \code{data} containing input time field}
 
 \item{output_nm}{field name of newly created time unit field, by default uses get_unit_labels().}
 }
 \value{
-all fields in `data` with additional time unit field
+all fields in \code{data} with additional time unit field
 }
 \description{
 Create new time unit fields

@@ -4,16 +4,15 @@
 \alias{PeriodAggregator}
 \title{Period Aggregator}
 \usage{
-PeriodAggregator(
-  time_variable = "period_mid_time",
-  period_width_variable = "num_days",
-  count_variable = "cases_this_period",
-  norm_variable = "population_reporting",
-  rate_variable = "daily_rate",
-  norm_exponent = 5
-)
+PeriodAggregator(rate_variable, norm_exponent = 5)
 }
 \arguments{
+\item{rate_variable}{Name of variable to be used to store the normalized
+count variable.}
+
+\item{norm_exponent}{Exponent to use in normalization. The default is \code{5},
+which means \verb{per 100,000}.}
+
 \item{time_variable}{Name of the variable to characterize the temporal
 location of the time period.}
 
@@ -25,12 +24,6 @@ being normalized.}
 
 \item{norm_variable}{Name of variable to be used to normalize the count
 variable.}
-
-\item{rate_variable}{Name of variable to be used to store the normalized
-count variable.}
-
-\item{norm_exponent}{Exponent to use in normalization. The default is `5`,
-which means `per 100,000`.}
 }
 \description{
 Create function that aggregates information over time periods, normalizes

@@ -4,7 +4,7 @@
 \alias{time_scale_picker}
 \title{Default Time Scale Picker}
 \usage{
-time_scale_picker(data)
+time_scale_picker(data, time_scale_variable = NULL, time_group_variable = NULL)
 }
 \arguments{
 \item{data}{Data to transform.}

@@ -4,24 +4,27 @@
 \alias{SeriesHarmonizer}
 \title{Wavelet Series Harmonizer}
 \usage{
-SeriesHarmonizer(time_variable = "period_end_date", series_variable = "deaths")
+SeriesHarmonizer(sum_fn = base::sum)
 }
 \arguments{
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 }
 \value{
 function to harmonize disease/cause names
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-- Return - all fields in `data` with summarized series variable for unique time variable
+\subsection{Returned Function}{
+\itemize{
+\item Arguments
+\itemize{
+\item \code{data} data frame containing time series data
+}
+\item Return - all fields in \code{data} with summarized series variable for unique time variable
+}
+}
 }
 \description{
-Harmonizes the series variable in `data` so there is one data value for each time
+Harmonizes the series variable in \code{data} so there is one data value for each time
 unit in time variable (to account for different variations in disease/cause name)
 }
 \concept{data_prep_constructors}

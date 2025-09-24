@@ -16,22 +16,22 @@ iidda_plot_highlight(
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
-\item{data}{data frame containing time series data. If `NULL` data is inherited from `plot_object`. This
-has only been tested with data output from `iidda_plot_ma`.}
+\item{data}{data frame containing time series data. If \code{NULL} data is inherited from \code{plot_object}. This
+has only been tested with data output from \code{iidda_plot_ma}.}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{filter_variable}{column name of variable to filter on in `data`, default is "period_end_date"}
+\item{filter_variable}{column name of variable to filter on in \code{data}, default is "period_end_date"}
 
-\item{filter_start}{value of `filter_variable` for starting range, default is "1700-01-01"}
+\item{filter_start}{value of \code{filter_variable} for starting range, default is "1700-01-01"}
 
-\item{filter_end}{value of `filter_variable` for ending range, default is "1800-01-01"}
+\item{filter_end}{value of \code{filter_variable} for ending range, default is "1800-01-01"}
 
-\item{...}{other arguments to be passed to `ggforce::geom_mark_rect`, for example annotating with text}
+\item{...}{other arguments to be passed to \code{ggforce::geom_mark_rect}, for example annotating with text}
 }
 \value{
 a ggplot2 plot object a rectangular plot highlight

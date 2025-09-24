@@ -6,10 +6,10 @@
 \usage{
 iidda_prep_rohani(
   data,
-  series_variable = "deaths",
+  series_variable = NULL,
   time_variable = "period_end_date",
-  start_time_variable = "period_end_date",
-  time_unit = c("year"),
+  start_time_variable = "period_start_date",
+  time_unit = "year",
   grouping_variable = "cause",
   ranking_variable = NULL,
   normalize = FALSE,
@@ -21,13 +21,13 @@ iidda_prep_rohani(
 \arguments{
 \item{data}{data frame containing time series data}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{start_time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{start_time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{time_unit}{a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
+\item{time_unit}{a vector of new time unit fields to create from \code{start_time_variable} and \code{end_time_variable}.
 Defaults to "c("year")". The currently functionality expects that "year" is included, should be
 made more general to incorporate any of iidda.analysis:::time_units.}
 
@@ -35,18 +35,18 @@ made more general to incorporate any of iidda.analysis:::time_units.}
 
 \item{ranking_variable}{column name of variable used to rank the grouping variable.}
 
-\item{normalize}{boolean flag to normalize `series_variable` data to be between 0 and 1.}
+\item{normalize}{boolean flag to normalize \code{series_variable} data to be between 0 and 1.}
 
 \item{handle_missing_values}{function to handle missing values, defaults to HandleMissingValues}
 
 \item{handle_zero_values}{function to handle zero values, defaults to HandleZeroValues}
 
-\item{create_nonexistent}{boolean flag to create \code{NA} records for non-existent `time_unit` and `grouping_variable`.
-This creates all combinations of `time_unit` and `grouping_variable` to ensure there are no missing records.}
+\item{create_nonexistent}{boolean flag to create \code{NA} records for non-existent \code{time_unit} and \code{grouping_variable}.
+This creates all combinations of \code{time_unit} and \code{grouping_variable} to ensure there are no missing records.}
 }
 \value{
-all fields in`data` with records prepped for plotting rohani heatmaps. The name
-of the new `time_unit` fields will be named from lubridate_funcs.
+all fields in\code{data} with records prepped for plotting rohani heatmaps. The name
+of the new \code{time_unit} fields will be named from lubridate_funcs.
 }
 \description{
 Prep data for rohani plots. Prep steps include creating additional time unit fields, summarizing the series

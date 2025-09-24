@@ -7,7 +7,7 @@
 find_unaccounted_cases(data)
 }
 \arguments{
-\item{data}{A tidy data set with a `basal_disease` column.}
+\item{data}{A tidy data set with a \code{basal_disease} column.}
 }
 \value{
 A data set containing records that are the difference between a

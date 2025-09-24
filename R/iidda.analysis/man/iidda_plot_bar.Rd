@@ -7,17 +7,17 @@
 iidda_plot_bar(
   plot_object,
   data = NULL,
-  series_variable = "deaths",
-  time_unit = "week"
+  series_variable = NULL,
+  time_unit = "month_factor_abbr"
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
-\item{data}{data frame containing data prepped for bar plotting, typically output from `iidda_prep_bar()`.
-If `NULL` data is inherited from `plot_object`}
+\item{data}{data frame containing data prepped for bar plotting, typically output from \code{iidda_prep_bar()}.
+If \code{NULL} data is inherited from \code{plot_object}}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
 \item{time_unit}{time unit to display bar graphs on the x-axis. Defaults to "week" or one of iidda.analysis:::time_units that starts
 with "month". Should generalize at some point to be able to take any time_unit argument.}
@@ -27,6 +27,6 @@ a ggplot2 plot object containing a bar graphs of time series data
 }
 \description{
 Add a bar plot to an exiting ggplot plot object. Graphical choices were made to closely reflect
-plots generated with `LBoM::monthly_bar_graph` and `LBoM::weekly_bar_graph`.
+plots generated with \code{LBoM::monthly_bar_graph} and \code{LBoM::weekly_bar_graph}.
 }
 \concept{plotting_functions}

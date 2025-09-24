@@ -4,36 +4,33 @@
 \alias{WaveletInterpolator}
 \title{Wavelet Interpolator}
 \usage{
-WaveletInterpolator(
-  time_variable = "period_end_date",
-  series_variable = "deaths",
-  trend_variable = "deaths",
-  series_suffix = "_series",
-  trend_suffix = "_trend"
-)
+WaveletInterpolator(series_suffix = "_series", trend_suffix = "_trend")
 }
 \arguments{
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
-
-\item{series_variable}{column name of series variable in `data`, default is "deaths_series"}
-
-\item{trend_variable}{column name of series variable in `data`, default is "deaths_trend"}
-
 \item{series_suffix}{suffix to be appended to series data fields}
 
 \item{trend_suffix}{suffix to be appended to trend data fields}
+
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths_series"}
+
+\item{trend_variable}{column name of series variable in \code{data}, default is "deaths_trend"}
+
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 }
 \value{
 function that linearly interpolates series and trend data.
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-- Return - `data` with linearly interpolated `series_variable` and
-`trend_variable`
+\subsection{Returned Function}{
+\itemize{
+\item Arguments
+\itemize{
+\item \code{data} data frame containing time series data
+}
+\item Return - \code{data} with linearly interpolated \code{series_variable} and
+\code{trend_variable}
+}
+}
 }
 \description{
-Linearly interpolates `NA` values in both series and trend variables.
+Linearly interpolates \code{NA} values in both series and trend variables.
 }
 \concept{data_prep_constructors}

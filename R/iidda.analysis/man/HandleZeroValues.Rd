@@ -7,22 +7,26 @@
 HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
 }
 \arguments{
-\item{zero_remove}{boolean value, if `TRUE` remove zeroes in series variable}
+\item{zero_remove}{boolean value, if \code{TRUE} remove zeroes in series variable}
 
 \item{zero_replace}{numeric value to replace zeroes in series variable, if NULL
 no replacement is performed}
 }
 \value{
 a function to remove or replace zero values.
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-   * `series_variable` column name of series variable in `data`, default is "deaths"
-- Return - all fields in `data` with either zero records removed or replaced
+\subsection{Returned Function}{
+\itemize{
+\item Arguments
+\itemize{
+\item \code{data} data frame containing time series data
+\item \code{series_variable} column name of series variable in \code{data}, default is "deaths"
+}
+\item Return - all fields in \code{data} with either zero records removed or replaced
+}
+}
 }
 \description{
-Remove or replace series variable values that are zero.
+Construct a function that takes a data frame and returns another data
+frame with \code{0} values either removed or replaced.
 }
 \concept{data_prep_constructors}

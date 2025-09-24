@@ -19,11 +19,11 @@ iidda_plot_wavelet(
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
 \item{data}{data frame containing wavelet data prepped for use in \code{ggplot2::geom_tile}.
 The output from \code{iidda_prep_wavelet} produces a data set prepped for this argument, named \code{tile_data_to_plot} in the returned list.
-If `NULL` data is inherited from `plot_object`.}
+If \code{NULL} data is inherited from \code{plot_object}.}
 
 \item{wavelet_data}{list containing raw wavelet transformed data, typically output from \code{WaveletComp::analyze.wavelet}.
 The output from \code{iidda_prep_wavelet} produces a data set prepped for this argument, named \code{transformed_data} in the returned list.}

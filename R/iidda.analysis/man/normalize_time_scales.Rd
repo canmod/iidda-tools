@@ -14,8 +14,8 @@ normalize_time_scales(
 )
 }
 \arguments{
-\item{data}{A tidy data set with columns `time_scale`, `period_start_date`
-and `period_end_date`.}
+\item{data}{A tidy data set with columns \code{time_scale}, \code{period_start_date}
+and \code{period_end_date}.}
 
 \item{initial_group}{Character vector naming columns for defining
 the initial grouping used to compute the shortest time scales.}
@@ -33,8 +33,8 @@ timescale to the 'best timescale'.}
 A data set only containing records with the optimal time scale.
 }
 \description{
-Choose a single best `time_scale` for each year in a dataset, grouped by
-nesting disease. This best `time_scale` is defined as the longest
+Choose a single best \code{time_scale} for each year in a dataset, grouped by
+nesting disease. This best \code{time_scale} is defined as the longest
 of the shortest time scales in each location and sub-disease.
 }
 \concept{normalization}

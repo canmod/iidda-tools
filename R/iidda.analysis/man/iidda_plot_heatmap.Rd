@@ -19,12 +19,12 @@ iidda_plot_heatmap(
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
 \item{data}{data frame containing data prepped for yearly vs. weekly heatmaps, typically output from
-`iidda_prep_heatmap()`. If `NULL` data is inherited from `plot_object`.}
+\code{iidda_prep_heatmap()}. If \code{NULL} data is inherited from \code{plot_object}.}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
 \item{start_year_variable}{column name of time variable containing the year of the starting period, defaults to "Year"}
 
@@ -36,7 +36,7 @@ iidda_plot_heatmap(
 
 \item{colour_trans}{string indicating colour transformation, one of "log2", "sqrt" or "linear"}
 
-\item{NA_colour}{colour for `NA` values, defaults to "black"}
+\item{NA_colour}{colour for \code{NA} values, defaults to "black"}
 
 \item{palette_colour}{colour of heatmap palette, defaults to "RdGy". Should specify what type of palette colours
 are accepted by this argument.}
@@ -48,6 +48,6 @@ a ggplot2 plot object containing a yearly vs. weekly heatmap of time series data
 }
 \description{
 Add a yearly vs. weekly heatmap to an exiting ggplot plot object. Graphical choices were made to closely reflect
-plots generated with`LBoM::seasonal_heat_map`.
+plots generated with\code{LBoM::seasonal_heat_map}.
 }
 \concept{plotting_functions}

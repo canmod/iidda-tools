@@ -7,14 +7,14 @@
 generate_disease_df(canmod_cdi, disease_name, years = NULL, add_gaps = TRUE)
 }
 \arguments{
-\item{canmod_cdi}{Dataset from IIDDA of type `CANMOD CDI`.}
+\item{canmod_cdi}{Dataset from IIDDA of type \verb{CANMOD CDI}.}
 
-\item{disease_name}{Name to match in the `nesting_disease` column of a
-`CANMOD CDI` dataset.}
+\item{disease_name}{Name to match in the \code{nesting_disease} column of a
+\verb{CANMOD CDI} dataset.}
 
-\item{years}{If not `NULL`, a vector of years to keep in the output data.}
+\item{years}{If not \code{NULL}, a vector of years to keep in the output data.}
 
-\item{add_gaps}{If `TRUE`, add records with `NA` in `cases_this_period`
+\item{add_gaps}{If \code{TRUE}, add records with \code{NA} in \code{cases_this_period}
 that correspond to time-periods without any data.}
 }
 \description{

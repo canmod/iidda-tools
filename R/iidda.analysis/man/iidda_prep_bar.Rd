@@ -6,9 +6,9 @@
 \usage{
 iidda_prep_bar(
   data,
-  series_variable = "deaths",
-  time_variable = "period_end_date",
-  time_unit = "week",
+  series_variable = NULL,
+  time_variable = NULL,
+  time_unit = NULL,
   handle_missing_values = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
   handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
 )
@@ -16,9 +16,9 @@ iidda_prep_bar(
 \arguments{
 \item{data}{data frame containing time series data}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
 \item{time_unit}{time unit to sum series data over, must be one of iidda.analysis:::time_units, defaults to "week".}
 
@@ -27,11 +27,11 @@ iidda_prep_bar(
 \item{handle_zero_values}{function to handle zero values, defaults to HandleZeroValues}
 }
 \value{
-`data` with records prepped for plotting bar graphs with `series_variable` and `time_unit` field. The name
-of the resulting `time_unit` field will be named from lubridate_funcs.
+\code{data} with records prepped for plotting bar graphs with \code{series_variable} and \code{time_unit} field. The name
+of the resulting \code{time_unit} field will be named from lubridate_funcs.
 }
 \description{
-Prep data for plotting bar graphs. Prep steps were taken from `LBoM::monthly_bar_graph` and `LBoM::weekly_bar_graph`
+Prep data for plotting bar graphs. Prep steps were taken from \code{LBoM::monthly_bar_graph} and \code{LBoM::weekly_bar_graph}
 and they include handling missing values and aggregating series data by time unit grouping variable.
 }
 \concept{prep_data_for_plotting}

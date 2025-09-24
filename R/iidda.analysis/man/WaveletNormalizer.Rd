@@ -5,9 +5,6 @@
 \title{Wavelet Normalizer}
 \usage{
 WaveletNormalizer(
-  time_variable = "period_end_date",
-  series_variable = "deaths",
-  trend_variable = "deaths",
   series_suffix = "_series",
   trend_suffix = "_trend",
   output_emd_trend = "emd_trend",
@@ -24,49 +21,52 @@ WaveletNormalizer(
 )
 }
 \arguments{
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
-
-\item{series_variable}{column name of series variable in `data`, default is "deaths_series"}
-
-\item{trend_variable}{column name of series variable in `data`, default is "deaths_trend"}
-
 \item{series_suffix}{suffix to be appended to series data fields}
 
 \item{trend_suffix}{suffix to be appended to trend data fields}
 
-\item{output_emd_trend}{name of output field for the empirical mode decomposition applied to `trend_variable`}
+\item{output_emd_trend}{name of output field for the empirical mode decomposition applied to \code{trend_variable}}
 
-\item{output_norm}{name of output field for the `series_variable` normalized by `output_emd_trend`}
+\item{output_norm}{name of output field for the \code{series_variable} normalized by \code{output_emd_trend}}
 
-\item{output_sqrt_norm}{name of output field for the square root of `output_norm`}
+\item{output_sqrt_norm}{name of output field for the square root of \code{output_norm}}
 
-\item{output_log_norm}{name of output field for the logarithm of (`output_norm` + `eps`)}
+\item{output_log_norm}{name of output field for the logarithm of (\code{output_norm} + \code{eps})}
 
-\item{output_emd_norm}{name of output field for the empirical mode decomposition applied to `output_norm`}
+\item{output_emd_norm}{name of output field for the empirical mode decomposition applied to \code{output_norm}}
 
-\item{output_emd_sqrt}{name of output field for the empirical mode decomposition applied to `output_sqrt_norm`}
+\item{output_emd_sqrt}{name of output field for the empirical mode decomposition applied to \code{output_sqrt_norm}}
 
-\item{output_emd_log}{name of output field for the empirical mode decomposition applied to `output_log_norm`}
+\item{output_emd_log}{name of output field for the empirical mode decomposition applied to \code{output_log_norm}}
 
-\item{output_detrend_norm}{name of output field for the computed field `output_norm`-`output_emd_norm`}
+\item{output_detrend_norm}{name of output field for the computed field \code{output_norm}-\code{output_emd_norm}}
 
-\item{output_detrend_sqrt}{name of output field for the computed field `output_sqrt_norm`-`output_emd_sqrt`}
+\item{output_detrend_sqrt}{name of output field for the computed field \code{output_sqrt_norm}-\code{output_emd_sqrt}}
 
-\item{output_detrend_log}{name of output field for the computed field `output_log_norm`-`output_emd_log`}
+\item{output_detrend_log}{name of output field for the computed field \code{output_log_norm}-\code{output_emd_log}}
 
 \item{eps}{numeric value for normalized data to be perturbed by before
 computing the logarithm}
+
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
+
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths_series"}
+
+\item{trend_variable}{column name of series variable in \code{data}, default is "deaths_trend"}
 }
 \value{
 function that creates normalized trend and de-trended fields
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-- Return - `data` with additional normalized fields
+\subsection{Returned Function}{
+\itemize{
+\item Arguments
+\itemize{
+\item \code{data} data frame containing time series data
+}
+\item Return - \code{data} with additional normalized fields
+}
+}
 }
 \description{
-Creates normalizing fields in `data`
+Creates normalizing fields in \code{data}
 }
 \concept{data_prep_constructors}

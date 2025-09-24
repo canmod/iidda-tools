@@ -4,14 +4,11 @@
 \alias{TimeScalePicker}
 \title{Time Scale Picker}
 \usage{
-TimeScalePicker(
-  time_scale_variable = "time_scale",
-  time_group_variable = "year"
-)
+TimeScalePicker()
 }
 \arguments{
 \item{time_scale_variable}{Variable identifying the time scale of records.
-The values of such a variable should be things like `"wk"`, `"mo"`, `"yr"`.}
+The values of such a variable should be things like \code{"wk"}, \code{"mo"}, \code{"yr"}.}
 
 \item{time_group_variable}{Variable identifying a grouping variable for
 the time scales (e.g. a column identifying the year.).}

@@ -4,18 +4,14 @@
 \alias{iidda_get_metadata}
 \title{Get IIDDA metadata}
 \usage{
-iidda_get_metadata(
-  data,
-  time_variable = "period_end_date",
-  descriptor_variable = "cause"
-)
+iidda_get_metadata(data, time_variable = NULL, descriptor_variable = NULL)
 }
 \arguments{
 \item{data}{data frame containing time series data}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{descriptor_variable}{column name of the descriptor variable in `data`, default is "cause" for
+\item{descriptor_variable}{column name of the descriptor variable in \code{data}, default is "cause" for
 mortality data sets.}
 }
 \value{

@@ -11,14 +11,14 @@ union_series(x, y, overlap = TRUE, time_variable = "period_end_date")
 
 \item{y}{second data frame containing time series data}
 
-\item{overlap}{boolean to indicate if `x` should get priority with overlapping time periods in `y`.
-If `TRUE` the returned data frame will contain all data from `x`, and the filtered `y` data that does
-not overlap with `x`. If FALSE, a union between `x` and `y` is returned.}
+\item{overlap}{boolean to indicate if \code{x} should get priority with overlapping time periods in \code{y}.
+If \code{TRUE} the returned data frame will contain all data from \code{x}, and the filtered \code{y} data that does
+not overlap with \code{x}. If FALSE, a union between \code{x} and \code{y} is returned.}
 
-\item{time_variable}{column name of time variable in `x` and `y`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{x} and \code{y}, default is "period_end_date"}
 }
 \value{
-combined `x` and `y` data frames with optional filtering for overlaps
+combined \code{x} and \code{y} data frames with optional filtering for overlaps
 }
 \description{
 Combine two time series data sets with the option to handle overlapping time periods.

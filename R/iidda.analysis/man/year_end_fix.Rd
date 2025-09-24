@@ -27,7 +27,7 @@ year_end_fix(
 \arguments{
 \item{data}{data frame containing time series data}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
 \item{start_year_variable}{column name of time variable containing the year of the starting period, defaults to "Year"}
 
@@ -40,19 +40,19 @@ year_end_fix(
 \item{temp_year_variable}{temporary variable name when pivoting the data frame}
 }
 \value{
-all fields in `data` with only records corresponding to year end weeks that have been split
+all fields in \code{data} with only records corresponding to year end weeks that have been split
 
-all fields in `data` with only records corresponding to year end weeks that have been split
+all fields in \code{data} with only records corresponding to year end weeks that have been split
 }
 \description{
 Weeks covering the year end are split into two records. The first week is adjusted to end on day 365 (or 366 in leap years),
-and the second week starts on the first day of the year. This was adapted from `LBoM::edge_fix` which keeps the same
+and the second week starts on the first day of the year. This was adapted from \code{LBoM::edge_fix} which keeps the same
 series variable value for both of the newly created weeks. This doesn't seem to make much difference when viewing the
 heatmap, however it might make sense to do something sensible like dividing the series variable value in half and allocating
 each week to have half of the values.
 
 Weeks covering the year end are split into two records. The first week is adjusted to end on day 365 (or 366 in leap years),
-and the second week starts on the first day of the year. This was adapted from `LBoM::edge_fix` which keeps the same
+and the second week starts on the first day of the year. This was adapted from \code{LBoM::edge_fix} which keeps the same
 series variable value for both of the newly created weeks. This doesn't seem to make much difference when viewing the
 seasonal heatmap, however it might make sense to do something sensible like dividing the series variable value in half and allocating
 each week to have half of the values.

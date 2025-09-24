@@ -12,25 +12,28 @@ WaveletJoiner(
 )
 }
 \arguments{
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
 \item{series_suffix}{suffix to be appended to series data fields}
 
 \item{trend_suffix}{suffix to be appended to trend data fields}
 
-\item{keep_series_dates}{boolean flag to indicate if the dates in `series_data` should
-be kept and data from `trend_data` is left joined, if `FALSE` dates from `trend_data`
+\item{keep_series_dates}{boolean flag to indicate if the dates in \code{series_data} should
+be kept and data from \code{trend_data} is left joined, if \code{FALSE} dates from \code{trend_data}
 are left joined instead}
 }
 \value{
 function to join data and trend data sets
-
-## Returned Function
-
-- Arguments
-   * `series_data` data frame containing time series data
-   * `trend_data` data frame containing trend data
-- Return - joined data set by `time_variable` with updated field names
+\subsection{Returned Function}{
+\itemize{
+\item Arguments
+\itemize{
+\item \code{series_data} data frame containing time series data
+\item \code{trend_data} data frame containing trend data
+}
+\item Return - joined data set by \code{time_variable} with updated field names
+}
+}
 }
 \description{
 Joins series data and trend datasets and keeps all time units in one of the

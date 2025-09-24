@@ -13,23 +13,23 @@ iidda_plot_box(
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
-\item{data}{data frame containing data prepped for box plotting, typically output from `iidda_prep_box()`.
-If `NULL` data is inherited from `plot_object`}
+\item{data}{data frame containing data prepped for box plotting, typically output from \code{iidda_prep_box()}.
+If \code{NULL} data is inherited from \code{plot_object}}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
 \item{time_unit}{time unit to display box plots on the x-axis. Defaults to "week", should be able to
 handle any time_unit from iidda.analysis:::time_units.}
 
-\item{...}{other arguments to be passed to `scale_x_discrete`}
+\item{...}{other arguments to be passed to \code{scale_x_discrete}}
 }
 \value{
 a ggplot2 plot object containing a box plots of time series data
 }
 \description{
 Add a box plot to an exiting ggplot plot object.  Graphical choices were made to closely reflect
-plots generated with `LBoM::monthly_box_plot`.
+plots generated with \code{LBoM::monthly_box_plot}.
 }
 \concept{plotting_functions}

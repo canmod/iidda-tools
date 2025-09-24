@@ -7,7 +7,7 @@
 ca_iso_3166_2(data)
 }
 \arguments{
-\item{data}{Dataset containing an `iso_3166_2` field with Canadian province
+\item{data}{Dataset containing an \code{iso_3166_2} field with Canadian province
 and territory codes.}
 }
 \description{

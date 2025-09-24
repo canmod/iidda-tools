@@ -4,28 +4,27 @@
 \alias{WaveletTransformer}
 \title{Wavelet Transformer}
 \usage{
-WaveletTransformer(
-  time_variable = "period_end_date",
-  wavelet_variable = "detrend_norm",
-  ...
-)
+WaveletTransformer(...)
 }
 \arguments{
-\item{time_variable}{name of the time variable field in `data`}
-
-\item{wavelet_variable}{name of the field in `data` to be wavelet transformed}
-
 \item{...}{Arguments passed on to \code{\link{analyze.wavelet}}.}
+
+\item{time_variable}{name of the time variable field in \code{data}}
+
+\item{wavelet_variable}{name of the field in \code{data} to be wavelet transformed}
 }
 \value{
 function that computes wavelet transform
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-- Return - the wavelet transform object from EMD::analyze.wavelet applied to
-`wavelet_variable` in `data`
+\subsection{Returned Function}{
+\itemize{
+\item Arguments
+\itemize{
+\item \code{data} data frame containing time series data
+}
+\item Return - the wavelet transform object from EMD::analyze.wavelet applied to
+\code{wavelet_variable} in \code{data}
+}
+}
 }
 \description{
 Compute the wavelet transform.
