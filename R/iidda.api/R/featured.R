@@ -45,23 +45,32 @@ featured_data = function(dataset_id, ...) {
     output = iidda.api::ops_staging$raw_csv(dataset_ids = dataset_id)
     return(output)
   }
+  cnames_filter_valid = simple_filter_params() |> names()
   cnames_filter = names(args_filter) # names of columns used in the filter
-  cnames_data = ops_staging$metadata(
-      dataset_ids = "canmod-cdi-normalized"
-    , response_type = "data_dictionary"
-  )[[1]]
-  cnames_data = vapply(cnames_data, function(x) x$name, character(1L))
 
-  cnames_bad = setdiff(cnames_filter, cnames_data)
+  cnames_data = ops_staging$metadata(
+      dataset_ids = dataset_id
+    , response_type = "data_dictionary"
+  )[[1]] |> vapply(\(x) x$name, character(1L))
+  cnames_data_valid = intersect(cnames_data, cnames_filter_valid)
+
+  cnames_bad = setdiff(cnames_filter, cnames_data_valid)
   if (length(cnames_bad) > 0L) {
     warning(
-        "You set filters for the following columns:"
-      , paste(cnames_bad, collapse = "\n  ")
-      , "But only the following columns are available in the data:"
-      , paste(cnames_data, collapse = "\n  ")
+        "\nYou set filters for the following columns:\n  "
+      , paste(cnames_bad, collapse = "  \n  ")
+      , "\nBut these filters have been ignored because "
+      , "only the following columns in this dataset can be filtered:\n  "
+      , paste(cnames_data_valid, collapse = "  \n  ")
     )
   }
-  cnames_good = intersect(cnames_filter, cnames_data)
+
+  cnames_good = intersect(cnames_filter, cnames_data_valid)
+  if (length(cnames_good) == 0L) {
+    output = iidda.api::ops_staging$raw_csv(dataset_ids = dataset_id)
+    return(output)
+  }
+
   args = list(
       resource_type = "Compilation"
     , response_type = "csv"
@@ -73,20 +82,27 @@ featured_data = function(dataset_id, ...) {
   return(output)
 }
 
-roxygen_featured_params = function() {
+all_filter_params = function() {
   filter_params = try(attributes(ops_staging$filter)$definition$parameters)
   if (inherits(filter_params, "try-error")) {
     filter_params = cached_api_list$staging$paths$`/filter`$get$parameters
   }
-  names(filter_params) = vapply(filter_params, function(x) x$name, character(1L))
+  names(filter_params) = vapply(filter_params, \(x) x$name, character(1L))
+  return(filter_params)
+}
+simple_filter_params = function() {
+  filter_params = all_filter_params()
   exclude = c("resource_type", "response_type", "dataset_ids")
   pnames = setdiff(names(filter_params), exclude)
   filter_params = filter_params[pnames]
-  pdesc = vapply(filter_params, function(x) x$description, character(1L))
-  vec = sprintf("\n* %s : %s", pnames, pdesc)
+  return(filter_params)
+}
+roxygen_featured_params = function() {
+  filter_params = simple_filter_params()
+  pdesc = vapply(filter_params, \(x) x$description, character(1L))
+  vec = sprintf("\n* %s : %s", names(filter_params), pdesc)
   paste(vec, collapse = "")
 }
-
 
 #' @describeIn featured Return a list of lists, each of which represents
 #' the metadata for a featured dataset.
@@ -104,3 +120,5 @@ featured_metadata = function() {
 #' datasets in the repository.
 #' @export
 featured_ids = function() names(featured_metadata())
+
+

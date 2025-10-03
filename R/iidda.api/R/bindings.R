@@ -31,17 +31,31 @@ handle_iidda_response <- function(x) {
           , use.names = FALSE
           , recursive = TRUE
         )
-        err_tmplt = "The IIDDA API returned the following error:\n    %s\nThis documentation might be of interest:\n    %s"
+        err_tmplt = paste(
+            "The IIDDA API returned the following error:\n    %s\nThis"
+          , "documentation might be of interest:\n    %s"
+        )
         err_msg = sprintf(err_tmplt, api_err_msg, iidda.api::docs_url_staging)
         stop(err_msg)
       }
     } else if (x$status_code == 404L) {
-      msg = sprintf("404 Not Found. The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again. This documentation might be of interest:\n    %s", iidda.api::docs_url_staging)
-      stop(msg)
+      err_tmplt = paste(
+          "404 Not Found. The requested URL was not found on the server."
+        , "If you entered the URL manually please check your spelling and"
+        , "try again. This documentation might be of interest:\n    %s"
+      )
+      err_msg = sprintf(err_tmplt, iidda.api::docs_url_staging)
+      stop(err_msg)
     }
     if (x$status_code != 200L) {
-      err_tmplt = "Something went wrong with the IIDDA API.\nStatus code: %s\nRequest URL: %s\nThis documentation might be of interest:\n    %s"
-      err_msg = sprintf(err_tmplt, x$status_code, x$url, iidda.api::docs_url_staging)
+      err_tmplt = paste(
+          "Something went wrong with the IIDDA API.\nStatus code:"
+        , "%s\nRequest URL: %s\nThis documentation might be of"
+        , "interest:\n    %s"
+      )
+      err_msg = sprintf(err_tmplt
+        , x$status_code, x$url, iidda.api::docs_url_staging
+      )
       stop(err_msg)
     }
     content_type <- x$headers$`content-type`
@@ -146,7 +160,14 @@ make_ops_list = function(api_url, base_path, type) {
   )
   requests = setNames(raw_requests, request_names)
 
-  ## use our .api_args function, instead of rapiclient's
+  ## HACK: use our .api_args function (iidda.api/R/rapiclient.R),
+  ## instead of the function of the same name in the rapiclient package.
+  ## the benefit to users is being able to filter on a set of values
+  ## as opposed to single values. for example, i can filter on the
+  ## `disease` column taking values in the set `c("measles", "chickenpox")`.
+  ## without this .api_args function we would need to ask for measles
+  ## and chickenpox in separate queries, which isn't the end of the
+  ## world but why not allow it.
   for (method in names(requests)) {
     assign(".api_args", .api_args, environment(requests[[method]]))
   }

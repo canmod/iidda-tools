@@ -3,7 +3,7 @@ set_dict_names = function(x) {
 }
 get_dict = function() {
   dict = suppressWarnings({iidda.api::ops_staging$data_dictionary()})
-  #"https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json"
+  # https://raw.githubusercontent.com/canmod/iidda/main/global-metadata/data-dictionary.json
   set_dict_names(dict)
 }
 

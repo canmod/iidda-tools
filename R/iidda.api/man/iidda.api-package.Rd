@@ -35,6 +35,6 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Steve Walker \email{swalk@mcmaster.ca}
+\strong{Maintainer}: Steve Walker \email{stevencarlislewalker@gmail.com}
 
 }

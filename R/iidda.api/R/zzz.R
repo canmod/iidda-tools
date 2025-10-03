@@ -5,6 +5,7 @@
       iidda_api_all_char = FALSE
     , iidda_api_date_sort = TRUE
     , iidda_api_msgs = TRUE
+    , iidda_api_pull_msg = FALSE
   )
   if (!curl::has_internet() & interactive()) {
     stop(
