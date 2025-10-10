@@ -34,23 +34,9 @@ iidda_series = function(data
     , theme = iidda_theme
 ) {
   (data
-    |> iidda_prep_series(
-        series_variable
-      , time_variable
-      , trim_series
-      , handle_missing_values
-      , handle_zero_values
-      , time_variable_converter
-    )
-    |> iidda_attach_series(ggplot()
-      , series_variable
-      , time_variable
-    )
-    |> iidda_render_plot(
-        title
-      , subtitle
-      , theme
-    )
+    |> pass_args(iidda_prep_series)
+    |> pass_args(iidda_attach_series)
+    |> pass_args(iidda_render_plot)
   )
 }
 

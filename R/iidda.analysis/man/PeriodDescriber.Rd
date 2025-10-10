@@ -9,6 +9,10 @@ PeriodDescriber(mid_types = c("time", "date"))
 \arguments{
 \item{mid_types}{Compute mid-times and/or mid-dates?}
 }
+\value{
+A function like \code{\link{period_describer_default}} that
+adds variables to describe the time period represented by each record.
+}
 \description{
 Create a function that takes a data set containing at least two of
 the following variables, \code{period_start_variable}, \code{period_end_variable},
@@ -18,3 +22,4 @@ with either or both of \code{period_mid_time_variable} and
 \code{period_mid_date_variable}. These two period middle descriptors will only
 differ (by exactly 12 hours) for periods with odd numbers of days.
 }
+\concept{data_prep_constructors}

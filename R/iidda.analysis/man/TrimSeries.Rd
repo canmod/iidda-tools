@@ -12,18 +12,8 @@ TrimSeries(zero_lead = FALSE, zero_trail = FALSE)
 \item{zero_trail}{boolean value, if \code{TRUE} remove trailing zeroes in \code{data}}
 }
 \value{
-a function to remove to remove leading and/or trailing zeroes
-\subsection{Returned Function}{
-\itemize{
-\item Arguments
-\itemize{
-\item \code{data} data frame containing time series data
-\item \code{series_variable} column name of series variable in \code{data}, default is "deaths"
-\item \code{time_variable} column name of time variable in \code{data}, default is "period_end_date"
-}
-\item Return - all fields in \code{data} with filtered records to trim leading and/or trailing zeroes
-}
-}
+A function like \code{\link{trim_series_default}} to remove to
+remove leading and/or trailing zeroes.
 }
 \description{
 Remove leading or trailing zeros in a time series data set.

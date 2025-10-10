@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_prep.R
 \name{SeriesHarmonizer}
 \alias{SeriesHarmonizer}
-\title{Wavelet Series Harmonizer}
+\title{Series Harmonizer}
 \usage{
 SeriesHarmonizer(sum_fn = base::sum)
 }
@@ -12,16 +12,8 @@ SeriesHarmonizer(sum_fn = base::sum)
 \item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 }
 \value{
-function to harmonize disease/cause names
-\subsection{Returned Function}{
-\itemize{
-\item Arguments
-\itemize{
-\item \code{data} data frame containing time series data
-}
-\item Return - all fields in \code{data} with summarized series variable for unique time variable
-}
-}
+A function like \code{\link{series_harmonizer_default}} to
+harmonize disease/cause names.
 }
 \description{
 Harmonizes the series variable in \code{data} so there is one data value for each time

@@ -13,17 +13,8 @@ HandleMissingValues(na_remove = FALSE, na_replace = NULL)
 no replacement is performed}
 }
 \value{
-a function to remove or replace missing values.
-\subsection{Returned Function}{
-\itemize{
-\item Arguments
-\itemize{
-\item \code{data} data frame containing time series data
-\item \code{series_variable} column name of series variable in \code{data}, default is "deaths"
-}
-\item Return - all fields in \code{data} with either \code{NA} records removed or replaced
-}
-}
+A function like \code{\link{handle_missing_values_default}} that
+removes or replaces missing values.
 }
 \description{
 Construct a function that takes a data frame and returns another data

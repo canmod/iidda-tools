@@ -17,6 +17,7 @@
 ## data when resolve_var_args is called
 ## @param new_variables Variables that should not be in the
 ## data when resolve_var_args is called
+## @param req_variables Variables that are necessary and cannot be guessed
 ## 
 ## @return Version of `data` with updated metadata in an attribute called iidda.
 resolve_var_args = function(data
@@ -24,6 +25,7 @@ resolve_var_args = function(data
     , ign_variables = character()
     , opt_variables = character()
     , new_variables = character()
+    , req_variables = character()
   ) {
   meth_env = parent.frame() ## ... argument list of the data transformer
   force(meth_env)
@@ -32,6 +34,7 @@ resolve_var_args = function(data
     , ign_variables
     , opt_variables
     , new_variables
+    , req_variables
     , meth_env
   )
   return(data)
@@ -80,6 +83,7 @@ resolve_var_args_util = function(data
     , ign_variables = character()
     , opt_variables = character()
     , new_variables = character()
+    , req_variables = character()
     , meth_env = emptyenv()
   ) {
 
@@ -115,6 +119,12 @@ resolve_var_args_util = function(data
       assign(arg, value_in_data, envir = meth_env)
       how_arg_was_found = "data"
     } else { ## guessing
+      if (arg %in% req_variables) {
+        msg(
+            "Variable for the", arg, "was not specified,"
+          , "and cannot be guessed"
+        ) |> stop()
+      }
       if (arg %in% opt_variables) {
         value_guessed = arg_guess(data, arg
           , guess_fn = first_dat_in_std_or_first_std
@@ -176,12 +186,11 @@ resolve_specific_arg_util = function(data, arg, default, flush_arg_guesses = TRU
     assign(arg, value_in_data, envir = meth_env)
   } else if (is.null(default)) {
     sprintf(
-        "Cannot find a value for the argument, %s. Please specify one."
-      , arg
+      "Cannot find a value for the argument, %s. Please specify one.", arg
     ) |> stop()
   } else {
     ## `default == guess` in this context
-    default = arg_guess(default, arg, first_std_in_dat)
+    # default = default_guess(default, names(data), arg, is_new)
     attr(data, "iidda")[[arg]] = default
     assign(arg, default, envir = meth_env)
   }
@@ -193,7 +202,7 @@ resolve_specific_arg_util = function(data, arg, default, flush_arg_guesses = TRU
 
 
 
-resolve_plot_values = function(...) {
+resolve_choosers = function(...) {
   args = list(...) |> lapply(as.character) |> unlist(TRUE, FALSE)
   env = parent.frame()
   for (arg in args) {
@@ -203,7 +212,7 @@ resolve_plot_values = function(...) {
     } else if (!is_function_of_data(value)) {
       msg(
           sprintf("The function supplied to argument, %s,", arg)
-        , "must be have a first argument called 'data'."
+        , "must have a first argument called 'data'."
         , "Alternatively, you may directly supply the output of such a"
         , "function, which is simpler if it doesn't depend on the data."
       ) |> stop()

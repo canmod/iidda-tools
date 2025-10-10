@@ -30,7 +30,21 @@ arg_guess = function(dat, arg
   return(value)
 }
 
-
+default_guess = function(guess, available, arg, is_new) {
+  type = sub("_variable$", "", arg)
+  check_dat_in_std = check_default
+  check_std_in_dat = check_available
+  if (is_new) check_dat_in_std = check_std_in_dat = check_nothing
+  
+  value = variable_guess(dat = guess, std = available, type = type
+    , guess_fn = first_dat_in_std
+    , check_dat_in_std = check_dat_in_std
+    , check_std_in_dat = check_std_in_dat
+  )
+  attr(value, "guess") = TRUE
+  "Guessed that %s is the %s" |> sprintf(value, arg) |> message()
+  return(value)
+}
 
 ## Guessing Variable Names
 ## 
@@ -129,25 +143,50 @@ variable_guess.character = function(dat
 ## @return NULL -- called for the side effect of throwing errors, warnings,
 ## and/or messages if necessary.
 check_nothing = function(check_vec, type) invisible(NULL)
-check_dat = function(check_vec, type) {
-  if (!any(check_vec)) {
-    ("Data do not contain any recognized %s variables."
-      |> paste("Please supply a variable name explicitly for your dataset.")
-      |> sprintf(type)
-      |> stop()
-    )
+make_check = function(..., action) {
+  template = paste(...)
+  function(check_vec, type) {
+    if (!any(check_vec)) template |> sprintf(type) |> action()
+    invisible(NULL)
   }
-  invisible(NULL)
 }
-check_std = function(check_vec, type) {
-  if (!any(check_vec)) {
-    ("Need to specify a value for the %s_variable argument."
-      |> sprintf(type)
-      |> stop()
-    )
-  }
-  invisible(NULL)
-}
+check_dat = make_check(
+    "Data do not contain any recognized %s variables."
+  , "Please supply a variable name explicitly for your dataset."
+  , action = stop
+)
+check_std = make_check(
+    "Need to specify a value for the %s_variable argument."
+  , action = stop
+)
+check_default = make_check(
+    "None of the default guesses for the %s_variable argument are in the data."
+  , action = stop
+)
+check_available = make_check(
+    "The data do not contain any of the defaut guesses for the %s_variable."
+  , action = stop
+)
+# check_dat = function(check_vec, type) {
+#   if (!any(check_vec)) {
+#     ("Data do not contain any recognized %s variables."
+#       |> paste("Please supply a variable name explicitly for your dataset.")
+#       |> sprintf(type)
+#       |> stop()
+#     )
+#   }
+#   invisible(NULL)
+# }
+# check_std = function(check_vec, type) {
+#   if (!any(check_vec)) {
+#     ("Need to specify a value for the %s_variable argument."
+#       |> sprintf(type)
+#       |> stop()
+#     )
+#   }
+#   invisible(NULL)
+# }
+
 
 ## ---------------------------------------------
 ## Underlying guess functions for variable_guess
@@ -184,6 +223,8 @@ all_dat_in_std = function(dat, std, dat_in_std, std_in_dat) {
   i = which(dat_in_std)
   dat[i]
 }
+first_dat = function(dat, std, dat_in_std, std_in_dat) dat[1L]
+
 
 
 
@@ -194,13 +235,32 @@ all_dat_in_std = function(dat, std, dat_in_std, std_in_dat) {
 ## And so, for example, std("series") is equivalent to std_series_variables(),
 ## but the former is easier to handle programmatically
 std = function(type) {
-  suffix = "_variables"
-  pattern = paste0(suffix, "$")
-  if (grepl(pattern, type)) suffix = ""
-  fn_nm = sprintf("std_%s%s", type, suffix)
+  fn_nm = name_std(type)
   if (!exists(fn_nm)) stop("Non-standard variable type, ", type)
   fn = get(fn_nm)
   fn()
+}
+
+name_std = function(type) {
+  suffix = "_variables"
+  pattern = paste0(suffix, "$")
+  if (grepl(pattern, type)) suffix = ""
+  sprintf("std_%s%s", type, suffix)
+}
+
+exists_std = function(type) {
+  (type
+    |> name_std()
+    |> exists()
+    |> isTRUE()
+  )
+}
+
+list_std = function() {
+  ("iidda.analysis"
+    |> getNamespace()
+    |> ls(pattern = "^std_[_a-z]+_variables$")
+  )
 }
 
 
@@ -210,6 +270,23 @@ is_guess = function(data, which) {
     |> attr("guess")
     |> isTRUE()
   )
+}
+
+
+
+## special guessers
+guess_grouping_columns = function(grouping_columns, data, non_grouping_columns = character()) {
+  if (is.null(grouping_columns)) {
+    grouping_columns = variable_guess(
+        data
+      , setdiff(std_grouping_variables(), non_grouping_columns)
+      , "grouping"
+      , all_dat_in_std
+      , check_dat
+      , check_nothing
+    )
+  }
+  return(grouping_columns)
 }
 
 

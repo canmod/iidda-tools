@@ -12,20 +12,14 @@ count variable.}
 
 \item{norm_exponent}{Exponent to use in normalization. The default is \code{5},
 which means \verb{per 100,000}.}
-
-\item{time_variable}{Name of the variable to characterize the temporal
-location of the time period.}
-
-\item{period_width_variable}{Name of variable to characterize the width
-of the time period.}
-
-\item{count_variable}{Name of variable to characterize the count variable
-being normalized.}
-
-\item{norm_variable}{Name of variable to be used to normalize the count
-variable.}
+}
+\value{
+A function like \code{\link{period_aggregator_default}} that
+aggregates data so that each time period is represented by exactly
+one record.
 }
 \description{
 Create function that aggregates information over time periods, normalizes
 a count variable, and creates new fields to summarize this information.
 }
+\concept{data_prep_constructors}

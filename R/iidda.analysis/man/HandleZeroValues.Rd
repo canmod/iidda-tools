@@ -13,17 +13,8 @@ HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
 no replacement is performed}
 }
 \value{
-a function to remove or replace zero values.
-\subsection{Returned Function}{
-\itemize{
-\item Arguments
-\itemize{
-\item \code{data} data frame containing time series data
-\item \code{series_variable} column name of series variable in \code{data}, default is "deaths"
-}
-\item Return - all fields in \code{data} with either zero records removed or replaced
-}
-}
+A function like \code{\link{handle_zero_values_default}} to remove
+or replace zero values.
 }
 \description{
 Construct a function that takes a data frame and returns another data

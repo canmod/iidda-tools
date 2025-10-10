@@ -33,3 +33,4 @@ Construct a function that takes a data frame and returns another data
 frame with a time variable converted so that it has the correct format,
 class, and/or type.
 }
+\concept{data_prep_constructors}

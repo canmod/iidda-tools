@@ -23,17 +23,7 @@ Deheaper(
 \item{week_end}{numeric value of the last week number to look for heaping errors}
 }
 \value{
-function to fix heaping errors
-\subsection{Returned Function}{
-\itemize{
-\item Arguments
-\itemize{
-\item \code{data} data frame containing time series data
-}
-\item Return - all fields in \code{data} with an additional field called "deheaped_" concatenated with \code{series_variable}.
-If no heaping errors are found, this additional field is identical to the field `series_variable
-}
-}
+A function like \code{\link{deheaper_default}} to fix heaping errors.
 }
 \description{
 Fixes heaping errors in time series. The structure of this function was taken from

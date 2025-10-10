@@ -9,6 +9,8 @@
 #' @name data_prep_constructors
 NULL
 
+#' Skip Pipeline Step
+#' @concept data_prep_constructors
 #' @export
 Skipper = function() function(data, ...) return(data)
 
@@ -68,14 +70,8 @@ CustomDataPrep = function(data_prep_function
 #' no replacement is performed
 #'
 #' @importFrom dplyr all_of filter across
-#' @return a function to remove or replace missing values.
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#' - Return - all fields in `data` with either `NA` records removed or replaced
+#' @return A function like \code{\link{handle_missing_values_default}} that
+#' removes or replaces missing values.
 #'
 #' @concept data_prep_constructors
 #' @export
@@ -105,6 +101,9 @@ HandleMissingValues <- function(na_remove = FALSE, na_replace = NULL) {
   } ## |> return_data_prep_function()
 }
 
+#' @rdname data_prep_default
+#' @export
+handle_missing_values_default = HandleMissingValues()
 
 
 #' Handle Zero Values in Series Variable
@@ -116,14 +115,8 @@ HandleMissingValues <- function(na_remove = FALSE, na_replace = NULL) {
 #' @param zero_replace numeric value to replace zeroes in series variable, if NULL
 #' no replacement is performed
 #'
-#' @return a function to remove or replace zero values.
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#' - Return - all fields in `data` with either zero records removed or replaced
+#' @returns A function like \code{\link{handle_zero_values_default}} to remove
+#' or replace zero values.
 #'
 #' @concept data_prep_constructors
 #' @export
@@ -152,6 +145,12 @@ HandleZeroValues <- function(zero_remove = FALSE, zero_replace = NULL){
 }
 
 
+#' @rdname data_prep_default
+#' @export
+handle_zero_values_default = HandleZeroValues()
+
+
+
 #' Trim Time Series
 #'
 #' Remove leading or trailing zeros in a time series data set.
@@ -160,15 +159,8 @@ HandleZeroValues <- function(zero_remove = FALSE, zero_replace = NULL){
 #' @param zero_trail boolean value, if `TRUE` remove trailing zeroes in `data`
 #'
 #' @importFrom dplyr arrange pull
-#' @return a function to remove to remove leading and/or trailing zeroes
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#'    * `time_variable` column name of time variable in `data`, default is "period_end_date"
-#' - Return - all fields in `data` with filtered records to trim leading and/or trailing zeroes
+#' @returns A function like \code{\link{trim_series_default}} to remove to
+#' remove leading and/or trailing zeroes.
 #'
 #' @concept data_prep_constructors
 #' @export
@@ -204,7 +196,12 @@ TrimSeries <- function(zero_lead = FALSE, zero_trail = FALSE) {
   } ## |> return_data_prep_function()
 }
 
-#' Wavelet Series Harmonizer
+#' @rdname data_prep_default
+#' @export
+trim_series_default = TrimSeries()
+
+
+#' Series Harmonizer
 #'
 #' Harmonizes the series variable in `data` so there is one data value for each time
 #' unit in time variable (to account for different variations in disease/cause name)
@@ -213,18 +210,12 @@ TrimSeries <- function(zero_lead = FALSE, zero_trail = FALSE) {
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #'
 #' @importFrom dplyr group_by summarize ungroup
-#' @return function to harmonize disease/cause names
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#' - Return - all fields in `data` with summarized series variable for unique time variable
+#' @returns A function like \code{\link{series_harmonizer_default}} to 
+#' harmonize disease/cause names.
 #'
 #' @concept data_prep_constructors
 #' @export
 SeriesHarmonizer = function(sum_fn = base::sum) {
-  new_variables = character(0L)
   flush_arg_guesses = TRUE
   function(data, series_variable = NULL, time_variable = NULL) {
     data = resolve_var_args(data)
@@ -238,6 +229,10 @@ SeriesHarmonizer = function(sum_fn = base::sum) {
     return_iidda(harmonized_data, data)
   } ## |> return_data_prep_function()
 }
+
+#' @rdname data_prep_default
+#' @export
+series_harmonizer_default = SeriesHarmonizer()
 
 #' De-heaping time series
 #'
@@ -253,16 +248,9 @@ SeriesHarmonizer = function(sum_fn = base::sum) {
 #'
 #' @importFrom dplyr if_else group_split lag lead
 #' @importFrom stats sd
-#' @return function to fix heaping errors
+#' @return A function like \code{\link{deheaper_default}} to fix heaping errors.
 #'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#' - Return - all fields in `data` with an additional field called "deheaped_" concatenated with `series_variable`.
-#' If no heaping errors are found, this additional field is identical to the field `series_variable
-#'
-#' @importFrom stats median
+#' @importFrom stats median start end
 #' @concept data_prep_constructors
 #' @export
 Deheaper = function(
@@ -375,6 +363,10 @@ Deheaper = function(
   } ## |> return_data_prep_function()
 }
 
+#' @rdname data_prep_default
+#' @export
+deheaper_default = Deheaper()
+
 
 #' Wavelet Joiner
 #'
@@ -388,17 +380,11 @@ Deheaper = function(
 #' be kept and data from `trend_data` is left joined, if `FALSE` dates from `trend_data`
 #' are left joined instead
 #'
-#' @return function to join data and trend data sets
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `series_data` data frame containing time series data
-#'    * `trend_data` data frame containing trend data
-#' - Return - joined data set by `time_variable` with updated field names
+#' @returns A function like \code{\link{wavelet_joiner_default}} to join data
+#' and trend data sets.
 #'
 #' @concept data_prep_constructors
-#' @export
+#' @noRd
 WaveletJoiner = function(
     time_variable = "period_end_date",
     series_suffix = "_series",
@@ -443,7 +429,7 @@ WaveletJoiner = function(
 #' `trend_variable`
 #'
 #' @concept data_prep_constructors
-#' @export
+#' @noRd
 WaveletInterpolator = function(
       series_suffix = "_series"
     , trend_suffix = "_trend"
@@ -539,7 +525,7 @@ WaveletInterpolator = function(
 #' - Return - `data` with additional normalized fields
 #'
 #' @concept data_prep_constructors
-#' @export
+#' @noRd
 WaveletNormalizer = function(
     series_suffix = "_series",
     trend_suffix = "_trend",
@@ -601,7 +587,7 @@ WaveletNormalizer = function(
 #' `wavelet_variable` in `data`
 #'
 #' @concept data_prep_constructors
-#' @export
+#' @noRd
 WaveletTransformer = function(...) { # all arguments to analyze.wavelet
   new_variables = character(0L)
   function(data, time_variable, wavelet_variable) {
@@ -620,56 +606,49 @@ WaveletTransformer = function(...) { # all arguments to analyze.wavelet
 #' @param ma_window_length length of moving average window, this will depend on the time scale in the data.
 #' Defaults to 52, so that weekly data is averaged over years.
 #'
-#' @return a function to remove to compute the moving average of a time series variable
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#'    * `time_variable` column name of time variable in `data`, default is "period_end_date"
-#' - Return - all fields in `data` with the `series_variable` data replaced with the moving
-#' average.
+#' @returns A function like \code{\link{compute_moving_average_default}} to 
+#' remove to compute the moving average of a time series variable.
 #'
 #' @concept data_prep_constructors
 #' @export
 ComputeMovingAverage <- function(ma_window_length=52){
-  new_variables = character(0L)
-  function(data,
-           series_variable="deaths",
-           time_variable="period_end_date"){
-
+  function(data
+      , series_variable = NULL
+      , time_variable = NULL
+    ){
+    data = resolve_var_args(data)
+    
     # compute moving average
     ma_filter <- rep(1,ma_window_length)/ma_window_length
 
     data <- data |> mutate(across(all_of(series_variable), ~stats::filter(.,ma_filter)))
     #data$y <- stats::filter(data$y,ma_filter)
 
-    return(data)
-  } ## |> return_data_prep_function()
+    return_iidda(data)
+  }
 }
+
+#' @rdname data_prep_default
+#' @export
+compute_moving_average_default = ComputeMovingAverage()
 
 #' Period Aggregator
 #'
 #' Create function that aggregates information over time periods, normalizes
 #' a count variable, and creates new fields to summarize this information.
 #'
-#' @param time_variable Name of the variable to characterize the temporal
-#' location of the time period.
-#' @param period_width_variable Name of variable to characterize the width
-#' of the time period.
-#' @param count_variable Name of variable to characterize the count variable
-#' being normalized.
-#' @param norm_variable Name of variable to be used to normalize the count
-#' variable.
 #' @param rate_variable Name of variable to be used to store the normalized
 #' count variable.
 #' @param norm_exponent Exponent to use in normalization. The default is `5`,
 #' which means `per 100,000`.
 #'
+#' @returns A function like \code{\link{period_aggregator_default}} that
+#' aggregates data so that each time period is represented by exactly 
+#' one record.
+#'
+#' @concept data_prep_constructors
 #' @export
 PeriodAggregator = function(rate_variable, norm_exponent = 5) {
-  new_variables = character(0L)
   function(data                    # Examples
                                    # --------
     , time_variable = NULL         # "period_end_date"
@@ -677,7 +656,8 @@ PeriodAggregator = function(rate_variable, norm_exponent = 5) {
     , count_variable = NULL        # "cases_this_period"
     , norm_variable = NULL         # "population_reporting"
   ) {
-    (data
+    data = resolve_var_args(data)
+    output_data = (data
       |> group_by(.data[[time_variable]], .data[[period_width_variable]])
       |> summarise(
           !!norm_variable := sum(.data[[norm_variable]])
@@ -691,18 +671,33 @@ PeriodAggregator = function(rate_variable, norm_exponent = 5) {
           / get(norm_variable)
       ))
     )
+    return_iidda(output_data, data)
   } ## |> return_data_prep_function()
 }
 
+#' @rdname data_prep_default
+#' @export
+period_aggregator_default = PeriodAggregator()
+
+#' Count Aggregator
+#' 
+#' Create a function that aggregates count variables.
+#' 
+#' @returns A function like \code{\link{count_aggregator_default}} that
+#' aggregates count variables.
+#' @concept data_prep_constructors
 #' @export
 CountAggregator = function() {
-  new_variables = "total_count_variable"
   function(data
     , total_count_variable = NULL
     , count_variable = NULL
     , grouping_variable = NULL
   ) {
-    data = resolve_var_args(data)
+    data = resolve_var_args(data, ign_variables = "total_count_variable")
+    data = resolve_specific_arg(data
+      , arg = "total_count_variable"
+      , default = sprintf("total_%s", count_variable)
+    )
     aggregated = (data
       |> summarise(
             !!sym(total_count_variable) := sum(get(count_variable), na.rm = TRUE)
@@ -714,6 +709,11 @@ CountAggregator = function() {
     return_iidda(data, more_iidda_attrs = list(aggregated = aggregated))
   }## |> return_data_prep_function()
 }
+
+#' @rdname data_prep_default
+#' @export
+count_aggregator_default = CountAggregator()
+
 
 #' Period Describer
 #'
@@ -727,6 +727,9 @@ CountAggregator = function() {
 #'
 #' @param mid_types Compute mid-times and/or mid-dates?
 #'
+#' @returns A function like \code{\link{period_describer_default}} that
+#' adds variables to describe the time period represented by each record.
+#' @concept data_prep_constructors
 #' @export
 PeriodDescriber = function(mid_types = c("time", "date")) {
   
@@ -817,19 +820,34 @@ PeriodDescriber = function(mid_types = c("time", "date")) {
   }
 }
 
-
+#' @rdname data_prep_default
 #' @export
-period_describer = PeriodDescriber()
+period_describer_default = PeriodDescriber()
+
+DateDescriber = function(
+      year_variable = "year"
+    , month_variable = "month"
+    , day_variable = "day"
+  ) {
+  function(data, date_variable = NULL) {
+    data = resolve_var_args(data)
+    if (is.character(data[[date_variable]])) {
+      
+    }
+  }
+}
 
 #' Time Scale Picker
 #'
-#' @param time_scale_variable Variable identifying the time scale of records.
-#' The values of such a variable should be things like `"wk"`, `"mo"`, `"yr"`.
-#' @param time_group_variable Variable identifying a grouping variable for
-#' the time scales (e.g. a column identifying the year.).
+#' @returns A function like \code{\link{time_scale_picker_default}} that 
+#' 
 #' @export
-TimeScalePicker = function(
-) {
+TimeScalePicker = function() {
+  pick_fine_time_scale = function(scales) {
+    ordering = c("wk", "mo", "qr", "yr")
+    f = factor(as.character(scales), levels = ordering)
+    f[which.min(as.numeric(f))] |> as.character()
+  }
   new_variables = character(0L)
   flush_arg_guesses = TRUE
   function(data
@@ -841,17 +859,12 @@ TimeScalePicker = function(
       data = group_by(data, .data[[time_group_variable]])
     }
     grouped_data = (data
-      #|> group_by(.data[[time_group_variable]])
+      # |> group_by(.data[[time_group_variable]])
       |> filter(.data[[time_scale_variable]] == pick_fine_time_scale(.data[[time_scale_variable]]))
       |> ungroup()
     )
     return_iidda(grouped_data, data)
   } ## |> return_data_prep_function()
-}
-pick_fine_time_scale = function(scales) {
-  ordering = c("wk", "mo", "qr", "yr")
-  f = factor(as.character(scales), levels = ordering)
-  f[which.min(as.numeric(f))] |> as.character()
 }
 
 #' Time Variable Converter
@@ -872,6 +885,7 @@ pick_fine_time_scale = function(scales) {
 #'     is `"period_end_date"`.
 #' - Return : A version of `data` with `time_variable` column converted to
 #'
+#' @concept data_prep_constructors
 #' @export
 TimeVariableConverter = function(
       as_date = as.Date
@@ -898,6 +912,8 @@ TimeVariableConverter = function(
   } ## |> return_data_prep_function()
 }
 
+#' Data Dictionary Converter
+#'
 #' @export
 DataDictionaryConverter = {
   new_variables = character(0L)
@@ -906,6 +922,9 @@ DataDictionaryConverter = {
   } ## |> return_data_prep_function()
 }
 
+#' Time Range Desciber
+#'
+#' @concept data_prep_constructors
 #' @importFrom iidda summarise_dates
 #' @export
 TimeRangeDescriber = function(cutoff = 50) {
@@ -920,6 +939,13 @@ TimeRangeDescriber = function(cutoff = 50) {
   }
 }
 
+#' Title Guesser
+#'
+#' @param custom Custom string for the title
+#' @param prefer List of variables that could contain title information
+#' in an order that will be used to find variables that will be used to
+#' guess at a title. The first variable found in the data is the one that
+#' is chosen.
 #' @export
 TitleGuesser = function(
       custom = NULL
@@ -939,8 +965,8 @@ TitleGuesser = function(
       |> Filter(f = \(x) is.character(x) | is.factor(x))
       |> lapply(unique)
       |> Filter(f = \(x) length(x) == 1L)
-      |> Filter(f = \(x) nchar(x) > 0L)
       |> lapply(as.character)
+      |> Filter(f = \(x) nchar(x) > 0L)
     )
     if (length(candidates) == 0L) {
       msg(
@@ -987,7 +1013,22 @@ TitleGuesser = function(
   }
 }
 
+OrderGuesser = function() {
+  function(data, category_variable = NULL) {
+    data = resolve_var_args(data)
+    data[[category_variable]] |> unique()
+  }
+}
 
+
+
+VariableTitleGuesser = function(dictionary = iidda_data_dictionary()) {
+  function(variable) {
+    i = dictionary$name == variable
+    if (!any(i)) return(variable)
+    dictionary$title[[which(i)]]
+  }
+}
 
 # ------------------------------------
 # prep functions TODO: better name?
@@ -1348,67 +1389,6 @@ iidda_prep_heatmap_decomp = function(data
     , levels = ordering
   )
   heatmap_data
-}
-
-#' @export
-iidda_prep_availabiliy = function(data
-  , within_panel_order
-  , colour_order
-  , variable_converter = DataDictionaryConverter()
-  , period_describer = PeriodDescriber(mid_types = "time")
-  , count_aggregator = CountAggregator()
-) {
-  prep = Availability(
-      within_panel_order
-    , colour_order
-    , variable_converter
-    , period_describer
-    , count_aggregator
-  )
-  prep(data)
-}
-
-Availability = function(
-    within_panel_order
-  , colour_order
-  , variable_converter = DataDictionaryConverter()
-  , period_describer = PeriodDescriber(mid_types = "time")
-  , count_aggregator = CountAggregator()
-) {
-  flush_arg_guesses = TRUE
-  function(data
-      , count_variable = NULL
-      , total_count_variable = NULL
-      , period_start_variable = NULL
-      , period_mid_time_variable = NULL
-      , period_end_variable = NULL
-      , period_days_variable = NULL
-      , norm_variable = NULL
-      , colour_variable = NULL
-      , within_panel_variable = NULL
-      , among_panel_variable = NULL
-  ) {
-    data = resolve_var_args(data
-      , new_variables = "total_count_variable"
-      , opt_variables = c(
-            "period_start_variable", "period_end_variable"
-          , "period_mid_time_variable", "period_days_variable"
-        )
-    )
-    data = (data
-      |> variable_converter()
-      |> period_describer()
-      |> count_aggregator(grouping_variable = among_panel_variable)
-    )
-    aggregated = attr(data, "iidda")$aggregated
-    output_data = (data
-      |> filter(get(among_panel_variable) %in% aggregated[[among_panel_variable]])
-      |> mutate(!!sym(within_panel_variable) := factor(get(within_panel_variable), levels = within_panel_order))
-      |> mutate(!!sym(colour_variable) := factor(get(colour_variable), levels = colour_order))
-      |> mutate(!!sym(among_panel_variable) := factor(get(among_panel_variable), levels = levels(aggregated[[among_panel_variable]])))
-    )
-    return_iidda(output_data, data)
-  }
 }
 
 
@@ -1857,6 +1837,12 @@ AttachBar = function() function(data
   iidda_defaults_if(data, plot = plot)
 }
 
+#' Attach Bar Plot to Dataset
+#' 
+#' @param data Data frame, probably containing an IIDDA dataset.
+#' @param initial_ggplot_object Plot object that will be used to add a
+#' bar geom.
+#' 
 #' @export
 iidda_attach_bar = AttachBar()
 
@@ -1893,99 +1879,13 @@ iidda_plot_bar <- function(plot_object
 
 
 
-#' Plot Data Availability Graph
-#'
-#' @importFrom ggplot2 as_labeller facet_wrap
-#' @importFrom iidda pager
-#'
-#' @export
-iidda_plot_availability = function(data, page, page_size
-    , scale_colour
-    , title_colour
-    , title_totals
-    , text_size = 9
-    , left_margin = 100
-    , legend_margin = 15
-    , subplot_widths = c(5, 1)
-  ) {
-
-  totals = attr(data, "iidda")$aggregated
-  if (is.null(totals)) {
-    msg(
-        "The dataset does not contain an `aggregated` dataset"
-      , "in the `iidda` attributes. Did you use"
-      , "`iidda_prep_availability()` to create `data`?"
-    ) |> stop()
-  }
-  plims = c(
-      as.POSIXct(min(data$period_start_date))
-    , as.POSIXct(max(data$period_end_date) + days(1))
-  )
-  print(plims)
-
-  page = iidda::pager(page, page_size, rev = FALSE)(seq_len(nrow(totals)))
-  top_diseases = totals[page,]
-  case_labeller = (top_diseases$total_cases
-    |> magnitude(digits = 1)
-    |> setNames(top_diseases$basal_disease)
-    |> ggplot2::as_labeller()
-  )
-  data_this_page = filter(data, basal_disease %in% top_diseases$basal_disease)
 
 
-  bar_plot = (top_diseases
-    |> ggplot()
-    + ggplot2::facet_wrap(~basal_disease
-        , ncol = 1L
-        , scales = "free_y"
-        , strip.position = "left"
-        , labeller = case_labeller
-      )
-    + geom_col(aes(total_cases, basal_disease), fill = "grey")
-    + scale_x_continuous(name = title_totals, position = "top")
-    + scale_y_discrete(name = "")
-    + iidda_theme_availability_bars(text_size = text_size)
-  )
-  extent_plot = (data_this_page
-    |> ggplot()
-    + facet_wrap(~ basal_disease, ncol = 1L, strip.position = "left")
-    + geom_tile(
-            aes(
-                x = period_mid_time
-              , y = iso_3166_2
-              , width = days_this_period * 86400
-              , fill = time_scale
-            )
-          , alpha = 1, size = 0, colour = NA
-      )
-    + scale_y_discrete("", labels = NULL)
-    + scale_x_datetime("Year"
-      , breaks = seq(
-            as.POSIXct("1910-01-01")
-          , as.POSIXct("2010-01-01")
-          , by = "20 years"
-        )
-      , minor_breaks = seq(
-            as.POSIXct("1910-01-01")
-          , as.POSIXct("2010-01-01")
-          , by = "5 years"
-        )
-      , limits = plims
-      , date_labels =  "%Y"
-      , expand = c(0, 0)
-    )
-    + iidda_theme_availability_heatmap(text_size = text_size, left_margin = left_margin, legend_margin = legend_margin)
-    + scale_fill_discrete(guide = guide_legend(
-          title = title_colour
-        , position = "top"
-      ), type = scale_colour)
-  )
-  extent_plot + bar_plot + plot_layout(widths = subplot_widths)
-}
-
-
-
-
+#' Get IIDDA Attribute
+#' 
+#' @param data Data frame that contains a list attribute called `"iidda"`.
+#' @param which Name of the element in the `"iidda"` list to extract.
+#' @returns Value of the element given by `which` in the `"iidda"` attribute.
 #' @export
 get_iidda_attr = function(data, which) {
   (data
@@ -2684,38 +2584,17 @@ HierarchyNormalizer = function(
       , nesting_variable = NULL
       , grouping_columns = NULL
     ) {
-    ## TODO: resolve_hier_args : for all hierarchy vars??
     data = resolve_hier_args(data, hierarchical_variable)
-    # data = resolve_var_args(data
-    #   , flush_arg_guesses = FALSE
-    #   , ign_variables = c("nesting_variable", "basal_variable")
-    # )
-    # data = resolve_specific_arg(data
-    #   , "basal_variable"
-    #   , sprintf("basal_%s", hierarchical_variable)
-    # )
-    # check_vars_in_data(data, "basal_variable", basal_variable)
-    # data = resolve_specific_arg(data
-    #   , "nesting_variable"
-    #   , sprintf("nesting_%s", hierarchical_variable)
-    # )
-    # check_vars_in_data(data, "nesting_variable", nesting_variable)
-    
     hierarchical_columns = c(
         hierarchical_variable
       , basal_variable
       , nesting_variable
     )
-    if (is.null(grouping_columns)) {
-      grouping_columns = variable_guess(
-          london_mort
-        , setdiff(std_grouping_variables(), hierarchical_columns)
-        , "grouping"
-        , all_dat_in_std
-        , check_dat
-        , check_nothing
-      )
-    }
+    grouping_columns = guess_grouping_columns(
+        grouping_columns
+      , data
+      , hierarchical_columns
+    )
   
     hierarchy_table = (hierarchy_table
       |> select(any_of(hierarchical_columns))
@@ -2775,14 +2654,26 @@ HierarchyNormalizer = function(
   }
 }
 
+#' @export
 HierarchicalBalancer = function() function(data
+      , hierarchical_variable = NULL
+      , basal_variable = NULL
+      , nesting_variable = NULL
+      , grouping_columns = NULL
   ) {
-
-  data = mutate(data, source_id = source_from_digitization_id(digitization_id))
+  data = resolve_hier_args(data, hierarchical_variable)
+  
+  ## example grouping columns:
+  ## iso_3166, iso_3166_2, period_start_date, period_end_date,
+  ## nesting_disease, source_id, cases_this_period
+  
+  ## need to do this outside of this function now
+  ## data = mutate(data, source_id = source_from_digitization_id(digitization_id))
+  
   # check if sum of leaf diseases = reported sum of basal disease
   sum_of_leaf = (
     data
-    |> filter(disease != nesting_disease)
+    |> filter(.data[[hierarchical_variable]] != .data[[nesting_variable]])
     |> group_by(iso_3166, iso_3166_2, period_start_date, period_end_date, nesting_disease, basal_disease)
     |> filter(!disease %in% unique(nesting_disease))
     |> mutate(cases_this_period = sum(as.numeric(cases_this_period)))
