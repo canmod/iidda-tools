@@ -146,6 +146,14 @@ add_data_path = function(dataset_table) {
   dataset_table
 }
 
+bind_rows_lst = function(lst) do.call(rbind, lst)
+bind_rows_lst_df = function(lst, df) do.call(rbind, c(lst, list(df)))
+bind_rows_robust = function(x, y) {
+  if (is.data.frame(x) | is.null(x)) x = list(x)
+  if (is.data.frame(y) | is.null(y)) y = list(y)
+  do.call(rbind, c(x, y))
+}
+
 get_all_dataset_metadata = function(dataset) {
   ## recursion to find dependencies of dependencies
   prerequisite_dataset_ids = (dataset
@@ -157,22 +165,22 @@ get_all_dataset_metadata = function(dataset) {
   for (id in prerequisite_dataset_ids) prerequisite_metadata[[id]] = Recall(id)
   prerequisite_metadata$PrepScripts = (prerequisite_metadata
     |> lapply(getElement, "PrepScripts")
-    |> Reduce(f = bind_rows)
+    |> Reduce(f = bind_rows_lst)
     |> unique()
   )
   prerequisite_metadata$AccessScripts = (prerequisite_metadata
     |> lapply(getElement, "AccessScripts")
-    |> Reduce(f = bind_rows)
+    |> Reduce(f = bind_rows_lst)
     |> unique()
   )
   prerequisite_metadata$Scans = (prerequisite_metadata
     |> lapply(getElement, "Scans")
-    |> Reduce(f = bind_rows)
+    |> Reduce(f = bind_rows_lst)
     |> unique()
   )
   prerequisite_metadata$Digitizations = (prerequisite_metadata
     |> lapply(getElement, "Digitizations")
-    |> Reduce(f = bind_rows)
+    |> Reduce(f = bind_rows_lst)
     |> unique()
   )
 
@@ -180,22 +188,22 @@ get_all_dataset_metadata = function(dataset) {
   PrepScripts = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/prep-scripts/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("PrepScripts")
-    |> bind_rows(prerequisite_metadata$PrepScripts)
+    |> bind_rows_robust(prerequisite_metadata$PrepScripts)
   )
   AccessScripts = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/access-scripts/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("AccessScripts")
-    |> bind_rows(prerequisite_metadata$AccessScripts)
+    |> bind_rows_robust(prerequisite_metadata$AccessScripts)
   )
   Scans = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/scans/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("Scans")
-    |> bind_rows(prerequisite_metadata$Scans)
+    |> bind_rows_robust(prerequisite_metadata$Scans)
   )
   Digitizations = (dataset
     |> read_resource_metadata("^pipelines/[a-zA-Z0-9_-]+/digitizations/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$")
     |> assert_tracking_type("Digitizations")
-    |> bind_rows(prerequisite_metadata$Digitizations)
+    |> bind_rows_robust(prerequisite_metadata$Digitizations)
   )
   metadata = nlist(PrepScripts, AccessScripts, Scans, Digitizations) |> lapply(add_resource_path)
   sources = (metadata
