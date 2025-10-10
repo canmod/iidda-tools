@@ -165,22 +165,22 @@ get_all_dataset_metadata = function(dataset) {
   for (id in prerequisite_dataset_ids) prerequisite_metadata[[id]] = Recall(id)
   prerequisite_metadata$PrepScripts = (prerequisite_metadata
     |> lapply(getElement, "PrepScripts")
-    |> Reduce(f = bind_rows_lst)
+    |> Reduce(f = bind_rows_robust)
     |> unique()
   )
   prerequisite_metadata$AccessScripts = (prerequisite_metadata
     |> lapply(getElement, "AccessScripts")
-    |> Reduce(f = bind_rows_lst)
+    |> Reduce(f = bind_rows_robust)
     |> unique()
   )
   prerequisite_metadata$Scans = (prerequisite_metadata
     |> lapply(getElement, "Scans")
-    |> Reduce(f = bind_rows_lst)
+    |> Reduce(f = bind_rows_robust)
     |> unique()
   )
   prerequisite_metadata$Digitizations = (prerequisite_metadata
     |> lapply(getElement, "Digitizations")
-    |> Reduce(f = bind_rows_lst)
+    |> Reduce(f = bind_rows_robust)
     |> unique()
   )
 
