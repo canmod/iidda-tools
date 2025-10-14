@@ -11,16 +11,8 @@ ComputeMovingAverage(ma_window_length = 52)
 Defaults to 52, so that weekly data is averaged over years.}
 }
 \value{
-a function to remove to compute the moving average of a time series variable
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-   * `series_variable` column name of series variable in `data`, default is "deaths"
-   * `time_variable` column name of time variable in `data`, default is "period_end_date"
-- Return - all fields in `data` with the `series_variable` data replaced with the moving
-average.
+A function like \code{\link{compute_moving_average_default}} to
+remove to compute the moving average of a time series variable.
 }
 \description{
 Compute Moving Average of Time Series

@@ -2,26 +2,21 @@
 % Please edit documentation in R/plot_prep.R
 \name{SeriesHarmonizer}
 \alias{SeriesHarmonizer}
-\title{Wavelet Series Harmonizer}
+\title{Series Harmonizer}
 \usage{
-SeriesHarmonizer(time_variable = "period_end_date", series_variable = "deaths")
+SeriesHarmonizer(sum_fn = base::sum)
 }
 \arguments{
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 }
 \value{
-function to harmonize disease/cause names
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-- Return - all fields in `data` with summarized series variable for unique time variable
+A function like \code{\link{series_harmonizer_default}} to
+harmonize disease/cause names.
 }
 \description{
-Harmonizes the series variable in `data` so there is one data value for each time
+Harmonizes the series variable in \code{data} so there is one data value for each time
 unit in time variable (to account for different variations in disease/cause name)
 }
 \concept{data_prep_constructors}

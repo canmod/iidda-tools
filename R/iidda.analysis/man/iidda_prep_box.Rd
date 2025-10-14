@@ -6,9 +6,9 @@
 \usage{
 iidda_prep_box(
   data,
-  series_variable = "deaths",
-  time_variable = "period_end_date",
-  time_unit = "week",
+  series_variable = NULL,
+  time_variable = NULL,
+  time_unit = "month_factor_abbr",
   handle_missing_values = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
   handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
 )
@@ -16,22 +16,22 @@ iidda_prep_box(
 \arguments{
 \item{data}{data frame containing time series data}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{time_unit}{time unit to create field from `time_variable`. Must be one of iidda.analysis:::time_units, defaults to "week".}
+\item{time_unit}{time unit to create field from \code{time_variable}. Must be one of iidda.analysis:::time_units, defaults to "week".}
 
 \item{handle_missing_values}{function to handle missing values, defaults to HandleMissingValues}
 
 \item{handle_zero_values}{function to handle zero values, defaults to HandleZeroValues}
 }
 \value{
-all fields in`data` with records prepped for plotting box plots. The name
-of the new `time_unit` field will be named from lubridate_funcs.
+all fields in\code{data} with records prepped for plotting box plots. The name
+of the new \code{time_unit} field will be named from lubridate_funcs.
 }
 \description{
-Prep data for plotting box plots. Prep steps were taken from `LBoM::monthly_box_plot`
+Prep data for plotting box plots. Prep steps were taken from \code{LBoM::monthly_box_plot}
 and they include handling missing values and creating additional time unit fields.
 }
 \concept{prep_data_for_plotting}

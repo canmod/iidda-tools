@@ -26,17 +26,13 @@ mock_api_hook = function(repo_path) {
       }
     , metadata = function(...) {
         stop("need to use the real api when getting metadata. cannot use this mock api")
-    }
+      }
     , data_dictionary = function() {
-        paths = (repo_path
-          |> file.path("metadata/columns/*.json")
-          |> Sys.glob()
+        (repo_path
+          |> file.path("metadata/columns")
+          |> read_dict_from_metadata()
         )
-        setNames(
-            lapply(paths, jsonlite::read_json)
-          , tools::file_path_sans_ext(basename(paths))
-        )
-    }
+      }
   )
 }
 
@@ -50,15 +46,41 @@ mock_api_hook = function(repo_path) {
 #'
 #' @export
 parse_columns = function(data, data_dictionary) {
-  dict = data_dictionary
-  if (!all(names(data) %in% names(dict))) return(data)
-  for (cc in names(data)) {
+  dict = data_dictionary |> set_dict_names()
+  columns_to_parse = intersect(names(data), names(dict))
+  for (cc in columns_to_parse) {
     if (dict[[cc]]$type == "string" & dict[[cc]]$format == "num_missing") {
-      data[[cc]] = readr::parse_number(data[[cc]])
+      if (is.character(data[[cc]])) {
+        data[[cc]] = readr::parse_number(data[[cc]])
+      } else if (!is.numeric(data[[cc]])) {
+        data[[cc]] = as.numeric(data[[cc]])
+      }
     }
     if (dict[[cc]]$type == "date" & dict[[cc]]$format == "ISO8601") {
-      data[[cc]] = readr::parse_date(data[[cc]])
+      if (is.character(data[[cc]])) {
+        data[[cc]] = readr::parse_date(data[[cc]])
+      } else if (!inherits(data[[cc]], "Date")) {
+        data[[cc]] = as.Date(data[[cc]])
+      }
     }
   }
   data
+}
+
+## copied from iidda.api
+set_dict_names = function(x) {
+  setNames(x, vapply(x, getElement, character(1L), "name"))
+}
+
+## @param path Path to directory containing files, each giving metadata
+## about valid columns.
+read_dict_from_metadata = function(path) {
+  paths = (path
+    |> file.path("*.json")
+    |> Sys.glob()
+  )
+  setNames(
+      lapply(paths, jsonlite::read_json)
+    , tools::file_path_sans_ext(basename(paths))
+  )
 }

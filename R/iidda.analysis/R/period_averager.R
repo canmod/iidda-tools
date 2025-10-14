@@ -104,10 +104,11 @@ period_averager <- function(data
 #' @export
 num_days = function(start_date, end_date) num_days_util(start_date, end_date)
 
+#' @importFrom lubridate as_date
 #' @describeIn num_days Low-level interface for `num_days`.
 #' @export
 num_days_util = function(start_date, end_date) {
-  as.integer(round(difftime(as.Date(end_date), as.Date(start_date), units = "days"))) + 1L
+  as.integer(round(difftime(as_date(end_date), as_date(start_date), units = "days"))) + 1L
 }
 
 #' Period Mid-Dates and Mid-Times
@@ -127,7 +128,7 @@ num_days_util = function(start_date, end_date) {
 #' If missing then it is calculated using \code{\link{num_days}}.
 #'
 #' @concept periods
-#' @importFrom lubridate as_datetime days hours
+#' @importFrom lubridate as_date as_datetime days hours
 #' @name mid_dates_times
 
 #' @rdname mid_dates_times
@@ -148,10 +149,31 @@ mid_util = function(start_date, end_date, period_length) {
   }
   if (missing(period_length)) period_length = num_days(start_date, end_date)
   dates = function() {
-    as.Date(start_date) + days(floor(period_length / 2))
+    as_date(start_date) + days(floor(period_length / 2))
   }
   times = function() {
     as_datetime(start_date) + days(floor(period_length / 2)) + hours((period_length %% 2) * 12)
   }
   environment()
+}
+
+## data : list with two or three equal-length vectors containing at most
+## start_date, end_date, period_length
+## (do not do any assumption checking in this utility)
+describe_periods_util = function(args, mid_types = c("date", "time")) {
+  data = args = as.list(args)
+  inputs = names(args)
+  missing_start_date = setequal(inputs, c("end_date", "period_length"))
+  missing_period_length = setequal(inputs, c("start_date", "end_date"))
+  if (missing_start_date) {
+    data$start_date = as_date(args$end_date) - days(data$period_length - 1L)
+    args$start_date = data$start_date
+  }
+  if (missing_period_length) {
+    data$period_length = num_days(args$start_date, args$end_date)
+    args$period_length = data$period_length
+  }
+  if ("date" %in% mid_types) data$mid_date = do.call(mid_dates, args)
+  if ("time" %in% mid_types) data$mid_time = do.call(mid_times, args)
+  return(data)
 }

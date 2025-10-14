@@ -21,7 +21,7 @@ these periods. This
 }
 \section{Functions}{
 \itemize{
-\item \code{num_days_util()}: Low-level interface for `num_days`.
+\item \code{num_days_util()}: Low-level interface for \code{num_days}.
 
 }}
 \concept{periods}

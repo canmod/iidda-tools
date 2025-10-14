@@ -13,6 +13,6 @@ log1p_modified_trans(n = 10)
 a \code{scales::trans_new} function
 }
 \description{
-Slight modification of `log1p_trans()` to include better breaks that are log1p-based (log-based and
+Slight modification of \code{log1p_trans()} to include better breaks that are log1p-based (log-based and
 shifted 1 so that breaks can be computed in the presence of zeroes.)
 }

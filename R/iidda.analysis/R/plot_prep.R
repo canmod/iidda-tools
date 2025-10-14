@@ -9,145 +9,199 @@
 #' @name data_prep_constructors
 NULL
 
+#' Skip Pipeline Step
+#' @concept data_prep_constructors
+#' @export
+Skipper = function() function(data, ...) return(data)
+
+DegenerateChooser = function(choice) {
+  force(choice)
+  function(data, ...) {
+    return(choice)
+  }
+}
+
+
+#' Custom Data Prep Function
+#'
+#' Convert a `data_prep_function`, into
+#' a function that can be used in an `iidda` data prep pipeline.
+#'
+#' @param data_prep_function A standard `R` function that takes a data frame,
+#' called `data` as its first argument, and returns another data frame.
+#' Optionally, subsequent arguments can be added that give the names
+#' of types of variables (e.g., `period_end_variable = "period_end_date"`).
+#' Consider using `NULL` as the default of these variable name arguments,
+#' which will lead to good guesses about variable names when `data` are
+#' obtained from `iidda.api`.
+#'
+#' @returns description A data prep function that maintains
+#' `iidda` attributes and guesses at names of types of variables that the
+#' `data_prep_function` assumes.
+#'
+#' @export
+CustomDataPrep = function(data_prep_function
+    , ign_variables = character(0L)
+    , opt_variables = character(0L)
+    , new_variables = character(0L)
+  ) {
+  iidda_data_prep_function = function(data) {
+    data = resolve_var_args(data
+      , ign_variables = ign_variables
+      , opt_variables = opt_variables
+      , new_variables = new_variables
+    )
+    output_data = data_prep_function(data)
+    return_iidda(output_data, data)
+  }
+  formals(iidda_data_prep_function) = formals(data_prep_function)
+  return_data_prep_function(iidda_data_prep_function)
+}
+
+
+
 #' Handle Missing Values in Series Variable
 #'
-#' Remove or replace values that are \code{NA}.
+#' Construct a function that takes a data frame and returns another data
+#' frame with \code{NA} values either removed or replaced.
 #'
 #' @param na_remove boolean value, if `TRUE` remove `NA`s in series variable
 #' @param na_replace numeric value to replace `NA`s in series variable, if NULL
 #' no replacement is performed
 #'
-#' @importFrom dplyr all_of
-#' @return a function to remove or replace missing values.
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#' - Return - all fields in `data` with either `NA` records removed or replaced
+#' @importFrom dplyr all_of filter across
+#' @return A function like \code{\link{handle_missing_values_default}} that
+#' removes or replaces missing values.
 #'
 #' @concept data_prep_constructors
 #' @export
-HandleMissingValues <- function(
-                           na_remove=FALSE,
-                           na_replace=NULL
-){
+HandleMissingValues <- function(na_remove = FALSE, na_replace = NULL) {
+  if (na_remove & !is.null(na_replace)) {
+    stop("Cannot both remove and replace missing values.")
+  }
+  new_variables = character(0L)
+  flush_arg_guesses = TRUE
 
-  function(data,
-           series_variable="deaths"){
+  function(data, series_variable = NULL) {
+    data = resolve_var_args(data)
+
     # remove NAs
-    if(na_remove){
-      data <- filter(data, !is.na(get(series_variable)))
+    if (na_remove) {
+      is_missing = is.na(data[[series_variable]])
+      data = data[!is_missing, , drop = FALSE]
     }
 
     # replace NAs
-    if (!is.null(na_replace) & length(data[which(is.na(data[series_variable])),][series_variable])!=0){
-      data <- data %>% mutate(across(all_of(series_variable),~replace(.,is.na(.),na_replace)))
+    is_missing = is.na(data[[series_variable]])
+    if (!is.null(na_replace) & any(is_missing)) {
+      data[[series_variable]][is_missing] = na_replace
     }
 
     return(data)
-  }
+  } ## |> return_data_prep_function()
 }
 
+#' @rdname data_prep_default
+#' @export
+handle_missing_values_default = HandleMissingValues()
 
 
 #' Handle Zero Values in Series Variable
 #'
-#' Remove or replace series variable values that are zero.
+#' Construct a function that takes a data frame and returns another data
+#' frame with \code{0} values either removed or replaced.
 #'
 #' @param zero_remove boolean value, if `TRUE` remove zeroes in series variable
 #' @param zero_replace numeric value to replace zeroes in series variable, if NULL
 #' no replacement is performed
 #'
-#' @return a function to remove or replace zero values.
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#' - Return - all fields in `data` with either zero records removed or replaced
+#' @returns A function like \code{\link{handle_zero_values_default}} to remove
+#' or replace zero values.
 #'
 #' @concept data_prep_constructors
 #' @export
-HandleZeroValues <- function(
-                        zero_remove=FALSE,
-                        zero_replace=NULL
-                        ){
-  function(data,
-           series_variable="deaths"){
-    # remove zeroes
-    if (zero_remove){
-      data <- filter(data, get(series_variable) != 0)
+HandleZeroValues <- function(zero_remove = FALSE, zero_replace = NULL){
+  if (zero_remove & !is.null(zero_replace)) {
+    stop("Cannot both remove and replace zeros.")
+  }
+  new_variables = character(0L)
+  flush_arg_guesses = TRUE
+  function(data, series_variable = NULL) {
+    data = resolve_var_args(data)
+
+    # remove zeros
+    if (zero_remove) {
+      is_zero = Vectorize(isTRUE)(as.integer(round(data[[series_variable]])) == 0L)
+      data = data[!is_zero, , drop = FALSE]
     }
 
     # replace zeroes
-    if(!is.null(zero_replace) & length(data[which(data[series_variable]==0),][series_variable])!=0){
-      #data[which(data$y==0),]$y <- zero_replace
-      data <- data %>% mutate(across(all_of(series_variable),~replace(.,. == 0,zero_replace)))
-
+    is_zero = Vectorize(isTRUE)(as.integer(round(data[[series_variable]])) == 0L)
+    if (!is.null(zero_replace) & any(is_zero)) {
+      data[[series_variable]][is_zero] = zero_replace
     }
     return(data)
-  }
+  } ## |> return_data_prep_function()
 }
+
+
+#' @rdname data_prep_default
+#' @export
+handle_zero_values_default = HandleZeroValues()
+
 
 
 #' Trim Time Series
 #'
-#' Remove leading or trailing zeroes in a time series data set.
+#' Remove leading or trailing zeros in a time series data set.
 #'
 #' @param zero_lead boolean value, if `TRUE` remove leading zeroes in `data`
 #' @param zero_trail boolean value, if `TRUE` remove trailing zeroes in `data`
 #'
 #' @importFrom dplyr arrange pull
-#' @return a function to remove to remove leading and/or trailing zeroes
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#'    * `time_variable` column name of time variable in `data`, default is "period_end_date"
-#' - Return - all fields in `data` with filtered records to trim leading and/or trailing zeroes
+#' @returns A function like \code{\link{trim_series_default}} to remove to
+#' remove leading and/or trailing zeroes.
 #'
 #' @concept data_prep_constructors
 #' @export
-TrimSeries <- function(zero_lead=FALSE,
-                       zero_trail=FALSE){
-  function(data,
-           series_variable="deaths",
-           time_variable="period_end_date"){
+TrimSeries <- function(zero_lead = FALSE, zero_trail = FALSE) {
+  new_variables = character(0L)
+  flush_arg_guesses = TRUE
+  function(data, series_variable = NULL, time_variable = NULL) {
+    data = resolve_var_args(data)
     # trim leading zeroes
-    if (zero_lead){
+    if (zero_lead) {
       first_date <- (data
-                     %>% filter(get(series_variable) !=0)
-                     %>% arrange(get(time_variable))
-                     %>% filter(row_number()==1)
-                     %>% select(all_of(time_variable))
-                     %>% pull()
-
+         |> filter(get(series_variable) != 0)
+         |> arrange(get(time_variable))
+         |> filter(row_number() == 1)
+         |> select(all_of(time_variable))
+         |> pull()
       )
       data <- filter(data, get(time_variable) >= first_date)
     }
 
     # trim trailing zeroes
-    if (zero_trail){
+    if (zero_trail) {
       last_date <- (data
-                    %>% filter(get(series_variable) !=0)
-                    %>% arrange(get(time_variable))
-                    %>% filter(row_number()==n())
-                    %>% select(all_of(time_variable))
-                    %>% pull()
-
+        |> filter(get(series_variable) != 0)
+        |> arrange(get(time_variable))
+        |> filter(row_number() == n())
+        |> select(all_of(time_variable))
+        |> pull()
       )
       data <- filter(data, get(time_variable) <= last_date)
     }
     return(data)
-  }
+  } ## |> return_data_prep_function()
 }
 
-#' Wavelet Series Harmonizer
+#' @rdname data_prep_default
+#' @export
+trim_series_default = TrimSeries()
+
+
+#' Series Harmonizer
 #'
 #' Harmonizes the series variable in `data` so there is one data value for each time
 #' unit in time variable (to account for different variations in disease/cause name)
@@ -156,29 +210,29 @@ TrimSeries <- function(zero_lead=FALSE,
 #' @param series_variable column name of series variable in `data`, default is "deaths"
 #'
 #' @importFrom dplyr group_by summarize ungroup
-#' @return function to harmonize disease/cause names
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#' - Return - all fields in `data` with summarized series variable for unique time variable
+#' @returns A function like \code{\link{series_harmonizer_default}} to 
+#' harmonize disease/cause names.
 #'
 #' @concept data_prep_constructors
 #' @export
-SeriesHarmonizer = function(
-    time_variable = "period_end_date",
-    series_variable = "deaths"
-) {
-  function(data) {
-    (data
-     %>% group_by(across(time_variable))
-     %>% summarize(!!sym(series_variable) := sum(get(series_variable)))
-     %>% ungroup()
+SeriesHarmonizer = function(sum_fn = base::sum) {
+  flush_arg_guesses = TRUE
+  function(data, series_variable = NULL, time_variable = NULL) {
+    data = resolve_var_args(data)
+    harmonized_data = (data
+     |> group_by(across(all_of(time_variable)))
+     |> summarize(!!sym(series_variable) := sum_fn(get(series_variable)))
+     |> ungroup()
     )
-  }
 
+    ## necessary because ungroup removes attributes
+    return_iidda(harmonized_data, data)
+  } ## |> return_data_prep_function()
 }
+
+#' @rdname data_prep_default
+#' @export
+series_harmonizer_default = SeriesHarmonizer()
 
 #' De-heaping time series
 #'
@@ -187,8 +241,6 @@ SeriesHarmonizer = function(
 #' (https://github.com/davidearn/KevinZhao/blob/main/Report/make_SF_RData.R). This needs
 #' to be better documented.
 #'
-#' @param time_variable column name of time variable in `data`, default is "period_end_date"
-#' @param series_variable column name of series variable in `data`, default is "deaths"
 #' @param first_date string containing earliest date to look for heaping errors
 #' @param last_date string containing last date to look for heaping errors
 #' @param week_start numeric value of the first week number to start looking for heaping errors
@@ -196,94 +248,124 @@ SeriesHarmonizer = function(
 #'
 #' @importFrom dplyr if_else group_split lag lead
 #' @importFrom stats sd
-#' @return function to fix heaping errors
+#' @return A function like \code{\link{deheaper_default}} to fix heaping errors.
 #'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#' - Return - all fields in `data` with an additional field called "deheaped_" concatenated with `series_variable`.
-#' If no heaping errors are found, this additional field is identical to the field `series_variable
-#'
-#' @importFrom stats median
+#' @importFrom stats median start end
 #' @concept data_prep_constructors
 #' @export
-WaveletDeheaper = function(
-    time_variable = "period_end_date",
-    series_variable = "deaths",
-    first_date = "1830-01-01",
-    last_date = "1841-12-31",
-    week_start = 45,
-    week_end = 5
-    # add 2.7 parameter
+Deheaper = function(
+      prefix = "deheaped_"
+    , first_date = "1830-01-01"
+    , last_date = "1841-12-31"
+    , week_start = 45
+    , week_end = 5
+    , deheaping_scale = 2.7
 ) {
-  function(data) {
+  new_variables = character(0L)
 
-    # filter data by time period and relevant weeks, create grouping variable to reflect year ends
-    filter_data <- (data
-                    %>% filter(get(time_variable) >= first_date & get(time_variable) <= last_date)
-                    %>% filter(week(get(time_variable)) >= week_start | week(get(time_variable)) <= week_end)
-                    %>% mutate(group_var = if_else(week(get(time_variable)) >= week_start,
-                                                   year(get(time_variable)),
-                                                   year(get(time_variable))-1)
-                    )
-                    %>% group_by(group_var)
-                    %>% group_split()
-    )
 
-    if (length(filter_data)!=0){
-      final_data <- lapply(seq_along(filter_data),function(i){
+  ## year_data : data frame with data for a single year
+  ## return : ??
+  year_level_deheap = function(series_variable, time_variable, deheaped_variable) function(year_data) {
 
-        # identify potential heap value and compute updated value by averaging previous and post data
-        intermediate_data <- (filter_data[[i]]
-                              %>% mutate(stdev=sd(get(series_variable)),med=median(get(series_variable)))
-                              # this heaping threshold was taking directly from `find_heap_and_deheap`
-                              %>% mutate(heap=if_else((get(series_variable)-med >= 2.7*stdev),TRUE,FALSE))
-                              %>% arrange(get(time_variable))
-                              %>% mutate(updated_series = if_else(heap==TRUE,
-                                                                  (lag(get(series_variable))+lead(get(series_variable)))/2,
-                                                                  get(series_variable)))
-        )
-        # get old value of heaped data point
-        old <- intermediate_data[[series_variable]][intermediate_data$heap==TRUE]
+    ## updated_series+((old-new)*updated_series)/sum(updated_series)
+    ## utilities for table transformations
 
-        if (length(old)==1){
-
-          # get new value of heaped data point
-          new <- intermediate_data$updated_series[intermediate_data$heap==TRUE]
-
-          # compute deheaped series
-          intermediate_data <- (intermediate_data
-                                # this computation to create the deheaped field was taken directly from `find_heap_and_deheap`
-                                %>% mutate(!!sym(paste0("deheaped_",series_variable)) := updated_series+((old-new)*updated_series)/sum(updated_series))
-                                %>% select(time_variable, paste0("deheaped_",series_variable))
-                                # %>% mutate(!!series_variable := updated_series+((old-new)*updated_series)/sum(updated_series))
-                                # %>% select(time_variable, series_variable)
-          )
-        } else {
-          # set deheaped series to current series
-          # TODO Should find a way to return no deheaped series if it is not needed
-          intermediate_data <- (intermediate_data
-                                %>% mutate(!!sym(paste0("deheaped_",series_variable)) := get(series_variable))
-                                %>% select(time_variable, paste0("deheaped_",series_variable))
-                                # %>% mutate(!!series_variable := get(series_variable))
-                                # %>% select(time_variable, series_variable)
-          )
-        }
-        intermediate_data
-      }) %>% bind_rows()
-      #browser()
-      # add deheaped series to data set
-      data <- (data
-               %>% left_join(final_data,by=time_variable)
+    mk_do_heap = function(series_variable, med, stdev) {
+      series_variable - med >= deheaping_scale * stdev
+    }
+    deheap_prep = function(series_variable, do_heap) {
+      if_else(do_heap
+        , (lag(series_variable) + lead(series_variable))/2
+        , series_variable
       )
-      #data <- final_data
     }
 
-    return(data)
-  }
+    # identify potential heap value and compute updated
+    # value by averaging previous and post data
+    intermediate_data <- (year_data
+      |> mutate(
+          stdev = sd(get(series_variable))
+        , med = median(get(series_variable))
+      )
+      # this heaping threshold was taking
+      # directly from `find_heap_and_deheap`
+      |> mutate(do_heap = mk_do_heap(get(series_variable), med, stdev))
+      |> arrange(get(time_variable))
+      |> mutate(updated_series = deheap_prep(get(series_variable), do_heap))
+    )
+    # get old value of heaped data point
+    old <- intermediate_data[[series_variable]][intermediate_data$do_heap]
 
+    deheap = function(x) x + (((old - new) * x) / sum(x))
+    if (length(old) == 1) {
+
+      # get new value of heaped data point
+      new <- intermediate_data$updated_series[intermediate_data$do_heap]
+
+      # compute deheaped series
+      intermediate_data <- (intermediate_data
+        |> mutate(!!sym(deheaped_variable) := deheap(updated_series))
+        |> select(all_of(time_variable), all_of(deheaped_variable))
+      )
+    } else {
+      # set deheaped series to current series
+      # TODO Should find a way to return no deheaped series if it is not needed
+      intermediate_data <- (intermediate_data
+        |> mutate(!!sym(deheaped_variable) := get(series_variable))
+        |> select(all_of(time_variable), all_of(deheaped_variable))
+      )
+    }
+    return(intermediate_data)
+  }
+  flush_arg_guesses = TRUE
+  ## output function
+  function(data, series_variable = NULL, time_variable = NULL) {
+    data = resolve_var_args(data)
+
+    mk_year_groups = function(time_variable) {
+      if_else(
+          week(time_variable) >= week_start
+        , year(time_variable)
+        , year(time_variable) - 1
+      )
+    }
+    deheaped_variable = paste0(prefix, series_variable)
+    year_level_deheap = year_level_deheap(series_variable, time_variable, deheaped_variable)
+
+
+    # this computation to create the deheaped field was
+    # taken directly from `find_heap_and_deheap`
+    enforce_range = function(time_variable) {
+      (time_variable >= first_date) & (time_variable <= last_date)
+    }
+    core = function(time_variable) {
+      week(time_variable) >= week_start | week(time_variable) <= week_end
+    }
+
+    # filter data by time period and relevant weeks,
+    # group by year while accounting for year-ends
+    filter_data <- (data
+      |> filter(enforce_range(get(time_variable)))
+      |> filter(core(get(time_variable)))
+      |> mutate(year_groups = mk_year_groups(get(time_variable)))
+      |> group_by(year_groups)
+      |> group_split()
+    )
+    if (length(filter_data) != 0) {
+      deheaped_data <- filter_data |> lapply(year_level_deheap) |> bind_rows()
+      all_data <- left_join(data, deheaped_data, by = time_variable)
+    }
+
+    output = return_iidda(all_data, data)
+    attr(output, "iidda")$series_variable = deheaped_variable
+    return(output)
+  } ## |> return_data_prep_function()
 }
+
+#' @rdname data_prep_default
+#' @export
+deheaper_default = Deheaper()
 
 
 #' Wavelet Joiner
@@ -298,35 +380,30 @@ WaveletDeheaper = function(
 #' be kept and data from `trend_data` is left joined, if `FALSE` dates from `trend_data`
 #' are left joined instead
 #'
-#' @return function to join data and trend data sets
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `series_data` data frame containing time series data
-#'    * `trend_data` data frame containing trend data
-#' - Return - joined data set by `time_variable` with updated field names
+#' @returns A function like \code{\link{wavelet_joiner_default}} to join data
+#' and trend data sets.
 #'
 #' @concept data_prep_constructors
-#' @export
+#' @noRd
 WaveletJoiner = function(
     time_variable = "period_end_date",
     series_suffix = "_series",
     trend_suffix = "_trend",
     keep_series_dates = TRUE
 ) {
+  new_variables = character(0L)
   function(series_data, trend_data) {
     if (keep_series_dates)
     {
       (series_data
-       %>% left_join(trend_data,by=time_variable, suffix=c(series_suffix, trend_suffix))
+       |> left_join(trend_data,by=time_variable, suffix=c(series_suffix, trend_suffix))
       )
     } else {
       (trend_data
-       %>% left_join(series_data,by=time_variable, suffix=c(trend_suffix, series_suffix))
+       |> left_join(series_data,by=time_variable, suffix=c(trend_suffix, series_suffix))
       )
     }
-  }
+  } ## |> return_data_prep_function()
 }
 
 
@@ -352,15 +429,13 @@ WaveletJoiner = function(
 #' `trend_variable`
 #'
 #' @concept data_prep_constructors
-#' @export
+#' @noRd
 WaveletInterpolator = function(
-    time_variable = "period_end_date",
-    series_variable = "deaths",
-    trend_variable = "deaths",
-    series_suffix = "_series",
-    trend_suffix = "_trend"
-) {
-  function(data) {
+      series_suffix = "_series"
+    , trend_suffix = "_trend"
+  ) {
+  new_variables = character(0L)
+  function(data, time_variable, series_variable, trend_variable) {
 
     # form field names
     series_variable = paste0(series_variable, series_suffix)
@@ -368,24 +443,24 @@ WaveletInterpolator = function(
 
     # filter out NA values
     series_data <- (data
-                    %>% filter(!is.na(get(series_variable)))
-                    %>% select(time_variable, series_variable)
+                    |> filter(!is.na(get(series_variable)))
+                    |> select(time_variable, series_variable)
     )
     trend_data <- (data
-                   %>% filter(!is.na(get(trend_variable)))
-                   %>% select(time_variable, trend_variable)
+                   |> filter(!is.na(get(trend_variable)))
+                   |> select(time_variable, trend_variable)
     )
 
     # identify dates with NA values in series and trend variables
     series_dates <- (data
-                     %>% filter(is.na(get(series_variable)))
-                     %>% select(time_variable)
-                     %>% pull
+                     |> filter(is.na(get(series_variable)))
+                     |> select(all_of(time_variable))
+                     |> pull()
     )
     trend_dates <- (data
-                    %>% filter(is.na(get(trend_variable)))
-                    %>% select(time_variable)
-                    %>% pull
+                    |> filter(is.na(get(trend_variable)))
+                    |> select(all_of(time_variable))
+                    |> pull()
     )
 
     # interpolate at time point corresponding to NA values in
@@ -394,27 +469,27 @@ WaveletInterpolator = function(
                              y=series_data[[series_variable]],
                              xout=series_dates,
                              method="linear")
-                      %>% data.frame()
-                      %>% setNames(c(time_variable,series_variable))
+                      |> data.frame()
+                      |> setNames(c(time_variable,series_variable))
     )
 
     trend_interp <- (approx(x=trend_data[[time_variable]],
                             y=trend_data[[trend_variable]],
                             xout=trend_dates,
                             method="linear")
-                     %>% data.frame()
-                     %>% setNames(c(time_variable,trend_variable))
+                     |> data.frame()
+                     |> setNames(c(time_variable,trend_variable))
     )
     # combined final data set
     (data
-      %>% select(-series_variable, -trend_variable)
-      %>% left_join((series_data %>% union(series_interp)),by=time_variable)
-      %>% left_join((trend_data %>% union(trend_interp)),by=time_variable)
+      |> select(-series_variable, -trend_variable)
+      |> left_join((series_data |> union(series_interp)),by=time_variable)
+      |> left_join((trend_data |> union(trend_interp)),by=time_variable)
       # remove leading and trailing NAs (that can't be interpolated)
-      %>% filter(!is.na(get(series_variable)),!is.na(get(trend_variable)))
+      |> filter(!is.na(get(series_variable)),!is.na(get(trend_variable)))
     )
 
-  }
+  } ## |> return_data_prep_function()
 }
 
 
@@ -450,11 +525,8 @@ WaveletInterpolator = function(
 #' - Return - `data` with additional normalized fields
 #'
 #' @concept data_prep_constructors
-#' @export
+#' @noRd
 WaveletNormalizer = function(
-    time_variable = "period_end_date",
-    series_variable = "deaths",
-    trend_variable = "deaths",
     series_suffix = "_series",
     trend_suffix = "_trend",
     output_emd_trend = "emd_trend",
@@ -469,7 +541,8 @@ WaveletNormalizer = function(
     output_detrend_log = "detrend_log",
     eps = 0.01
 ) {
-  function(data) {
+  new_variables = character(0L)
+  function(data, time_variable, series_variable, trend_variable) {
 
     # form field names
     series_variable = paste0(series_variable, series_suffix)
@@ -477,9 +550,9 @@ WaveletNormalizer = function(
 
 
     (data
-     %>% arrange(get(time_variable))
+     |> arrange(get(time_variable))
      # can't seem to use a date variable for tt, using row index instead
-     %>% mutate(!!output_emd_trend := emd(xt = data[[trend_variable]],
+     |> mutate(!!output_emd_trend := emd(xt = data[[trend_variable]],
                                 tt = row_number(),
                                 boundary="wave")$residue,
                 !!output_norm := get(series_variable)/get(output_emd_trend),
@@ -492,8 +565,7 @@ WaveletNormalizer = function(
                 !!output_detrend_sqrt := get(output_sqrt_norm)-get(output_emd_sqrt),
                 !!output_detrend_log := get(output_log_norm)-get(output_emd_log))
     )
-  }
-
+  } ## |> return_data_prep_function()
 }
 
 #' Wavelet Transformer
@@ -515,21 +587,16 @@ WaveletNormalizer = function(
 #' `wavelet_variable` in `data`
 #'
 #' @concept data_prep_constructors
-#' @export
-WaveletTransformer = function(
-    time_variable = "period_end_date",
-    wavelet_variable = "detrend_norm",
-    #all arguments to analyze.wavelet
-    ...
-
-) {
-  function(data) {
-    analyze_data <- (data %>% rename("date"=time_variable))
-    analyze.wavelet(my.data=analyze_data,
-                    my.series=wavelet_variable,
+#' @noRd
+WaveletTransformer = function(...) { # all arguments to analyze.wavelet
+  new_variables = character(0L)
+  function(data, time_variable, wavelet_variable) {
+    analyze_data <- (data |> rename("date" = time_variable))
+    analyze.wavelet(my.data = analyze_data,
+                    my.series = wavelet_variable,
                     ...
     )
-  }
+  } ## |> return_data_prep_function()
 }
 
 
@@ -539,64 +606,58 @@ WaveletTransformer = function(
 #' @param ma_window_length length of moving average window, this will depend on the time scale in the data.
 #' Defaults to 52, so that weekly data is averaged over years.
 #'
-#' @return a function to remove to compute the moving average of a time series variable
-#'
-#' ## Returned Function
-#'
-#' - Arguments
-#'    * `data` data frame containing time series data
-#'    * `series_variable` column name of series variable in `data`, default is "deaths"
-#'    * `time_variable` column name of time variable in `data`, default is "period_end_date"
-#' - Return - all fields in `data` with the `series_variable` data replaced with the moving
-#' average.
+#' @returns A function like \code{\link{compute_moving_average_default}} to 
+#' remove to compute the moving average of a time series variable.
 #'
 #' @concept data_prep_constructors
 #' @export
 ComputeMovingAverage <- function(ma_window_length=52){
-
-  function(data,
-           series_variable="deaths",
-           time_variable="period_end_date"){
-
+  function(data
+      , series_variable = NULL
+      , time_variable = NULL
+    ){
+    data = resolve_var_args(data)
+    
     # compute moving average
     ma_filter <- rep(1,ma_window_length)/ma_window_length
 
-    data <- data %>% mutate(across(all_of(series_variable), ~stats::filter(.,ma_filter)))
+    data <- data |> mutate(across(all_of(series_variable), ~stats::filter(.,ma_filter)))
     #data$y <- stats::filter(data$y,ma_filter)
 
-    return(data)
+    return_iidda(data)
   }
 }
+
+#' @rdname data_prep_default
+#' @export
+compute_moving_average_default = ComputeMovingAverage()
 
 #' Period Aggregator
 #'
 #' Create function that aggregates information over time periods, normalizes
 #' a count variable, and creates new fields to summarize this information.
 #'
-#' @param time_variable Name of the variable to characterize the temporal
-#' location of the time period.
-#' @param period_width_variable Name of variable to characterize the width
-#' of the time period.
-#' @param count_variable Name of variable to characterize the count variable
-#' being normalized.
-#' @param norm_variable Name of variable to be used to normalize the count
-#' variable.
 #' @param rate_variable Name of variable to be used to store the normalized
 #' count variable.
 #' @param norm_exponent Exponent to use in normalization. The default is `5`,
 #' which means `per 100,000`.
 #'
+#' @returns A function like \code{\link{period_aggregator_default}} that
+#' aggregates data so that each time period is represented by exactly 
+#' one record.
+#'
+#' @concept data_prep_constructors
 #' @export
-PeriodAggregator = function(
-    time_variable = "period_mid_time"
-  , period_width_variable = "num_days"
-  , count_variable = "cases_this_period"
-  , norm_variable = "population_reporting"
-  , rate_variable = "daily_rate"
-  , norm_exponent = 5
-) {
-  function(data) {
-    (data
+PeriodAggregator = function(rate_variable, norm_exponent = 5) {
+  function(data                    # Examples
+                                   # --------
+    , time_variable = NULL         # "period_end_date"
+    , period_width_variable = NULL # "num_days"
+    , count_variable = NULL        # "cases_this_period"
+    , norm_variable = NULL         # "population_reporting"
+  ) {
+    data = resolve_var_args(data)
+    output_data = (data
       |> group_by(.data[[time_variable]], .data[[period_width_variable]])
       |> summarise(
           !!norm_variable := sum(.data[[norm_variable]])
@@ -605,45 +666,385 @@ PeriodAggregator = function(
       |> ungroup()
       |> mutate(!!rate_variable := (
             10^norm_exponent
-          * .data[[count_variable]]
-          / .data[[period_width_variable]]
-          / .data[[norm_variable]]
+          * get(count_variable)
+          / get(period_width_variable)
+          / get(norm_variable)
       ))
     )
+    return_iidda(output_data, data)
+  } ## |> return_data_prep_function()
+}
+
+#' @rdname data_prep_default
+#' @export
+period_aggregator_default = PeriodAggregator()
+
+#' Count Aggregator
+#' 
+#' Create a function that aggregates count variables.
+#' 
+#' @returns A function like \code{\link{count_aggregator_default}} that
+#' aggregates count variables.
+#' @concept data_prep_constructors
+#' @export
+CountAggregator = function() {
+  function(data
+    , total_count_variable = NULL
+    , count_variable = NULL
+    , grouping_variable = NULL
+  ) {
+    data = resolve_var_args(data, ign_variables = "total_count_variable")
+    data = resolve_specific_arg(data
+      , arg = "total_count_variable"
+      , default = sprintf("total_%s", count_variable)
+    )
+    aggregated = (data
+      |> summarise(
+            !!sym(total_count_variable) := sum(get(count_variable), na.rm = TRUE)
+          , .by = all_of(grouping_variable)
+        )
+      |> arrange(desc(get(total_count_variable)))
+      |> mutate(!!sym(grouping_variable) := factor(get(grouping_variable), levels = get(grouping_variable)))
+    )
+    return_iidda(data, more_iidda_attrs = list(aggregated = aggregated))
+  }## |> return_data_prep_function()
+}
+
+#' @rdname data_prep_default
+#' @export
+count_aggregator_default = CountAggregator()
+
+
+#' Period Describer
+#'
+#' Create a function that takes a data set containing at least two of
+#' the following variables, `period_start_variable`, `period_end_variable`,
+#' `period_days_variable`, and returning a data set with all of these
+#' three variables and other variables describing the middle of the period
+#' with either or both of `period_mid_time_variable` and
+#' `period_mid_date_variable`. These two period middle descriptors will only
+#' differ (by exactly 12 hours) for periods with odd numbers of days.
+#'
+#' @param mid_types Compute mid-times and/or mid-dates?
+#'
+#' @returns A function like \code{\link{period_describer_default}} that
+#' adds variables to describe the time period represented by each record.
+#' @concept data_prep_constructors
+#' @export
+PeriodDescriber = function(mid_types = c("time", "date")) {
+  
+  ## ---- utility functions for the describer ------
+  
+  ## get the name map for the user-supplied combination 
+  ## of columns that describe periods
+  ## (e.g., if period_start_date_variable and period_days_variable are
+  ## available then these are the only columns in the name map)
+  get_map_input = function(nm_map, nms) {
+    i = nm_map %in% nms
+    nm_map_input = nm_map[i]
+    if (sum(i) < 2L) {
+      additional_info = ", but didn't contain any of these."
+      if (sum(i) == 1L) {
+        additional_info = sprintf(", but only contained %s", nm_map_input)
+      }
+      msg(
+          "Data needs to contain at least two of"
+        , paste(nm_map, collapse = ", ")
+        , additional_info
+      ) |> stop()
+    }
+    return(nm_map_input)
+  }
+
+  add_period_mid_descriptors = function(nm_map
+      , mid_types
+      , period_mid_time_variable
+      , period_mid_date_variable
+  ) {
+    if ("time" %in% mid_types) {
+      nm_map = c(nm_map, mid_time = period_mid_time_variable)
+    }
+    if ("date" %in% mid_types) {
+      nm_map = c(nm_map, mid_date = period_mid_date_variable)
+    }
+    return(nm_map)
+  }
+
+  ## all variables are optional, as long as at least
+  ## two of period_start_variable, period_end_variable,
+  ## or period_days_variable are specified
+  flush_arg_guesses = TRUE
+  
+  function(data
+    , period_start_variable = NULL
+    , period_end_variable = NULL
+    , period_mid_time_variable = NULL
+    , period_mid_date_variable = NULL
+    , period_days_variable = NULL
+  ) {
+    data = resolve_var_args(data
+      , opt_variables = c(
+            "period_start_variable", "period_end_variable"
+          , "period_mid_time_variable", "period_mid_date_variable"
+          , "period_days_variable"
+        )
+    )
+    
+    ## map names of arguments between
+    ## two interfaces -- yes we have
+    ## control over both so we will
+    ## harmonize them if we have time
+    nm_map = c(
+        start_date = period_start_variable
+      , end_date = period_end_variable
+      , period_length = period_days_variable
+    )
+    
+    nm_map_input = get_map_input(nm_map, names(data))
+    
+    period_info = setNames(
+        as.list(data[ , nm_map_input, drop = FALSE])
+      , names(nm_map_input)
+    )
+    period_info = describe_periods_util(period_info, mid_types)[]  ## why [] ??
+    
+    nm_map = add_period_mid_descriptors(nm_map
+      , mid_types
+      , period_mid_time_variable
+      , period_mid_date_variable
+    )
+    
+    for (var in names(period_info)) data[[nm_map[var]]] = period_info[[var]]
+    
+    return(data)
+  }
+}
+
+#' @rdname data_prep_default
+#' @export
+period_describer_default = PeriodDescriber()
+
+DateDescriber = function(
+      year_variable = "year"
+    , month_variable = "month"
+    , day_variable = "day"
+  ) {
+  function(data, date_variable = NULL) {
+    data = resolve_var_args(data)
+    if (is.character(data[[date_variable]])) {
+      
+    }
   }
 }
 
 #' Time Scale Picker
 #'
-#' @param time_scale_variable Variable identifying the time scale of records.
-#' The values of such a variable should be things like `"wk"`, `"mo"`, `"yr"`.
-#' @param time_group_variable Variable identifying a grouping variable for
-#' the time scales (e.g. a column identifying the year.).
+#' @returns A function like \code{\link{time_scale_picker_default}} that 
+#' 
 #' @export
-TimeScalePicker = function(
-    time_scale_variable = "time_scale"
-  , time_group_variable = "year"
-) {
-  function(data) {
+TimeScalePicker = function() {
+  pick_fine_time_scale = function(scales) {
+    ordering = c("wk", "mo", "qr", "yr")
+    f = factor(as.character(scales), levels = ordering)
+    f[which.min(as.numeric(f))] |> as.character()
+  }
+  new_variables = character(0L)
+  flush_arg_guesses = TRUE
+  function(data
+    , time_scale_variable = NULL # "time_scale"
+    , time_group_variable = NULL # "year"
+  ) {
+    data = resolve_var_args(data)
     if (time_group_variable %in% names(data)) {
       data = group_by(data, .data[[time_group_variable]])
     }
-    (data
-      #|> group_by(.data[[time_group_variable]])
+    grouped_data = (data
+      # |> group_by(.data[[time_group_variable]])
       |> filter(.data[[time_scale_variable]] == pick_fine_time_scale(.data[[time_scale_variable]]))
       |> ungroup()
     )
-  }
-}
-pick_fine_time_scale = function(scales) {
-  ordering = c("wk", "mo", "qr", "yr")
-  f = factor(as.character(scales), levels = ordering)
-  f[which.min(as.numeric(f))] |> as.character()
+    return_iidda(grouped_data, data)
+  } ## |> return_data_prep_function()
 }
 
+#' Time Variable Converter
+#'
+#' Construct a function that takes a data frame and returns another data
+#' frame with a time variable converted so that it has the correct format,
+#' class, and/or type.
+#'
+#' @param as_date Function that takes a vector and converts it to a date vector if possible. Used only if `time_variable` is in `std_date_variables()`.
+#' @param as_integer Function that takes a vector and converts it to an integer vector if possible. Used only if `time_variable` is in `std_integer_variables()`.
+#' @param as_numeric Function that takes a vector and converts it to a numeric vector if possible. Used only if `time_variable` is in `std_numeric_variables()`.
+#'
+#' ## Returned Function
+#'
+#' - Arguments :
+#'     * `data` : Data frame containing a time variable.
+#'     * `time_variable` : Column name of time variable in `data`. The default
+#'     is `"period_end_date"`.
+#' - Return : A version of `data` with `time_variable` column converted to
+#'
+#' @concept data_prep_constructors
+#' @export
+TimeVariableConverter = function(
+      as_date = as.Date
+    , as_integer = as.integer
+    , as_numeric = as.numeric
+  ) {
+  new_variables = character(0L)
+  flush_arg_guesses = TRUE
+  function(data, time_variable = NULL) {
+    data = resolve_var_args(data)
+    if (time_variable[1L] %in% std_date_variables()) {
+      data[[time_variable]] = as_date(data[[time_variable]])
+    } else if (time_variable[1L] %in% std_integer_time_variables()) {
+      data[[time_variable]] = as_integer(data[[time_variable]])
+    } else if (time_variable[1L] %in% std_numeric_time_variables()) {
+      data[[time_variable]] = as_numeric(data[[time_variable]])
+    } else {
+      sprintf(
+        "cannot coerce %s into an appropriate type. please do so manually."
+        , time_variable
+      ) |> stop()
+    }
+    return(data)
+  } ## |> return_data_prep_function()
+}
+
+#' Data Dictionary Converter
+#'
+#' @export
+DataDictionaryConverter = {
+  new_variables = character(0L)
+  function(data_dictionary = iidda_data_dictionary()) {
+    function(data) iidda::parse_columns(data, data_dictionary)
+  } ## |> return_data_prep_function()
+}
+
+#' Time Range Desciber
+#'
+#' @concept data_prep_constructors
+#' @importFrom iidda summarise_dates
+#' @export
+TimeRangeDescriber = function(cutoff = 50) {
+  function(data, period_start_variable = NULL, period_end_variable = NULL) {
+    data = resolve_var_args(data)
+    time_range_string = iidda::summarise_periods_vec(
+        data[[period_start_variable]]
+      , data[[period_end_variable]]
+      , cutoff
+    )
+    return(time_range_string)
+  }
+}
+
+#' Title Guesser
+#'
+#' @param custom Custom string for the title
+#' @param prefer List of variables that could contain title information
+#' in an order that will be used to find variables that will be used to
+#' guess at a title. The first variable found in the data is the one that
+#' is chosen.
+#' @export
+TitleGuesser = function(
+      custom = NULL
+    , prefer = std_title_variables()
+  ) {
+  assert_custom = function(data, value) {
+    if (!is_string(value)) {
+      msg(
+          "Custom titles must be a single string"
+        , "(i.e., length-1 character vector)."
+      ) |> stop()
+    }
+    return(value)
+  }
+  get_candidates = function(data) {
+    candidates = (data
+      |> Filter(f = \(x) is.character(x) | is.factor(x))
+      |> lapply(unique)
+      |> Filter(f = \(x) length(x) == 1L)
+      |> lapply(as.character)
+      |> Filter(f = \(x) nchar(x) > 0L)
+    )
+    if (length(candidates) == 0L) {
+      msg(
+          "The data contain no constant character or factor variables"
+        , "that could be used as a title for this plot. Please"
+        , "specify a custom_title."
+      )
+    }
+    return(candidates)
+  }
+  get_from_user_specified_variable = function(variable, candidates) {
+    if (!is.null(variable)) {
+      if (variable %in% names(candidates)) return(candidates[[variable]])
+      msg(
+          sprintf("The title variable, %s,", variable)
+        , "is either not in the data or is not a constant character"
+        , "or factor variable with unique value that could be used as"
+        , "a title for this plot."
+      ) |> stop()
+    }
+    return(NULL)
+  }
+  get_preferred_candidate = function(data, prefer, candidates) {
+    if (any(prefer %in% names(candidates))) {
+      return(candidates[prefer[prefer %in% names(candidates)]][[1L]])
+    }
+    return(NULL)
+  }
+  function(data, title_variable = NULL) {
+    if (!is.null(custom)) {
+      title = assert_custom(data, custom)
+    } else {
+      candidates = get_candidates(data)
+      title = get_from_user_specified_variable(title_variable, candidates)
+      if (is.null(title)) {
+        title = get_preferred_candidate(data, prefer, candidates)
+        if (is.null(title)) title = candidates[[1L]]
+        sprintf(
+          "Guessed that %s should be the title of the plot", title
+        ) |> message()
+      }
+    }
+    return(title)
+  }
+}
+
+OrderGuesser = function() {
+  function(data, category_variable = NULL) {
+    data = resolve_var_args(data)
+    data[[category_variable]] |> unique()
+  }
+}
+
+
+
+VariableTitleGuesser = function(dictionary = iidda_data_dictionary()) {
+  function(variable) {
+    i = dictionary$name == variable
+    if (!any(i)) return(variable)
+    dictionary$title[[which(i)]]
+  }
+}
 
 # ------------------------------------
 # prep functions TODO: better name?
+
+#' @importFrom iidda parse_columns
+#' @export
+iidda_set_column_types = function(data) {
+  dict = ("data_dictionary.rdata"
+    |> system.file(package = "iidda.analysis")
+    |> readRDS()
+  )
+  (data
+    |> iidda::parse_columns(dict)
+    |> return_iidda(data)
+  )
+}
 
 #' Union Time Series
 #'
@@ -736,15 +1137,15 @@ year_end_fix <- function(data,
                          temp_year_variable = "yr"){
   fixed_data <- (data
                  # isolate year end weeks
-                 %>% filter(get(start_year_variable)!= get(end_year_variable))
-                 %>% pivot_longer(cols=c(start_year_variable,end_year_variable),names_to=temp_year_variable,values_to="value")
-                 %>% mutate(!!end_day_variable := if_else(value %% 4 !=0 & get(temp_year_variable)==start_year_variable, 365, get(end_day_variable)),
+                 |> filter(get(start_year_variable)!= get(end_year_variable))
+                 |> pivot_longer(cols=c(start_year_variable,end_year_variable),names_to=temp_year_variable,values_to="value")
+                 |> mutate(!!end_day_variable := if_else(value %% 4 !=0 & get(temp_year_variable)==start_year_variable, 365, get(end_day_variable)),
                             !!end_day_variable := if_else(value %% 4 ==0 & get(temp_year_variable)==start_year_variable, 366, get(end_day_variable)))
-                 %>% mutate(!!start_day_variable := if_else(get(temp_year_variable)== end_year_variable, 0, get(start_day_variable)))
-                 %>% rename(!!start_year_variable:=value)
+                 |> mutate(!!start_day_variable := if_else(get(temp_year_variable)== end_year_variable, 0, get(start_day_variable)))
+                 |> rename(!!start_year_variable:=value)
                  # create temp end year field, is this really needed?
-                 %>% mutate(!!end_year_variable := get(start_year_variable))
-                 %>% select(-all_of(temp_year_variable))
+                 |> mutate(!!end_year_variable := get(start_year_variable))
+                 |> select(-all_of(temp_year_variable))
   )
 }
 
@@ -799,99 +1200,34 @@ quantile_trans <- function(x){
 ## Prep plotting functions
 #############################################################
 
-#' Prep Data for Time Series
-#'
-#' Prep data for basic time series plot. Prep steps were taken from `LBoM::plot.LBoM` and they include
-#' handling missing values and zeroes, and optionally trimming time series.
-#'
-#' @param data data frame containing time series data
-#' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_end_date"
-#' @param grouping_variable column name of the grouping variable in `data` to summarize the series variable over,
-#' if `summarize=TRUE`
-#' @param time_unit time unit to sum series data over, must be one of iidda.analysis:::time_units, defaults to "year".
-#' @param summarize_series boolean value to indicate summarizing by `time_unit` over the series variable
-#' @param trim_zeroes boolean value to filter data to exclude leading and trailing zeroes
-#' @param trim_series function to trim leading and trailing series zeroes, defaults to TrimSeries
-#' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
-#' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
-#'
-#' @importFrom dplyr group_by_at
-#' @return all fields in `data` with records prepped for plotting moving average time series
-#'
-#' @concept prep_data_for_plotting
-#' @export
-iidda_prep_series <- function(data,
-                         series_variable="deaths",
-                         time_variable="period_end_date",
-                         grouping_variable="cause",# not sure if I need this
-                         time_unit = "year",
-                         summarize_series = TRUE,
-                         trim_zeroes=TRUE,
-                         trim_series=TrimSeries(zero_lead=FALSE,zero_trail=FALSE),
-                         handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
-                         handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)){
 
-  missing_value_handled_data <- handle_missing_values(data,series_variable=series_variable)
-  zero_handled_data <- handle_zero_values(missing_value_handled_data,series_variable=series_variable)
 
-  if (trim_zeroes){
-    series_data <- trim_series(zero_handled_data,series_variable=series_variable, time_variable=time_variable)
-  } else  {
-    series_data <- zero_handled_data
-  }
 
-  if (summarize_series){
-    series_data <- (mutate_time_vars(series_data,unit=time_unit)
-                 %>% group_by_at(vars(get_unit_labels(time_unit)))
-                 # overwrite series variable for plotting?
-                 %>% summarize(!!series_variable := sum(get(series_variable), na.rm=TRUE))
-    )
-  }
-  return(series_data)
+
+PrepBar <- function() function(data
+    , series_variable = NULL
+    , time_variable = NULL
+    , time_unit = NULL
+    , handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL)
+    , handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
+  ) {
+  data = resolve_var_args(data)
+  data = resolve_specific_arg(data, "time_unit", "week")
+  output_data = (data
+    |> handle_missing_values()
+    |> handle_zero_values()
+    |> mutate_time_vars(unit = time_unit)
+  )
+  aggregated = (output_data
+    |> group_by_at(vars(get_unit_labels(time_unit)))
+    |> summarize(!!series_variable := sum(get(series_variable), na.rm = TRUE))
+  )
+
+  output_data = return_iidda(output_data, data)
+  attr(output_data, "iidda")$aggregated = aggregated
+  return(output_data)
 }
 
-
-#' Prep Data for Moving Average Plot
-#'
-#' Prep data for plotting moving average. Prep steps were taken from `LBoM::plot.LBoM` and they include
-#' handling missing values and zeroes, optionally trimming time series and computing the moving
-#' average.
-#'
-#' @param data data frame containing time series data
-#' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_end_date"
-#' @param trim_zeroes boolean value to filter data to exclude leading and trailing zeroes
-#' @param trim_series function to trim leading and trailing series zeroes, defaults to TrimSeries
-#' @param handle_missing_values function to handle missing values, defaults to HandleMissingValues
-#' @param handle_zero_values function to handle zero values, defaults to HandleZeroValues
-#' @param compute_moving_average function to compute the moving average of `series_variable`
-#'
-#'
-#' @return all fields in `data` with records prepped for plotting moving average time series
-#'
-#' @concept prep_data_for_plotting
-#' @export
-iidda_prep_ma <- function(data,
-                         series_variable="deaths",
-                         time_variable="period_end_date",
-                         trim_zeroes=TRUE,
-                         trim_series=TrimSeries(zero_lead=FALSE,zero_trail=FALSE),
-                         handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
-                         handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL),
-                         compute_moving_average = ComputeMovingAverage(ma_window_length = 52)){
-
-  missing_value_handled_data <- handle_missing_values(data,series_variable=series_variable)
-  zero_handled_data <- handle_zero_values(missing_value_handled_data,series_variable=series_variable)
-
-  if (trim_zeroes){
-    trimmed_data <- trim_series(zero_handled_data,series_variable=series_variable, time_variable=time_variable)
-    ma_data <- compute_moving_average(trimmed_data,series_variable=series_variable, time_variable=time_variable)
-  } else {
-    ma_data <- compute_moving_average(zero_handled_data,series_variable=series_variable, time_variable=time_variable)
-  }
-  return(ma_data)
-}
 
 #' Prep Data for Bar Graph
 #'
@@ -911,25 +1247,9 @@ iidda_prep_ma <- function(data,
 #'
 #' @concept prep_data_for_plotting
 #' @export
-iidda_prep_bar <- function(data,
-                          series_variable="deaths",
-                          time_variable = "period_end_date",
-                          time_unit = "week", #has to be one of iidda.analysis:::time_units
-                          handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
-                          handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)){
+iidda_prep_bar <- PrepBar()
 
-  missing_value_handled_data <- handle_missing_values(data,series_variable=series_variable)
-  zero_handled_data <- handle_zero_values(missing_value_handled_data,series_variable=series_variable)
 
-  # create time_unit variable and summarize series_variable
-  bar_data <- (mutate_time_vars(zero_handled_data,unit=time_unit)
-                       %>% group_by_at(vars(get_unit_labels(time_unit)))
-                       # overwrite series variable for plotting?
-                       %>% summarize(!!series_variable := sum(get(series_variable), na.rm=TRUE))
-  )
-
-  return(bar_data)
-}
 
 #' Prep Data for Box plot
 #'
@@ -949,19 +1269,20 @@ iidda_prep_bar <- function(data,
 #'
 #' @concept prep_data_for_plotting
 #' @export
-iidda_prep_box <- function(data,
-                          series_variable="deaths",
-                          time_variable = "period_end_date",
-                          time_unit = "week", #has to be one of iidda.analysis:::time_units
-                          handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
-                          handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)){
+iidda_prep_box <- function(data
+    , series_variable = NULL
+    , time_variable = NULL
+    , time_unit = "month_factor_abbr" #has to be one of iidda.analysis:::time_units
+    , handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL)
+    , handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
+  ) {
 
   missing_value_handled_data <- handle_missing_values(data,series_variable=series_variable)
   zero_handled_data <- handle_zero_values(missing_value_handled_data,series_variable=series_variable)
 
   # create time_unit variable
   box_data <- (mutate_time_vars(missing_value_handled_data,unit=time_unit)
-               %>% mutate(get_unit_labels(time_unit)) ##make it a factor variable
+               |> mutate(get_unit_labels(time_unit)) ##make it a factor variable
   )
 
   return(box_data)
@@ -993,30 +1314,31 @@ iidda_prep_box <- function(data,
 #'
 #' @concept prep_data_for_plotting
 #' @export
-iidda_prep_seasonal_heatmap <- function(data,
-                          series_variable="deaths",
-                          start_time_variable = "period_start_date",
-                          end_time_variable = "period_end_date",
-                          time_unit = c("yday","year"), #has to be one of iidda.analysis:::time_units
-                          prepend_string = "End ",
-                          normalize = FALSE,
-                          ...){
+iidda_prep_seasonal_heatmap <- function(data
+    , series_variable = NULL
+    , start_time_variable = "period_start_date"
+    , end_time_variable = "period_end_date"
+    , time_unit = c("yday","year") #has to be one of iidda.analysis:::time_units
+    , prepend_string = "End "
+    , normalize = FALSE
+    , ...
+  ){
 
 
   # add starting time unit variables
   add_starting_time <- (map(time_unit, ~ mutate_time_vars(data,input_nm=start_time_variable,unit=.x))
-                        %>% reduce(left_join, by=colnames(data))
+                        |> reduce(left_join, by=colnames(data))
   )
 
   # add ending time unit variables
   # prepend "End" to each of time_unit unit_labels to prevent duplicate names
   add_ending_time <- (map2(time_unit ,paste0(prepend_string, get_unit_labels(time_unit)), ~ mutate_time_vars(data,input_nm=end_time_variable,unit=.x,output_nm=.y))
-                      %>% reduce(left_join, by=colnames(data))
+                      |> reduce(left_join, by=colnames(data))
   )
 
   # combine data containing all new time column names
   new_data <- (add_starting_time
-                %>% left_join(add_ending_time, by=colnames(data))
+                |> left_join(add_ending_time, by=colnames(data))
   )
 
   # assumes one of time_unit=="year", this should be generalized somehow
@@ -1037,11 +1359,11 @@ iidda_prep_seasonal_heatmap <- function(data,
 
   # combine year end data with remaning data and optionally normalize
   heat_data <- (new_data
-                   %>% filter(get(start_year_name)==get(end_year_name))
-                   %>% union(end_of_year_data)
-                   %>% group_by(across(start_year_name))
+                   |> filter(get(start_year_name)==get(end_year_name))
+                   |> union(end_of_year_data)
+                   |> group_by(across(start_year_name))
                    %>% {if (normalize) mutate(.,!!series_variable := scales::rescale(get(series_variable),to=c(0,1))) else .}
-                   %>% ungroup()
+                   |> ungroup()
   )
 
   return(heat_data)
@@ -1068,6 +1390,7 @@ iidda_prep_heatmap_decomp = function(data
   )
   heatmap_data
 }
+
 
 #' @noRd
 iidda_prep_line_agg = function(data
@@ -1107,19 +1430,20 @@ iidda_prep_line_agg = function(data
 #'
 #' @concept prep_data_for_plotting
 #' @export
-iidda_prep_rohani <- function(data,
-                              series_variable="deaths",
-                              time_variable = "period_end_date",
-                              start_time_variable = "period_end_date",
-                              #end_time_variable = "period_end_date", # might not need this we are plotting a second time unit on the y-axis
-                              time_unit = c("year"), #has to be one of iidda.analysis:::time_units
-                              grouping_variable = "cause",
-                              ranking_variable = NULL , #optionally specify the ranking variable to order by?
-                              #prepend_string = "End ", # might not need this
-                              normalize = FALSE,
-                              handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL),
-                              handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL),
-                              create_nonexistent=FALSE){
+iidda_prep_rohani <- function(data
+      , series_variable = NULL
+      , time_variable = "period_end_date"
+      , start_time_variable = "period_start_date"
+      #, end_time_variable = "period_end_date" # might not need this we are plotting a second time unit on the y-axis
+      , time_unit = "year" #has to be one of iidda.analysis:::time_units
+      , grouping_variable = "cause"
+      , ranking_variable = NULL #optionally specify the ranking variable to order by?
+      #, prepend_string = "End " # might not need this
+      , normalize = FALSE
+      , handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL)
+      , handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
+      , create_nonexistent=FALSE
+  ){
 
   # Steps so far
   # 0. optionally handle missing or zero data
@@ -1137,7 +1461,7 @@ iidda_prep_rohani <- function(data,
 
   # 1. add starting time unit variables
   add_time_units <- (map(time_unit, ~ mutate_time_vars(zero_handled_data,input_nm=start_time_variable,unit=.x))
-                        %>% reduce(left_join, by=colnames(zero_handled_data))
+                        |> reduce(left_join, by=colnames(zero_handled_data))
   )
 
   # assumes one of time_unit=="year", this should be generalized somehow
@@ -1148,34 +1472,34 @@ iidda_prep_rohani <- function(data,
 
     # get unique grouping variable and time unit variable
     grouping_time_combinations <- expand.grid(unique(add_time_units[[grouping_variable]]),
-                                              unique(add_time_units[[start_year_name]])) %>% setNames(c(grouping_variable,start_year_name))
+                                              unique(add_time_units[[start_year_name]])) |> setNames(c(grouping_variable,start_year_name))
 
     # create all records
     add_time_units <- (grouping_time_combinations
-                       %>% left_join(add_time_units))
+                       |> left_join(add_time_units))
   }
 
 
   # how should data be ranked, by default rank data by summarized series variable for each group
   ranking_col <- (add_time_units
-                  %>% group_by_at(vars(grouping_variable))
+                  |> group_by_at(vars(grouping_variable))
                   #to get the ranking group
-                  %>% summarize(summarized_series_variable = if_else(all(is.na(get(series_variable))), NA_real_, sum(get(series_variable), na.rm = TRUE)))
-                  %>% arrange(desc(summarized_series_variable))
-                  %>% select(matches(grouping_variable))
-                  %>% pull()
+                  |> summarize(summarized_series_variable = if_else(all(is.na(get(series_variable))), NA_real_, sum(get(series_variable), na.rm = TRUE)))
+                  |> arrange(desc(summarized_series_variable))
+                  |> select(matches(grouping_variable))
+                  |> pull()
   )
 
 
 
   rohani_data <- (add_time_units
-                  %>% group_by_at(vars(start_year_name,grouping_variable))
-                #%>% summarize(grouped_deaths = sum(deaths))
-                %>% dplyr::summarize(!!series_variable := if_else(all(is.na(get(series_variable))), NA_real_, sum(get(series_variable), na.rm = TRUE)))
+                  |> group_by_at(vars(start_year_name,grouping_variable))
+                # |> summarize(grouped_deaths = sum(deaths))
+                |> dplyr::summarize(!!series_variable := if_else(all(is.na(get(series_variable))), NA_real_, sum(get(series_variable), na.rm = TRUE)))
                 # if grouping variable is categorical?
                 %>% {if (normalize) mutate(.,!!series_variable := scales::rescale(get(series_variable),to=c(0,1))) else .}
-                %>% mutate(!!grouping_variable := factor(get(grouping_variable), levels=ranking_col))
-                %>% arrange(desc(get(grouping_variable))) # not sure if desc is required
+                |> mutate(!!grouping_variable := factor(get(grouping_variable), levels=ranking_col))
+                |> arrange(desc(get(grouping_variable))) # not sure if desc is required
   )
 
  return(rohani_data)
@@ -1204,25 +1528,26 @@ iidda_prep_rohani <- function(data,
 #'
 #' @concept prep_data_for_plotting
 #' @noRd
-iidda_prep_periodogram <- function(data,
-                                  series_variable="deaths",
-                                  time_variable = "period_end_date",
-                                  transform = FALSE,
-                                  transformation = "log10",
-                                  spans = NULL,
-                                  kernel = NULL,
-                                  taper = 0.1,
-                                  pad = 0,
-                                  fast = TRUE,
-                                  demean = FALSE,
-                                  detrend = TRUE,
-                                  na.action = na.fail,
-                                  # normalize spectrum to [0,1]
-                                  normalize = TRUE,
-                                  # time periods in a year (52 weeks in a year), do we need to account for other time units
-                                  periods_per_year = 52,
-                                  max_period = 10,
-                                  handle_missing_values  = HandleMissingValues(na_remove = TRUE, na_replace = NULL)){
+iidda_prep_periodogram <- function(data
+    , series_variable = NULL
+    , time_variable = NULL
+    , transform = FALSE
+    , transformation = "log10"
+    , spans = NULL
+    , kernel = NULL
+    , taper = 0.1
+    , pad = 0
+    , fast = TRUE
+    , demean = FALSE
+    , detrend = TRUE
+    , na.action = na.fail
+    # normalize spectrum to [0,1]
+    , normalize = TRUE
+    # time periods in a year (52 weeks in a year), do we need to account for other time units
+    , periods_per_year = 52
+    , max_period = 10
+    , handle_missing_values = HandleMissingValues(na_remove = TRUE, na_replace = NULL)
+  ) {
 
   harmonized_data <- handle_missing_values(data,series_variable=series_variable)
 
@@ -1250,8 +1575,8 @@ iidda_prep_periodogram <- function(data,
 
   # final data prep for plotting
   prepped_data <- (cbind(per=x$per,spec=x$spec)
-                   %>% data.frame()
-                   %>% filter(per <= max_period)
+                   |> data.frame()
+                   |> filter(per <= max_period)
   )
 
   return(prepped_data)
@@ -1302,104 +1627,29 @@ iidda_prep_periodogram <- function(data,
 #' for plotting with \code{ggplot2::geom_contour}
 #'
 #' @concept prep_data_for_plotting
-#' @export
-iidda_prep_wavelet = function(
-    data,
-    trend_data,
-    time_variable = "period_end_date",
-    series_variable = "deaths",
-    trend_variable = "deaths",
-    series_suffix = "_series",
-    trend_suffix = "_trend",
-    wavelet_variable = "detrend_norm",
-    output_emd_trend = "emd_trend",
-    output_norm = "norm",
-    output_sqrt_norm = "sqrt_norm",
-    output_log_norm = "log_norm",
-    output_emd_norm = "emd_norm",
-    output_emd_sqrt = "emd_sqrt",
-    output_emd_log = "emd_log",
-    output_detrend_norm = "detrend_norm",
-    output_detrend_sqrt = "detrend_sqrt",
-    output_detrend_log = "detrend_log",
-    data_harmonizer = SeriesHarmonizer(time_variable, series_variable),
-    trend_data_harmonizer = SeriesHarmonizer(time_variable, trend_variable),
-    data_deheaper = WaveletDeheaper(time_variable, series_variable),
-    trend_deheaper = WaveletDeheaper(time_variable, trend_variable),
-    joiner = WaveletJoiner(time_variable, series_suffix, trend_suffix),
-    interpolator = WaveletInterpolator(time_variable, series_variable, trend_variable, series_suffix, trend_suffix),
-    normalizer = WaveletNormalizer(time_variable,
-                                   series_variable,
-                                   trend_variable,
-                                   series_suffix,
-                                   trend_suffix,
-                                   output_emd_trend,
-                                   output_norm,
-                                   output_sqrt_norm,
-                                   output_log_norm,
-                                   output_emd_norm,
-                                   output_emd_sqrt,
-                                   output_emd_log,
-                                   output_detrend_norm,
-                                   output_detrend_sqrt,
-                                   output_detrend_log),
-    transformer = WaveletTransformer(time_variable,
-                                     wavelet_variable,
-                                     dt = 1/52,
-                                      dj = 1/50,
-                                      lowerPeriod = 1/2,
-                                      upperPeriod = 10,
-                                      n.sim=1000,
-                                      make.pval = TRUE,
-                                      date.format = "%Y-%m-%d")
-) {
-  series_harmonized = data_harmonizer(data)
-  trend_harmonized = trend_data_harmonizer(trend_data)
-  series_deheaped = data_deheaper(series_harmonized)
-  trend_deheaped = trend_deheaper(trend_harmonized)
-  joined_data = joiner(series_deheaped, trend_deheaped)
-  interpolated_data = interpolator(joined_data)
-  normalized_data = normalizer(interpolated_data)
-  transformed_data = transformer(normalized_data)
+#' @name wavelet_something
+NULL
 
-  ## Save contour data for plotting, this needs to be saved separately from
-  ## data plotting with geom_tile because geom_contour requires a regular grid
-  cont_data_to_plot = (
-    expand.grid(
-      # order of expand.grid matters!
-      y_loc = transformed_data$axis.2,
-      x_loc = as_datetime(ymd(transformed_data$series$date))
-      # can't use Period, creates discrete
-    )
-    %>% mutate(z = c(transformed_data$Power))
-    %>% mutate(cont = c(transformed_data$Power.pval))
-    %>% mutate(ridge = c(transformed_data$Ridge * transformed_data$Power))
+
+
+
+GetMetadata = function() function(data
+    , time_variable = NULL
+    , descriptor_variable = NULL
+    #, time_unit, might want this
+  ) {
+  data = resolve_var_args(data)
+  min_time <- min(data[[time_variable]],na.rm=TRUE)
+  max_time <- max(data[[time_variable]],na.rm=TRUE)
+  descriptor_name <- data |> select(all_of(descriptor_variable)) |> unique()
+
+  metadata = list(
+      min_time = min_time
+    , max_time = max_time
+    , descriptor_name = descriptor_name
   )
-
-  ## Compute tile height and width for geom_tile
-  tile_data_to_plot = (cont_data_to_plot
-    %>% arrange(y_loc,x_loc)
-    %>% mutate(x_wid = as.numeric(difftime(lead(x_loc), x_loc, units = 'hours')))
-    %>% mutate(x_loc = x_loc + dhours(0.5 * x_wid))
-    %>% mutate(x_wid = dhours(x_wid))
-    %>% arrange(x_loc,y_loc)
-    %>% mutate(y_ht = lead(y_loc)-y_loc)
-    %>% mutate(y_ht = if_else(y_ht <= 0, min(y_ht[y_ht>0],na.rm=TRUE), y_ht))
-    %>% mutate(y_ht = if_else(is.na(y_ht),min(y_ht[y_ht>0],na.rm=TRUE), y_ht))
-    %>% mutate(y_loc = y_loc + (0.5*y_ht))
-    %>% filter(x_wid > 0)
-  )
-
-  return(nlist(transformed_data, tile_data_to_plot, cont_data_to_plot))
+  return(metadata)
 }
-
-
-
-
-
-
-
-
 
 #' Get IIDDA metadata
 #'
@@ -1413,19 +1663,7 @@ iidda_prep_wavelet = function(
 #'
 #' @return a list in order containing minimum time period, maximum time period and cause name.
 #' @export
-iidda_get_metadata <- function(data,
-                              time_variable = "period_end_date",
-                              descriptor_variable = "cause"
-                              #time_unit, might want this
-                              ){
-
-  min_time <- min(data[[time_variable]],na.rm=TRUE)
-  max_time <- max(data[[time_variable]],na.rm=TRUE)
-  descriptor_name <- data %>% select(all_of(descriptor_variable)) %>% unique()
-
-  return(list(min_time=min_time,max_time=max_time,descriptor_name=descriptor_name))
-}
-
+iidda_get_metadata = GetMetadata()
 
 
 
@@ -1448,10 +1686,10 @@ iidda_get_metadata <- function(data,
 #' @return a ggplot2 plot object containing a moving average time series
 #' @concept plotting_functions
 #' @export
-iidda_plot_ma <- function(plot_object,
-                         data=NULL,
-                         series_variable="deaths",
-                         time_variable="period_end_date"){
+iidda_plot_ma <- function(plot_object, data = NULL
+     , series_variable = NULL
+     , time_variable = NULL
+  ){
 
   (plot_object
    + geom_line(data=data, aes(x=.data[[time_variable]],y=.data[[series_variable]]))
@@ -1463,8 +1701,8 @@ iidda_plot_ma <- function(plot_object,
 
 iidda_plot_line_agg = function(plot_object
   , data = NULL
-  , series_variable = "daily_rate"
-  , time_variable = "period_mid_time"
+  , series_variable = NULL ## "daily_rate"
+  , time_variable = NULL ## "period_mid_time"
   , contiguous_variable = NULL
   , trans = scales::sqrt_trans()
 ) {
@@ -1499,8 +1737,8 @@ iidda_plot_line_agg = function(plot_object
 iidda_plot_heatmap_decomp = function(plot_object
   , data = NULL
   , grouping_variable
-  , series_variable
-  , time_variable = "period_mid_time"
+  , series_variable = NULL
+  , time_variable = NULL ## "period_mid_time"
   , num_days_variable = "num_days"  ## TODO: should be able to get this from period_aggregator
   , contiguous_variable = NULL
   , trans = scales::sqrt_trans()
@@ -1550,35 +1788,64 @@ iidda_plot_heatmap_decomp = function(plot_object
   lineplot / heatmap + plot_layout(heights = layout_proportions)
 }
 
-#' Plot  Time Series
-#'
-#' Add a time series line to an exiting ggplot plot object.
-#'
-#' @param plot_object a `ggplot2` plot object
-#' @param data data frame containing time series data, typically output from `iidda_prep_series()`.
-#' If `NULL` data is inherited from `plot_object`
-#' @param series_variable column name of series variable in `data`, default is "deaths"
-#' @param time_variable column name of time variable in `data`, default is "period_end_date"
-#' @param time_unit time unit to display on the x-axis.
-#'
-#' @concept plotting_functions
-#' @return a ggplot2 plot object containing a moving average time series
-iidda_plot_series <- function(plot_object,
-                         data=NULL,
-                         series_variable="deaths",
-                         time_variable="period_end_date",
-                         time_unit="year"){
 
-  (plot_object
-   + geom_line(
-       data=data
-     , aes(
-        x=.data[[get_unit_labels(time_unit)]]
-      , y=.data[[series_variable]]
-      )
-    )
+
+
+
+
+#' @export
+iidda_ma = function(data
+    , series_variable = NULL
+    , time_variable = NULL
+    , trim_series = TrimSeries(zero_lead = FALSE, zero_trail = FALSE)
+    , handle_missing_values = HandleMissingValues(na_remove = FALSE, na_replace = NULL)
+    , handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
+    , compute_moving_average = ComputeMovingAverage(ma_window_length = 52)
+    , time_variable_converter = TimeVariableConverter()
+) {
+  metadata = iidda_get_metadata(data, time_variable = time_variable)
+  ma_data = iidda_prep_ma(data
+    , series_variable
+    , time_variable
+    , trim_series
+    , handle_missing_values
+    , handle_zero_values
+    , compute_moving_average
+    , time_variable_converter
+  )
+  (ggplot()
+    |> iidda_plot_series(ma_data, series_variable, time_variable)
+    |> iidda_plot_settings(metadata)
   )
 }
+
+
+AttachBar = function() function(data
+    , initial_ggplot_object = ggplot()
+    , series_variable = NULL
+    , time_unit = NULL
+    , aggregated = NULL
+  ) {
+  data = resolve_var_args(data)
+  data = resolve_specific_arg(data, "aggregated", NULL)
+  data = resolve_specific_arg(data, "time_unit", NULL)
+  plot = (initial_ggplot_object
+    + aes(x = .data[[get_unit_labels(time_unit)]], y = .data[[series_variable]])
+    + geom_col(data = aggregated)
+    + scale_y_continuous(name = make_axis_title(series_variable), expand = c(0, 0))
+  )
+  iidda_defaults_if(data, plot = plot)
+}
+
+#' Attach Bar Plot to Dataset
+#' 
+#' @param data Data frame, probably containing an IIDDA dataset.
+#' @param initial_ggplot_object Plot object that will be used to add a
+#' bar geom.
+#' 
+#' @export
+iidda_attach_bar = AttachBar()
+
 
 #' Plot Bar Graph
 #'
@@ -1593,28 +1860,85 @@ iidda_plot_series <- function(plot_object,
 #' with "month". Should generalize at some point to be able to take any time_unit argument.
 #'
 #' @importFrom grDevices rainbow
-#' @importFrom ggplot2 geom_col
+#' @importFrom ggplot2 geom_col aes scale_y_continuous
 #' @return a ggplot2 plot object containing a bar graphs of time series data
 #'
 #' @concept plotting_functions
 #' @export
-iidda_plot_bar <- function(plot_object,
-                          data=NULL,
-                          series_variable="deaths",
-                          time_unit="week"){
+iidda_plot_bar <- function(plot_object
+    , data = NULL
+    , series_variable = NULL
+    , time_unit = "month_factor_abbr"
+  ) {
+  (plot_object
+    + aes(x = .data[[get_unit_labels(time_unit)]], y = .data[[series_variable]])
+    + geom_col(data = data)
+    + scale_y_continuous(name = make_axis_title(series_variable), expand = c(0, 0))
+  )
+}
 
-  ## these were the original colours from LBoM (not sure if this is needed going forward)
-  if(grepl("^month",time_unit,perl=TRUE)) {
-    # colours for plot (taken from LBoM::monthly_bar_graph)
-    plot_colours <-  c("coral4", "orangered1", "orange", "yellow",
-                               "yellowgreen","forestgreen", "turquoise4",
-                               "blue4", "purple1", "magenta3",
-                               "deeppink3", "indianred1")
-    }else {
-      plot_colours <- rainbow(53)
+
+
+
+
+#' Get IIDDA Attribute
+#' 
+#' @param data Data frame that contains a list attribute called `"iidda"`.
+#' @param which Name of the element in the `"iidda"` list to extract.
+#' @returns Value of the element given by `which` in the `"iidda"` attribute.
+#' @export
+get_iidda_attr = function(data, which) {
+  (data
+    |> attr("iidda")
+    |> getElement(which)
+  )
+}
+
+
+resolve_arg_guesses = function(data) {
+  nms = help_msg_about_guesses(data)
+  for (nm in nms) attr(attr(data, "iidda")[[nm]], "guess") = NULL
+  return(data)
+}
+help_msg_about_guesses = function(data) {
+  attr_nms = data |> attr("iidda") |> names()
+  for (attr in attr_nms) {
+    if (is_guess(data, attr) & FALSE) {
+      message(
+          "We guessed about the names of certain variables. ",
+          "It is safer to use ?iidda_defaults() to explicitly declare them."
+      )
+      return(attr_nms)
+    }
   }
+  return(attr_nms)
+}
 
-  plot_object + geom_col(data=data, aes(x= .data[[get_unit_labels(time_unit)]], y= .data[[series_variable]]),fill = plot_colours)  #+ theme(axis.text.x = element_text(angle = 70)) + scale_y_continuous(breaks = scales::pretty_breaks(n = 6))
+
+
+#' @importFrom ggplot2 ggplot
+#' @export
+iidda_bar = function(data
+    , series_variable = NULL
+    , time_variable = NULL
+    , time_unit = "month_factor_abbr" # has to be one of iidda.analysis:::time_units
+    , handle_missing_values  = HandleMissingValues(na_remove = FALSE, na_replace = NULL)
+    , handle_zero_values = HandleZeroValues(zero_remove = FALSE, zero_replace = NULL)
+    , title = TitleGuesser()
+    , subtitle = TimeRangeDescriber()
+    , theme = iidda_theme
+  ) {
+  (data
+    |> iidda_prep_bar(
+        series_variable
+      , time_variable
+      , time_unit
+      , handle_missing_values
+      , handle_zero_values
+    )
+    |> iidda_attach_bar(ggplot(), series_variable, time_unit)
+    |> iidda_render_plot(title, subtitle, theme)
+  )
 }
 
 #' Plot Box Plot
@@ -1892,17 +2216,17 @@ iidda_plot_wavelet <- function(plot_object,
 
   get_indexes <- (data.frame(date=as_datetime(wavelet_data$series$date),
                              axis_1=wavelet_data$axis.1)
-                  %>% full_join(data.frame(cbind(coi=wavelet_data$coi.1,
+                  |> full_join(data.frame(cbind(coi=wavelet_data$coi.1,
                                                  y=wavelet_data$coi.2)),
                                 by=c("axis_1"="coi"),keep=TRUE
                   )
-                  %>% filter(!is.na(date))
-                  %>% filter(y >= ymin)
-                  %>% filter(y <= ymax)
-                  %>% select(-coi,-axis_1)
-                  %>% mutate(y=if_else(date==min(date),ymin,y))
-                  %>% mutate(y=if_else(date==max(date),ymin,y))
-                  %>% union(plot_edges)
+                  |> filter(!is.na(date))
+                  |> filter(y >= ymin)
+                  |> filter(y <= ymax)
+                  |> select(-coi,-axis_1)
+                  |> mutate(y=if_else(date==min(date),ymin,y))
+                  |> mutate(y=if_else(date==max(date),ymin,y))
+                  |> union(plot_edges)
 
   )
 
@@ -1973,15 +2297,17 @@ iidda_plot_highlight <- function(
 #' @param scale_transform transformation to apply to \code{y} variable, must be a valid ggplot2 transformation.
 #'
 #' @return a ggplot2 plot object with scaled \code{y} data
-#' @concept plotting_functions
-#' @export
+#' @noRd
 iidda_plot_scales <- function(
     plot_object,
     data=NULL,
-    scale_transform = "log1p"){
-
+    scale_transform = "log1p"
+  ){
+  ## Probably easier to not use something like this and just
+  ## define want you want for default scales for each plot type.
   plot_object + scale_y_continuous(trans = scale_transform)
 }
+
 
 #' LBoM plot settings
 #'
@@ -2000,114 +2326,49 @@ iidda_plot_scales <- function(
 #'
 #' @concept plotting_functions
 #' @export
-iidda_plot_settings <- function(plot_object,
-                               data,
-                               min_time = "min_time",
-                               max_time = "max_time",
-                               descriptor_name ="descriptor_name",
-                               theme = iidda_theme) {
+iidda_plot_settings <- function(plot_object
+     , data = data.frame()
+     , min_time = "min_time"
+     , max_time = "max_time"
+     , descriptor_name = "descriptor_name"
+     , theme = iidda_theme
+  ) {
 
   # if there are too many descriptors or the descriptor name doesn't exist in data,
   # use the provided descriptor string to label the plot
-  if( !is.null(data[[descriptor_name]])){
-    if( nrow(data[[descriptor_name]])<=3){
-      descriptor_name <- data[[descriptor_name]] %>% pull
+  if ( !is.null(data[[descriptor_name]])){
+    if ( nrow(data[[descriptor_name]]) > 3){
+      descriptor_name <- data[[descriptor_name]] |> pull()
     } else {
       descriptor_name <- colnames(data[[descriptor_name]])
     }
   }
 
   iidda_title(plot_object
-    , data[[min_time]]
-    , data[[max_time]]
     , descriptor_name
-    , theme
+    , paste(c(data[[min_time]], data[[max_time]]), collapse = " to ")  # this is rubbish
   )
 
 }
 
 
 
-iidda_title = function(plot_object, min_time, max_time, descriptor_name, theme) {
+iidda_title = function(plot_object, title, subtitle) {
   UseMethod("iidda_title")
 }
 
-iidda_title.gg = function(plot_object, min_time, max_time, descriptor_name, theme) {
-  plot_object +
-    ggtitle(
-      label = descriptor_name,
-      subtitle = paste0(min_time, " to ", max_time)
-    ) +
-    theme()
-}
-
-
-iidda_title.patchwork = function(plot_object
-    , min_time
-    , max_time
-    , descriptor_name
-    , theme
-  ) {
-  plot_object +
-    plot_annotation(
-      title = descriptor_name,
-      subtitle = paste0(min_time," to ", max_time)
-    ) +
-    theme()
-}
-
-
-#' Validate time variables
-#'
-#' Validate if variable is a date data type in the data set.
-#'
-#' @param var_nm string of variable name
-#' @param data data frame
-#'
-#' @return boolean of validation status
 #' @export
-valid_time_vars = function(var_nm, data) {
-  (var_nm %in% names(data)) & inherits(data[[var_nm]], "Date")
+iidda_title.gg = function(plot_object, title, subtitle) {
+  plot_object + ggtitle(label = title, subtitle = subtitle)
 }
 
-#' Time units
-#'
-#' Vector of all possible time units, most or all are derived from lubridate functions
-time_units = c(
+#' @export
+iidda_title.patchwork = function(plot_object, title, subtitle) {
+  plot_object + plot_annotation(title = title, subtitle = subtitle)
+}
 
-  # these are single-argument functions from lubridate
-  "mday", "qday", "yday",
-  "week", "epiweek", "isoweek",
-  "year",
 
-  # these are multi-argument functions from lubridate that we are normalizing
-  # to have single arguments
-  "wday_num", "wday_ordered", "wday_factor",
-  "wday_ordered_abbr", "wday_factor_abbr",
-  "month_num", "month_ordered", "month_factor",
-  "month_ordered_abbr", "month_factor_abbr" ,
 
-  # these handle the month when the quarter starts
-  "quarter_1", "quarter_2", "quarter_3", "quarter_4", "quarter_5",
-  "quarter_6", "quarter_7", "quarter_8", "quarter_9", "quarter_10",
-  "quarter_11", "quarter_12"
-)
-
-#' Lubridate functions
-#'
-#' lubridate functions with desired interpretable labels
-lubridate_funcs = c(
-  wday = 'Day of Week',
-  mday = 'Day of Month',
-  qday = 'Day of Quarter',
-  yday = 'Day of Year',
-  week = 'Week of Year',
-  epiweek = 'Epi Week',
-  isoweek = 'ISO Week',
-  month = 'Month',
-  quarter = 'Quarter',
-  year = 'Year'
-)
 
 #' Get time unit labels
 #'
@@ -2120,6 +2381,8 @@ lubridate_funcs = c(
 get_unit_labels = function(unit) {
   lubridate_funcs[sub("^([a-z]+)_[a-z0-9_]+$", "\\1", unit, perl = TRUE)]
 }
+
+
 
 #' Mutate time variables
 #'
@@ -2139,7 +2402,7 @@ mutate_time_vars = function(
   output_nm = get_unit_labels(unit)
 ) {
   #browser()
-  stopifnot(valid_time_vars(input_nm, data))
+  #stopifnot(valid_time_vars(input_nm, data))
   time_unit_func = make_time_trans(unit)
   mutate(data, !!output_nm := time_unit_func(get(input_nm)))
 }
@@ -2176,4 +2439,284 @@ make_time_trans = function(unit = unname(time_units)) {
   }
 
   function(x) as_func(unit_func(x))
+}
+
+
+make_axis_title = function(variable_name) {
+  dict = iidda_data_dictionary()
+  if (inherits(dict, "try-error")) return(variable_name)
+  return(dict[[variable_name]]$title)
+}
+
+
+
+
+#' Basal Group Adder
+#'
+#' @param data A tidy data set with a `disease` column.
+#' @param lookup A lookup table with `disease` and `nesting_disease`
+#' columns that describe a global disease hierarchy that will be applied
+#' to find the basal disease of each `disease` in data.
+#'
+#' @return tidy dataset with basal disease
+#' @export
+BasalGroupAdder = function(lookup) {
+  function(data, hierarchical_variable = NULL, nesting_variable = NULL) {
+
+    data = resolve_var_args(data
+      , flush_arg_guesses = FALSE
+      , ign_variables = "nesting_variable"
+    )
+    data = resolve_specific_arg(data
+      , "nesting_variable"
+      , sprintf("nesting_%s", hierarchical_variable)
+    )
+    check_vars_in_data(data, "nesting_variable", nesting_variable)
+
+    hierarchy = (lookup
+      |> select(all_of(c(hierarchical_variable, nesting_variable)))
+      |> distinct()
+    )
+    all_values = data[[hierarchical_variable]] |> unique()
+    is_missing = !all_values %in% hierarchy[[hierarchical_variable]]
+    if (any(is_missing)) {
+      missing_values = (data
+        |> select(all_of(c(hierarchical_variable, nesting_variable)))
+        |> filter(.data[[hierarchical_variable]] %in% all_values[is_missing])
+        |> distinct()
+      )
+      hierarchy = rbind(missing_values, hierarchy)
+    }
+
+    ## TODO: generalize basal_disease
+    with_basal = (data
+      |> rowwise()
+      |> mutate(basal_group = basal_group(.data[[hierarchical_variable]]
+        , hierarchy
+        , hierarchical_variable
+        , nesting_variable
+      ))
+      |> ungroup()
+    )
+
+    return_iidda(with_basal, data)
+  }
+}
+
+#' Basal Group
+#'
+#' @param value Value (e.g., `hepatitis-A`) of the `hierarchical_variable`
+#' (e.g., `disease`) for which to determine basal value (e.g., `hepatitis`).
+#' @param lookup Table with two character-valued columns with names given by
+#' `hierarchical_variable` (e.g., `disease`) and `nesting_variable`
+#' (e.g., `nesting_disease`).
+#' @param hierarchical_variable Name of the hierarchical variable in `lookup`
+#' @param nesting_variable Name of the nesting variable in `lookup`
+#' @param encountered_values Character vector of values already found.
+#' Typically this left at the default value of an empty character vector.
+#'
+#' @return The root value that input value maps to in `lookup`.
+#'
+#' @export
+basal_group = function(value, lookup, hierarchical_variable, nesting_variable, encountered_values = character()) {
+  focal_values = get_focal_values(value, lookup, hierarchical_variable, nesting_variable)
+  check_missing_nodes(value, focal_values, nesting_variable)
+  is_duplicate_nodes = length(focal_values) > 1L
+  if (is_duplicate_nodes) {
+    lookup = unique(lookup)
+    focal_values = unique(focal_values)
+    check_multiple_focal_values(value, focal_values, hierarchical_variable)
+  }
+  if (value %in% encountered_values) stop("not hierarchical")
+  is_basal = focal_values == ""
+  if (is_basal) return(value)
+  encountered_values = append(encountered_values, value)
+  Recall(focal_values
+    , lookup
+    , hierarchical_variable
+    , nesting_variable
+    , encountered_values
+  )
+}
+
+
+check_multiple_focal_values = function(value, focal, var) {
+  if (length(focal) > 1L) {
+    sprintf("%s is nested within multiple values of %s"
+      , value
+      , var
+    ) |> msg() |> stop()
+  }
+  invisible(NULL)
+}
+check_missing_nodes = function(value, values, var) {
+  is_tree_missing_nodes = length(values) == 0L
+  if (is_tree_missing_nodes) {
+    sprintf("missing tree nodes. check that %s is included in the %s column"
+      , value, var
+    ) |> msg() |> stop()
+  }
+  invisible(NULL)
+}
+
+get_focal_values = function(value, lookup, var, nesting) {
+  focal_rows = lookup[[var]] == value
+  if (!any(focal_rows)) {
+    sprintf("value, %s, not found in column, %s", value, var) |> msg() |> stop()
+  }
+  focal_values = lookup[[nesting]][focal_rows]
+  return(focal_values)
+}
+
+
+
+
+#' @export
+HierarchyNormalizer = function(
+       hierarchy_table
+     , basal_diseases_to_prune = character()
+     , find_unaccounted_cases = TRUE
+     , specials_pattern = "_unaccounted$"
+  ) {
+  function(data
+      , hierarchical_variable = NULL
+      , basal_variable = NULL
+      , nesting_variable = NULL
+      , grouping_columns = NULL
+    ) {
+    data = resolve_hier_args(data, hierarchical_variable)
+    hierarchical_columns = c(
+        hierarchical_variable
+      , basal_variable
+      , nesting_variable
+    )
+    grouping_columns = guess_grouping_columns(
+        grouping_columns
+      , data
+      , hierarchical_columns
+    )
+  
+    hierarchy_table = (hierarchy_table
+      |> select(any_of(hierarchical_columns))
+      |> distinct()
+    )
+    
+    if (find_unaccounted_cases) data = find_unaccounted_cases(data)
+    
+    if (!is.null(specials_pattern)) {
+      specials = (data
+        |> filter(grepl(specials_pattern, disease))
+        |> select(disease, nesting_disease)
+        |> distinct()
+      )
+      disease_lookup = bind_rows(disease_lookup, specials)
+    }
+    pruned_lookup = (disease_lookup
+       |> filter(!disease %in% basal_diseases_to_prune)
+       |> mutate(nesting_disease = ifelse(
+           nesting_disease %in% basal_diseases_to_prune
+           , ''
+           , nesting_disease
+         )
+       )
+    )
+    paths = precompute_paths(pruned_lookup)
+    
+    if (is.null(grouping_columns)) {
+      ## TODO
+    }
+  
+    (data
+  
+        # prune basal_diseases
+        |> mutate(x = disease %in% basal_diseases_to_prune)
+        |> mutate(y = nesting_disease %in% basal_diseases_to_prune)
+        |> mutate(z = basal_disease %in% basal_diseases_to_prune)
+  
+        |> filter(!x)
+        |> mutate(nesting_disease = ifelse(y, "", nesting_disease))
+        |> rowwise()
+        |> mutate(basal_disease = ifelse(z, basal_disease(disease, pruned_lookup), basal_disease))
+        |> ungroup()
+  
+        # keeping only leaf diseases
+        |> group_by(across(c("basal_disease", all_of(grouping_columns))))
+        #filter(is_leaf_disease(disease, nesting_disease))
+        |> filter(disease %in% find_leaves_with_precomputed(disease, paths))
+        |> ungroup()
+  
+        # if there is only the basal disease (no sub-diseases), differentiate by adding '-only'
+        # mutate(disease = ifelse(disease == basal_disease, sprintf("%s-only", disease), disease))
+        # mutate(nesting_disease = basal_disease)
+        |> select(-x, -y, -z)
+  
+    )
+  }
+}
+
+#' @export
+HierarchicalBalancer = function() function(data
+      , hierarchical_variable = NULL
+      , basal_variable = NULL
+      , nesting_variable = NULL
+      , grouping_columns = NULL
+  ) {
+  data = resolve_hier_args(data, hierarchical_variable)
+  
+  ## example grouping columns:
+  ## iso_3166, iso_3166_2, period_start_date, period_end_date,
+  ## nesting_disease, source_id, cases_this_period
+  
+  ## need to do this outside of this function now
+  ## data = mutate(data, source_id = source_from_digitization_id(digitization_id))
+  
+  # check if sum of leaf diseases = reported sum of basal disease
+  sum_of_leaf = (
+    data
+    |> filter(.data[[hierarchical_variable]] != .data[[nesting_variable]])
+    |> group_by(iso_3166, iso_3166_2, period_start_date, period_end_date, nesting_disease, basal_disease)
+    |> filter(!disease %in% unique(nesting_disease))
+    |> mutate(cases_this_period = sum(as.numeric(cases_this_period)))
+    |> ungroup()
+    |> distinct(iso_3166, iso_3166_2, period_start_date, period_end_date,
+                nesting_disease, source_id, cases_this_period)
+  )
+
+  reported_totals = (
+    data
+    |> filter(nesting_disease == '' | is.na(nesting_disease))
+    |> filter(disease %in% sum_of_leaf$nesting_disease)
+    |> select(-nesting_disease)
+    |> rename(nesting_disease = disease)
+  )
+
+  # if sum of leaf diseases is < reported sum of basal disease,
+  # make new sub-disease called 'disease-name'_unaccounted, which contains
+  # the difference between sum of leaf diseases and the reported sum of the disease
+  unaccounted_data =
+    (inner_join(sum_of_leaf, reported_totals, by =
+                  c('iso_3166', 'iso_3166_2', 'period_start_date',
+                    'period_end_date', 'nesting_disease', 'original_dataset_id'),
+                suffix = c('_sum', '_reported'))
+
+     |> mutate(cases_this_period_reported = as.numeric(cases_this_period_reported),
+                cases_this_period_sum = as.numeric(cases_this_period_sum))
+
+     |> filter(cases_this_period_sum < cases_this_period_reported)
+     |> mutate(cases_this_period = cases_this_period_reported - cases_this_period_sum)
+     |> mutate(disease = paste(nesting_disease, 'unaccounted', sep = '_'))
+
+     |> select(-cases_this_period_reported, -cases_this_period_sum)
+
+     |> mutate(original_dataset_id = '',
+               historical_disease = '',
+               dataset_id = '')
+     |> mutate(record_origin = 'derived-unaccounted-cases')
+    )
+
+  if(!"record_origin" %in% names(data)) data = mutate(data, record_origin = 'historical')
+
+  (data
+    |> rbind(unaccounted_data)
+  )
 }

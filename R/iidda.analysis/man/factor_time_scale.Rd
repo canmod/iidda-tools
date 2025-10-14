@@ -7,7 +7,7 @@
 factor_time_scale(data)
 }
 \arguments{
-\item{data}{A tidy data set with a `time_scale` column.}
+\item{data}{A tidy data set with a \code{time_scale} column.}
 }
 \value{
 A data set with a factored time_scale column.

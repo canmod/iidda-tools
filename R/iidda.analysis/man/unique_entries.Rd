@@ -13,7 +13,7 @@ unique_entries(entries, metadata_search)
 }
 \value{
 Character vector of unique tokens for a given field from all iidda
-   datasets
+datasets
 }
 \description{
 Get unique tokens from iidda metadata

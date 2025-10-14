@@ -58,6 +58,11 @@ xlsx_diff = function(path_one, path_two, ...) {
 #' Create a temporary file containing a copy of a file under git version
 #' control for a particular revision of that file.
 #'
+#' You can do this from the command line using the following construction:
+#' ```
+#' git commit-id:file-path > temp-file-path
+#' ```
+#'
 #' @param file Path to file.
 #' @param version_hash Git version hash.
 #'

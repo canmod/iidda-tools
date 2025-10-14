@@ -1,5 +1,6 @@
 # modified versions of functions from rapiclient. allows us to depend
 # on official rapiclient and not our fork of it.
+# it is used in iidda.api/R/bindings.R
 
 .api_args = function(formals, environment) {
     arg_names <- if (is.null(names(formals))) character() else names(formals)
@@ -7,7 +8,10 @@
     args <- mget(arg_names, environment)
     expand_url_args = function(x) {
       lst = do.call(c, lapply(x, function(z) as.list(z)))
-      if (is.null(lst)) return(lst) ## silence warning about passing NULL to structure
+
+      ## silence warning about passing NULL to structure
+      if (is.null(lst)) return(lst)
+
       nmd_lst = structure(lst, names = rep(names(x), sapply(x, length)))
       return(nmd_lst)
     }

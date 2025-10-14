@@ -4,35 +4,22 @@
 \alias{PeriodAggregator}
 \title{Period Aggregator}
 \usage{
-PeriodAggregator(
-  time_variable = "period_mid_time",
-  period_width_variable = "num_days",
-  count_variable = "cases_this_period",
-  norm_variable = "population_reporting",
-  rate_variable = "daily_rate",
-  norm_exponent = 5
-)
+PeriodAggregator(rate_variable, norm_exponent = 5)
 }
 \arguments{
-\item{time_variable}{Name of the variable to characterize the temporal
-location of the time period.}
-
-\item{period_width_variable}{Name of variable to characterize the width
-of the time period.}
-
-\item{count_variable}{Name of variable to characterize the count variable
-being normalized.}
-
-\item{norm_variable}{Name of variable to be used to normalize the count
-variable.}
-
 \item{rate_variable}{Name of variable to be used to store the normalized
 count variable.}
 
-\item{norm_exponent}{Exponent to use in normalization. The default is `5`,
-which means `per 100,000`.}
+\item{norm_exponent}{Exponent to use in normalization. The default is \code{5},
+which means \verb{per 100,000}.}
+}
+\value{
+A function like \code{\link{period_aggregator_default}} that
+aggregates data so that each time period is represented by exactly
+one record.
 }
 \description{
 Create function that aggregates information over time periods, normalizes
 a count variable, and creates new fields to summarize this information.
 }
+\concept{data_prep_constructors}

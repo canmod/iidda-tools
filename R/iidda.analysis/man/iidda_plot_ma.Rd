@@ -7,25 +7,25 @@
 iidda_plot_ma(
   plot_object,
   data = NULL,
-  series_variable = "deaths",
-  time_variable = "period_end_date"
+  series_variable = NULL,
+  time_variable = NULL
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
-\item{data}{data frame containing moving average time series data, typically output from `iidda_prep_ma()`.
-If `NULL` data is inherited from `plot_object`}
+\item{data}{data frame containing moving average time series data, typically output from \code{iidda_prep_ma()}.
+If \code{NULL} data is inherited from \code{plot_object}}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
-\item{time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 }
 \value{
 a ggplot2 plot object containing a moving average time series
 }
 \description{
 Add a moving average time series line to an exiting ggplot plot object. Graphical choices were made
-to closely reflect plots generated with `LBoM::plot.LBoM`.
+to closely reflect plots generated with \code{LBoM::plot.LBoM}.
 }
 \concept{plotting_functions}

@@ -20,6 +20,7 @@ reference:
   - iidda.api-package
   - featured
   - urls
+  - candid
 - title: Technical Documentation
   desc:  Technical information about the low-level API and this R wrapper for it.
 - contents:

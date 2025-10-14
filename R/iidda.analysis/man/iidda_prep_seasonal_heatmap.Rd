@@ -6,7 +6,7 @@
 \usage{
 iidda_prep_seasonal_heatmap(
   data,
-  series_variable = "deaths",
+  series_variable = NULL,
   start_time_variable = "period_start_date",
   end_time_variable = "period_end_date",
   time_unit = c("yday", "year"),
@@ -18,30 +18,30 @@ iidda_prep_seasonal_heatmap(
 \arguments{
 \item{data}{data frame containing time series data}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
-\item{start_time_variable}{column name of time variable in `data`, default is "period_start_date"}
+\item{start_time_variable}{column name of time variable in \code{data}, default is "period_start_date"}
 
-\item{end_time_variable}{column name of time variable in `data`, default is "period_end_date"}
+\item{end_time_variable}{column name of time variable in \code{data}, default is "period_end_date"}
 
-\item{time_unit}{a vector of new time unit fields to create from `start_time_variable` and `end_time_variable`.
+\item{time_unit}{a vector of new time unit fields to create from \code{start_time_variable} and \code{end_time_variable}.
 Defaults to "c("yday","year")". The currently functionality expects that both "yday" and "year" are included, should be
 made more general to incorporate any of iidda.analysis:::time_units.}
 
 \item{prepend_string}{string to prepend to newly created time_unit fields to distinguish between time_unit
-fields corresponding to starting versus ending time periods. Defaults to "End ". For example, a `time_unit` of "year"
-will create a field name "Year" from `start_time_variable` and a field called "End Year" created from `end_time_variable`.}
+fields corresponding to starting versus ending time periods. Defaults to "End ". For example, a \code{time_unit} of "year"
+will create a field name "Year" from \code{start_time_variable} and a field called "End Year" created from \code{end_time_variable}.}
 
-\item{normalize}{boolean flag to normalize `series_variable` data to be between 0 and 1.}
+\item{normalize}{boolean flag to normalize \code{series_variable} data to be between 0 and 1.}
 
-\item{...}{optional arguments to `year_end_fix()`}
+\item{...}{optional arguments to \code{year_end_fix()}}
 }
 \value{
-all fields in`data` with records prepped for plotting seasonal heatmaps. The name
-of the new `time_unit` fields will be named from lubridate_funcs.
+all fields in\code{data} with records prepped for plotting seasonal heatmaps. The name
+of the new \code{time_unit} fields will be named from lubridate_funcs.
 }
 \description{
-Prep data for seasonal heatmap plots. Prep steps were taken from `LBoM::seasonal_heat_map`
+Prep data for seasonal heatmap plots. Prep steps were taken from \code{LBoM::seasonal_heat_map}
 and they include creating additional time unit fields, splitting weeks that cover the
 year end,  and optionally normalizing series data to be in the range (0,1).
 }

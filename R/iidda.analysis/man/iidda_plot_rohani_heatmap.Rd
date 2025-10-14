@@ -20,12 +20,12 @@ iidda_plot_rohani_heatmap(
 )
 }
 \arguments{
-\item{plot_object}{a `ggplot2` plot object}
+\item{plot_object}{a \code{ggplot2} plot object}
 
 \item{data}{data frame containing data prepped for yearly vs. weekly heatmaps, typically output from
-`iidda_prep_heatmap()`. If `NULL` data is inherited from `plot_object`.}
+\code{iidda_prep_heatmap()}. If \code{NULL} data is inherited from \code{plot_object}.}
 
-\item{series_variable}{column name of series variable in `data`, default is "deaths"}
+\item{series_variable}{column name of series variable in \code{data}, default is "deaths"}
 
 \item{start_year_variable}{column name of time variable containing the year of the starting period, defaults to "Year"}
 
@@ -41,7 +41,7 @@ iidda_plot_rohani_heatmap(
 
 \item{n_colours}{vector of colours to be supplied to scale_fill_gradientn()}
 
-\item{NA_colour}{colour for `NA` values, defaults to "black"}
+\item{NA_colour}{colour for \code{NA} values, defaults to "black"}
 
 \item{palette_colour}{colour of heatmap palette, defaults to "RdGy". Should specify what type of palette colours
 are accepted by this argument.}

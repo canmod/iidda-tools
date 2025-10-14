@@ -18,3 +18,9 @@ Temporary file path containing the copy.
 Create a temporary file containing a copy of a file under git version
 control for a particular revision of that file.
 }
+\details{
+You can do this from the command line using the following construction:
+```
+git commit-id:file-path > temp-file-path
+```
+}

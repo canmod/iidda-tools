@@ -7,22 +7,17 @@
 HandleMissingValues(na_remove = FALSE, na_replace = NULL)
 }
 \arguments{
-\item{na_remove}{boolean value, if `TRUE` remove `NA`s in series variable}
+\item{na_remove}{boolean value, if \code{TRUE} remove \code{NA}s in series variable}
 
-\item{na_replace}{numeric value to replace `NA`s in series variable, if NULL
+\item{na_replace}{numeric value to replace \code{NA}s in series variable, if NULL
 no replacement is performed}
 }
 \value{
-a function to remove or replace missing values.
-
-## Returned Function
-
-- Arguments
-   * `data` data frame containing time series data
-   * `series_variable` column name of series variable in `data`, default is "deaths"
-- Return - all fields in `data` with either `NA` records removed or replaced
+A function like \code{\link{handle_missing_values_default}} that
+removes or replaces missing values.
 }
 \description{
-Remove or replace values that are \code{NA}.
+Construct a function that takes a data frame and returns another data
+frame with \code{NA} values either removed or replaced.
 }
 \concept{data_prep_constructors}
