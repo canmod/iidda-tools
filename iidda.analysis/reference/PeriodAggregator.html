@@ -9,7 +9,7 @@ a count variable, and creates new fields to summarize this information."></head>
 
     <a class="navbar-brand me-2" href="../index.html">iidda.analysis</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,50 +45,29 @@ a count variable, and creates new fields to summarize this information.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">PeriodAggregator</span><span class="op">(</span></span>
-<span>  time_variable <span class="op">=</span> <span class="st">"period_mid_time"</span>,</span>
-<span>  period_width_variable <span class="op">=</span> <span class="st">"num_days"</span>,</span>
-<span>  count_variable <span class="op">=</span> <span class="st">"cases_this_period"</span>,</span>
-<span>  norm_variable <span class="op">=</span> <span class="st">"population_reporting"</span>,</span>
-<span>  rate_variable <span class="op">=</span> <span class="st">"daily_rate"</span>,</span>
-<span>  norm_exponent <span class="op">=</span> <span class="fl">5</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">PeriodAggregator</span><span class="op">(</span><span class="va">rate_variable</span>, norm_exponent <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-time-variable">time_variable<a class="anchor" aria-label="anchor" href="#arg-time-variable"></a></dt>
-<dd><p>Name of the variable to characterize the temporal
-location of the time period.</p></dd>
-
-
-<dt id="arg-period-width-variable">period_width_variable<a class="anchor" aria-label="anchor" href="#arg-period-width-variable"></a></dt>
-<dd><p>Name of variable to characterize the width
-of the time period.</p></dd>
-
-
-<dt id="arg-count-variable">count_variable<a class="anchor" aria-label="anchor" href="#arg-count-variable"></a></dt>
-<dd><p>Name of variable to characterize the count variable
-being normalized.</p></dd>
-
-
-<dt id="arg-norm-variable">norm_variable<a class="anchor" aria-label="anchor" href="#arg-norm-variable"></a></dt>
-<dd><p>Name of variable to be used to normalize the count
-variable.</p></dd>
-
-
-<dt id="arg-rate-variable">rate_variable<a class="anchor" aria-label="anchor" href="#arg-rate-variable"></a></dt>
+<dl><dt id="arg-rate-variable">rate_variable<a class="anchor" aria-label="anchor" href="#arg-rate-variable"></a></dt>
 <dd><p>Name of variable to be used to store the normalized
 count variable.</p></dd>
 
 
 <dt id="arg-norm-exponent">norm_exponent<a class="anchor" aria-label="anchor" href="#arg-norm-exponent"></a></dt>
-<dd><p>Exponent to use in normalization. The default is `5`,
-which means `per 100,000`.</p></dd>
+<dd><p>Exponent to use in normalization. The default is <code>5</code>,
+which means <code>per 100,000</code>.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>A function like <code><a href="data_prep_default.html">period_aggregator_default</a></code> that
+aggregates data so that each time period is represented by exactly
+one record.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
