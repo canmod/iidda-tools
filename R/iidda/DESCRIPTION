@@ -1,7 +1,7 @@
 Type: Package
 Package: iidda
 Title: Processing Infectious Disease Datasets in IIDDA.
-Version: 1.0.0
+Version: 2.0.0
 Maintainer: Steve Walker <stevencarlislewalker@gmail.com>
 Authors@R: 
   c(person("Steve Walker", rol = c("aut", "cre"), email = "stevencarlislewalker@gmail.com"),
