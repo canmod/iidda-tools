@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   Provenance: Provenance.html
   Quickstart: Quickstart.html
-last_built: 2025-10-14T18:35Z
+last_built: 2025-10-15T08:56Z
 urls:
   reference: https://canmod.github.io/iidda-tools/iidda.api/reference
   article: https://canmod.github.io/iidda-tools/iidda.api/articles
