@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   flexi_filter: flexi_filter.html
   plot_rohani: plot_rohani.html
-last_built: 2025-10-15T08:58Z
+last_built: 2025-10-17T02:23Z
 urls:
   reference: https://canmod.github.io/iidda-tools/iidda.analysis/reference
   article: https://canmod.github.io/iidda-tools/iidda.analysis/articles
