@@ -14,7 +14,7 @@ iidda_availability = function(data
   , within_panel_variable = NULL
   , among_panel_variable = NULL
   
-  ## attach
+  ## prep
   , within_panel_order = OrderGuesser()
   , colour_order = OrderGuesser()
   , variable_converter = DataDictionaryConverter()
@@ -34,6 +34,7 @@ iidda_availability = function(data
   , text_size = 9
   , left_margin = 100
   , legend_margin = 15
+  , legend_colour_breaks = character()
   , subplot_widths = c(5, 1)
 ) {
   data_prep = pass_args(data, iidda_prep_availabiliy)
@@ -128,6 +129,7 @@ AttachAvailability = function() function(data
   , text_size = 9
   , left_margin = 100
   , legend_margin = 15
+  , legend_colour_breaks = waiver()
   , subplot_widths = c(5, 1)
 ) {
   data = resolve_var_args(data
@@ -209,6 +211,7 @@ AttachAvailability = function() function(data
             title = title_colour
           , position = "top"
         )
+        , breaks = legend_colour_breaks
         , type = scale_colour
       )
   )
